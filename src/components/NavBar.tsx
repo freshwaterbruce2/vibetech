@@ -1,100 +1,68 @@
 
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "./ui/button";
-import { Menu, X } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
-interface NavItem {
-  text: string;
-  href: string;
-}
+type NavLink = {
+  path: string;
+  label: string;
+};
 
-const navItems: NavItem[] = [
-  { text: "Home", href: "/" },
-  { text: "About", href: "/about" },
-  { text: "Portfolio", href: "/portfolio" },
-  { text: "Blog", href: "/blog" },
-  { text: "Contact", href: "/contact" },
+const navLinks: NavLink[] = [
+  { path: "/", label: "Home" },
+  { path: "/about", label: "About" },
+  { path: "/portfolio", label: "Portfolio" },
+  { path: "/blog", label: "Blog" },
+  { path: "/contact", label: "Contact" },
 ];
 
 const NavBar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
   return (
-    <nav className="fixed w-full top-0 z-50 bg-aura-background/90 backdrop-blur-md border-b border-aura-accent/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
-              <span className="text-xl font-heading font-bold bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">
-                Vibe Tech
-              </span>
-            </Link>
-          </div>
+    <header className="fixed w-full z-50 bg-aura-background/80 backdrop-blur-lg border-b border-aura-accent/10">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <span className="text-xl font-bold font-heading bg-gradient-to-r from-aura-accent to-aura-accentSecondary bg-clip-text text-transparent">
+              Vibe Tech
+            </span>
+          </Link>
           
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.text}
-                  to={item.href}
-                  className="text-aura-textSecondary hover:text-aura-accent px-3 py-2 text-sm font-medium transition-colors duration-200"
-                >
-                  {item.text}
-                </Link>
-              ))}
-              <Button
-                variant="outline"
-                className="ml-4 text-aura-accent border-aura-accent hover:bg-aura-accent/10"
-                asChild
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className="text-aura-textSecondary hover:text-aura-accent transition-colors"
               >
-                <Link to="/login">Dashboard</Link>
-              </Button>
-            </div>
-          </div>
+                {link.label}
+              </Link>
+            ))}
+          </nav>
           
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMobileMenu}
-              className="text-aura-textSecondary"
-            >
-              {mobileMenuOpen ? <X /> : <Menu />}
-            </Button>
+          {/* Theme toggle and mobile menu button */}
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            <button className="md:hidden text-aura-textSecondary hover:text-aura-accent">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16m-7 6h7"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
-      
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-aura-background/95 backdrop-blur-md border-b border-aura-accent/20">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.text}
-                to={item.href}
-                className="text-aura-textSecondary hover:text-aura-accent block px-3 py-2 text-base font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.text}
-              </Link>
-            ))}
-            <Link
-              to="/login"
-              className="text-aura-accent hover:bg-aura-accent/10 block px-3 py-2 text-base font-medium"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Dashboard
-            </Link>
-          </div>
-        </div>
-      )}
-    </nav>
+    </header>
   );
 };
 

@@ -64,12 +64,12 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				aura: {
-					background: '#0D001A', // Darker, more tech-feeling purple
-					backgroundLight: '#1E0047', // Darker mid-tone
-					accent: '#9B00FF', // Brighter neon purple
-					accentSecondary: '#00FFFF', // Cyan accent for contrast
-					text: '#FFFFFF', 
-					textSecondary: '#E0E0E0',
+					background: 'hsl(var(--aura-background))',
+					backgroundLight: 'hsl(var(--aura-background-light))',
+					accent: 'hsl(var(--aura-accent))',
+					accentSecondary: 'hsl(var(--aura-accent-secondary))',
+					text: 'hsl(var(--aura-text))', 
+					textSecondary: 'hsl(var(--aura-text-secondary))',
 				}
 			},
 			borderRadius: {
