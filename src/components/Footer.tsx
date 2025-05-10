@@ -10,7 +10,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
           <Link to="/" className="text-2xl font-heading font-bold bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">
-            Aura
+            Vibe Tech
           </Link>
           <p className="mt-4 text-aura-textSecondary">
             Creating innovative digital solutions with a focus on design and functionality.
@@ -76,7 +76,7 @@ const Footer = () => {
       
       <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-aura-accent/20 text-center">
         <p className="text-aura-textSecondary text-sm">
-          © {currentYear} Aura. All rights reserved.
+          © {currentYear} Vibe Tech. All rights reserved.
         </p>
       </div>
     </footer>

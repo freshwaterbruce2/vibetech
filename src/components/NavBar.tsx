@@ -31,7 +31,7 @@ const NavBar = () => {
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
               <span className="text-xl font-heading font-bold bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">
-                Aura
+                Vibe Tech
               </span>
             </Link>
           </div>

@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   useEffect(() => {
-    document.title = "Aura | Home";
+    document.title = "Vibe Tech | Home";
   }, []);
 
   const placeholderAvatar = "/placeholder.svg";
