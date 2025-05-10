@@ -64,10 +64,11 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				aura: {
-					background: '#1A001A',
-					backgroundLight: '#2C0047',
-					accent: '#A020F0',
-					text: '#FFFFFF',
+					background: '#0D001A', // Darker, more tech-feeling purple
+					backgroundLight: '#1E0047', // Darker mid-tone
+					accent: '#9B00FF', // Brighter neon purple
+					accentSecondary: '#00FFFF', // Cyan accent for contrast
+					text: '#FFFFFF', 
 					textSecondary: '#E0E0E0',
 				}
 			},
@@ -99,18 +100,53 @@ export default {
 					}
 				},
 				'glow': {
-					'0%, 100%': {
+					'0%': {
 						opacity: '1',
+						textShadow: '0 0 20px rgba(155, 0, 255, 0.8), 0 0 30px rgba(155, 0, 255, 0.6), 0 0 40px rgba(155, 0, 255, 0.4)'
 					},
 					'50%': {
-						opacity: '0.7',
+						opacity: '0.8',
+						textShadow: '0 0 10px rgba(155, 0, 255, 0.5), 0 0 20px rgba(155, 0, 255, 0.3), 0 0 30px rgba(155, 0, 255, 0.2)'
+					},
+					'100%': {
+						opacity: '1',
+						textShadow: '0 0 20px rgba(155, 0, 255, 0.8), 0 0 30px rgba(155, 0, 255, 0.6), 0 0 40px rgba(155, 0, 255, 0.4)'
+					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0)'
+					},
+					'50%': {
+						transform: 'translateY(-10px)'
+					}
+				},
+				'pulse-ring': {
+					'0%': {
+						transform: 'scale(0.8)',
+						opacity: '0.8'
+					},
+					'70%': {
+						transform: 'scale(1.3)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'scale(0.8)',
+						opacity: '0'
 					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'glow': 'glow 2s ease-in-out infinite'
+				'glow': 'glow 2.5s ease-in-out infinite',
+				'float': 'float 3s ease-in-out infinite',
+				'pulse-ring': 'pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite'
+			},
+			boxShadow: {
+				'neon': '0 0 5px rgba(155, 0, 255, 0.2), 0 0 20px rgba(155, 0, 255, 0.2)',
+				'neon-lg': '0 0 10px rgba(155, 0, 255, 0.3), 0 0 30px rgba(155, 0, 255, 0.2), 0 0 50px rgba(155, 0, 255, 0.1)',
+				'neon-cyan': '0 0 5px rgba(0, 255, 255, 0.2), 0 0 20px rgba(0, 255, 255, 0.2)'
 			}
 		}
 	},
