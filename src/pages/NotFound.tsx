@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 
 const NotFound = () => {
   useEffect(() => {
-    document.title = "Page Not Found | Aura";
+    document.title = "Page Not Found | Vibe Tech";
   }, []);
 
   return (
