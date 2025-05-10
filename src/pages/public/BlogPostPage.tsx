@@ -92,62 +92,63 @@ const blogPostsData = [
       
       <p>In this article, we'll explore the most significant UI/UX design trends of 2023 and how they're changing the digital landscape.</p>
       
-      <h2>1. Immersive 3D Elements</h2>
-      <p>As browsers become more powerful and WebGL technology advances, we're seeing a surge in the use of 3D elements in web and app interfaces. These elements create depth, engage users, and provide a more immersive experience.</p>
+      <h2>1. Advanced Micro-Interactions and Animations</h2>
+      <p>Micro-interactions have evolved beyond simple hover effects and button animations. In 2023, we're seeing increasingly sophisticated animations that respond to user behavior in meaningful ways, creating more engaging and intuitive interfaces.</p>
       
-      <p>Rather than using 3D for purely decorative purposes, designers are integrating these elements in functional ways, such as product visualization, interactive storytelling, and spatial navigation systems.</p>
+      <p>The key is to use these animations purposefully, enhancing the user experience rather than distracting from it. Look for smooth transitions between states, playful loading animations, and subtle feedback that acknowledges user actions.</p>
       
-      <h2>2. Advanced Micro-Interactions</h2>
-      <p>Micro-interactions have evolved beyond simple hover effects to become sophisticated feedback mechanisms that guide users through their journey. These subtle animations respond to user actions, providing context and reinforcing behavior.</p>
+      <h2>2. Immersive 3D Elements</h2>
+      <p>With improvements in browser capabilities and hardware performance, 3D elements are becoming more common in web and mobile interfaces. These can range from subtle depth effects to fully interactive 3D models.</p>
       
-      <p>In 2023, we're seeing micro-interactions become more nuanced, with physics-based animations that mimic real-world movement, creating a more intuitive and satisfying user experience.</p>
+      <p>This trend is particularly evident in e-commerce, where 3D product visualization allows users to examine items from all angles, and in educational applications, where complex concepts can be illustrated more effectively in three dimensions.</p>
       
-      <h2>3. Dark Mode Evolution</h2>
-      <p>Dark mode has transitioned from a trend to a standard feature. In 2023, designers are refining dark mode implementations with more sophisticated color systems that maintain accessibility and readability while reducing eye strain.</p>
+      <h2>3. Dark Mode and Color Theory Evolution</h2>
+      <p>Dark mode has evolved from a novelty feature to a standard expectation. Users appreciate both the aesthetic appeal and the reduced eye strain, particularly in low-light environments.</p>
       
-      <p>We're also seeing the emergence of "smart" dark mode that adapts based on environmental conditions or time of day, providing an optimal viewing experience regardless of context.</p>
+      <p>Along with this, we're seeing more sophisticated use of color theory in UI design. Designers are moving beyond simple complementary color schemes to explore more nuanced palettes, including gradients and duotones that create depth and visual interest.</p>
       
       <h2>4. Voice User Interfaces (VUI)</h2>
-      <p>As voice recognition technology continues to improve, voice user interfaces are becoming more integrated with traditional graphical interfaces. Designers are developing hybrid interactions where voice complements rather than replaces visual and tactile controls.</p>
+      <p>As voice recognition technology improves, voice interfaces are becoming more prevalent. Designers are now tasked with creating experiences that blend visual and voice interactions seamlessly.</p>
       
-      <p>This evolution requires new design considerations, such as voice feedback, auditory cues, and seamless transitions between voice and touch interactions.</p>
+      <p>This requires new approaches to feedback and affordance—users need to understand what they can say, and how the system will respond, without always relying on visual cues.</p>
       
-      <h2>5. Personalized User Experiences</h2>
-      <p>With advancements in AI and machine learning, interfaces can now adapt to individual users' preferences, behaviors, and needs. This goes beyond simple recommendations to include personalized layouts, interaction patterns, and content delivery.</p>
+      <h2>5. Advanced Personalization</h2>
+      <p>Users have come to expect experiences tailored to their preferences and behavior. In 2023, personalization is becoming more sophisticated, with AI-driven systems that adapt interfaces based on user patterns, preferences, and contexts.</p>
       
-      <p>The challenge for designers is creating systems that feel personalized without being intrusive, maintaining user privacy while delivering tailored experiences.</p>
+      <p>This goes beyond simply showing recommended content—it can include adjusting layouts, highlighting different features, or changing the tone of communication based on individual users.</p>
       
-      <h2>6. Inclusive Design as Standard</h2>
-      <p>Inclusivity has moved from a specialized concern to a fundamental design principle. Designers are embracing tools and methodologies that make accessibility inherent to the design process rather than an afterthought.</p>
+      <h2>6. Inclusive Design as a Standard</h2>
+      <p>Inclusive design is no longer an add-on consideration but a fundamental aspect of the design process. Designers are increasingly aware of the diverse needs of users, including those with disabilities, different language backgrounds, or varying technological access.</p>
       
-      <p>This includes considerations for users with different abilities, as well as cultural, linguistic, and socioeconomic factors that influence how people interact with digital products.</p>
+      <p>This shift is reflected in more flexible interfaces that adapt to different needs, more thoughtful use of color and contrast, and broader consideration of how design choices affect all potential users.</p>
       
       <h2>7. Augmented Reality Integration</h2>
-      <p>AR is increasingly being integrated into everyday applications beyond gaming and entertainment. From virtual try-on experiences in e-commerce to wayfinding in physical spaces, AR is enhancing digital experiences by blending them with the physical world.</p>
+      <p>AR features are becoming more common in mainstream apps and websites. From virtual try-on experiences in retail to interactive learning tools, AR is enhancing digital experiences by blending them with the physical world.</p>
       
-      <p>This trend requires designers to think in three dimensions and consider how digital interfaces interact with physical environments.</p>
+      <p>Designers are developing new patterns and conventions for these mixed-reality interfaces, creating intuitive ways for users to interact with virtual elements in real-world contexts.</p>
       
-      <h2>8. Minimalism with Personality</h2>
-      <p>While minimalism remains popular, designers are finding ways to infuse it with distinctive brand personality. This often takes the form of subtle textures, unique typography, or strategic use of color and imagery.</p>
+      <h2>8. Minimalism 2.0</h2>
+      <p>Minimalism continues to be a dominant design philosophy, but it's evolving beyond the stark simplicity of earlier approaches. The new minimalism balances clean layouts with carefully chosen details that add character and warmth.</p>
       
-      <p>The goal is creating clean, functional interfaces that remain memorable and reflect the brand's identity without overwhelming users with unnecessary elements.</p>
+      <p>This might include subtle textures, thoughtful typography choices, or strategically placed illustrations that enhance the user experience without cluttering the interface.</p>
       
-      <h2>9. Data Visualization Evolution</h2>
-      <p>As data becomes increasingly central to user experiences, designers are finding more sophisticated ways to visualize complex information. Interactive dashboards, animated graphs, and real-time visualizations are becoming more intuitive and accessible to non-technical users.</p>
+      <h2>9. Data Visualization Advancements</h2>
+      <p>As data becomes increasingly central to many applications, designers are developing more sophisticated and intuitive ways to visualize complex information.</p>
       
-      <p>The focus is on presenting data in ways that tell clear stories and enable users to derive meaningful insights without specialized knowledge.</p>
+      <p>Interactive data visualizations allow users to explore information at their own pace, while advancements in animation help illustrate changes over time or relationships between different data points.</p>
       
-      <h2>10. Ethical Design Frameworks</h2>
-      <p>With growing awareness of digital products' impact on mental health, privacy, and society, designers are adopting ethical frameworks that prioritize user wellbeing over engagement metrics.</p>
+      <h2>10. Ethical Design Focus</h2>
+      <p>There's a growing awareness of the ethical implications of design choices. Designers are considering how their work affects user well-being, privacy, and autonomy, and developing approaches that respect these considerations.</p>
       
-      <p>This includes considerations like cognitive load, potential for addiction, data collection practices, and the broader societal implications of design decisions.</p>
+      <p>This includes more transparent information about data usage, design patterns that discourage addictive behavior, and interfaces that empower users rather than manipulating them.</p>
       
       <h2>Conclusion</h2>
-      <p>The future of UI/UX design in 2023 is characterized by a blend of technological advancement and human-centered principles. While new technologies enable more immersive and personalized experiences, there's a parallel emphasis on inclusivity, ethics, and user wellbeing.</p>
+      <p>The UI/UX trends of 2023 reflect both technological advancements and evolving user expectations. As designers, our challenge is to embrace these new possibilities while maintaining a focus on creating interfaces that are intuitive, accessible, and genuinely useful for our users.</p>
       
-      <p>Successful designers will be those who can leverage new capabilities while remaining grounded in fundamental principles of human psychology and behavior. As the field continues to evolve, adaptability and continuous learning will remain essential skills for design professionals.</p>
+      <p>By balancing innovation with user-centered principles, we can create digital experiences that are not just visually impressive but also meaningful and valuable.</p>
     `
   },
+  // Additional blog posts with similar structure...
   {
     id: "3",
     title: "Optimizing React Applications for Performance",
@@ -158,7 +159,7 @@ const blogPostsData = [
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     readTime: "8 min read",
     tags: ["React", "Performance", "JavaScript"],
-    content: `<p>This is a placeholder for the full blog post content about optimizing React applications for performance. The article would cover topics like memoization, code splitting, and efficient state management.</p>`
+    content: `<p>This is a placeholder for the full content of the "Optimizing React Applications for Performance" article.</p>`
   },
   {
     id: "4",
@@ -170,7 +171,7 @@ const blogPostsData = [
     image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     readTime: "6 min read",
     tags: ["TypeScript", "JavaScript", "Programming"],
-    content: `<p>This is a placeholder for the full blog post content about getting started with TypeScript. The article would cover TypeScript basics, its advantages over JavaScript, and best practices.</p>`
+    content: `<p>This is a placeholder for the full content of the "Getting Started with TypeScript in 2023" article.</p>`
   },
   {
     id: "5",
@@ -182,7 +183,7 @@ const blogPostsData = [
     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     readTime: "5 min read",
     tags: ["Accessibility", "Web Development", "Inclusive Design"],
-    content: `<p>This is a placeholder for the full blog post content about building accessible web applications. The article would cover the importance of accessibility and practical implementation techniques.</p>`
+    content: `<p>This is a placeholder for the full content of the "Building Accessible Web Applications" article.</p>`
   },
   {
     id: "6",
@@ -194,7 +195,7 @@ const blogPostsData = [
     image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     readTime: "4 min read",
     tags: ["CSS", "Web Design", "Frontend"],
-    content: `<p>This is a placeholder for the full blog post content about CSS Grid Layout. The article would cover the capabilities of CSS Grid and how to use it effectively in web design.</p>`
+    content: `<p>This is a placeholder for the full content of the "The Power of CSS Grid Layout" article.</p>`
   }
 ];
 
@@ -205,25 +206,23 @@ const BlogPostPage = () => {
   const [relatedPosts, setRelatedPosts] = useState([]);
 
   useEffect(() => {
-    // Simulate API fetch
+    document.title = "Blog Post | Aura";
+    
+    // Simulate API fetch with a timeout
     const timer = setTimeout(() => {
       const foundPost = blogPostsData.find(p => p.id === postId);
       setPost(foundPost);
+      setLoading(false);
       
       if (foundPost) {
-        document.title = `${foundPost.title} | Aura Blog`;
+        document.title = `${foundPost.title} | Aura`;
         
         // Find related posts based on tags
         const related = blogPostsData
-          .filter(p => p.id !== foundPost.id && p.tags.some(tag => foundPost.tags.includes(tag)))
+          .filter(p => p.id !== postId && p.tags.some(tag => foundPost.tags.includes(tag)))
           .slice(0, 3);
-        
         setRelatedPosts(related);
-      } else {
-        document.title = "Post Not Found | Aura Blog";
       }
-      
-      setLoading(false);
     }, 300);
     
     return () => clearTimeout(timer);
@@ -243,9 +242,12 @@ const BlogPostPage = () => {
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold mb-4">Post Not Found</h1>
           <p className="text-aura-textSecondary mb-8">
-            The article you're looking for doesn't exist or has been removed.
+            The blog post you're looking for doesn't exist or has been removed.
           </p>
-          <Link to="/blog" className="text-aura-accent hover:underline">
+          <Link 
+            to="/blog"
+            className="px-6 py-3 bg-aura-accent text-white rounded-md hover:bg-aura-accent/90 transition-colors"
+          >
             Back to Blog
           </Link>
         </div>
@@ -257,7 +259,7 @@ const BlogPostPage = () => {
     <div className="min-h-screen pb-16">
       {/* Hero Section */}
       <section className="py-16 md:py-24 hero-glow">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-4xl">
           <Link to="/blog" className="inline-flex items-center text-aura-textSecondary hover:text-aura-accent mb-8">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
               <path d="m15 18-6-6 6-6" />
@@ -265,15 +267,21 @@ const BlogPostPage = () => {
             Back to Blog
           </Link>
           
-          <div className="flex flex-wrap items-center text-sm text-aura-textSecondary mb-6">
-            <span>{post.date}</span>
-            <span className="mx-2">•</span>
-            <span>{post.readTime}</span>
-            <span className="mx-2">•</span>
-            <span>By {post.author}</span>
-          </div>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">{post.title}</h1>
           
-          <h1 className="text-4xl md:text-5xl font-bold mb-8">{post.title}</h1>
+          <div className="flex items-center mb-8">
+            <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
+              <img src={post.authorImage} alt={post.author} className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <div className="font-medium">{post.author}</div>
+              <div className="text-sm text-aura-textSecondary flex items-center">
+                <span>{post.date}</span>
+                <span className="mx-2">•</span>
+                <span>{post.readTime}</span>
+              </div>
+            </div>
+          </div>
           
           <div className="flex flex-wrap gap-2 mb-8">
             {post.tags.map((tag, index) => (
@@ -289,10 +297,10 @@ const BlogPostPage = () => {
         </div>
       </section>
 
-      {/* Feature Image */}
-      <section className="pb-12">
-        <div className="container mx-auto px-4">
-          <div className="rounded-xl overflow-hidden aspect-[21/9] max-h-[600px]">
+      {/* Featured Image */}
+      <section className="mb-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="aspect-[16/9] rounded-lg overflow-hidden">
             <img
               src={post.image}
               alt={post.title}
@@ -302,153 +310,83 @@ const BlogPostPage = () => {
         </div>
       </section>
 
-      {/* Article Content */}
+      {/* Post Content */}
       <section className="py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Main Content */}
-            <div className="w-full lg:w-2/3">
-              <div 
-                className="prose prose-invert prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-12 prose-h2:mb-6 prose-p:text-aura-textSecondary prose-p:mb-6 prose-p:text-lg prose-a:text-aura-accent hover:prose-a:underline max-w-none"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
-              
-              {/* Author Bio */}
-              <div className="mt-16 p-6 aura-card rounded-xl">
-                <div className="flex">
-                  <img
-                    src={post.authorImage}
-                    alt={post.author}
-                    className="w-16 h-16 rounded-full mr-4 object-cover"
-                  />
-                  <div>
-                    <h3 className="font-bold text-lg mb-2">Written by {post.author}</h3>
-                    <p className="text-aura-textSecondary">
-                      Software engineer and technical writer passionate about web development, 
-                      design patterns, and creating exceptional user experiences.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Sidebar */}
-            <div className="w-full lg:w-1/3">
-              {/* Author Card */}
-              <div className="aura-card p-6 mb-8">
-                <h3 className="text-xl font-bold mb-4">About the Author</h3>
-                <div className="flex items-center mb-4">
-                  <img
-                    src={post.authorImage}
-                    alt={post.author}
-                    className="w-16 h-16 rounded-full mr-4 object-cover"
-                  />
-                  <div>
-                    <h4 className="font-semibold">{post.author}</h4>
-                    <p className="text-aura-textSecondary text-sm">Web Developer & Designer</p>
-                  </div>
-                </div>
-                <p className="text-aura-textSecondary mb-4">
-                  I write about web development, design, and technology. Follow along for insights and tutorials.
-                </p>
-                <Link to="/about" className="text-aura-accent hover:underline">
-                  Learn more about me →
-                </Link>
-              </div>
-              
-              {/* Related Posts */}
-              {relatedPosts.length > 0 && (
-                <div className="aura-card p-6">
-                  <h3 className="text-xl font-bold mb-4">Related Articles</h3>
-                  <div className="space-y-4">
-                    {relatedPosts.map((relatedPost) => (
-                      <Link to={`/blog/${relatedPost.id}`} key={relatedPost.id} className="block">
-                        <div className="flex items-start space-x-3 group">
-                          <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded">
-                            <img
-                              src={relatedPost.image}
-                              alt={relatedPost.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                          </div>
-                          <div>
-                            <h4 className="font-medium group-hover:text-aura-accent transition-colors">
-                              {relatedPost.title}
-                            </h4>
-                            <p className="text-sm text-aura-textSecondary">{relatedPost.date}</p>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Tags */}
-              <div className="aura-card p-6 mt-8">
-                <h3 className="text-xl font-bold mb-4">Explore Topics</h3>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag, index) => (
-                    <Link 
-                      key={index}
-                      to={`/blog?tag=${encodeURIComponent(tag)}`}
-                      className="text-sm px-3 py-1 rounded bg-aura-background/50 text-aura-textSecondary hover:bg-aura-background transition-colors"
-                    >
-                      {tag}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+        <div className="container mx-auto px-4 max-w-3xl">
+          <article 
+            className="prose prose-invert prose-headings:text-white prose-p:text-aura-textSecondary prose-a:text-aura-accent max-w-none"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+          
+          {/* Share Links */}
+          <div className="mt-12 pt-8 border-t border-aura-border">
+            <h3 className="text-xl font-semibold mb-4">Share this article</h3>
+            <div className="flex space-x-4">
+              <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noreferrer noopener" className="bg-aura-background hover:bg-aura-card rounded-full p-3 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-aura-accent">
+                  <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+                </svg>
+              </a>
+              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noreferrer noopener" className="bg-aura-background hover:bg-aura-card rounded-full p-3 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-aura-accent">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                </svg>
+              </a>
+              <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noreferrer noopener" className="bg-aura-background hover:bg-aura-card rounded-full p-3 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-aura-accent">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                  <rect width="4" height="12" x="2" y="9" />
+                  <circle cx="4" cy="4" r="2" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* More Articles */}
-      <section className="py-16 bg-aura-card/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">More Articles</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {blogPostsData
-              .filter(p => p.id !== post.id)
-              .slice(0, 3)
-              .map((post) => (
-                <Link to={`/blog/${post.id}`} key={post.id} className="group">
-                  <div className="aura-card overflow-hidden rounded-lg transition-all duration-300 hover:-translate-y-2 h-full">
+      {/* Related Posts */}
+      {relatedPosts.length > 0 && (
+        <section className="py-16 bg-aura-card/30">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <h2 className="text-2xl font-bold mb-8 text-center">Related Articles</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedPosts.map((relatedPost) => (
+                <Link to={`/blog/${relatedPost.id}`} key={relatedPost.id}>
+                  <div className="aura-card overflow-hidden rounded-lg transition-all duration-300 hover:-translate-y-2 h-full flex flex-col">
                     <div className="aspect-video overflow-hidden">
                       <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        src={relatedPost.image}
+                        alt={relatedPost.title}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                       />
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 flex-grow flex flex-col">
                       <div className="flex items-center text-sm text-aura-textSecondary mb-2">
-                        <span>{post.date}</span>
+                        <span>{relatedPost.date}</span>
                         <span className="mx-2">•</span>
-                        <span>{post.readTime}</span>
+                        <span>{relatedPost.readTime}</span>
                       </div>
-                      <h3 className="font-bold mb-2 group-hover:text-aura-accent transition-colors">
-                        {post.title}
-                      </h3>
-                      <p className="text-aura-textSecondary line-clamp-2">
-                        {post.excerpt}
-                      </p>
+                      <h3 className="text-lg font-bold mb-3">{relatedPost.title}</h3>
+                      <p className="text-aura-textSecondary mb-4 line-clamp-2">{relatedPost.excerpt}</p>
+                      <div className="mt-auto text-aura-accent font-medium">Read More →</div>
                     </div>
                   </div>
                 </Link>
               ))}
+            </div>
+            
+            <div className="text-center mt-10">
+              <Link 
+                to="/blog"
+                className="px-6 py-3 border border-aura-border text-white rounded-md hover:bg-aura-card transition-colors"
+              >
+                View All Articles
+              </Link>
+            </div>
           </div>
-          <div className="text-center mt-10">
-            <Link
-              to="/blog"
-              className="inline-flex items-center justify-center px-6 py-3 border border-aura-accent rounded-md text-aura-accent hover:bg-aura-accent/10 transition-colors"
-            >
-              View All Articles
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };
