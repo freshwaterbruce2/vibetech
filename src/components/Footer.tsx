@@ -63,13 +63,23 @@ const Footer = () => {
               <Linkedin size={20} />
               <span className="sr-only">LinkedIn</span>
             </a>
-            <a href="mailto:contact@example.com" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
+            <a href="mailto:freshwaterbruce@icloud.com" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
               <Mail size={20} />
               <span className="sr-only">Email</span>
             </a>
           </div>
           <p className="text-aura-textSecondary">
-            contact@example.com
+            Bruce Freshwater
+          </p>
+          <p className="text-aura-textSecondary">
+            <a href="mailto:freshwaterbruce@icloud.com" className="hover:text-aura-accent">
+              freshwaterbruce@icloud.com
+            </a>
+          </p>
+          <p className="text-aura-textSecondary">
+            <a href="tel:18038258860" className="hover:text-aura-accent">
+              1-803-825-8860
+            </a>
           </p>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,7 @@ const About = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div>
               <p className="text-aura-textSecondary text-lg mb-6">
-                Vibe Tech is a cutting-edge tech company focused on creating innovative digital solutions that combine stunning design with powerful functionality.
+                Vibe Tech is a cutting-edge tech company founded by Bruce Freshwater, focused on creating innovative digital solutions that combine stunning design with powerful functionality.
               </p>
               <p className="text-aura-textSecondary text-lg mb-6">
                 Founded in 2020, our team brings together decades of combined experience in software development, UI/UX design, and digital strategy to deliver exceptional results for our clients.
@@ -93,7 +94,7 @@ const About = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {[
               {
-                name: "Alex Johnson",
+                name: "Bruce Freshwater",
                 position: "CEO & Founder",
                 image: "/placeholder.svg"
               },
