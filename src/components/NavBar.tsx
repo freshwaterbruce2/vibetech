@@ -9,10 +9,12 @@ type NavLink = {
 
 const navLinks: NavLink[] = [
   { path: "/", label: "Home" },
+  { path: "/services", label: "Services" },
   { path: "/about", label: "About" },
   { path: "/portfolio", label: "Portfolio" },
   { path: "/blog", label: "Blog" },
   { path: "/contact", label: "Contact" },
+  { path: "/dashboard", label: "Dashboard" },
 ];
 
 const NavBar = () => {
