@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { type ButtonProps } from "@/components/ui/button";
 
 // Create a separate type for NeonButtonProps that extends ButtonProps
-// but overrides the variant property
+// but overrides the variant property to use our custom variants
 interface NeonButtonProps extends Omit<ButtonProps, "variant"> {
-  variant?: "blue" | "purple" | "teal" | "gradient";
+  variant?: "blue" | "purple" | "teal" | "gradient" | "electric-teal";
   glowIntensity?: "low" | "medium" | "high";
 }
 
@@ -17,6 +17,7 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
       blue: "border-futuristic-neonBlue/30 hover:border-futuristic-neonBlue/60 hover:shadow-neon-blue-soft before:from-futuristic-neonBlue before:to-futuristic-neonBlue/70",
       purple: "border-futuristic-neonPurple/30 hover:border-futuristic-neonPurple/60 hover:shadow-neon-purple-soft before:from-futuristic-neonPurple before:to-futuristic-neonPurple/70",
       teal: "border-futuristic-neonTeal/30 hover:border-futuristic-neonTeal/60 hover:shadow-neon-teal-soft before:from-futuristic-neonTeal before:to-futuristic-neonTeal/70",
+      "electric-teal": "border-[#00ffcc]/30 hover:border-[#00ffcc]/60 hover:shadow-neon-teal-soft before:from-[#00ffcc] before:to-[#00e0b0]/70",
       gradient: "border-white/20 hover:border-white/40 hover:shadow-neon-blue-soft before:from-futuristic-neonBlue before:via-futuristic-neonPurple before:to-futuristic-neonTeal",
     };
     
@@ -30,6 +31,7 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
       <Button
         className={cn(
           "neon-sweep-btn text-white relative overflow-hidden group bg-futuristic-darkBgLight",
+          "transition-all duration-300 transform hover:-translate-y-[2px]",
           variantStyles[variant],
           glowStyles[glowIntensity],
           className
