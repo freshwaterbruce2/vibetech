@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
@@ -23,20 +24,78 @@ const mockMetrics = {
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    // Simulate loading data
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-aura-background pb-16">
+    <div className="min-h-screen bg-aura-darkBg circuit-bg pb-16 relative overflow-hidden">
+      {/* Tech-inspired decorative elements */}
+      <div className="absolute top-40 left-10 w-20 h-20 rounded-full bg-aura-neonBlue/5 blur-3xl"></div>
+      <div className="absolute bottom-40 right-10 w-32 h-32 rounded-full bg-aura-neonPurple/5 blur-3xl"></div>
+      
+      {/* Scan line effect */}
+      <div className="cyber-scan fixed inset-0 pointer-events-none"></div>
+      
       <NavBar />
       
-      <div className="max-w-7xl mx-auto px-4 pt-24">
-        <DashboardHeader title="CRM Dashboard" />
-        <DashboardMetrics metrics={mockMetrics} />
-        <DashboardTabs 
-          leads={mockLeads} 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-        />
-      </div>
+      <motion.div 
+        className="max-w-7xl mx-auto px-4 pt-28"
+        variants={containerVariants}
+        initial="hidden"
+        animate={isLoaded ? "visible" : "hidden"}
+      >
+        <motion.div variants={itemVariants}>
+          <DashboardHeader title="CRM Dashboard" />
+        </motion.div>
+        
+        <motion.div variants={itemVariants}>
+          <DashboardMetrics metrics={mockMetrics} />
+        </motion.div>
+        
+        <motion.div 
+          variants={itemVariants}
+          className="relative"
+        >
+          <DashboardTabs 
+            leads={mockLeads} 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+          />
+          
+          {/* Tech decorative corner effects */}
+          <div className="absolute -top-1 -left-1 w-5 h-5 border-t-2 border-l-2 border-aura-neonBlue/50"></div>
+          <div className="absolute -top-1 -right-1 w-5 h-5 border-t-2 border-r-2 border-aura-neonBlue/50"></div>
+          <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-2 border-l-2 border-aura-neonBlue/50"></div>
+          <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-2 border-r-2 border-aura-neonBlue/50"></div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
