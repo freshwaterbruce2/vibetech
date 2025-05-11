@@ -50,6 +50,11 @@ const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ count = 15, connectio
           position={data.position}
           color={data.color}
           speed={data.speed}
+          x={0}
+          y={0}
+          radius={0}
+          directionX={0}
+          directionY={0}
           ref={(el) => {
             if (el) particlesRef.current[i] = el;
           }}
@@ -82,6 +87,11 @@ const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ count = 15, connectio
                   endPos={{ current: particlesRef.current[index2] }}
                   color="#28f0ff"
                   threshold={connectionThreshold}
+                  startX={0}
+                  startY={0}
+                  endX={0}
+                  endY={0}
+                  opacity={0}
                 />
               );
             }

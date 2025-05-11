@@ -6,6 +6,8 @@ export interface ParticleProps {
   directionX: number;
   directionY: number;
   color: string;
+  position: [number, number, number];
+  speed: number;
 }
 
 export interface ConnectionLineProps {
@@ -15,6 +17,9 @@ export interface ConnectionLineProps {
   endY: number;
   opacity: number;
   color: string;
+  startPos: { current: THREE.Mesh };
+  endPos: { current: THREE.Mesh };
+  threshold: number;
 }
 
 export interface ParticleNetworkProps {
@@ -26,4 +31,14 @@ export interface ParticleNetworkProps {
   opacity?: number;
   className?: string;
   darkMode?: boolean;
+  count?: number;
+  connectionThreshold?: number;
 }
+
+export interface ParticleNetworkCanvasProps {
+  className?: string;
+  particleCount?: number;
+  opacity?: number;
+  connectionThreshold?: number;
+}
+

@@ -14,7 +14,10 @@ const ParticleNetworkCanvas: React.FC<ParticleNetworkCanvasProps> = ({
   return (
     <div className={`absolute inset-0 pointer-events-none ${className || ''}`} style={{ opacity }}>
       <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-        <ParticleNetwork count={particleCount} connectionThreshold={connectionThreshold} />
+        <ParticleNetwork 
+          count={particleCount} 
+          connectionThreshold={connectionThreshold} 
+        />
       </Canvas>
     </div>
   );
