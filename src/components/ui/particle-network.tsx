@@ -1,10 +1,47 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { OrbitControls } from '@react-three/drei';
+
+// Extend JSX elements with Three.js objects
+extend({ 
+  Mesh: THREE.Mesh,
+  SphereGeometry: THREE.SphereGeometry,
+  MeshBasicMaterial: THREE.MeshBasicMaterial,
+  Line: THREE.Line,
+  LineBasicMaterial: THREE.LineBasicMaterial,
+  BufferGeometry: THREE.BufferGeometry,
+  BufferAttribute: THREE.BufferAttribute
+});
+
+// Types for our components
+interface ParticleProps {
+  position: [number, number, number];
+  color: string;
+  speed: number;
+}
+
+interface ConnectionLineProps {
+  startPos: { current: THREE.Mesh | null };
+  endPos: { current: THREE.Mesh | null };
+  color: string;
+  threshold: number;
+}
+
+interface ParticleNetworkProps {
+  count?: number;
+  connectionThreshold?: number;
+}
+
+interface ParticleNetworkCanvasProps {
+  className?: string;
+  particleCount?: number;
+  opacity?: number;
+}
 
 // Individual particle component
-const Particle = ({ position, color, speed }) => {
+const Particle = React.forwardRef<THREE.Mesh, ParticleProps>(({ position, color, speed }, ref) => {
   const meshRef = useRef<THREE.Mesh>(null);
   
   useFrame(() => {
@@ -21,16 +58,20 @@ const Particle = ({ position, color, speed }) => {
     }
   });
   
+  React.useImperativeHandle(ref, () => meshRef.current as THREE.Mesh);
+  
   return (
-    <mesh ref={meshRef} position={[position[0], position[1], position[2]]}>
+    <mesh ref={meshRef} position={position}>
       <sphereGeometry args={[0.05, 8, 8]} />
       <meshBasicMaterial color={color} transparent opacity={0.6} />
     </mesh>
   );
-};
+});
+
+Particle.displayName = 'Particle';
 
 // Connection line between particles
-const ConnectionLine = ({ startPos, endPos, color, threshold }) => {
+const ConnectionLine: React.FC<ConnectionLineProps> = ({ startPos, endPos, color, threshold }) => {
   const lineRef = useRef<THREE.Line>(null);
   const [positions] = useState<Float32Array>(new Float32Array(6));
   
@@ -45,7 +86,8 @@ const ConnectionLine = ({ startPos, endPos, color, threshold }) => {
       positions[4] = endPos.current.position.y;
       positions[5] = endPos.current.position.z;
       
-      (lineRef.current.geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+      const positionAttribute = lineRef.current.geometry.attributes.position as THREE.BufferAttribute;
+      positionAttribute.needsUpdate = true;
       
       // Calculate distance between particles
       const distance = new THREE.Vector3(
@@ -89,7 +131,7 @@ const ConnectionLine = ({ startPos, endPos, color, threshold }) => {
 };
 
 // Particle network container
-const ParticleNetwork = ({ count = 15, connectionThreshold = 2 }) => {
+const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ count = 15, connectionThreshold = 2 }) => {
   const particlesRef = useRef<THREE.Mesh[]>([]);
   
   // Generate particle positions
@@ -130,12 +172,15 @@ const ParticleNetwork = ({ count = 15, connectionThreshold = 2 }) => {
       {/* Render connection lines */}
       {particleData.map((_, i) => (
         particleData.slice(i + 1).map((_, j) => {
-          if (particlesRef.current[i] && particlesRef.current[i + j + 1]) {
+          const index1 = i;
+          const index2 = i + j + 1;
+          
+          if (particlesRef.current[index1] && particlesRef.current[index2]) {
             return (
               <ConnectionLine
-                key={`connection-${i}-${i + j + 1}`}
-                startPos={{ current: particlesRef.current[i] }}
-                endPos={{ current: particlesRef.current[i + j + 1] }}
+                key={`connection-${index1}-${index2}`}
+                startPos={{ current: particlesRef.current[index1] }}
+                endPos={{ current: particlesRef.current[index2] }}
                 color="#28f0ff"
                 threshold={connectionThreshold}
               />
@@ -147,12 +192,6 @@ const ParticleNetwork = ({ count = 15, connectionThreshold = 2 }) => {
     </>
   );
 };
-
-interface ParticleNetworkCanvasProps {
-  className?: string;
-  particleCount?: number;
-  opacity?: number;
-}
 
 // Canvas wrapper component
 const ParticleNetworkCanvas: React.FC<ParticleNetworkCanvasProps> = ({ 
