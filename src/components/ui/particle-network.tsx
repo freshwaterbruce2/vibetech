@@ -72,7 +72,8 @@ Particle.displayName = 'Particle';
 
 // Connection line between particles
 const ConnectionLine: React.FC<ConnectionLineProps> = ({ startPos, endPos, color, threshold }) => {
-  const lineRef = useRef<THREE.Line>(null);
+  // Fix: Changed from useRef<THREE.Line> to useRef<THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>>
+  const lineRef = useRef<THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>>(null);
   const [positions] = useState<Float32Array>(new Float32Array(6));
   
   useFrame(() => {
@@ -115,8 +116,9 @@ const ConnectionLine: React.FC<ConnectionLineProps> = ({ startPos, endPos, color
     }
   });
   
+  // Fix: Use primitive to render Three.js Line object instead of JSX line element
   return (
-    <line ref={lineRef}>
+    <primitive object={new THREE.Line()} ref={lineRef}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
@@ -126,7 +128,7 @@ const ConnectionLine: React.FC<ConnectionLineProps> = ({ startPos, endPos, color
         />
       </bufferGeometry>
       <lineBasicMaterial color={color} transparent opacity={0.15} />
-    </line>
+    </primitive>
   );
 };
 
