@@ -106,8 +106,8 @@ const Contact = () => {
                     <div>
                       <h3 className="text-lg font-medium">Email</h3>
                       <p className="text-aura-textSecondary">
-                        <a href="mailto:contact@example.com" className="hover:text-aura-accent">
-                          contact@example.com
+                        <a href="mailto:freshwaterbruce@icloud.com" className="hover:text-aura-accent">
+                          freshwaterbruce@icloud.com
                         </a>
                       </p>
                     </div>
@@ -119,8 +119,8 @@ const Contact = () => {
                     <div>
                       <h3 className="text-lg font-medium">Phone</h3>
                       <p className="text-aura-textSecondary">
-                        <a href="tel:+1234567890" className="hover:text-aura-accent">
-                          +1 (234) 567-890
+                        <a href="tel:18038258860" className="hover:text-aura-accent">
+                          1-803-825-8860
                         </a>
                       </p>
                     </div>
@@ -132,8 +132,9 @@ const Contact = () => {
                     <div>
                       <h3 className="text-lg font-medium">Office</h3>
                       <p className="text-aura-textSecondary">
-                        123 Tech Boulevard<br />
-                        San Francisco, CA 94105<br />
+                        Vibe Tech<br />
+                        Bruce Freshwater<br />
+                        Somerton, South Carolina<br />
                         United States
                       </p>
                     </div>
