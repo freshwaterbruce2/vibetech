@@ -1,5 +1,6 @@
 
 import React, { useRef, useEffect } from 'react';
+import * as THREE from 'three';
 import Particle from './Particle';
 import ConnectionLine from './ConnectionLine';
 import { ParticleNetworkProps } from './types';

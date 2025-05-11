@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { ConnectionLineProps } from './types';
 
 const ConnectionLine: React.FC<ConnectionLineProps> = ({ startPos, endPos, color, threshold }) => {
-  const lineRef = useRef<THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>>(null);
+  const lineRef = useRef<THREE.Line>(null);
   const [positions] = useState<Float32Array>(new Float32Array(6));
   
   useFrame(() => {
