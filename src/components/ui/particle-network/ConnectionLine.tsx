@@ -7,8 +7,9 @@ import { ConnectionLineProps } from './types';
 const ConnectionLine: React.FC<ConnectionLineProps> = ({ startPos, endPos, color, threshold }) => {
   const lineRef = useRef<THREE.Line>(null);
   const [positions] = useState<Float32Array>(new Float32Array(6));
+  const [lineColor] = useState(() => new THREE.Color(color));
   
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (lineRef.current && startPos.current && endPos.current) {
       // Update line vertices based on particle positions
       positions[0] = startPos.current.position.x;
@@ -33,14 +34,21 @@ const ConnectionLine: React.FC<ConnectionLineProps> = ({ startPos, endPos, color
         endPos.current.position.z
       ));
       
+      // Pulse effect for line opacity
+      const pulseFactor = (Math.sin(clock.elapsedTime * 2) + 1) * 0.2 + 0.1; // 0.1 to 0.5 range
+      
       // Only show lines for particles within threshold distance
       if (distance < threshold) {
         lineRef.current.visible = true;
         
-        // Adjust opacity based on distance
-        const opacity = 1 - (distance / threshold);
+        // Adjust opacity based on distance and pulse
+        const opacity = (1 - (distance / threshold)) * pulseFactor;
         if (lineRef.current.material instanceof THREE.LineBasicMaterial) {
-          lineRef.current.material.opacity = opacity * 0.3;
+          lineRef.current.material.opacity = opacity;
+          
+          // Subtle color shift based on time
+          const hueShift = Math.sin(clock.elapsedTime * 0.2) * 0.05;
+          lineRef.current.material.color.copy(lineColor).offsetHSL(hueShift, 0, 0);
         }
       } else {
         lineRef.current.visible = false;
@@ -58,7 +66,7 @@ const ConnectionLine: React.FC<ConnectionLineProps> = ({ startPos, endPos, color
           itemSize={3}
         />
       </bufferGeometry>
-      <lineBasicMaterial color={color} transparent opacity={0.15} />
+      <lineBasicMaterial color={color} transparent opacity={0.2} />
     </primitive>
   );
 };
