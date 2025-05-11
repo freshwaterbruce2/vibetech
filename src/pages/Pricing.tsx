@@ -1,7 +1,7 @@
 
 import NavBar from "@/components/NavBar";
 import { motion } from "framer-motion";
-import { Check, X, Info } from "lucide-react";
+import { Check, X, Info, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,10 @@ type PricingTier = {
     included: boolean;
     tooltip?: string;
   }[];
+  comparisons?: {
+    text: string;
+    tooltip?: string;
+  }[];
   highlighted?: boolean;
   badge?: string;
   cta: string;
@@ -33,10 +37,10 @@ type PricingTier = {
 
 const pricingTiers: PricingTier[] = [
   {
-    name: "Basic",
+    name: "Starter",
     price: {
-      monthly: "$49",
-      yearly: "$39",
+      monthly: "$29",
+      yearly: "$24",
     },
     description: "Perfect for small businesses just getting started with web presence.",
     features: [
@@ -49,13 +53,17 @@ const pricingTiers: PricingTier[] = [
       { text: "E-commerce Integration", included: false },
       { text: "Custom Animations", included: false },
     ],
+    comparisons: [
+      { text: "70% cheaper than typical freelancer rates", tooltip: "Based on average freelancer rates of $30-50/hour" },
+      { text: "Comparable to DIY platforms but with professional design" }
+    ],
     cta: "Start Basic",
   },
   {
     name: "Professional",
     price: {
-      monthly: "$149",
-      yearly: "$119",
+      monthly: "$79",
+      yearly: "$64",
     },
     description: "Ideal for growing businesses that need more features and customization.",
     features: [
@@ -68,6 +76,10 @@ const pricingTiers: PricingTier[] = [
       { text: "E-commerce Integration", included: true },
       { text: "Custom Animations", included: false },
     ],
+    comparisons: [
+      { text: "Save 60% compared to agency project rates", tooltip: "Based on average agency project rates of $2,500-$4,500" },
+      { text: "More features than premium SaaS platforms at comparable price" }
+    ],
     highlighted: true,
     badge: "Most Popular",
     cta: "Choose Pro",
@@ -75,8 +87,8 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Enterprise",
     price: {
-      monthly: "$299",
-      yearly: "$239",
+      monthly: "$149",
+      yearly: "$119",
     },
     description: "Complete solution for established businesses with complex requirements.",
     features: [
@@ -89,8 +101,40 @@ const pricingTiers: PricingTier[] = [
       { text: "E-commerce Integration", included: true },
       { text: "Custom Animations", included: true },
     ],
+    comparisons: [
+      { text: "50% lower than agency retainer packages", tooltip: "Based on typical agency retainer packages of $2,500+ per month" },
+      { text: "Enterprise-grade features at mid-tier pricing" }
+    ],
     cta: "Contact Sales",
   },
+];
+
+const marketComparisons = [
+  {
+    category: "DIY Platforms",
+    description: "Basic website builders with templates",
+    pricing: "$14-39/mo",
+    limitations: "Limited design flexibility, generic templates, no custom code"
+  },
+  {
+    category: "Our Solution",
+    description: "Professional design with ongoing support",
+    pricing: "$29-149/mo",
+    limitations: "Custom design, professional development, dedicated support",
+    highlighted: true
+  },
+  {
+    category: "Freelancers",
+    description: "One-time project with hourly billing",
+    pricing: "$2,500-11,000",
+    limitations: "Unpredictable costs, limited support after completion"
+  },
+  {
+    category: "Agencies",
+    description: "High-end custom development",
+    pricing: "$4,500+ / project",
+    limitations: "High cost, long timelines, complex contracts"
+  }
 ];
 
 const Pricing = () => {
@@ -125,11 +169,11 @@ const Pricing = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-aura-textSecondary max-w-3xl mx-auto mb-8"
           >
-            Professional web design services at affordable rates. More features and customization than DIY platforms 
+            Professional web design services at affordable rates. Get more value than DIY platforms 
             with the quality of agency work at a fraction of the price.
           </motion.p>
           
-          {/* Market comparison badge */}
+          {/* Market positioning badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -137,7 +181,7 @@ const Pricing = () => {
             className="mb-8"
           >
             <Badge variant="outline" className="px-4 py-2 bg-aura-accent/10 text-aura-accent border-aura-accent/30">
-              Up to 70% more affordable than traditional agency services
+              Higher quality than DIY platforms, more affordable than agencies
             </Badge>
           </motion.div>
           
@@ -167,13 +211,85 @@ const Pricing = () => {
           </motion.div>
         </div>
 
+        {/* Market comparison table */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="mb-16 overflow-x-auto"
+        >
+          <div className="bg-aura-backgroundLight rounded-xl border border-aura-accent/10 p-6 shadow-md">
+            <h2 className="text-2xl font-bold mb-6 text-center">How We Compare</h2>
+            <div className="min-w-full">
+              <div className="grid grid-cols-5 gap-4 mb-4 text-sm font-medium text-aura-textSecondary">
+                <div></div>
+                {marketComparisons.map((comparison, i) => (
+                  <div 
+                    key={i} 
+                    className={`text-center ${comparison.highlighted ? "text-aura-accent" : ""}`}
+                  >
+                    {comparison.category}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="space-y-4">
+                {/* Pricing Row */}
+                <div className="grid grid-cols-5 gap-4">
+                  <div className="font-medium text-aura-text">Pricing</div>
+                  {marketComparisons.map((comparison, i) => (
+                    <div 
+                      key={i} 
+                      className={`text-center ${comparison.highlighted 
+                        ? "font-bold text-aura-accent" 
+                        : "text-aura-textSecondary"}`}
+                    >
+                      {comparison.pricing}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Description Row */}
+                <div className="grid grid-cols-5 gap-4">
+                  <div className="font-medium text-aura-text">Service</div>
+                  {marketComparisons.map((comparison, i) => (
+                    <div 
+                      key={i} 
+                      className={`text-center text-sm ${comparison.highlighted 
+                        ? "font-medium text-aura-text" 
+                        : "text-aura-textSecondary"}`}
+                    >
+                      {comparison.description}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Limitations Row */}
+                <div className="grid grid-cols-5 gap-4">
+                  <div className="font-medium text-aura-text">Features</div>
+                  {marketComparisons.map((comparison, i) => (
+                    <div 
+                      key={i} 
+                      className={`text-center text-sm ${comparison.highlighted 
+                        ? "font-medium text-aura-text" 
+                        : "text-aura-textSecondary"}`}
+                    >
+                      {comparison.limitations}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {pricingTiers.map((tier, index) => (
             <motion.div
               key={tier.name}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 + 0.6 }}
+              transition={{ duration: 0.4, delay: index * 0.1 + 0.7 }}
               whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
               className="flex flex-col h-full"
             >
@@ -224,6 +340,35 @@ const Pricing = () => {
                       </li>
                     ))}
                   </ul>
+                  
+                  {/* Market comparison points */}
+                  {tier.comparisons && (
+                    <div className="mt-6 pt-4 border-t border-aura-accent/10">
+                      <h4 className="font-medium text-sm mb-3 text-aura-accent">Market Comparison</h4>
+                      <ul className="space-y-2">
+                        {tier.comparisons.map((comparison, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <ArrowRight className="h-4 w-4 text-aura-accent shrink-0 mt-0.5" />
+                            <span>
+                              {comparison.text}
+                              {comparison.tooltip && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="inline-block h-3 w-3 ml-1 text-aura-textSecondary cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-aura-backgroundLight border-aura-accent/20 text-aura-text p-2 max-w-xs">
+                                      {comparison.tooltip}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter>
                   <Button 
@@ -249,8 +394,8 @@ const Pricing = () => {
           <h2 className="text-2xl font-bold mb-4">Need a custom solution?</h2>
           <p className="mb-6 text-aura-textSecondary">
             We offer tailored services for businesses with specific requirements. 
-            Our custom plans are up to 70% more affordable than traditional agency rates,
-            with the same professional quality.
+            Our custom plans provide the perfect balance between affordability and professional quality,
+            with transparent pricing and no hidden fees.
           </p>
           <Button 
             className="bg-gradient-to-r from-aura-accent to-aura-accentSecondary text-white hover:shadow-lg hover:shadow-aura-accent/20 transition-all"
@@ -258,6 +403,46 @@ const Pricing = () => {
           >
             Get Custom Quote
           </Button>
+        </motion.div>
+        
+        {/* FAQ Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.1 }}
+          className="mt-16 max-w-4xl mx-auto"
+        >
+          <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-aura-accent to-aura-accentSecondary bg-clip-text text-transparent">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-6">
+            <div className="bg-aura-backgroundLight rounded-lg p-6 border border-aura-accent/10">
+              <h3 className="font-bold text-xl mb-2">How do your prices compare to freelancers?</h3>
+              <p className="text-aura-textSecondary">
+                While freelancer rates typically range from $30-150 per hour (often resulting in unpredictable project costs),
+                our subscription model provides consistent, professional service at a fixed monthly rate. This eliminates surprise 
+                costs and ensures ongoing support.
+              </p>
+            </div>
+            
+            <div className="bg-aura-backgroundLight rounded-lg p-6 border border-aura-accent/10">
+              <h3 className="font-bold text-xl mb-2">Why choose your service over DIY platforms?</h3>
+              <p className="text-aura-textSecondary">
+                DIY platforms like Wix or Squarespace ($14-39/month) offer templates but lack professional design expertise. 
+                Our service includes custom professional design, development, and ongoing support at competitive rates, 
+                resulting in a higher-quality, unique website that truly represents your brand.
+              </p>
+            </div>
+            
+            <div className="bg-aura-backgroundLight rounded-lg p-6 border border-aura-accent/10">
+              <h3 className="font-bold text-xl mb-2">Can I upgrade or downgrade my plan?</h3>
+              <p className="text-aura-textSecondary">
+                Yes, you can upgrade or downgrade your plan at any time. If you upgrade, you'll be charged the prorated 
+                difference for the remainder of your billing cycle. If you downgrade, the new rate will apply at the start 
+                of your next billing cycle.
+              </p>
+            </div>
+          </div>
         </motion.div>
       </motion.div>
     </div>
