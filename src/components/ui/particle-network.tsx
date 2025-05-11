@@ -45,7 +45,7 @@ const ConnectionLine = ({ startPos, endPos, color, threshold }) => {
       positions[4] = endPos.current.position.y;
       positions[5] = endPos.current.position.z;
       
-      lineRef.current.geometry.attributes.position.needsUpdate = true;
+      (lineRef.current.geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;
       
       // Calculate distance between particles
       const distance = new THREE.Vector3(
@@ -98,7 +98,7 @@ const ParticleNetwork = ({ count = 15, connectionThreshold = 2 }) => {
       (Math.random() - 0.5) * 10,
       (Math.random() - 0.5) * 10,
       (Math.random() - 0.5) * 5
-    ],
+    ] as [number, number, number],
     color: i % 3 === 0 
       ? '#28f0ff' 
       : i % 3 === 1 
@@ -121,6 +121,9 @@ const ParticleNetwork = ({ count = 15, connectionThreshold = 2 }) => {
           position={data.position}
           color={data.color}
           speed={data.speed}
+          ref={(el) => {
+            if (el) particlesRef.current[i] = el;
+          }}
         />
       ))}
       
@@ -158,7 +161,7 @@ const ParticleNetworkCanvas: React.FC<ParticleNetworkCanvasProps> = ({
   opacity = 0.08
 }) => {
   return (
-    <div className={`absolute inset-0 pointer-events-none ${className}`} style={{ opacity }}>
+    <div className={`absolute inset-0 pointer-events-none ${className || ''}`} style={{ opacity }}>
       <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
         <ParticleNetwork count={particleCount} />
       </Canvas>
