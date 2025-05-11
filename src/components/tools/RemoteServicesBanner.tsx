@@ -65,30 +65,33 @@ const RemoteServicesBanner: React.FC = () => {
                 viewport={{ once: true }}
                 className="relative"
               >
-                <div className="aspect-video rounded-lg overflow-hidden border border-aura-accent/20 shadow-xl bg-aura-background/80">
+                <div className="aspect-video rounded-lg overflow-hidden border border-aura-accent/20 shadow-xl">
+                  <img 
+                    src="/lovable-uploads/17248351-a7fd-403a-a51f-7e5bb7e15ac8.png" 
+                    alt="Advanced tech support with futuristic interface" 
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-tr from-aura-accent/10 to-transparent"></div>
-                  <div className="flex items-center justify-center h-full p-8 text-center">
-                    <div>
-                      <h3 className="font-medium text-xl mb-4">How Remote Support Works</h3>
-                      <ul className="space-y-3 text-left">
-                        <li className="flex items-center gap-2">
-                          <span className="text-aura-accent font-bold">1.</span>
-                          <span>Contact us to schedule remote support</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-aura-accent font-bold">2.</span>
-                          <span>We'll provide a secure connection link</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-aura-accent font-bold">3.</span>
-                          <span>Our technician diagnoses and fixes the issue</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-aura-accent font-bold">4.</span>
-                          <span>Only pay after successful resolution</span>
-                        </li>
-                      </ul>
-                    </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-aura-background/90 to-transparent">
+                    <h3 className="font-medium text-xl mb-2">How Remote Support Works</h3>
+                    <ul className="space-y-1">
+                      <li className="flex items-center gap-2">
+                        <span className="text-aura-accent font-bold">1.</span>
+                        <span>Contact us to schedule remote support</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-aura-accent font-bold">2.</span>
+                        <span>We'll provide a secure connection link</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-aura-accent font-bold">3.</span>
+                        <span>Our technician diagnoses and fixes the issue</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-aura-accent font-bold">4.</span>
+                        <span>Only pay after successful resolution</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </motion.div>
