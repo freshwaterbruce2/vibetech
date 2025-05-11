@@ -78,14 +78,16 @@ export default {
 					darkBg: '#0a0c12',
 					darkBgLight: '#12141c'
 				},
+				
+				// Updated futuristic colors to match 2025-grade spec
 				futuristic: {
-					neonBlue: '#00f0ff',
-					neonPurple: '#9b00ff', 
+					neonBlue: '#28f0ff',
+					neonPurple: '#9c57ff', 
 					neonTeal: '#00ffcc',
-					darkBg: '#0a0c12',
-					darkBgLight: '#12141c',
-					glassOverlay: 'rgba(18, 20, 28, 0.7)',
-					cardBorder: 'rgba(0, 240, 255, 0.3)'
+					darkBg: '#0B0B17',
+					darkBgLight: '#111125',
+					glassOverlay: 'rgba(18, 18, 30, 0.35)',
+					cardBorder: 'rgba(40, 240, 255, 0.3)'
 				}
 			},
 			borderRadius: {
@@ -94,9 +96,9 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			fontFamily: {
-				sans: ['Inter', 'system-ui', 'sans-serif'],
-				heading: ['Montserrat', 'sans-serif'],
-				body: ['Inter', 'sans-serif'],
+				sans: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif'],
+				heading: ['Montserrat Variable', 'Montserrat', 'sans-serif'],
+				body: ['Inter Variable', 'Inter', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
@@ -151,6 +153,8 @@ export default {
 						opacity: '0'
 					}
 				},
+				
+				// Updated animations for 2025-grade microinteractions
 				'flicker': {
 					'0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100%': {
 						opacity: '0.99',
@@ -199,16 +203,16 @@ export default {
 				'pulse-glow': {
 					'0%, 100%': {
 						opacity: '1',
-						boxShadow: '0 0 20px rgba(0, 240, 255, 0.7), 0 0 30px rgba(0, 240, 255, 0.5)'
+						boxShadow: '0 0 20px rgba(40, 240, 255, 0.7), 0 0 30px rgba(40, 240, 255, 0.5)'
 					},
 					'50%': {
 						opacity: '0.7',
-						boxShadow: '0 0 10px rgba(0, 240, 255, 0.5), 0 0 15px rgba(0, 240, 255, 0.3)'
+						boxShadow: '0 0 10px rgba(40, 240, 255, 0.5), 0 0 15px rgba(40, 240, 255, 0.3)'
 					}
 				},
 				'flicker-border': {
-					'0%, 100%': { borderColor: 'rgba(0, 240, 255, 0.3)' },
-					'50%': { borderColor: 'rgba(0, 240, 255, 0.1)' }
+					'0%, 100%': { borderColor: 'rgba(40, 240, 255, 0.3)' },
+					'50%': { borderColor: 'rgba(40, 240, 255, 0.1)' }
 				},
 				'slice-reveal': {
 					'0%': { transform: 'scaleX(0)', transformOrigin: 'left' },
@@ -231,9 +235,15 @@ export default {
 				'melt-toggle': {
 					'0%': { transform: 'scale(0.8) translateX(0)' },
 					'100%': { transform: 'scale(1) translateX(100%)' }
+				},
+				'hover-float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
 				}
 			},
 			animation: {
+				
+				// Updated animations for 2025-grade microinteractions
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'glow': 'glow 2.5s ease-in-out infinite',
@@ -250,28 +260,29 @@ export default {
 				'particle-drift': 'particle-drift 8s infinite ease-in-out',
 				'neon-sweep': 'neon-sweep 3s infinite',
 				'pulse-tab': 'pulse-tab 2s infinite ease-in-out',
-				'melt-toggle': 'melt-toggle 0.3s ease-in-out forwards'
+				'melt-toggle': 'melt-toggle 0.2s ease-in-out forwards',
+				'hover-float': 'hover-float 2s ease-in-out infinite'
 			},
 			backgroundImage: {
-				'circuit-pattern': "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 13C18.22 13 17 14.22 17 16s1.22 3 3 3 3-1.22 3-3-1.22-3-3-3zM15 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM20 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM30 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM20 46h8v4h-8v-4zM15 30c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM13 34v6H7v-6h6zM90 10c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM89 19h-8v-8h8v8zM95 85c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM77 82v6h-6v-6h6zM58 40.1c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM58 46v4h-8v-4h8zM45 41c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM70 40c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM76 45v-4h-8v4h8z' fill='rgba(0, 240, 255, 0.08)' fill-rule='evenodd'/%3E%3C/svg%3E\")",
-				'futuristic-gradient': 'linear-gradient(135deg, #0a0c12 0%, #12141c 100%)',
-				'accent-gradient': 'linear-gradient(90deg, #00f0ff 0%, #9b00ff 50%, #00ffcc 100%)',
-				'neon-sweep-gradient': 'linear-gradient(90deg, #00f0ff 0%, #9b00ff 33%, #00ffcc 66%, #00f0ff 100%)',
-				'circuit-pattern-dark': "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 13C18.22 13 17 14.22 17 16s1.22 3 3 3 3-1.22 3-3-1.22-3-3-3zM15 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM20 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM30 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM20 46h8v4h-8v-4zM15 30c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM13 34v6H7v-6h6zM90 10c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM89 19h-8v-8h8v8zM95 85c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM77 82v6h-6v-6h6zM58 40.1c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM58 46v4h-8v-4h8zM45 41c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM70 40c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM76 45v-4h-8v4h8z' fill='rgba(0, 240, 255, 0.06)' fill-rule='evenodd'/%3E%3C/svg%3E\")"
+				
+				'futuristic-gradient': 'linear-gradient(135deg, #0B0B17 0%, #111125 100%)',
+				'accent-gradient': 'linear-gradient(90deg, #28f0ff 0%, #9c57ff 50%, #00ffcc 100%)',
+				'neon-sweep-gradient': 'linear-gradient(90deg, #28f0ff 0%, #9c57ff 33%, #00ffcc 66%, #28f0ff 100%)',
+				'circuit-pattern': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Cpath fill='%2328f0ff' fill-opacity='0.05' d='M20 13C18.22 13 17 14.22 17 16s1.22 3 3 3 3-1.22 3-3-1.22-3-3-3zM15 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM20 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM30 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM20 46h8v4h-8v-4zM15 30c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM13 34v6H7v-6h6zM90 10c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM89 19h-8v-8h8v8zM95 85c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5z'/%3E%3C/svg%3E\")",
+				'circuit-pattern-dark': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Cpath fill='%2328f0ff' fill-opacity='0.05' d='M20 13C18.22 13 17 14.22 17 16s1.22 3 3 3 3-1.22 3-3-1.22-3-3-3zM15 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM20 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM30 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM20 46h8v4h-8v-4zM15 30c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM13 34v6H7v-6h6zM90 10c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM89 19h-8v-8h8v8zM95 85c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5z'/%3E%3C/svg%3E\")"
 			},
 			boxShadow: {
-				'neon': '0 0 5px rgba(0, 240, 255, 0.4), 0 0 20px rgba(0, 240, 255, 0.2)',
-				'neon-lg': '0 0 10px rgba(0, 240, 255, 0.5), 0 0 30px rgba(0, 240, 255, 0.3), 0 0 50px rgba(0, 240, 255, 0.1)',
-				'neon-blue': '0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.4)',
-				'neon-purple': '0 0 10px rgba(155, 0, 255, 0.7), 0 0 20px rgba(155, 0, 255, 0.4)',
-				'neon-cyan': '0 0 10px rgba(0, 232, 255, 0.7), 0 0 20px rgba(0, 232, 255, 0.4)',
-				'neon-orange': '0 0 10px rgba(255, 123, 0, 0.7), 0 0 20px rgba(255, 123, 0, 0.4)',
-				'neon-green': '0 0 10px rgba(0, 255, 102, 0.7), 0 0 20px rgba(0, 255, 102, 0.4)',
-				'neon-pink': '0 0 10px rgba(255, 0, 228, 0.7), 0 0 20px rgba(255, 0, 228, 0.4)',
-				'neon-blue-soft': '0 0 10px rgba(0, 240, 255, 0.2)',
-				'neon-purple-soft': '0 0 10px rgba(155, 0, 255, 0.2)',
+				
+				// Updated shadow effects for 2025-grade UI
+				'neon': '0 0 5px rgba(40, 240, 255, 0.4), 0 0 20px rgba(40, 240, 255, 0.2)',
+				'neon-lg': '0 0 10px rgba(40, 240, 255, 0.5), 0 0 30px rgba(40, 240, 255, 0.3), 0 0 50px rgba(40, 240, 255, 0.1)',
+				'neon-blue': '0 0 10px rgba(40, 240, 255, 0.7), 0 0 20px rgba(40, 240, 255, 0.4)',
+				'neon-purple': '0 0 10px rgba(156, 87, 255, 0.7), 0 0 20px rgba(156, 87, 255, 0.4)',
+				'neon-teal': '0 0 10px rgba(0, 255, 204, 0.7), 0 0 20px rgba(0, 255, 204, 0.4)',
+				'neon-blue-soft': '0 0 10px rgba(40, 240, 255, 0.2)',
+				'neon-purple-soft': '0 0 10px rgba(156, 87, 255, 0.2)',
 				'neon-teal-soft': '0 0 10px rgba(0, 255, 204, 0.2)',
-				'glassmorphic': '0 8px 32px 0 rgba(10, 12, 18, 0.3)'
+				'glassmorphic': '0 8px 32px 0 rgba(11, 11, 23, 0.3)'
 			}
 		}
 	},
