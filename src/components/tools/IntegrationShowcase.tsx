@@ -24,8 +24,8 @@ const IntegrationShowcase: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-tr from-aura-accent/20 to-transparent rounded-lg blur-xl"></div>
             <div className="relative tech-border rounded-lg overflow-hidden h-full">
               <img 
-                src="https://images.unsplash.com/photo-1535378620166-273708d44e4c?q=80&w=2942&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                alt="Integrated dashboard showing various marketing tools" 
+                src="/lovable-uploads/5a915379-4dea-4d4f-956a-26170c18bcc8.png" 
+                alt="Advanced tech integration with futuristic interface" 
                 className="w-full h-auto object-cover" 
               />
             </div>
