@@ -23,4 +23,5 @@ export interface ParticleNetworkCanvasProps {
   className?: string;
   particleCount?: number;
   opacity?: number;
+  connectionThreshold?: number;
 }
