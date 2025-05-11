@@ -1,10 +1,10 @@
-
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { Code, User, Briefcase, ArrowRight } from "lucide-react";
+import ParticleNetworkCanvas from "@/components/ui/particle-network";
 
 const About = () => {
   useEffect(() => {
@@ -14,6 +14,7 @@ const About = () => {
   return (
     <div className="min-h-screen bg-aura-background">
       <NavBar />
+      <ParticleNetworkCanvas className="z-0" particleCount={20} opacity={0.1} />
       
       {/* Hero Section */}
       <section className="pt-28 pb-20 px-4">
