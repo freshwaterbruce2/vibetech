@@ -1,4 +1,6 @@
 
+import * as THREE from 'three';
+
 export interface ParticleProps {
   x: number;
   y: number;
@@ -41,4 +43,3 @@ export interface ParticleNetworkCanvasProps {
   opacity?: number;
   connectionThreshold?: number;
 }
-
