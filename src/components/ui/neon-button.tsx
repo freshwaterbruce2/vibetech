@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { type ButtonProps } from "@/components/ui/button";
 
-interface NeonButtonProps extends ButtonProps {
+// Create a separate type for NeonButtonProps that extends ButtonProps
+// but overrides the variant property
+interface NeonButtonProps extends Omit<ButtonProps, "variant"> {
   variant?: "blue" | "purple" | "teal" | "gradient";
   glowIntensity?: "low" | "medium" | "high";
 }
@@ -33,6 +35,9 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
           className
         )}
         ref={ref}
+        // Pass variant="default" to the Button component to use shadcn's default style
+        // while allowing our custom variants through the custom className
+        variant="default"
         {...props}
       >
         <span className="relative z-10">{children}</span>
