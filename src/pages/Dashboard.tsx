@@ -5,6 +5,8 @@ import NavBar from "@/components/NavBar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
+import ParticleNetworkCanvas from "@/components/ui/particle-network";
+import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
 
 // Mock data for demonstration
 const mockLeads = [
@@ -56,17 +58,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-aura-darkBg circuit-bg pb-16 relative overflow-hidden">
-      {/* Tech-inspired decorative elements */}
-      <div className="absolute top-40 left-10 w-20 h-20 rounded-full bg-aura-neonBlue/5 blur-3xl"></div>
-      <div className="absolute bottom-40 right-10 w-32 h-32 rounded-full bg-aura-neonPurple/5 blur-3xl"></div>
-      
-      {/* Scan line effect */}
-      <div className="cyber-scan fixed inset-0 pointer-events-none"></div>
+      {/* Background effects */}
+      <MeshAuroraBackground intensity="low" />
+      <ParticleNetworkCanvas particleCount={12} opacity={0.08} />
       
       <NavBar />
       
       <motion.div 
-        className="max-w-7xl mx-auto px-4 pt-28"
+        className="max-w-7xl mx-auto px-4 pt-28 relative z-10"
         variants={containerVariants}
         initial="hidden"
         animate={isLoaded ? "visible" : "hidden"}
