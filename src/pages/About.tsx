@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { Code, User, Briefcase, ArrowRight } from "lucide-react";
+import { Code, User, Briefcase, ArrowRight, Youtube, Gamepad } from "lucide-react";
 import ParticleNetworkCanvas from "@/components/ui/particle-network";
 
 const About = () => {
@@ -99,6 +99,15 @@ const About = () => {
                 image: "/placeholder.svg"
               },
               {
+                name: "Blake Freshwater",
+                position: "Social Media & Gaming Director",
+                image: "/placeholder.svg",
+                icons: [
+                  <Youtube key="youtube" className="h-4 w-4 text-aura-accent" />,
+                  <Gamepad key="gamepad" className="h-4 w-4 text-aura-accent" />
+                ]
+              },
+              {
                 name: "Sam Rivera",
                 position: "Lead Developer",
                 image: "/placeholder.svg"
@@ -106,11 +115,6 @@ const About = () => {
               {
                 name: "Jordan Lee",
                 position: "UX/UI Designer",
-                image: "/placeholder.svg"
-              },
-              {
-                name: "Taylor Kim",
-                position: "Project Manager",
                 image: "/placeholder.svg"
               }
             ].map((member, index) => (
@@ -126,9 +130,60 @@ const About = () => {
                   />
                 </div>
                 <h3 className="text-xl font-semibold mb-1 font-heading">{member.name}</h3>
-                <p className="text-aura-accent text-sm mb-4">{member.position}</p>
+                <p className="text-aura-accent text-sm mb-2">{member.position}</p>
+                {member.icons && (
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    {member.icons}
+                  </div>
+                )}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Blake's Section */}
+      <section className="py-16 px-4 bg-aura-backgroundLight/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-lg blur-xl"></div>
+              <div className="relative tech-border rounded-lg overflow-hidden">
+                <div className="aspect-w-16 aspect-h-9 bg-aura-backgroundLight/40">
+                  <img 
+                    src="/placeholder.svg" 
+                    alt="Gaming and social media content" 
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold mb-6 font-heading">
+                Gaming & <span className="bg-gradient-to-r from-purple-400 to-aura-accent bg-clip-text text-transparent">Social Media</span>
+              </h2>
+              <div className="w-24 h-1.5 bg-gradient-to-r from-purple-400 to-aura-accent mb-6 rounded-full"></div>
+              <p className="text-aura-textSecondary text-lg mb-4">
+                Led by Blake Freshwater, our gaming and social media division creates engaging content across multiple platforms to connect with audiences worldwide.
+              </p>
+              <p className="text-aura-textSecondary text-lg mb-6">
+                From YouTube tutorials and gameplay videos to managing our social media presence, Blake brings creativity and expertise to expand our digital footprint.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <div className="px-4 py-2 bg-aura-background border border-aura-accent/20 rounded-full flex items-center gap-2">
+                  <Youtube size={16} className="text-aura-accent" />
+                  <span>YouTube Content</span>
+                </div>
+                <div className="px-4 py-2 bg-aura-background border border-aura-accent/20 rounded-full flex items-center gap-2">
+                  <Gamepad size={16} className="text-aura-accent" />
+                  <span>Gaming</span>
+                </div>
+                <div className="px-4 py-2 bg-aura-background border border-aura-accent/20 rounded-full flex items-center gap-2">
+                  <User size={16} className="text-aura-accent" />
+                  <span>Social Media</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
