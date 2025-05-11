@@ -1,27 +1,29 @@
 
-import * as THREE from 'three';
-
 export interface ParticleProps {
-  position: [number, number, number];
+  x: number;
+  y: number;
+  radius: number;
+  directionX: number;
+  directionY: number;
   color: string;
-  speed: number;
 }
 
 export interface ConnectionLineProps {
-  startPos: { current: THREE.Mesh | null };
-  endPos: { current: THREE.Mesh | null };
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  opacity: number;
   color: string;
-  threshold: number;
 }
 
 export interface ParticleNetworkProps {
-  count?: number;
-  connectionThreshold?: number;
-}
-
-export interface ParticleNetworkCanvasProps {
-  className?: string;
+  width?: number;
+  height?: number;
   particleCount?: number;
+  connectDistance?: number;
+  speed?: number;
   opacity?: number;
-  connectionThreshold?: number;
+  className?: string;
+  darkMode?: boolean;
 }
