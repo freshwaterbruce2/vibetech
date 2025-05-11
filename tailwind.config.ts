@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -70,6 +69,12 @@ export default {
 					accentSecondary: 'hsl(var(--aura-accent-secondary))',
 					text: 'hsl(var(--aura-text))', 
 					textSecondary: 'hsl(var(--aura-text-secondary))',
+					neonBlue: '#00f0ff',
+					neonPurple: '#9b00ff',
+					neonCyan: '#00e8ff',
+					neonOrange: '#ff7b00',
+					darkBg: '#0f1219',
+					darkBgLight: '#171c26'
 				}
 			},
 			borderRadius: {
@@ -146,8 +151,12 @@ export default {
 			boxShadow: {
 				'neon': '0 0 5px rgba(155, 0, 255, 0.2), 0 0 20px rgba(155, 0, 255, 0.2)',
 				'neon-lg': '0 0 10px rgba(155, 0, 255, 0.3), 0 0 30px rgba(155, 0, 255, 0.2), 0 0 50px rgba(155, 0, 255, 0.1)',
-				'neon-cyan': '0 0 5px rgba(0, 255, 255, 0.2), 0 0 20px rgba(0, 255, 255, 0.2)'
-			}
+				'neon-cyan': '0 0 5px rgba(0, 255, 255, 0.2), 0 0 20px rgba(0, 255, 255, 0.2)',
+				'neon-blue': '0 0 5px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3)',
+				'neon-purple': '0 0 5px rgba(155, 0, 255, 0.5), 0 0 20px rgba(155, 0, 255, 0.3)',
+				'neon-cyan': '0 0 5px rgba(0, 232, 255, 0.5), 0 0 20px rgba(0, 232, 255, 0.3)',
+				'neon-orange': '0 0 5px rgba(255, 123, 0, 0.5), 0 0 20px rgba(255, 123, 0, 0.3)'
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
