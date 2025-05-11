@@ -1,28 +1,28 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 // Individual particle component
 const Particle = ({ position, color, speed }) => {
-  const mesh = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Mesh>(null);
   
   useFrame(() => {
-    if (mesh.current) {
-      mesh.current.position.y += speed;
+    if (meshRef.current) {
+      meshRef.current.position.y += speed;
       
       // Reset position when particle goes off screen
-      if (mesh.current.position.y > 5) {
-        mesh.current.position.y = -5;
+      if (meshRef.current.position.y > 5) {
+        meshRef.current.position.y = -5;
         // Randomize x position when resetting
-        mesh.current.position.x = position[0] + (Math.random() - 0.5) * 2;
-        mesh.current.position.z = position[2] + (Math.random() - 0.5) * 2;
+        meshRef.current.position.x = position[0] + (Math.random() - 0.5) * 2;
+        meshRef.current.position.z = position[2] + (Math.random() - 0.5) * 2;
       }
     }
   });
   
   return (
-    <mesh ref={mesh} position={position}>
+    <mesh ref={meshRef} position={[position[0], position[1], position[2]]}>
       <sphereGeometry args={[0.05, 8, 8]} />
       <meshBasicMaterial color={color} transparent opacity={0.6} />
     </mesh>
@@ -31,13 +31,12 @@ const Particle = ({ position, color, speed }) => {
 
 // Connection line between particles
 const ConnectionLine = ({ startPos, endPos, color, threshold }) => {
-  const line = useRef<THREE.Line>(null);
+  const lineRef = useRef<THREE.Line>(null);
+  const [positions] = useState<Float32Array>(new Float32Array(6));
   
   useFrame(() => {
-    if (line.current && line.current.geometry instanceof THREE.BufferGeometry) {
+    if (lineRef.current && startPos.current && endPos.current) {
       // Update line vertices based on particle positions
-      const positions = line.current.geometry.attributes.position.array as Float32Array;
-      
       positions[0] = startPos.current.position.x;
       positions[1] = startPos.current.position.y;
       positions[2] = startPos.current.position.z;
@@ -46,33 +45,41 @@ const ConnectionLine = ({ startPos, endPos, color, threshold }) => {
       positions[4] = endPos.current.position.y;
       positions[5] = endPos.current.position.z;
       
-      line.current.geometry.attributes.position.needsUpdate = true;
+      lineRef.current.geometry.attributes.position.needsUpdate = true;
       
       // Calculate distance between particles
-      const distance = startPos.current.position.distanceTo(endPos.current.position);
+      const distance = new THREE.Vector3(
+        startPos.current.position.x, 
+        startPos.current.position.y, 
+        startPos.current.position.z
+      ).distanceTo(new THREE.Vector3(
+        endPos.current.position.x, 
+        endPos.current.position.y, 
+        endPos.current.position.z
+      ));
       
       // Only show lines for particles within threshold distance
       if (distance < threshold) {
-        line.current.visible = true;
+        lineRef.current.visible = true;
         
         // Adjust opacity based on distance
         const opacity = 1 - (distance / threshold);
-        if (line.current.material instanceof THREE.LineBasicMaterial) {
-          line.current.material.opacity = opacity * 0.3;
+        if (lineRef.current.material instanceof THREE.LineBasicMaterial) {
+          lineRef.current.material.opacity = opacity * 0.3;
         }
       } else {
-        line.current.visible = false;
+        lineRef.current.visible = false;
       }
     }
   });
   
   return (
-    <line ref={line}>
+    <line ref={lineRef}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
           count={2}
-          array={new Float32Array(6)}
+          array={positions}
           itemSize={3}
         />
       </bufferGeometry>
@@ -83,7 +90,7 @@ const ConnectionLine = ({ startPos, endPos, color, threshold }) => {
 
 // Particle network container
 const ParticleNetwork = ({ count = 15, connectionThreshold = 2 }) => {
-  const particles = useRef<THREE.Mesh[]>([]);
+  const particlesRef = useRef<THREE.Mesh[]>([]);
   
   // Generate particle positions
   const particleData = Array.from({ length: count }, (_, i) => ({
@@ -99,6 +106,11 @@ const ParticleNetwork = ({ count = 15, connectionThreshold = 2 }) => {
         : '#00ffcc',
     speed: (Math.random() + 0.1) * 0.005
   }));
+
+  useEffect(() => {
+    // Initialize particlesRef array with the correct length
+    particlesRef.current = particlesRef.current.slice(0, count);
+  }, [count]);
   
   return (
     <>
@@ -109,24 +121,26 @@ const ParticleNetwork = ({ count = 15, connectionThreshold = 2 }) => {
           position={data.position}
           color={data.color}
           speed={data.speed}
-          ref={(el) => { particles.current[i] = el; }}
         />
       ))}
       
       {/* Render connection lines */}
-      {particles.current.length === count && 
-        particleData.map((_, i) => (
-          particleData.slice(i + 1).map((_, j) => (
-            <ConnectionLine
-              key={`connection-${i}-${i + j + 1}`}
-              startPos={particles.current[i]}
-              endPos={particles.current[i + j + 1]}
-              color="#28f0ff"
-              threshold={connectionThreshold}
-            />
-          ))
-        ))
-      }
+      {particleData.map((_, i) => (
+        particleData.slice(i + 1).map((_, j) => {
+          if (particlesRef.current[i] && particlesRef.current[i + j + 1]) {
+            return (
+              <ConnectionLine
+                key={`connection-${i}-${i + j + 1}`}
+                startPos={{ current: particlesRef.current[i] }}
+                endPos={{ current: particlesRef.current[i + j + 1] }}
+                color="#28f0ff"
+                threshold={connectionThreshold}
+              />
+            );
+          }
+          return null;
+        })
+      ))}
     </>
   );
 };

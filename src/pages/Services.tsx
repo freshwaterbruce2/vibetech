@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { Code, Lightbulb, Layout, Database, Shield, Activity } from "lucide-react";
+import AnimateOnScroll from "@/components/ui/animate-on-scroll";
+import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
+import { GradientFeatherIcon } from "@/components/ui/gradient-feather-icon";
 
 const services = [
   {
@@ -90,16 +93,11 @@ const services = [
 
 const ServiceCard = ({ service }: { service: typeof services[0] }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="h-full"
-    >
-      <Card className="hover-scale h-full bg-aura-backgroundLight border-aura-accent/10 shadow-md hover:shadow-aura-accent/5">
+    <AnimateOnScroll>
+      <Card className="hover-scale h-full glass-card border-aura-accent/10">
         <CardHeader>
           <div className="flex items-center gap-3">
-            {service.icon}
+            <GradientFeatherIcon icon={service.icon.type} size={24} />
             <CardTitle>{service.name}</CardTitle>
           </div>
           <CardDescription>{service.description}</CardDescription>
@@ -117,7 +115,7 @@ const ServiceCard = ({ service }: { service: typeof services[0] }) => {
           </ul>
         </CardContent>
       </Card>
-    </motion.div>
+    </AnimateOnScroll>
   );
 };
 
@@ -125,18 +123,23 @@ const Services = () => {
   const [activeTab, setActiveTab] = useState("all");
 
   return (
-    <div className="min-h-screen bg-aura-background pb-16">
+    <div className="min-h-screen bg-aura-background pb-16 relative overflow-hidden">
+      {/* Mesh Aurora Background */}
+      <MeshAuroraBackground intensity="low" />
+      
       <NavBar />
       
-      <div className="max-w-7xl mx-auto px-4 pt-24">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 bg-gradient-to-r from-aura-accent to-aura-accentSecondary bg-clip-text text-transparent">
-            Our Services
-          </h1>
-          <p className="text-aura-textSecondary max-w-3xl mx-auto">
-            We offer a comprehensive range of technology solutions designed to transform your business and drive growth in today's digital landscape.
-          </p>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 pt-24 relative z-10">
+        <AnimateOnScroll>
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 bg-gradient-to-r from-aura-accent to-aura-accentSecondary bg-clip-text text-transparent">
+              Our Services
+            </h1>
+            <p className="text-aura-textSecondary max-w-3xl mx-auto">
+              We offer a comprehensive range of technology solutions designed to transform your business and drive growth in today's digital landscape.
+            </p>
+          </div>
+        </AnimateOnScroll>
         
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-10">
           <TabsList className="grid grid-cols-3 md:grid-cols-7 mb-8 bg-aura-backgroundLight">
