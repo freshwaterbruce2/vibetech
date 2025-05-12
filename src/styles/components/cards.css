@@ -35,7 +35,7 @@
   }
   
   .content-card-teal {
-    @apply glass-card p-6 border-[color:#00FFCC]/20] hover:border-[color:#00FFCC]/40] transition-all duration-300;
+    @apply glass-card p-6 border-[color:var(--c-teal)/20] hover:border-[color:var(--c-teal)/40] transition-all duration-300;
   }
   
   /* Feature card with icon */
