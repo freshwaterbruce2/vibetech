@@ -10,7 +10,7 @@
   }
   
   .neon-border-teal {
-    @apply border border-[#00FFCC]/30] shadow-neon-teal-soft;
+    @apply border border-[color:var(--c-teal)/30] shadow-neon-teal-soft;
   }
   
   /* Neon Sweep Button */
@@ -24,9 +24,43 @@
     z-index: 0;
   }
   
+  /* Neon Button variants */
+  .neon-btn-purple {
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[color:var(--c-purple)/30] hover:border-[color:var(--c-purple)/60] shadow-neon-purple-soft transition-all duration-300;
+  }
+  
+  .neon-btn-purple::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-[color:var(--c-purple)] to-[color:var(--c-purple)/70] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
+    z-index: 0;
+  }
+  
+  .neon-btn-teal {
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[color:var(--c-teal)/30] hover:border-[color:var(--c-teal)/60] shadow-neon-teal-soft transition-all duration-300;
+  }
+  
+  .neon-btn-teal::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-[color:var(--c-teal)] to-[color:var(--c-teal)/70] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
+    z-index: 0;
+  }
+  
   /* Icon Gradients */
   .icon-gradient {
     @apply text-transparent bg-clip-text bg-gradient-to-r from-futuristic-neonBlue via-futuristic-neonPurple to-futuristic-neonTeal;
+  }
+  
+  /* Icon variants */
+  .icon-gradient-cyan {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-cyan)/70];
+  }
+  
+  .icon-gradient-purple {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[color:var(--c-purple)] to-[color:var(--c-purple)/70];
+  }
+  
+  .icon-gradient-teal {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[color:var(--c-teal)] to-[color:var(--c-teal)/70];
   }
   
   /* Text with neon glow */
@@ -42,8 +76,83 @@
     @apply text-[#00FFCC] drop-shadow-[0_0_8px_#00FFCC];
   }
   
+  /* Gradient text classes */
+  .gradient-text {
+    @apply bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] bg-clip-text text-transparent;
+  }
+  
+  .gradient-text-full {
+    @apply bg-gradient-to-r from-[color:var(--c-cyan)] via-[color:var(--c-purple)] to-[color:var(--c-teal)] bg-clip-text text-transparent;
+  }
+  
+  .gradient-text-secondary {
+    @apply bg-gradient-to-r from-[color:var(--c-purple)] to-[color:var(--c-teal)] bg-clip-text text-transparent;
+  }
+  
   /* Neon divider line */
   .neon-divider {
     @apply h-px bg-gradient-to-r from-transparent via-[color:var(--c-cyan)/50] to-transparent my-6;
+  }
+  
+  .neon-divider-purple {
+    @apply h-px bg-gradient-to-r from-transparent via-[color:var(--c-purple)/50] to-transparent my-6;
+  }
+  
+  .neon-divider-teal {
+    @apply h-px bg-gradient-to-r from-transparent via-[color:var(--c-teal)/50] to-transparent my-6;
+  }
+  
+  /* Neon highlight for hover effects */
+  .neon-highlight-hover {
+    @apply transition-all duration-300;
+  }
+  
+  .neon-highlight-hover:hover {
+    @apply bg-[color:var(--c-cyan)/10] shadow-neon-blue-soft;
+  }
+  
+  .neon-highlight-hover-purple:hover {
+    @apply bg-[color:var(--c-purple)/10] shadow-neon-purple-soft;
+  }
+  
+  .neon-highlight-hover-teal:hover {
+    @apply bg-[color:var(--c-teal)/10] shadow-neon-teal-soft;
+  }
+  
+  /* New neon effects */
+  
+  /* Neon text with enhanced glow effect */
+  .neon-text-glow {
+    text-shadow: 0 0 7px var(--c-cyan),
+                 0 0 10px var(--c-cyan),
+                 0 0 21px var(--c-cyan);
+    @apply text-white;
+  }
+  
+  .neon-text-glow-purple {
+    text-shadow: 0 0 7px var(--c-purple),
+                 0 0 10px var(--c-purple),
+                 0 0 21px var(--c-purple);
+    @apply text-white;
+  }
+  
+  .neon-text-glow-teal {
+    text-shadow: 0 0 7px var(--c-teal),
+                 0 0 10px var(--c-teal),
+                 0 0 21px var(--c-teal);
+    @apply text-white;
+  }
+  
+  /* Neon box with subtle pulsing effect */
+  .neon-box {
+    @apply border border-[color:var(--c-cyan)/60] shadow-neon-blue rounded-md p-4 relative animate-pulse-glow;
+  }
+  
+  .neon-box-purple {
+    @apply border border-[color:var(--c-purple)/60] shadow-neon-purple rounded-md p-4 relative animate-pulse-glow;
+  }
+  
+  .neon-box-teal {
+    @apply border border-[color:var(--c-teal)/60] shadow-neon-teal rounded-md p-4 relative animate-pulse-glow;
   }
 }
