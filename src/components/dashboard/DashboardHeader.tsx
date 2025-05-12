@@ -1,7 +1,9 @@
 
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import PageHeader from "@/components/ui/page-header";
 
 interface DashboardHeaderProps {
   title: string;
@@ -11,15 +13,13 @@ interface DashboardHeaderProps {
 const DashboardHeader = ({ title, className = "" }: DashboardHeaderProps) => {
   return (
     <div className={`flex flex-col md:flex-row items-start md:items-center gap-4 ${className}`}>
-      <motion.h1 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-3xl md:text-4xl font-bold font-heading neon-text relative"
-      >
-        {title}
-        <span className="absolute -inset-1 blur-md bg-[color:var(--c-cyan)/20] rounded-lg -z-10"></span>
-      </motion.h1>
+      <div className="flex-grow">
+        <PageHeader 
+          title={title}
+          align="left"
+          className="mb-0"
+        />
+      </div>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
