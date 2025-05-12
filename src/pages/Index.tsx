@@ -6,6 +6,7 @@ import { NeonButton } from "@/components/ui/neon-button";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
+import ParticleNetworkCanvas from "@/components/ui/particle-network";
 
 const Index = () => {
   useEffect(() => {
@@ -21,7 +22,7 @@ const Index = () => {
       {/* Hero Section - Updated with glassmorphism and neon effects */}
       <section className="relative bg-hero-gradient bg-cover bg-fixed backdrop-blur-md pt-28 pb-20">
         <MeshAuroraBackground intensity="medium" />
-        <div className="glass-card mx-auto max-w-6xl px-6 py-10 lg:flex lg:items-center relative z-10">
+        <div className="glass-card mx-auto max-w-6xl px-6 py-10 lg:flex lg:items-center relative z-10 border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft">
           {/* Left side - Avatar with neon border */}
           <div className="w-full md:w-1/3 mb-10 md:mb-0 spotlight">
             <div className="relative w-64 h-64 mx-auto">
@@ -36,7 +37,7 @@ const Index = () => {
           {/* Right side - Text with neon elements */}
           <div className="w-full md:w-2/3 md:pl-12">
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              Hello! I'm <span className="bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] bg-clip-text text-transparent">Your Name</span>
+              Hello! I'm <span className="bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Your Name</span>
             </h1>
             <div className="mb-6 flex items-center">
               <span className="text-2xl md:text-3xl font-semibold">
@@ -44,7 +45,7 @@ const Index = () => {
               </span>
               <span className="ml-1 text-3xl animate-pulse">|</span>
             </div>
-            <p className="text-aura-textSecondary text-lg mb-8 max-w-2xl">
+            <p className="text-slate-200/90 text-lg mb-8 max-w-2xl">
               Currently, I'm a Software Engineer at Facebook. I specialize in building exceptional digital experiences that are fast, accessible, and visually appealing.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -60,9 +61,11 @@ const Index = () => {
       </section>
 
       {/* Services Section - Now with glassmorphic cards */}
-      <section className="py-16 px-4 bg-aura-backgroundLight/30">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center font-heading slice-heading">Services I Offer</h2>
+      <section className="py-16 px-4 bg-aura-backgroundLight/30 relative">
+        <MeshAuroraBackground intensity="low" />
+        <div className="particles-bg-dense absolute inset-0 z-[1] opacity-60 pointer-events-none"></div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <h2 className="text-3xl font-bold mb-12 text-center font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Services I Offer</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
@@ -84,10 +87,10 @@ const Index = () => {
             ].map((service, index) => (
               <div 
                 key={index} 
-                className="glass-card p-6 rounded-lg hover:shadow-lg transition-shadow"
+                className="glass-card p-6 border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
               >
-                <h3 className="text-xl font-semibold mb-3 font-heading">{service.title}</h3>
-                <p className="text-aura-textSecondary">{service.description}</p>
+                <h3 className="text-xl font-semibold mb-3 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">{service.title}</h3>
+                <p className="text-slate-200/90">{service.description}</p>
               </div>
             ))}
           </div>
@@ -95,9 +98,10 @@ const Index = () => {
       </section>
 
       {/* Portfolio Highlights - With glassmorphic cards */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center font-heading slice-heading">Recent Projects</h2>
+      <section className="py-16 px-4 relative">
+        <MeshAuroraBackground intensity="low" />
+        <div className="max-w-6xl mx-auto relative z-10">
+          <h2 className="text-3xl font-bold mb-12 text-center font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Recent Projects</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((project) => (
               <Link 
@@ -105,7 +109,7 @@ const Index = () => {
                 to={`/portfolio/project-${project}`}
                 className="group"
               >
-                <div className="glass-card overflow-hidden border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] transition-all duration-300 h-full">
+                <div className="glass-card border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 h-full">
                   <div className="h-48 overflow-hidden">
                     <img 
                       src={`/placeholder.svg`} 
@@ -114,10 +118,10 @@ const Index = () => {
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="text-xl font-semibold mb-2 font-heading group-hover:text-[color:var(--c-cyan)] transition-colors">
+                    <h3 className="text-xl font-semibold mb-2 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">
                       Project Title {project}
                     </h3>
-                    <p className="text-sm text-aura-textSecondary">
+                    <p className="text-sm text-slate-200/90">
                       Brief description of the project and the technologies used.
                     </p>
                   </div>
@@ -134,9 +138,11 @@ const Index = () => {
       </section>
 
       {/* Latest Blog Posts - With glassmorphic cards */}
-      <section className="py-16 px-4 bg-aura-backgroundLight/30">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center font-heading slice-heading">Latest Articles</h2>
+      <section className="py-16 px-4 bg-aura-backgroundLight/30 relative">
+        <MeshAuroraBackground intensity="low" />
+        <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <h2 className="text-3xl font-bold mb-12 text-center font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Latest Articles</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[1, 2].map((post) => (
               <Link 
@@ -144,19 +150,19 @@ const Index = () => {
                 to={`/blog/post-${post}`}
                 className="group"
               >
-                <div className="glass-card overflow-hidden hover:border-[color:var(--c-cyan)/40] transition-all duration-300 h-full p-6">
+                <div className="glass-card border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 h-full p-6">
                   <div className="mb-4">
                     <span className="text-xs uppercase tracking-wider text-[color:var(--c-cyan)]">
                       Category
                     </span>
-                    <h3 className="text-xl font-semibold my-2 font-heading group-hover:text-[color:var(--c-cyan)] transition-colors">
+                    <h3 className="text-xl font-semibold my-2 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">
                       Blog Post Title {post}
                     </h3>
-                    <p className="text-sm text-aura-textSecondary mb-3">
+                    <p className="text-sm text-slate-200/90 mb-3">
                       May 10, 2023
                     </p>
                   </div>
-                  <p className="text-aura-textSecondary">
+                  <p className="text-slate-200/90">
                     Brief excerpt from the blog post that gives readers an idea of what the article is about...
                   </p>
                   <div className="mt-4 text-[color:var(--c-cyan)] group-hover:drop-shadow-[0_0_6px_var(--c-cyan)] transition-all">Read more</div>
@@ -175,10 +181,11 @@ const Index = () => {
       {/* CTA Section - With gradient background */}
       <section className="py-20 px-4 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-aura-background to-aura-backgroundLight opacity-80 z-0"></div>
-        <MeshAuroraBackground intensity="low" className="opacity-30" />
+        <MeshAuroraBackground intensity="medium" />
+        <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-4 font-heading">Let's Work Together</h2>
-          <p className="text-aura-textSecondary mb-8 text-lg max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Let's Work Together</h2>
+          <p className="text-slate-200/90 mb-8 text-lg max-w-2xl mx-auto">
             Ready to bring your ideas to life? Get in touch today to discuss how we can collaborate on your next project.
           </p>
           <NeonButton variant="gradient" size="lg" asChild>
