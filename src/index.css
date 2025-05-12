@@ -226,7 +226,7 @@
   
   /* Neon Sweep Button */
   .neon-sweep-btn {
-    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-cyan/30 hover:border-cyan/60 shadow-neon-blue-soft transition-all duration-300;
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] shadow-neon-blue-soft transition-all duration-300;
   }
   
   .neon-sweep-btn::before {
