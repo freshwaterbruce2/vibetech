@@ -1,102 +1,92 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { NeonButton } from "@/components/ui/neon-button";
 import { Link } from "react-router-dom";
-import { Computer, Wifi } from "lucide-react";
+import { Laptop, User } from "lucide-react";
 
 const RemoteServicesBanner: React.FC = () => {
   return (
     <section className="py-16 px-4 bg-aura-backgroundLight/30">
       <div className="max-w-6xl mx-auto">
-        <div className="rounded-2xl overflow-hidden border border-aura-accent/20 shadow-lg">
-          <div className="p-8 md:p-10 bg-gradient-to-r from-aura-background to-aura-backgroundLight">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div>
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  viewport={{ once: true }}
-                  className="mb-6 flex items-center gap-4"
-                >
-                  <div className="p-3 rounded-full bg-aura-accent/10 border border-aura-accent/20">
-                    <Computer className="h-8 w-8 text-aura-accent" />
-                  </div>
-                  <div className="p-3 rounded-full bg-aura-accent/10 border border-aura-accent/20">
-                    <Wifi className="h-8 w-8 text-aura-accent" />
-                  </div>
-                </motion.div>
-                <motion.h2 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                  viewport={{ once: true }}
-                  className="text-3xl font-bold mb-4 font-heading"
-                >
-                  Remote Computer <span className="bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">Repair Services</span>
-                </motion.h2>
-                <motion.p 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  viewport={{ once: true }}
-                  className="text-aura-textSecondary mb-8"
-                >
-                  We offer complete remote computer repair services without ever needing to visit your home or office. 
-                  Our certified technicians can resolve most software issues, remove viruses, optimize performance, 
-                  and provide technical support through secure remote connections.
-                </motion.p>
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  viewport={{ once: true }}
-                >
-                  <Button asChild size="lg" className="bg-aura-accent hover:bg-aura-accent/90">
-                    <Link to="/contact">Schedule Remote Support</Link>
-                  </Button>
-                </motion.div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold mb-4 font-heading">
+              Personalized <span className="bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">Integration Services</span>
+            </h2>
+            <div className="w-32 h-1.5 bg-gradient-to-r from-aura-accent to-purple-400 mb-6 rounded-full"></div>
+            
+            <p className="text-aura-textSecondary text-lg mb-4">
+              We offer both in-person and remote assistance to help you set up and optimize 
+              any of our featured tools and integrations for your specific needs.
+            </p>
+            
+            <p className="text-aura-textSecondary text-lg mb-6">
+              Whether you need help with affiliate link management, e-commerce setup, or 
+              marketing automation, our team of experts is ready to assist you.
+            </p>
+            
+            <div className="flex flex-wrap gap-4 mt-8">
+              <div className="bg-aura-background border border-aura-accent/20 rounded-lg p-4 flex items-center gap-4">
+                <div className="p-3 rounded-full bg-aura-accent/10">
+                  <User className="h-5 w-5 text-aura-accent" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">In-Person Assistance</h3>
+                  <p className="text-sm text-aura-textSecondary">Local support in Somerton, SC</p>
+                </div>
               </div>
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                viewport={{ once: true }}
-                className="relative"
-              >
-                <div className="aspect-video rounded-lg overflow-hidden border border-aura-accent/20 shadow-xl">
-                  <img 
-                    src="/lovable-uploads/17248351-a7fd-403a-a51f-7e5bb7e15ac8.png" 
-                    alt="Advanced tech support with futuristic interface" 
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-aura-accent/10 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-aura-background/90 to-transparent">
-                    <h3 className="font-medium text-xl mb-2">How Remote Support Works</h3>
-                    <ul className="space-y-1">
-                      <li className="flex items-center gap-2">
-                        <span className="text-aura-accent font-bold">1.</span>
-                        <span>Contact us to schedule remote support</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-aura-accent font-bold">2.</span>
-                        <span>We'll provide a secure connection link</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-aura-accent font-bold">3.</span>
-                        <span>Our technician diagnoses and fixes the issue</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="text-aura-accent font-bold">4.</span>
-                        <span>Only pay after successful resolution</span>
-                      </li>
-                    </ul>
+              
+              <div className="bg-aura-background border border-aura-accent/20 rounded-lg p-4 flex items-center gap-4">
+                <div className="p-3 rounded-full bg-aura-accent/10">
+                  <Laptop className="h-5 w-5 text-aura-accent" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Remote Services</h3>
+                  <p className="text-sm text-aura-textSecondary">Available nationwide</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-8">
+              <NeonButton asChild variant="purple">
+                <Link to="/contact">
+                  Schedule a Consultation
+                </Link>
+              </NeonButton>
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-lg blur-xl"></div>
+            <div className="relative tech-border rounded-lg overflow-hidden">
+              <div className="aspect-w-16 aspect-h-9 bg-aura-backgroundLight/40 p-8 flex flex-col justify-center items-center">
+                <div className="flex gap-6 flex-wrap justify-center">
+                  <div className="p-5 rounded-full bg-aura-background border border-aura-accent/30 shadow-neon-blue-soft">
+                    <Link2 className="h-8 w-8 text-aura-accent" />
+                  </div>
+                  <div className="p-5 rounded-full bg-aura-background border border-purple-400/30 shadow-neon-purple-soft">
+                    <ShoppingCart className="h-8 w-8 text-purple-400" />
+                  </div>
+                  <div className="p-5 rounded-full bg-aura-background border border-teal-400/30 shadow-neon-teal-soft">
+                    <Mail className="h-8 w-8 text-teal-400" />
                   </div>
                 </div>
-              </motion.div>
+                <p className="text-center mt-8 text-aura-textSecondary">
+                  Connecting your digital tools for seamless workflows
+                </p>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
