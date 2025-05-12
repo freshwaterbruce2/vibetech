@@ -21,4 +21,20 @@
     pointer-events: none;
     opacity: 0.6;
   }
+  
+  /* Glass Panel - for larger content areas */
+  .glass-panel {
+    @apply bg-[rgba(18,18,30,0.45)] backdrop-blur-[8px] border border-white/5 rounded-lg;
+  }
+  
+  /* Glass Navbar */
+  .glass-navbar {
+    @apply bg-[rgba(18,18,30,0.75)] backdrop-blur-[16px] border-b border-white/10;
+  }
+  
+  /* Glass Button */
+  .glass-button {
+    @apply bg-[rgba(255,255,255,0.1)] backdrop-blur-sm border border-white/20 
+    hover:bg-[rgba(255,255,255,0.15)] transition-all duration-300;
+  }
 }

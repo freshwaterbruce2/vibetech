@@ -140,4 +140,17 @@
   ::selection {
     @apply bg-[color:var(--c-cyan)/30] text-white;
   }
+  
+  /* Universal page layout styles */
+  .page-container {
+    @apply min-h-screen dashboard-bg;
+  }
+  
+  .content-section {
+    @apply py-8 px-4 md:py-12 lg:py-16 max-w-7xl mx-auto;
+  }
+  
+  .heading-gradient {
+    @apply bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] bg-clip-text text-transparent;
+  }
 }

@@ -24,4 +24,26 @@
     background-attachment: fixed;
     background-size: cover;
   }
+  
+  /* Card variants with consistent styling */
+  .content-card {
+    @apply glass-card p-6 border-[color:var(--c-cyan)/20] hover:border-[color:var(--c-cyan)/40] transition-all duration-300;
+  }
+  
+  .content-card-purple {
+    @apply glass-card p-6 border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] transition-all duration-300;
+  }
+  
+  .content-card-teal {
+    @apply glass-card p-6 border-[color:#00FFCC]/20 hover:border-[color:#00FFCC]/40 transition-all duration-300;
+  }
+  
+  /* Feature card with icon */
+  .feature-card {
+    @apply glass-card p-6 border-[color:var(--c-cyan)/20];
+  }
+  
+  .feature-card:hover {
+    @apply border-[color:var(--c-cyan)/40] shadow-neon-blue-soft transform -translate-y-1;
+  }
 }
