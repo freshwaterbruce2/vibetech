@@ -69,26 +69,30 @@ export default {
 					accentSecondary: 'hsl(var(--aura-accent-secondary))',
 					text: 'hsl(var(--aura-text))', 
 					textSecondary: 'hsl(var(--aura-text-secondary))',
-					neonBlue: '#00f0ff',
-					neonPurple: '#9b00ff',
-					neonCyan: '#00e8ff',
+					neonBlue: 'var(--c-cyan)',
+					neonPurple: 'var(--c-purple)',
+					neonCyan: 'var(--c-cyan)',
 					neonOrange: '#ff7b00',
 					neonGreen: '#00ff66',
 					neonPink: '#ff00e4',
-					darkBg: '#0a0c12',
+					darkBg: 'var(--bg-start)',
 					darkBgLight: '#12141c'
 				},
 				
 				// Updated futuristic colors to match 2025-grade spec
 				futuristic: {
-					neonBlue: '#28f0ff',
-					neonPurple: '#9c57ff', 
+					neonBlue: 'var(--c-cyan)',
+					neonPurple: 'var(--c-purple)', 
 					neonTeal: '#00ffcc',
-					darkBg: '#0B0B17',
+					darkBg: 'var(--bg-start)',
 					darkBgLight: '#111125',
-					glassOverlay: 'rgba(18, 18, 30, 0.35)',
-					cardBorder: 'rgba(40, 240, 255, 0.3)'
-				}
+					glassOverlay: 'var(--glass-bg)',
+					cardBorder: 'rgba(0, 240, 255, 0.3)'
+				},
+				
+				// New direct token mappings
+				cyan: 'var(--c-cyan)',
+				purple: 'var(--c-purple)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
