@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import PalettePreview from './pages/PalettePreview';
 import FuturisticDemo from './pages/FuturisticDemo';
 import BlogPostPage from './pages/public/BlogPostPage';
+import Services from './pages/Services';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/palette-preview" element={<PalettePreview />} />
         <Route path="/futuristic-demo" element={<FuturisticDemo />} />
+        <Route path="/services" element={<Services />} />
       </Routes>
     </Router>
   );
