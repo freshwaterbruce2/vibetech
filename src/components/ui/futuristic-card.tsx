@@ -19,8 +19,8 @@ const FuturisticCard = ({
   glowIntensity = "medium",
 }: FuturisticCardProps) => {
   const variants = {
-    blue: "border-cyan/30 hover:border-cyan/60 shadow-neon-blue-soft",
-    purple: "border-purple/30 hover:border-purple/60 shadow-neon-purple-soft",
+    blue: "border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] shadow-neon-blue-soft",
+    purple: "border-[color:var(--c-purple)/30] hover:border-[color:var(--c-purple)/60] shadow-neon-purple-soft",
     teal: "border-teal/30 hover:border-teal/60 shadow-neon-teal-soft",
     glass: "border-white/10 hover:border-white/20",
   };
@@ -50,8 +50,8 @@ const FuturisticCard = ({
         <div className={cn(
           "absolute inset-0 -z-10 blur-xl rounded-xl opacity-20",
           {
-            "bg-cyan": variant === "blue",
-            "bg-purple": variant === "purple",
+            "bg-[color:var(--c-cyan)]": variant === "blue",
+            "bg-[color:var(--c-purple)]": variant === "purple",
             "bg-teal": variant === "teal",
           }
         )} />
