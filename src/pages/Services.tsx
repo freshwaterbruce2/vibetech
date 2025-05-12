@@ -9,6 +9,7 @@ import { Code, Lightbulb, Layout, Database, Shield, Activity } from "lucide-reac
 import AnimateOnScroll from "@/components/ui/animate-on-scroll";
 import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
 import { GradientFeatherIcon } from "@/components/ui/gradient-feather-icon";
+import SectionHeading from "@/components/ui/section-heading";
 
 const services = [
   {
@@ -103,13 +104,26 @@ const ServiceCard = ({ service }: { service: typeof services[0] }) => {
     }
   };
 
+  // Get the neon border color class
+  const getNeonBorderClass = () => {
+    if (service.icon.props.className.includes("var(--c-cyan)")) {
+      return "neon-border";
+    } else if (service.icon.props.className.includes("var(--c-purple)")) {
+      return "neon-border-purple";
+    } else {
+      return "neon-border-teal";
+    }
+  };
+
   return (
     <AnimateOnScroll>
-      <Card className="hover-scale h-full glass-card border-[color:var(--c-cyan)]/10">
+      <Card className={`hover-scale h-full glass-card ${getNeonBorderClass()} hover:shadow-lg transition-all duration-300`}>
         <CardHeader className="text-aura-text">
           <div className="flex items-center gap-3">
-            <GradientFeatherIcon icon={service.icon.type} size={24} />
-            <CardTitle className="text-aura-text">{service.name}</CardTitle>
+            <div className="p-2 rounded-full bg-[rgba(255,255,255,0.05)]">
+              <GradientFeatherIcon icon={service.icon.type} size={24} />
+            </div>
+            <CardTitle className="text-aura-text gradient-text-full">{service.name}</CardTitle>
           </div>
           <CardDescription className="text-aura-textSecondary">{service.description}</CardDescription>
         </CardHeader>
@@ -117,7 +131,7 @@ const ServiceCard = ({ service }: { service: typeof services[0] }) => {
           <ul className="space-y-2">
             {service.features.map((feature, index) => (
               <li key={index} className="flex items-start gap-2 text-aura-text">
-                <Badge variant="outline" className={`${getBadgeColor()} mt-0.5`}>
+                <Badge variant="outline" className={`${getBadgeColor()} mt-0.5 animate-pulse-glow`}>
                   {index + 1}
                 </Badge>
                 <span>{feature}</span>
@@ -135,17 +149,31 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-aura-background pb-16 relative overflow-hidden">
-      {/* Mesh Aurora Background */}
-      <MeshAuroraBackground intensity="low" />
+      {/* Mesh Aurora Background with increased intensity */}
+      <MeshAuroraBackground intensity="medium" />
+      
+      {/* Add subtle particle overlay for more neon effect */}
+      <div className="particles-bg-dense absolute inset-0 z-[1] opacity-70"></div>
       
       <NavBar />
       
       <div className="max-w-7xl mx-auto px-4 pt-24 relative z-10">
         <AnimateOnScroll>
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 gradient-text-full">
-              Our Services
-            </h1>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="mb-4"
+            >
+              <div className="inline-block">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 gradient-text-full relative">
+                  Our Services
+                  <span className="absolute -inset-1 rounded-lg blur-xl bg-gradient-to-r from-[color:var(--c-cyan)]/20 via-[color:var(--c-purple)]/20 to-[color:var(--c-teal)]/20 z-[-1]"></span>
+                </h1>
+                <div className="neon-divider w-3/4 mx-auto"></div>
+              </div>
+            </motion.div>
             <p className="text-aura-textSecondary max-w-3xl mx-auto">
               We offer a comprehensive range of technology solutions designed to transform your business and drive growth in today's digital landscape.
             </p>
@@ -154,13 +182,13 @@ const Services = () => {
         
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-10">
           <TabsList className="grid grid-cols-3 md:grid-cols-7 mb-8 bg-aura-backgroundLight">
-            <TabsTrigger value="all" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-cyan)]/20">All</TabsTrigger>
-            <TabsTrigger value="web" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-cyan)]/20">Web</TabsTrigger>
-            <TabsTrigger value="app" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-purple)]/20">Apps</TabsTrigger>
-            <TabsTrigger value="ai" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-teal)]/20">AI</TabsTrigger>
-            <TabsTrigger value="cloud" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-cyan)]/20">Cloud</TabsTrigger>
-            <TabsTrigger value="security" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-purple)]/20">Security</TabsTrigger>
-            <TabsTrigger value="consulting" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-teal)]/20">Consulting</TabsTrigger>
+            <TabsTrigger value="all" className="data-[state=active]:text-[color:var(--c-cyan)] data-[state=active]:bg-[color:var(--c-cyan)]/20 data-[state=active]:shadow-neon-blue-soft">All</TabsTrigger>
+            <TabsTrigger value="web" className="data-[state=active]:text-[color:var(--c-cyan)] data-[state=active]:bg-[color:var(--c-cyan)]/20 data-[state=active]:shadow-neon-blue-soft">Web</TabsTrigger>
+            <TabsTrigger value="app" className="data-[state=active]:text-[color:var(--c-purple)] data-[state=active]:bg-[color:var(--c-purple)]/20 data-[state=active]:shadow-neon-purple-soft">Apps</TabsTrigger>
+            <TabsTrigger value="ai" className="data-[state=active]:text-[color:var(--c-teal)] data-[state=active]:bg-[color:var(--c-teal)]/20 data-[state=active]:shadow-neon-teal-soft">AI</TabsTrigger>
+            <TabsTrigger value="cloud" className="data-[state=active]:text-[color:var(--c-cyan)] data-[state=active]:bg-[color:var(--c-cyan)]/20 data-[state=active]:shadow-neon-blue-soft">Cloud</TabsTrigger>
+            <TabsTrigger value="security" className="data-[state=active]:text-[color:var(--c-purple)] data-[state=active]:bg-[color:var(--c-purple)]/20 data-[state=active]:shadow-neon-purple-soft">Security</TabsTrigger>
+            <TabsTrigger value="consulting" className="data-[state=active]:text-[color:var(--c-teal)] data-[state=active]:bg-[color:var(--c-teal)]/20 data-[state=active]:shadow-neon-teal-soft">Consulting</TabsTrigger>
           </TabsList>
           
           <TabsContent value="all">
@@ -180,6 +208,11 @@ const Services = () => {
           ))}
         </Tabs>
       </div>
+      
+      {/* Add floating neon elements to enhance the visual appeal */}
+      <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[color:var(--c-cyan)]/5 to-transparent z-[1] pointer-events-none"></div>
+      <div className="fixed top-1/4 -left-20 w-40 h-40 rounded-full bg-[color:var(--c-purple)]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+      <div className="fixed top-3/4 -right-20 w-40 h-40 rounded-full bg-[color:var(--c-teal)]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
     </div>
   );
 };
