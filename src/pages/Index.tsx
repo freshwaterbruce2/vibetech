@@ -3,10 +3,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { NeonButton } from "@/components/ui/neon-button";
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
-import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
-import ParticleNetworkCanvas from "@/components/ui/particle-network";
+import PageLayout from "@/components/layout/PageLayout";
 
 const Index = () => {
   useEffect(() => {
@@ -16,18 +13,9 @@ const Index = () => {
   const placeholderAvatar = "/placeholder.svg";
 
   return (
-    <div className="min-h-screen dashboard-bg relative overflow-hidden">
-      {/* Enhanced background elements */}
-      <MeshAuroraBackground intensity="medium" />
-      <ParticleNetworkCanvas particleCount={15} opacity={0.08} />
-      
-      {/* Add subtle particle overlay for more tech effect */}
-      <div className="particles-bg-dense absolute inset-0 z-[1] opacity-70 pointer-events-none"></div>
-      
-      <NavBar />
-      
+    <PageLayout>
       {/* Hero Section - Updated with glassmorphism and neon effects */}
-      <section className="relative pt-28 pb-20">
+      <section className="pt-28 pb-20">
         <div className="glass-card mx-auto max-w-6xl px-6 py-10 lg:flex lg:items-center relative z-10 border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft">
           {/* Left side - Avatar with neon border */}
           <div className="w-full md:w-1/3 mb-10 md:mb-0 spotlight">
@@ -66,10 +54,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Services Section - Now with glassmorphic cards */}
+      {/* Services Section - With glassmorphic cards */}
       <section className="py-16 px-4 relative">
-        <MeshAuroraBackground intensity="low" />
-        <div className="particles-bg-dense absolute inset-0 z-[1] opacity-60 pointer-events-none"></div>
         <div className="max-w-6xl mx-auto relative z-10">
           <h2 className="text-3xl font-bold mb-12 text-center font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Services I Offer</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -105,7 +91,6 @@ const Index = () => {
 
       {/* Portfolio Highlights - With glassmorphic cards */}
       <section className="py-16 px-4 relative">
-        <MeshAuroraBackground intensity="low" />
         <div className="max-w-6xl mx-auto relative z-10">
           <h2 className="text-3xl font-bold mb-12 text-center font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Recent Projects</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -115,7 +100,7 @@ const Index = () => {
                 to={`/portfolio/project-${project}`}
                 className="group"
               >
-                <div className="glass-card border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 h-full">
+                <div className="glass-card border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 h-full">
                   <div className="h-48 overflow-hidden">
                     <img 
                       src={`/placeholder.svg`} 
@@ -145,8 +130,6 @@ const Index = () => {
 
       {/* Latest Blog Posts - With glassmorphic cards */}
       <section className="py-16 px-4 relative">
-        <MeshAuroraBackground intensity="low" />
-        <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
         <div className="max-w-6xl mx-auto relative z-10">
           <h2 className="text-3xl font-bold mb-12 text-center font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Latest Articles</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -186,8 +169,6 @@ const Index = () => {
 
       {/* CTA Section - With gradient background */}
       <section className="py-20 px-4 relative">
-        <MeshAuroraBackground intensity="medium" />
-        <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10 glass-card p-12 border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft">
           <h2 className="text-3xl font-bold mb-4 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Let's Work Together</h2>
           <p className="text-slate-200/90 mb-8 text-lg max-w-2xl mx-auto">
@@ -198,9 +179,7 @@ const Index = () => {
           </NeonButton>
         </div>
       </section>
-      
-      <Footer />
-    </div>
+    </PageLayout>
   );
 };
 
