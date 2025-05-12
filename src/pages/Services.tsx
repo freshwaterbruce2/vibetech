@@ -106,17 +106,17 @@ const ServiceCard = ({ service }: { service: typeof services[0] }) => {
   return (
     <AnimateOnScroll>
       <Card className="hover-scale h-full glass-card border-[color:var(--c-cyan)]/10">
-        <CardHeader>
+        <CardHeader className="text-aura-text">
           <div className="flex items-center gap-3">
             <GradientFeatherIcon icon={service.icon.type} size={24} />
-            <CardTitle>{service.name}</CardTitle>
+            <CardTitle className="text-aura-text">{service.name}</CardTitle>
           </div>
-          <CardDescription>{service.description}</CardDescription>
+          <CardDescription className="text-aura-textSecondary">{service.description}</CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
             {service.features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-2">
+              <li key={index} className="flex items-start gap-2 text-aura-text">
                 <Badge variant="outline" className={`${getBadgeColor()} mt-0.5`}>
                   {index + 1}
                 </Badge>
@@ -154,13 +154,13 @@ const Services = () => {
         
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-10">
           <TabsList className="grid grid-cols-3 md:grid-cols-7 mb-8 bg-aura-backgroundLight">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="web">Web</TabsTrigger>
-            <TabsTrigger value="app">Apps</TabsTrigger>
-            <TabsTrigger value="ai">AI</TabsTrigger>
-            <TabsTrigger value="cloud">Cloud</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="consulting">Consulting</TabsTrigger>
+            <TabsTrigger value="all" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-cyan)]/20">All</TabsTrigger>
+            <TabsTrigger value="web" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-cyan)]/20">Web</TabsTrigger>
+            <TabsTrigger value="app" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-purple)]/20">Apps</TabsTrigger>
+            <TabsTrigger value="ai" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-teal)]/20">AI</TabsTrigger>
+            <TabsTrigger value="cloud" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-cyan)]/20">Cloud</TabsTrigger>
+            <TabsTrigger value="security" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-purple)]/20">Security</TabsTrigger>
+            <TabsTrigger value="consulting" className="data-[state=active]:text-aura-text data-[state=active]:bg-[color:var(--c-teal)]/20">Consulting</TabsTrigger>
           </TabsList>
           
           <TabsContent value="all">
