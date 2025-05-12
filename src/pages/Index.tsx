@@ -16,12 +16,18 @@ const Index = () => {
   const placeholderAvatar = "/placeholder.svg";
 
   return (
-    <div className="min-h-screen bg-aura-background">
+    <div className="min-h-screen dashboard-bg relative overflow-hidden">
+      {/* Enhanced background elements */}
+      <MeshAuroraBackground intensity="medium" />
+      <ParticleNetworkCanvas particleCount={15} opacity={0.08} />
+      
+      {/* Add subtle particle overlay for more tech effect */}
+      <div className="particles-bg-dense absolute inset-0 z-[1] opacity-70 pointer-events-none"></div>
+      
       <NavBar />
       
       {/* Hero Section - Updated with glassmorphism and neon effects */}
-      <section className="relative bg-hero-gradient bg-cover bg-fixed backdrop-blur-md pt-28 pb-20">
-        <MeshAuroraBackground intensity="medium" />
+      <section className="relative pt-28 pb-20">
         <div className="glass-card mx-auto max-w-6xl px-6 py-10 lg:flex lg:items-center relative z-10 border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft">
           {/* Left side - Avatar with neon border */}
           <div className="w-full md:w-1/3 mb-10 md:mb-0 spotlight">
@@ -61,7 +67,7 @@ const Index = () => {
       </section>
 
       {/* Services Section - Now with glassmorphic cards */}
-      <section className="py-16 px-4 bg-aura-backgroundLight/30 relative">
+      <section className="py-16 px-4 relative">
         <MeshAuroraBackground intensity="low" />
         <div className="particles-bg-dense absolute inset-0 z-[1] opacity-60 pointer-events-none"></div>
         <div className="max-w-6xl mx-auto relative z-10">
@@ -138,7 +144,7 @@ const Index = () => {
       </section>
 
       {/* Latest Blog Posts - With glassmorphic cards */}
-      <section className="py-16 px-4 bg-aura-backgroundLight/30 relative">
+      <section className="py-16 px-4 relative">
         <MeshAuroraBackground intensity="low" />
         <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
         <div className="max-w-6xl mx-auto relative z-10">
@@ -180,10 +186,9 @@ const Index = () => {
 
       {/* CTA Section - With gradient background */}
       <section className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-aura-background to-aura-backgroundLight opacity-80 z-0"></div>
         <MeshAuroraBackground intensity="medium" />
         <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <div className="max-w-4xl mx-auto text-center relative z-10 glass-card p-12 border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple-soft">
           <h2 className="text-3xl font-bold mb-4 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Let's Work Together</h2>
           <p className="text-slate-200/90 mb-8 text-lg max-w-2xl mx-auto">
             Ready to bring your ideas to life? Get in touch today to discuss how we can collaborate on your next project.
