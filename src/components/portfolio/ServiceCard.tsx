@@ -13,7 +13,7 @@ const ServiceCard = ({ title, description, icon }: ServiceCardProps) => {
       <div className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-[rgba(0,240,255,0.1)] border border-[color:var(--c-cyan)/20]">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold mb-3 font-heading">{title}</h3>
+      <h3 className="text-xl font-semibold mb-3 font-heading text-aura-text">{title}</h3>
       <p className="text-aura-textSecondary">{description}</p>
     </div>
   );
