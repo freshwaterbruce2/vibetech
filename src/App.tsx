@@ -11,6 +11,7 @@ import PalettePreview from './pages/PalettePreview';
 import FuturisticDemo from './pages/FuturisticDemo';
 import BlogPostPage from './pages/public/BlogPostPage';
 import Services from './pages/Services';
+import Tools from './pages/Tools';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/palette-preview" element={<PalettePreview />} />
         <Route path="/futuristic-demo" element={<FuturisticDemo />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/tools" element={<Tools />} />
       </Routes>
     </Router>
   );
