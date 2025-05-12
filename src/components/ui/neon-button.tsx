@@ -14,11 +14,11 @@ interface NeonButtonProps extends Omit<ButtonProps, "variant"> {
 const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
   ({ className, variant = "blue", glowIntensity = "medium", children, ...props }, ref) => {
     const variantStyles = {
-      blue: "border-futuristic-neonBlue/30 hover:border-futuristic-neonBlue/60 hover:shadow-neon-blue-soft before:from-futuristic-neonBlue before:to-futuristic-neonBlue/70",
-      purple: "border-futuristic-neonPurple/30 hover:border-futuristic-neonPurple/60 hover:shadow-neon-purple-soft before:from-futuristic-neonPurple before:to-futuristic-neonPurple/70",
-      teal: "border-futuristic-neonTeal/30 hover:border-futuristic-neonTeal/60 hover:shadow-neon-teal-soft before:from-futuristic-neonTeal before:to-futuristic-neonTeal/70",
-      "electric-teal": "border-[#00ffcc]/30 hover:border-[#00ffcc]/60 hover:shadow-neon-teal-soft before:from-[#00ffcc] before:to-[#00e0b0]/70",
-      gradient: "border-white/20 hover:border-white/40 hover:shadow-neon-blue-soft before:from-futuristic-neonBlue before:via-futuristic-neonPurple before:to-futuristic-neonTeal",
+      blue: "border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] hover:shadow-neon-blue-soft before:from-[color:var(--c-cyan)] before:to-[color:var(--c-cyan)/70]",
+      purple: "border-[color:var(--c-purple)/30] hover:border-[color:var(--c-purple)/60] hover:shadow-neon-purple-soft before:from-[color:var(--c-purple)] before:to-[color:var(--c-purple)/70]",
+      teal: "border-[color:#00FFCC]/30 hover:border-[color:#00FFCC]/60 hover:shadow-neon-teal-soft before:from-[color:#00FFCC] before:to-[color:#00FFCC]/70",
+      "electric-teal": "border-[color:#00ffcc]/30 hover:border-[color:#00ffcc]/60 hover:shadow-neon-teal-soft before:from-[color:#00ffcc] before:to-[color:#00e0b0]/70",
+      gradient: "border-white/20 hover:border-white/40 hover:shadow-neon-blue-soft before:from-[color:var(--c-cyan)] before:via-[color:var(--c-purple)] before:to-[color:#00FFCC]",
     };
     
     const glowStyles = {
@@ -43,7 +43,7 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
         {...props}
       >
         <span className="relative z-10">{children}</span>
-        <span className="absolute inset-0 bg-gradient-to-r from-futuristic-neonBlue via-futuristic-neonPurple to-futuristic-neonTeal opacity-0 group-hover:opacity-30 transition-opacity duration-300"></span>
+        <span className="absolute inset-0 bg-gradient-to-r from-[color:var(--c-cyan)] via-[color:var(--c-purple)] to-[color:#00FFCC] opacity-0 group-hover:opacity-30 transition-opacity duration-300"></span>
       </Button>
     );
   }

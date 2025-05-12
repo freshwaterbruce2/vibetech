@@ -113,8 +113,8 @@
     @apply bg-futuristic-darkBg text-aura-text;
     font-family: 'Inter Variable', 'Inter', sans-serif;
     background-image: 
-      radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.15) 0%, transparent 45%),
-      radial-gradient(circle at 85% 30%, rgba(138, 0, 196, 0.15) 0%, transparent 45%);
+      radial-gradient(circle at 15% 50%, rgba(var(--c-cyan), 0.15) 0%, transparent 45%),
+      radial-gradient(circle at 85% 30%, rgba(var(--c-purple), 0.15) 0%, transparent 45%);
     background-attachment: fixed;
   }
 
@@ -139,7 +139,7 @@
   }
   
   ::selection {
-    @apply bg-cyan/30 text-white;
+    @apply bg-[color:var(--c-cyan)/30] text-white;
   }
 }
 
