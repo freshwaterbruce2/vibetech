@@ -81,9 +81,9 @@ export default {
 				
 				// Updated futuristic colors to match 2025-grade spec
 				futuristic: {
-					neonBlue: 'var(--c-cyan)',
-					neonPurple: 'var(--c-purple)', 
-					neonTeal: '#00ffcc',
+					neonBlue: 'var(--futuristic-neonBlue)',
+					neonPurple: 'var(--futuristic-neonPurple)', 
+					neonTeal: 'var(--futuristic-neonTeal)',
 					darkBg: 'var(--bg-start)',
 					darkBgLight: '#111125',
 					glassOverlay: 'var(--glass-bg)',
