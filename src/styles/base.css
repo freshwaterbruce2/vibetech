@@ -109,8 +109,6 @@
   body {
     @apply bg-[#0B0B17] text-aura-text;
     font-family: 'Inter Variable', 'Inter', sans-serif;
-    
-    /* Removed previous background styles to let PageLayout handle them */
     background-attachment: fixed;
   }
 
