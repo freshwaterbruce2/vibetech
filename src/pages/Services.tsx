@@ -15,7 +15,7 @@ const services = [
     id: "web",
     name: "Web Development",
     description: "Modern web applications built with cutting-edge technologies.",
-    icon: <Layout className="h-6 w-6 text-aura-accent" />,
+    icon: <Layout className="h-6 w-6 text-[color:var(--c-cyan)]" />,
     features: [
       "Responsive design for all devices",
       "SEO optimization for better visibility",
@@ -28,7 +28,7 @@ const services = [
     id: "app",
     name: "App Development",
     description: "Native and cross-platform mobile applications for iOS and Android.",
-    icon: <Code className="h-6 w-6 text-aura-accent" />,
+    icon: <Code className="h-6 w-6 text-[color:var(--c-purple)]" />,
     features: [
       "Native iOS and Android development",
       "Cross-platform solutions",
@@ -41,7 +41,7 @@ const services = [
     id: "ai",
     name: "AI Solutions",
     description: "Leverage AI to automate processes and gain valuable insights.",
-    icon: <Lightbulb className="h-6 w-6 text-aura-accent" />,
+    icon: <Lightbulb className="h-6 w-6 text-[color:var(--c-teal)]" />,
     features: [
       "Machine learning integration",
       "Natural language processing",
@@ -54,7 +54,7 @@ const services = [
     id: "cloud",
     name: "Cloud Services",
     description: "Scalable cloud infrastructure for your growing business needs.",
-    icon: <Database className="h-6 w-6 text-aura-accent" />,
+    icon: <Database className="h-6 w-6 text-[color:var(--c-cyan)]" />,
     features: [
       "Cloud migration strategy",
       "Serverless architecture",
@@ -67,7 +67,7 @@ const services = [
     id: "security",
     name: "Cybersecurity",
     description: "Protect your digital assets with comprehensive security solutions.",
-    icon: <Shield className="h-6 w-6 text-aura-accent" />,
+    icon: <Shield className="h-6 w-6 text-[color:var(--c-purple)]" />,
     features: [
       "Security audits and assessments",
       "Penetration testing",
@@ -80,7 +80,7 @@ const services = [
     id: "consulting",
     name: "Tech Consulting",
     description: "Strategic guidance to transform your business with technology.",
-    icon: <Activity className="h-6 w-6 text-aura-accent" />,
+    icon: <Activity className="h-6 w-6 text-[color:var(--c-teal)]" />,
     features: [
       "Digital transformation strategy",
       "Technology roadmapping",
@@ -92,9 +92,20 @@ const services = [
 ];
 
 const ServiceCard = ({ service }: { service: typeof services[0] }) => {
+  // Determine which color to use for the badge based on service icon color
+  const getBadgeColor = () => {
+    if (service.icon.props.className.includes("var(--c-cyan)")) {
+      return "bg-[color:var(--c-cyan)]/10 text-[color:var(--c-cyan)]";
+    } else if (service.icon.props.className.includes("var(--c-purple)")) {
+      return "bg-[color:var(--c-purple)]/10 text-[color:var(--c-purple)]";
+    } else {
+      return "bg-[color:var(--c-teal)]/10 text-[color:var(--c-teal)]";
+    }
+  };
+
   return (
     <AnimateOnScroll>
-      <Card className="hover-scale h-full glass-card border-aura-accent/10">
+      <Card className="hover-scale h-full glass-card border-[color:var(--c-cyan)]/10">
         <CardHeader>
           <div className="flex items-center gap-3">
             <GradientFeatherIcon icon={service.icon.type} size={24} />
@@ -106,7 +117,7 @@ const ServiceCard = ({ service }: { service: typeof services[0] }) => {
           <ul className="space-y-2">
             {service.features.map((feature, index) => (
               <li key={index} className="flex items-start gap-2">
-                <Badge variant="outline" className="bg-aura-accent/5 text-aura-accent mt-0.5">
+                <Badge variant="outline" className={`${getBadgeColor()} mt-0.5`}>
                   {index + 1}
                 </Badge>
                 <span>{feature}</span>
@@ -132,7 +143,7 @@ const Services = () => {
       <div className="max-w-7xl mx-auto px-4 pt-24 relative z-10">
         <AnimateOnScroll>
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 bg-gradient-to-r from-aura-accent to-aura-accentSecondary bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 gradient-text-full">
               Our Services
             </h1>
             <p className="text-aura-textSecondary max-w-3xl mx-auto">
