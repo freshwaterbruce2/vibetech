@@ -36,7 +36,7 @@ const NotificationBadge = ({ count, onClick }: NotificationBadgeProps) => {
                 damping: 10
               }}
             >
-              <Badge className="absolute -top-1 -right-1 px-1 min-w-[18px] h-[18px] text-xs flex items-center justify-center bg-aura-neonBlue">
+              <Badge className="absolute -top-1 -right-1 px-1 min-w-[18px] h-[18px] text-xs flex items-center justify-center bg-cyan">
                 {count > 9 ? "9+" : count}
               </Badge>
             </motion.div>

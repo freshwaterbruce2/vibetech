@@ -18,7 +18,7 @@ const DashboardHeader = ({ title, className = "" }: DashboardHeaderProps) => {
         className="text-3xl md:text-4xl font-bold font-heading neon-text relative"
       >
         {title}
-        <span className="absolute -inset-1 blur-md bg-aura-neonBlue/20 rounded-lg -z-10"></span>
+        <span className="absolute -inset-1 blur-md bg-cyan/20 rounded-lg -z-10"></span>
       </motion.h1>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
@@ -27,9 +27,9 @@ const DashboardHeader = ({ title, className = "" }: DashboardHeaderProps) => {
         className="md:ml-auto"
       >
         <Button 
-          className="bg-gradient-to-r from-aura-neonBlue to-aura-neonCyan relative group hover:shadow-neon-blue transition-all duration-300 flex items-center gap-2 overflow-hidden"
+          className="bg-gradient-to-r from-cyan to-purple relative group hover:shadow-neon-blue transition-all duration-300 flex items-center gap-2 overflow-hidden"
         >
-          <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-aura-neonBlue/10 to-aura-neonCyan/10 group-hover:opacity-80 transition-opacity"></span>
+          <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-cyan/10 to-purple/10 group-hover:opacity-80 transition-opacity"></span>
           <PlusCircle className="h-4 w-4 relative z-10 group-hover:rotate-90 transition-transform duration-300" />
           <span className="relative z-10">New Lead</span>
         </Button>
