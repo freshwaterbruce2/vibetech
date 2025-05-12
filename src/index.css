@@ -148,6 +148,7 @@
   /* Glassmorphic Elements */
   .glass-card {
     @apply bg-[rgba(18,18,30,0.55)] backdrop-blur-[12px] border border-white/10 rounded-xl shadow-glassmorphic overflow-hidden relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   }
   
   .glass-card::after {
