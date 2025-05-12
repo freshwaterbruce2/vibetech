@@ -1,9 +1,11 @@
 
 :root {
+   /* Dark backdrop colors - consistent across all pages */
    --bg-start:#0B0B17;
    --bg-mid:#111125;
    --bg-end:#14182C;
    --glass-bg:rgba(255,255,255,.06);   /* 6 % opacity for lift */
    --c-cyan:#00F0FF;                  /* verified electric blue */
    --c-purple:#8A00C4;                /* neon purple */
+   --c-teal:#00FFCC;                  /* teal accent for variation */
 }
