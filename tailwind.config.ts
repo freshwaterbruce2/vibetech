@@ -81,19 +81,22 @@ export default {
 				
 				// Updated futuristic colors to match 2025-grade spec
 				futuristic: {
-					neonBlue: 'var(--futuristic-neonBlue)',
-					neonPurple: 'var(--futuristic-neonPurple)', 
-					neonTeal: 'var(--futuristic-neonTeal)',
+					neonBlue: 'var(--c-cyan)',
+					neonPurple: 'var(--c-purple)', 
+					neonTeal: '#00FFCC',
 					darkBg: 'var(--bg-start)',
-					darkBgLight: '#111125',
+					darkBgLight: 'var(--bg-mid)',
 					glassOverlay: 'var(--glass-bg)',
 					cardBorder: 'rgba(0, 240, 255, 0.3)'
 				},
 				
 				// Define these colors directly to enable opacity variants
-				cyan: '#00F0FF',
-				purple: '#8A00C4',
+				cyan: 'var(--c-cyan)',
+				purple: 'var(--c-purple)',
 				teal: '#00FFCC',
+			},
+			backgroundImage: {
+				'radial-tech': 'radial-gradient(at 50% 75%,var(--bg-start) 0%,var(--bg-mid) 45%,var(--bg-end) 100%),url("/assets/circuit.svg")'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
