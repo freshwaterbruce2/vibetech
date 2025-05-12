@@ -119,7 +119,7 @@
     @apply bg-[color:var(--c-teal)/10] shadow-neon-teal-soft;
   }
   
-  /* New neon effects */
+  /* Enhanced neon effects */
   
   /* Neon text with enhanced glow effect */
   .neon-text-glow {
@@ -154,5 +154,46 @@
   
   .neon-box-teal {
     @apply border border-[color:var(--c-teal)/60] shadow-neon-teal rounded-md p-4 relative animate-pulse-glow;
+  }
+  
+  /* New circuit decoration elements */
+  .circuit-corner {
+    @apply absolute w-20 h-20 pointer-events-none opacity-30;
+  }
+  
+  .circuit-corner-tl {
+    @apply top-0 left-0 border-t-2 border-l-2 border-[color:var(--c-cyan)]/40;
+  }
+  
+  .circuit-corner-tr {
+    @apply top-0 right-0 border-t-2 border-r-2 border-[color:var(--c-purple)]/40;
+  }
+  
+  .circuit-corner-bl {
+    @apply bottom-0 left-0 border-b-2 border-l-2 border-[color:var(--c-teal)]/40;
+  }
+  
+  .circuit-corner-br {
+    @apply bottom-0 right-0 border-b-2 border-r-2 border-[color:var(--c-cyan)]/40;
+  }
+  
+  /* Enhanced card hover effects */
+  .neon-card-hover {
+    @apply transition-all duration-300;
+  }
+  
+  .neon-card-hover:hover {
+    @apply transform -translate-y-1 shadow-lg;
+    box-shadow: 0 0 15px 2px var(--c-cyan);
+  }
+  
+  .neon-card-hover-purple:hover {
+    @apply transform -translate-y-1 shadow-lg;
+    box-shadow: 0 0 15px 2px var(--c-purple);
+  }
+  
+  .neon-card-hover-teal:hover {
+    @apply transform -translate-y-1 shadow-lg;
+    box-shadow: 0 0 15px 2px var(--c-teal);
   }
 }

@@ -10,6 +10,8 @@ import AnimateOnScroll from "@/components/ui/animate-on-scroll";
 import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
 import { GradientFeatherIcon } from "@/components/ui/gradient-feather-icon";
 import SectionHeading from "@/components/ui/section-heading";
+import ParticleNetworkCanvas from "@/components/ui/particle-network";
+import { NeonButton } from "@/components/ui/neon-button";
 
 const services = [
   {
@@ -148,9 +150,10 @@ const Services = () => {
   const [activeTab, setActiveTab] = useState("all");
 
   return (
-    <div className="min-h-screen bg-aura-background pb-16 relative overflow-hidden">
-      {/* Mesh Aurora Background with increased intensity */}
+    <div className="min-h-screen dashboard-bg pb-16 relative overflow-hidden">
+      {/* Enhanced background elements to match dashboard */}
       <MeshAuroraBackground intensity="medium" />
+      <ParticleNetworkCanvas particleCount={15} opacity={0.08} />
       
       {/* Add subtle particle overlay for more neon effect */}
       <div className="particles-bg-dense absolute inset-0 z-[1] opacity-70"></div>
@@ -167,7 +170,7 @@ const Services = () => {
               className="mb-4"
             >
               <div className="inline-block">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 gradient-text-full relative">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 gradient-text-full relative neon-text-glow">
                   Our Services
                   <span className="absolute -inset-1 rounded-lg blur-xl bg-gradient-to-r from-[color:var(--c-cyan)]/20 via-[color:var(--c-purple)]/20 to-[color:var(--c-teal)]/20 z-[-1]"></span>
                 </h1>
@@ -203,16 +206,27 @@ const Services = () => {
             <TabsContent key={service.id} value={service.id}>
               <div className="grid grid-cols-1 gap-6">
                 <ServiceCard service={service} />
+                
+                {/* Add contact CTA button for individual service pages */}
+                <div className="mt-8 text-center">
+                  <NeonButton variant="gradient" className="px-8 py-3 font-medium">
+                    Get a Free Consultation
+                  </NeonButton>
+                </div>
               </div>
             </TabsContent>
           ))}
         </Tabs>
       </div>
       
-      {/* Add floating neon elements to enhance the visual appeal */}
+      {/* Enhanced floating neon elements to match dashboard */}
       <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[color:var(--c-cyan)]/5 to-transparent z-[1] pointer-events-none"></div>
       <div className="fixed top-1/4 -left-20 w-40 h-40 rounded-full bg-[color:var(--c-purple)]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
       <div className="fixed top-3/4 -right-20 w-40 h-40 rounded-full bg-[color:var(--c-teal)]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+      
+      {/* Add corner circuit decorative elements like in dashboard */}
+      <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-[color:var(--c-cyan)]/20 pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-20 h-20 border-b-2 border-r-2 border-[color:var(--c-purple)]/20 pointer-events-none"></div>
     </div>
   );
 };
