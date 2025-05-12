@@ -7,7 +7,18 @@
   
   .particles-bg::before {
     content: '';
-    @apply absolute inset-0 opacity-10 z-0 bg-[radial-gradient(circle,_#00f0ff_1px,_transparent_1px),_radial-gradient(circle,_#9b00ff_1px,_transparent_1px)] bg-[length:40px_40px] animate-particle-drift;
+    @apply absolute inset-0 opacity-15 z-0 bg-[radial-gradient(circle,_var(--c-cyan)_1px,_transparent_1px),_radial-gradient(circle,_var(--c-purple)_1px,_transparent_1px)] bg-[length:40px_40px] animate-particle-drift;
+    pointer-events: none;
+  }
+  
+  /* New dense particles variant */
+  .particles-bg-dense {
+    @apply relative overflow-hidden;
+  }
+  
+  .particles-bg-dense::before {
+    content: '';
+    @apply absolute inset-0 opacity-10 z-0 bg-[radial-gradient(circle,_var(--c-cyan)_0.8px,_transparent_0.8px),_radial-gradient(circle,_var(--c-purple)_0.8px,_transparent_0.8px)] bg-[length:25px_25px] animate-particle-drift;
     pointer-events: none;
   }
 }
