@@ -113,11 +113,9 @@
     @apply bg-futuristic-darkBg text-aura-text;
     font-family: 'Inter Variable', 'Inter', sans-serif;
     background-image: 
-      radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
-      radial-gradient(circle at 85% 30%, rgba(155, 0, 255, 0.08) 0%, transparent 45%);
-    background-size: 100% 100%;
+      radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.15) 0%, transparent 45%),
+      radial-gradient(circle at 85% 30%, rgba(138, 0, 196, 0.15) 0%, transparent 45%);
     background-attachment: fixed;
-    background: linear-gradient(135deg, #0B0B17 0%, #111125 100%);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -148,7 +146,7 @@
 @layer components {
   /* Glassmorphic Elements */
   .glass-card {
-    @apply bg-[rgba(18,18,30,0.35)] backdrop-blur-[8px] border border-transparent rounded-xl shadow-glassmorphic overflow-hidden relative;
+    @apply bg-[rgba(18,18,30,0.55)] backdrop-blur-[12px] border border-white/10 rounded-xl shadow-glassmorphic overflow-hidden relative;
   }
   
   .glass-card::after {
@@ -157,19 +155,19 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(90deg, #28f0ff, #9c57ff);
+    background: linear-gradient(90deg, var(--c-cyan), var(--c-purple));
     -webkit-mask: 
       linear-gradient(#fff 0 0) content-box,
       linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
-    opacity: 0.7;
+    opacity: 0.8;
     transition: all 0.3s ease;
   }
   
   .glass-card:hover::after {
-    background: linear-gradient(90deg, #9c57ff, #00ffcc);
+    background: linear-gradient(90deg, var(--c-purple), var(--c-teal));
     opacity: 1;
     animation: border-flicker 2s infinite alternate;
   }
