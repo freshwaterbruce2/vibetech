@@ -1,0 +1,27 @@
+
+@layer components {
+  /* Futuristic Card */
+  .futuristic-card {
+    @apply glass-card p-6 transition-all duration-300;
+  }
+  
+  .futuristic-card:hover {
+    @apply transform -translate-y-1;
+  }
+
+  /* Circuit Board Background - fixed pattern with proper SVG escaping */
+  .circuit-bg {
+    background-color: rgb(10, 12, 18);
+    background-image: url("/assets/circuit.svg");
+  }
+
+  /* Dashboard-style background for consistent look across pages */
+  .dashboard-bg {
+    @apply bg-aura-background relative overflow-hidden;
+    background-image: 
+      linear-gradient(to bottom, var(--bg-start), var(--bg-mid)),
+      url("/assets/circuit.svg");
+    background-attachment: fixed;
+    background-size: cover;
+  }
+}

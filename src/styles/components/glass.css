@@ -1,0 +1,24 @@
+
+@layer components {
+  /* Glassmorphic Elements - improved consistency */
+  .glass-card {
+    @apply bg-[rgba(18,18,30,0.55)] backdrop-blur-[12px] border border-white/10 rounded-xl shadow-glassmorphic overflow-hidden relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  
+  .glass-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(90deg, var(--c-cyan), var(--c-purple));
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}
