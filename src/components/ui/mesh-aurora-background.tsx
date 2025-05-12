@@ -9,12 +9,12 @@ interface MeshAuroraBackgroundProps {
 
 const MeshAuroraBackground = ({ 
   className, 
-  intensity = 'medium' 
+  intensity = 'low' 
 }: MeshAuroraBackgroundProps) => {
   const intensityValues = {
     low: { opacity: 0.04, scale: 1.1 },
-    medium: { opacity: 0.08, scale: 1.2 },
-    high: { opacity: 0.15, scale: 1.3 },
+    medium: { opacity: 0.06, scale: 1.2 },
+    high: { opacity: 0.10, scale: 1.3 },
   };
 
   const { opacity, scale } = intensityValues[intensity];
