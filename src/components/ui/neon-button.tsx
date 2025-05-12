@@ -43,7 +43,6 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
         {...props}
       >
         <span className="relative z-10">{children}</span>
-        <span className="absolute inset-0 bg-gradient-to-r from-[color:var(--c-cyan)] via-[color:var(--c-purple)] to-[color:#00FFCC] opacity-0 group-hover:opacity-30 transition-opacity duration-300"></span>
       </Button>
     );
   }
