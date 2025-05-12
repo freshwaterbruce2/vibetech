@@ -17,20 +17,22 @@ import About from './pages/About';
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:postId" element={<BlogPostPage />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/palette-preview" element={<PalettePreview />} />
-        <Route path="/futuristic-demo" element={<FuturisticDemo />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/tools" element={<Tools />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
+      <div className="dashboard-bg">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:postId" element={<BlogPostPage />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/palette-preview" element={<PalettePreview />} />
+          <Route path="/futuristic-demo" element={<FuturisticDemo />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
