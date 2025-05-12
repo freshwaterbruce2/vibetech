@@ -96,7 +96,8 @@ export default {
 				teal: '#00FFCC',
 			},
 			backgroundImage: {
-				'radial-tech': 'radial-gradient(at 50% 75%,var(--bg-start) 0%,var(--bg-mid) 45%,var(--bg-end) 100%),url("/assets/circuit.svg")'
+				'radial-tech': 'radial-gradient(at 50% 75%,var(--bg-start) 0%,var(--bg-mid) 45%,var(--bg-end) 100%),url("/assets/circuit.svg")',
+				'hero-gradient': 'radial-gradient(at 50% 75%, #0B0B17 0%, #111125 50%, #14182C 100%), url("/assets/circuit.svg")'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
