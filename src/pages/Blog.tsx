@@ -8,7 +8,6 @@ import BlogSearch from "@/components/blog/BlogSearch";
 import BlogPostsList from "@/components/blog/BlogPostsList";
 import BlogSidebar from "@/components/blog/BlogSidebar";
 import BlogCTA from "@/components/blog/BlogCTA";
-import { BlogPost } from "@/components/blog/types";
 
 const Blog = () => {
   useEffect(() => {
@@ -30,7 +29,7 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-aura-background">
+    <div className="min-h-screen bg-radial-tech bg-fixed bg-cover">
       <NavBar />
       
       <BlogHero />
