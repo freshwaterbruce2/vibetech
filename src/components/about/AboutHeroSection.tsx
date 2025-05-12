@@ -1,16 +1,18 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
+import PageHeader from "@/components/ui/page-header";
 
 const AboutHeroSection = () => {
   return (
-    <section className="pt-28 pb-20 px-4">
+    <section className="pt-28 pb-16 px-4">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-heading">
-          About <span className="bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">Vibe Tech</span>
-        </h1>
-        <div className="w-32 h-1.5 bg-gradient-to-r from-aura-accent to-purple-400 mb-10 rounded-full"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <PageHeader 
+          title="About Vibe Tech"
+          subtitle="Creating innovative digital solutions that combine stunning design with powerful functionality."
+        />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-14">
           <div>
             <p className="text-aura-textSecondary text-lg mb-6">
               Vibe Tech is a cutting-edge tech company founded by Bruce Freshwater, focused on creating innovative digital solutions that combine stunning design with powerful functionality.
