@@ -5,7 +5,7 @@ export const toolsData: ToolCardProps[] = [
   {
     title: "Affiliate Marketing",
     description: "Powerful tools to manage, track, and optimize your affiliate marketing campaigns with detailed analytics and easy link management.",
-    icon: "linkIcon", // This will be replaced with the actual component in the Tools page
+    icon: "linkIcon",
     category: "Marketing",
     tools: ["Pretty Links", "ThirstyAffiliates", "Amazon Associates", "ShareASale"],
     variant: "blue"
@@ -20,7 +20,7 @@ export const toolsData: ToolCardProps[] = [
   },
   {
     title: "Marketing Automation",
-    description: "Streamline your marketing efforts with automated email campaigns and AI-powered content creation tools.",
+    description: "Streamline your marketing efforts with automated email campaigns, AI-powered content creation, and customer relationship management.",
     icon: "mail",
     category: "Automation",
     tools: ["Mailchimp", "Rytr.me", "ConvertKit", "ActiveCampaign"],
@@ -28,7 +28,7 @@ export const toolsData: ToolCardProps[] = [
   },
   {
     title: "Analytics",
-    description: "Gain valuable insights into user behavior, track conversion metrics, and optimize your site for better performance.",
+    description: "Gain valuable insights into user behavior, track conversion metrics, and optimize your site for better performance with powerful analytics tools.",
     icon: "chartBar",
     category: "Data",
     tools: ["Google Analytics", "Hotjar", "Mixpanel", "Plausible"],
@@ -36,7 +36,7 @@ export const toolsData: ToolCardProps[] = [
   },
   {
     title: "Collaboration",
-    description: "Enhance team productivity with intuitive tools for brainstorming, project management, and collaborative work.",
+    description: "Enhance team productivity with intuitive tools for brainstorming, project management, and collaborative workflows.",
     icon: "users",
     category: "Teamwork",
     tools: ["Miro", "Notion", "Trello", "Asana"],
