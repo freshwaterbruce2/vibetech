@@ -24,7 +24,7 @@ const PortfolioHeroSection = () => {
         </motion.div>
       </div>
       
-      {/* Decorative elements */}
+      {/* Decorative elements to mimic circuit board patterns */}
       <div className="absolute top-24 left-10 w-24 h-24 rounded-full bg-aura-neonBlue/5 blur-xl"></div>
       <div className="absolute bottom-10 right-20 w-32 h-32 rounded-full bg-aura-neonPurple/5 blur-xl"></div>
     </section>
