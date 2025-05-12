@@ -9,6 +9,8 @@ import CtaSection from "@/components/portfolio/CtaSection";
 import PortfolioHeroSection from "@/components/portfolio/PortfolioHeroSection";
 import { projects } from "@/components/portfolio/projectsData";
 import { Project } from "@/components/portfolio/types";
+import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
+import ParticleNetworkCanvas from "@/components/ui/particle-network";
 
 const Portfolio = () => {
   useEffect(() => {
@@ -24,7 +26,14 @@ const Portfolio = () => {
     : projects.filter(project => project.category.toLowerCase() === filter);
 
   return (
-    <div className="min-h-screen bg-aura-background">
+    <div className="min-h-screen bg-aura-background relative overflow-hidden">
+      {/* Tech background effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="particles-bg-dense h-full w-full"></div>
+        <MeshAuroraBackground intensity="medium" />
+        <ParticleNetworkCanvas particleCount={20} opacity={0.15} />
+      </div>
+      
       <NavBar />
       
       {/* Hero Section */}
