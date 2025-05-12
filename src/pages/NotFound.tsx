@@ -1,19 +1,11 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
+import PageLayout from "@/components/layout/PageLayout";
 
 const NotFound = () => {
-  useEffect(() => {
-    document.title = "Page Not Found | Vibe Tech";
-  }, []);
-
   return (
-    <div className="min-h-screen bg-aura-background">
-      <NavBar />
-      
+    <PageLayout title="Page Not Found">
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 relative overflow-hidden">
         {/* Background grid effect */}
         <div className="absolute inset-0 z-0 opacity-10">
@@ -58,9 +50,7 @@ const NotFound = () => {
           </div>
         </div>
       </div>
-      
-      <Footer />
-    </div>
+    </PageLayout>
   );
 };
 

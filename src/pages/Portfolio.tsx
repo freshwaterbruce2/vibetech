@@ -1,22 +1,14 @@
 
-import { useEffect, useState } from "react";
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
+import { useState } from "react";
+import PageLayout from "@/components/layout/PageLayout";
 import ProjectFilters from "@/components/portfolio/ProjectFilters";
 import ProjectGrid from "@/components/portfolio/ProjectGrid";
 import ServicesSection from "@/components/portfolio/ServicesSection";
 import CtaSection from "@/components/portfolio/CtaSection";
 import PortfolioHeroSection from "@/components/portfolio/PortfolioHeroSection";
 import { projects } from "@/components/portfolio/projectsData";
-import { Project } from "@/components/portfolio/types";
-import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
-import ParticleNetworkCanvas from "@/components/ui/particle-network";
 
 const Portfolio = () => {
-  useEffect(() => {
-    document.title = "Portfolio | Vibe Tech";
-  }, []);
-
   const [filter, setFilter] = useState<string>("all");
 
   const categories = ["all", ...new Set(projects.map(project => project.category.toLowerCase()))];
@@ -26,16 +18,7 @@ const Portfolio = () => {
     : projects.filter(project => project.category.toLowerCase() === filter);
 
   return (
-    <div className="min-h-screen bg-aura-background relative overflow-hidden">
-      {/* Tech background effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="particles-bg-dense h-full w-full"></div>
-        <MeshAuroraBackground intensity="medium" />
-        <ParticleNetworkCanvas particleCount={20} opacity={0.15} />
-      </div>
-      
-      <NavBar />
-      
+    <PageLayout title="Portfolio" particleOpacity={0.15} particleCount={20}>
       {/* Hero Section */}
       <PortfolioHeroSection />
 
@@ -54,9 +37,7 @@ const Portfolio = () => {
 
       {/* CTA Section */}
       <CtaSection />
-      
-      <Footer />
-    </div>
+    </PageLayout>
   );
 };
 

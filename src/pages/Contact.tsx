@@ -1,18 +1,13 @@
-import { useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
+import PageLayout from "@/components/layout/PageLayout";
 import PageHeader from "@/components/ui/page-header";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 const Contact = () => {
-  useEffect(() => {
-    document.title = "Contact | Vibe Tech";
-  }, []);
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // Placeholder for form submission logic
@@ -20,9 +15,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-aura-background">
-      <NavBar />
-      
+    <PageLayout title="Contact">
       {/* Hero Section */}
       <section className="pt-28 pb-12 px-4">
         <div className="max-w-6xl mx-auto">
@@ -184,9 +177,7 @@ const Contact = () => {
           </div>
         </div>
       </section>
-      
-      <Footer />
-    </div>
+    </PageLayout>
   );
 };
 

@@ -1,15 +1,11 @@
 
-import React from "react";
+import PageLayout from "@/components/layout/PageLayout";
 import FuturisticCard from "@/components/ui/futuristic-card";
 import { NeonButton } from "@/components/ui/neon-button";
-import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
 
 const FuturisticDemo = () => {
   return (
-    <div className="min-h-screen w-full relative overflow-hidden bg-futuristic-darkBg">
-      {/* Enhanced background effect */}
-      <MeshAuroraBackground intensity="high" />
-      
+    <PageLayout title="Futuristic UI" auroraIntensity="high">
       <div className="container mx-auto px-4 py-16 relative z-10">
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center bg-gradient-to-r from-cyan via-purple to-teal bg-clip-text text-transparent">
           Futuristic UI Components
@@ -58,7 +54,7 @@ const FuturisticDemo = () => {
           </FuturisticCard>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
