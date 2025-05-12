@@ -1,4 +1,3 @@
-
 import React from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -28,13 +27,24 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   }, [title]);
 
   return (
-    <div className="min-h-screen dashboard-bg relative overflow-hidden">
-      {/* Common background elements */}
-      <MeshAuroraBackground intensity={auroraIntensity} />
-      <ParticleNetworkCanvas particleCount={particleCount} opacity={particleOpacity} />
+    <div className="min-h-screen relative overflow-hidden bg-[#0B0B17]">
+      {/* Circuit board background */}
+      <div 
+        className="absolute inset-0 z-0 bg-no-repeat bg-cover opacity-90"
+        style={{ backgroundImage: "url('/assets/circuit-board-bg.svg')" }}
+      />
+      
+      {/* Semi-transparent overlay for better contrast with content */}
+      <div className="absolute inset-0 z-1 bg-gradient-to-b from-[#0B0B17] via-transparent to-[#0B0B17] opacity-70"></div>
+      
+      {/* Keep original backgrounds but reduce opacity */}
+      <div className="absolute inset-0 z-1 opacity-50">
+        <MeshAuroraBackground intensity={auroraIntensity} />
+        <ParticleNetworkCanvas particleCount={particleCount} opacity={particleOpacity} />
+      </div>
       
       {/* Subtle particle overlay for tech effect */}
-      <div className="particles-bg-dense absolute inset-0 z-[1] opacity-70 pointer-events-none"></div>
+      <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
       
       {/* Main content */}
       <NavBar />
