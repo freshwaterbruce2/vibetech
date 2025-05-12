@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/ui/page-header";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 const Contact = () => {
@@ -26,13 +26,10 @@ const Contact = () => {
       {/* Hero Section */}
       <section className="pt-28 pb-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-heading">
-            Get In <span className="bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">Touch</span>
-          </h1>
-          <div className="w-32 h-1.5 bg-gradient-to-r from-aura-accent to-purple-400 mb-6 rounded-full"></div>
-          <p className="text-aura-textSecondary text-lg max-w-3xl">
-            Have a question or interested in working with us? Reach out using the form below or contact us directly.
-          </p>
+          <PageHeader 
+            title="Get In Touch"
+            subtitle="Have a question or interested in working with us? Reach out using the form below or contact us directly."
+          />
         </div>
       </section>
 
