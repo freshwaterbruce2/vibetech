@@ -1,53 +1,83 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "dark" | "light";
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type ThemeContextType = {
+type Theme = 'dark' | 'light' | 'system';
+
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  attribute?: string;
+  defaultTheme?: Theme;
+  enableSystem?: boolean;
+  disableTransitionOnChange?: boolean;
+}
+
+const ThemeContext = createContext<{
   theme: Theme;
-  toggleTheme: () => void;
-};
+  setTheme: (theme: Theme) => void;
+}>({
+  theme: 'system',
+  setTheme: () => null,
+});
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    // Check for user preference in local storage
-    const savedTheme = localStorage.getItem("vibe-tech-theme");
-    if (savedTheme && (savedTheme === "dark" || savedTheme === "light")) {
-      return savedTheme;
-    }
-    // Otherwise check for system preference
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  });
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({
+  children,
+  attribute = 'data-theme',
+  defaultTheme = 'system',
+  enableSystem = false,
+  disableTransitionOnChange = false,
+}) => {
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
 
   useEffect(() => {
     const root = window.document.documentElement;
     
-    // Remove the old theme class and add the new one
-    root.classList.remove("dark", "light");
-    root.classList.add(theme);
-    
-    // Store the theme preference in local storage
-    localStorage.setItem("vibe-tech-theme", theme);
-  }, [theme]);
+    // Remove current class
+    root.classList.remove('light', 'dark');
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
-  };
+    // Add new theme class
+    if (theme === 'system' && enableSystem) {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.classList.add(systemTheme);
+      root.setAttribute(attribute, systemTheme);
+    } else {
+      root.classList.add(theme);
+      root.setAttribute(attribute, theme);
+    }
+
+    if (disableTransitionOnChange) {
+      // Temporarily disable transitions
+      root.classList.add('no-transitions');
+      setTimeout(() => root.classList.remove('no-transitions'), 0);
+    }
+  }, [theme, attribute, enableSystem, disableTransitionOnChange]);
+
+  // Listen for system theme changes
+  useEffect(() => {
+    if (!enableSystem) return;
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleChange = () => {
+      if (theme === 'system') {
+        const systemTheme = mediaQuery.matches ? 'dark' : 'light';
+        const root = window.document.documentElement;
+        root.classList.remove('light', 'dark');
+        root.classList.add(systemTheme);
+        root.setAttribute(attribute, systemTheme);
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme, attribute, enableSystem]);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
-  }
-  return context;
 };
+
+export const useTheme = () => useContext(ThemeContext);
+
+export default ThemeProvider;
