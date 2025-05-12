@@ -5,11 +5,12 @@ import { motion } from "framer-motion";
 
 interface DashboardHeaderProps {
   title: string;
+  className?: string;
 }
 
-const DashboardHeader = ({ title }: DashboardHeaderProps) => {
+const DashboardHeader = ({ title, className = "" }: DashboardHeaderProps) => {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div className={`flex flex-col md:flex-row items-start md:items-center gap-4 ${className}`}>
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -23,6 +24,7 @@ const DashboardHeader = ({ title }: DashboardHeaderProps) => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3, delay: 0.2 }}
+        className="md:ml-auto"
       >
         <Button 
           className="bg-gradient-to-r from-aura-neonBlue to-aura-neonCyan relative group hover:shadow-neon-blue transition-all duration-300 flex items-center gap-2 overflow-hidden"
