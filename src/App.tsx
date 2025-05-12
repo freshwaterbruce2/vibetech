@@ -14,7 +14,7 @@ import Services from './pages/Services';
 import Tools from './pages/Tools';
 import About from './pages/About';
 
-function App() {
+const App: React.FC = () => {
   return (
     <Router>
       <div className="dashboard-bg">
