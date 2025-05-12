@@ -1,7 +1,6 @@
 
-import { useEffect, useState } from "react";
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
+import { useState } from "react";
+import PageLayout from "@/components/layout/PageLayout";
 import { blogPosts } from "@/components/blog/blogData";
 import BlogHero from "@/components/blog/BlogHero";
 import BlogSearch from "@/components/blog/BlogSearch";
@@ -10,10 +9,6 @@ import BlogSidebar from "@/components/blog/BlogSidebar";
 import BlogCTA from "@/components/blog/BlogCTA";
 
 const Blog = () => {
-  useEffect(() => {
-    document.title = "Blog | Vibe Tech";
-  }, []);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredPosts = searchQuery
@@ -29,9 +24,7 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-radial-tech bg-fixed bg-cover">
-      <NavBar />
-      
+    <PageLayout title="Blog">
       <BlogHero />
       <BlogSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
@@ -54,8 +47,7 @@ const Blog = () => {
       </section>
 
       <BlogCTA />
-      <Footer />
-    </div>
+    </PageLayout>
   );
 };
 

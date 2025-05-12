@@ -1,10 +1,10 @@
 
-import NavBar from "@/components/NavBar";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
+import PageLayout from "@/components/layout/PageLayout";
 
-// Import our new components
+// Import our components
 import PricingHeader from "@/components/pricing/PricingHeader";
 import PricingTier from "@/components/pricing/PricingTier";
 import MarketComparison from "@/components/pricing/MarketComparison";
@@ -20,9 +20,7 @@ const Pricing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-aura-background pb-16">
-      <NavBar />
-      
+    <PageLayout title="Pricing">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -52,7 +50,7 @@ const Pricing = () => {
         
         <PricingFAQ />
       </motion.div>
-    </div>
+    </PageLayout>
   );
 };
 

@@ -1,11 +1,8 @@
 
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
+import PageLayout from "@/components/layout/PageLayout";
 import { toolsData } from "@/components/tools/toolsData"; 
 import ToolsHeroSection from "@/components/tools/ToolsHeroSection";
-import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
 import IntegrationShowcase from "@/components/tools/IntegrationShowcase";
 import RemoteServicesBanner from "@/components/tools/RemoteServicesBanner";
 import ToolsCta from "@/components/tools/ToolsCta";
@@ -19,10 +16,6 @@ import {
 } from "lucide-react";
 
 const Tools = () => {
-  useEffect(() => {
-    document.title = "Tools & Integrations | Vibe Tech";
-  }, []);
-
   // Add icons to the toolsData
   const enrichedToolsData = toolsData.map(tool => {
     let iconComponent;
@@ -57,25 +50,19 @@ const Tools = () => {
   });
 
   return (
-    <div className="min-h-screen bg-aura-background">
-      <NavBar />
-      <div className="relative">
-        <MeshAuroraBackground intensity="medium" className="z-0" />
-        
-        {/* Hero Section with Tools */}
-        <ToolsHeroSection toolsData={enrichedToolsData} />
-        
-        {/* Integration Showcase */}
-        <IntegrationShowcase />
-        
-        {/* Remote Services Banner */}
-        <RemoteServicesBanner />
-        
-        {/* CTA Section */}
-        <ToolsCta />
-      </div>
-      <Footer />
-    </div>
+    <PageLayout title="Tools & Integrations">
+      {/* Hero Section with Tools */}
+      <ToolsHeroSection toolsData={enrichedToolsData} />
+      
+      {/* Integration Showcase */}
+      <IntegrationShowcase />
+      
+      {/* Remote Services Banner */}
+      <RemoteServicesBanner />
+      
+      {/* CTA Section */}
+      <ToolsCta />
+    </PageLayout>
   );
 };
 
