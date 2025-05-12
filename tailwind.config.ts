@@ -90,9 +90,10 @@ export default {
 					cardBorder: 'rgba(0, 240, 255, 0.3)'
 				},
 				
-				// New direct token mappings
-				cyan: 'var(--c-cyan)',
-				purple: 'var(--c-purple)',
+				// Define these colors directly to enable opacity variants
+				cyan: '#00F0FF',
+				purple: '#8A00C4',
+				teal: '#00FFCC',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
