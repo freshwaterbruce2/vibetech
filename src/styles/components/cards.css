@@ -46,4 +46,35 @@
   .feature-card:hover {
     @apply border-[color:var(--c-cyan)/40] shadow-neon-blue-soft transform -translate-y-1;
   }
+  
+  /* New glass card with neon purple effect */
+  .glass-card-purple {
+    @apply bg-[rgba(255,255,255,0.05)] backdrop-blur-[24px] border border-[rgba(255,255,255,0.15)];
+    box-shadow: 0 0 18px rgba(148, 38, 255, 0.35);
+    border-radius: 1.25rem;
+  }
+  
+  .glass-card-purple:hover {
+    @apply transform scale-[1.02];
+    box-shadow: 0 0 28px rgba(148, 38, 255, 0.45);
+  }
+  
+  /* Service number pills for horizontal display */
+  .service-pill {
+    @apply px-3 py-1 text-sm rounded-full bg-[rgba(0,247,255,0.1)] border border-[rgba(0,247,255,0.2)] text-[#00f7ff] font-medium;
+  }
+  
+  /* Add mesh aurora background utility */
+  .mesh-aurora-bg {
+    @apply absolute inset-0 -z-10 overflow-hidden;
+    background: linear-gradient(120deg, #20003c 0%, #4a007d 50%, #9426ff 100%);
+    opacity: 0.8;
+  }
+  
+  .mesh-aurora-bg::before {
+    content: '';
+    @apply absolute inset-0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Ccircle cx='2' cy='2' r='0.5' fill='%2300f7ff' opacity='0.15'/%3E%3C/svg%3E");
+    opacity: 0.04;
+  }
 }

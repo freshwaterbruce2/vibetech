@@ -32,13 +32,13 @@ const Services = () => {
       </div>
       
       {/* Enhanced floating neon elements */}
-      <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[color:var(--c-cyan)]/5 to-transparent z-[1] pointer-events-none"></div>
-      <div className="fixed top-1/4 -left-20 w-40 h-40 rounded-full bg-[color:var(--c-purple)]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
-      <div className="fixed top-3/4 -right-20 w-40 h-40 rounded-full bg-[color:var(--c-teal)]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+      <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#9426ff]/5 to-transparent z-[1] pointer-events-none"></div>
+      <div className="fixed top-1/4 -left-20 w-40 h-40 rounded-full bg-[#4a007d]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+      <div className="fixed top-3/4 -right-20 w-40 h-40 rounded-full bg-[#00f7ff]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
       
       {/* Add corner circuit decorative elements */}
-      <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-[color:var(--c-cyan)]/20 pointer-events-none"></div>
-      <div className="absolute bottom-10 right-10 w-20 h-20 border-b-2 border-r-2 border-[color:var(--c-purple)]/20 pointer-events-none"></div>
+      <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-[#9426ff]/20 pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-20 h-20 border-b-2 border-r-2 border-[#00f7ff]/20 pointer-events-none"></div>
       
       <Footer />
     </div>
