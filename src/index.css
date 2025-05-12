@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&display=swap');
 @import url('./styles/tokens.css');
 
@@ -179,11 +180,11 @@
   
   /* Neon Elements */
   .neon-border {
-    @apply border border-cyan/30 shadow-neon-blue-soft;
+    @apply border border-[color:var(--c-cyan)/30] shadow-neon-blue-soft;
   }
   
   .neon-border-purple {
-    @apply border border-purple/30 shadow-neon-purple-soft;
+    @apply border border-[color:var(--c-purple)/30] shadow-neon-purple-soft;
   }
   
   .neon-border-teal {
@@ -197,7 +198,7 @@
   
   .animated-border::after {
     content: '';
-    @apply absolute inset-0 border rounded-xl border-cyan/50 shadow-neon-blue-soft animate-flicker-border;
+    @apply absolute inset-0 border rounded-xl border-[color:var(--c-cyan)/50] shadow-neon-blue-soft animate-flicker-border;
     z-index: -1;
   }
   
