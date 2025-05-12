@@ -1,0 +1,13 @@
+
+@layer components {
+  /* Particles Background */
+  .particles-bg {
+    @apply relative overflow-hidden;
+  }
+  
+  .particles-bg::before {
+    content: '';
+    @apply absolute inset-0 opacity-10 z-0 bg-[radial-gradient(circle,_#00f0ff_1px,_transparent_1px),_radial-gradient(circle,_#9b00ff_1px,_transparent_1px)] bg-[length:40px_40px] animate-particle-drift;
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,31 @@
+
+@layer components {
+  /* Neon Elements */
+  .neon-border {
+    @apply border border-[color:var(--c-cyan)/30] shadow-neon-blue-soft;
+  }
+  
+  .neon-border-purple {
+    @apply border border-[color:var(--c-purple)/30] shadow-neon-purple-soft;
+  }
+  
+  .neon-border-teal {
+    @apply border border-[#00FFCC]/30 shadow-neon-teal-soft;
+  }
+  
+  /* Neon Sweep Button */
+  .neon-sweep-btn {
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] shadow-neon-blue-soft transition-all duration-300;
+  }
+  
+  .neon-sweep-btn::before {
+    content: '';
+    @apply absolute inset-0 bg-neon-sweep-gradient bg-[length:400%_100%] opacity-0 hover:opacity-20 animate-neon-sweep transition-opacity duration-300;
+    z-index: 0;
+  }
+  
+  /* Icon Gradients */
+  .icon-gradient {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-futuristic-neonBlue via-futuristic-neonPurple to-futuristic-neonTeal;
+  }
+}
