@@ -1,92 +1,69 @@
 
 import React from "react";
-import { motion } from "framer-motion";
-import { NeonButton } from "@/components/ui/neon-button";
-import { Link } from "react-router-dom";
-import { Laptop, User } from "lucide-react";
+import { Link2, ShoppingCart, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import FuturisticCard from "@/components/ui/futuristic-card";
+import SectionHeading from "@/components/ui/section-heading";
+import AnimateOnScroll from "@/components/ui/animate-on-scroll";
 
-const RemoteServicesBanner: React.FC = () => {
+const RemoteServicesBanner = () => {
+  const services = [
+    {
+      title: "Affiliate Program Setup",
+      icon: <Link2 className="h-10 w-10 text-aura-accent" />,
+      description: "We'll help you set up and optimize your affiliate programs across multiple platforms to maximize your earnings potential.",
+    },
+    {
+      title: "E-Commerce Integration",
+      icon: <ShoppingCart className="h-10 w-10 text-aura-accent" />,
+      description: "Our team will integrate and customize e-commerce solutions that align with your brand and business goals.",
+    },
+    {
+      title: "Marketing Campaigns",
+      icon: <Mail className="h-10 w-10 text-aura-accent" />,
+      description: "Let us create and automate your marketing campaigns to drive engagement and conversions.",
+    },
+  ];
+
   return (
-    <section className="py-16 px-4 bg-aura-backgroundLight/30">
+    <section className="py-20 px-4 bg-aura-backgroundLight/30">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+        <SectionHeading align="center" size="lg">
+          Remote Integration Services
+        </SectionHeading>
+        
+        <div className="max-w-3xl mx-auto text-center mb-12">
+          <p className="text-lg text-aura-textSecondary">
+            Don't have time to implement these tools yourself? Our team provides remote integration services to set up and optimize these tools for your specific needs.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          {services.map((service, index) => (
+            <AnimateOnScroll key={index} delay={index * 100}>
+              <FuturisticCard 
+                className="h-full" 
+                variant={index === 0 ? "blue" : index === 1 ? "purple" : "teal"}
+              >
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-aura-backgroundLight/40">
+                    {service.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3 font-heading">{service.title}</h3>
+                  <p className="text-aura-textSecondary">{service.description}</p>
+                </div>
+              </FuturisticCard>
+            </AnimateOnScroll>
+          ))}
+        </div>
+        
+        <div className="text-center">
+          <Button 
+            className="bg-aura-accent hover:bg-aura-accent/80 text-white" 
+            size="lg"
           >
-            <h2 className="text-3xl font-bold mb-4 font-heading">
-              Personalized <span className="bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">Integration Services</span>
-            </h2>
-            <div className="w-32 h-1.5 bg-gradient-to-r from-aura-accent to-purple-400 mb-6 rounded-full"></div>
-            
-            <p className="text-aura-textSecondary text-lg mb-4">
-              We offer both in-person and remote assistance to help you set up and optimize 
-              any of our featured tools and integrations for your specific needs.
-            </p>
-            
-            <p className="text-aura-textSecondary text-lg mb-6">
-              Whether you need help with affiliate link management, e-commerce setup, or 
-              marketing automation, our team of experts is ready to assist you.
-            </p>
-            
-            <div className="flex flex-wrap gap-4 mt-8">
-              <div className="bg-aura-background border border-aura-accent/20 rounded-lg p-4 flex items-center gap-4">
-                <div className="p-3 rounded-full bg-aura-accent/10">
-                  <User className="h-5 w-5 text-aura-accent" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">In-Person Assistance</h3>
-                  <p className="text-sm text-aura-textSecondary">Local support in Somerton, SC</p>
-                </div>
-              </div>
-              
-              <div className="bg-aura-background border border-aura-accent/20 rounded-lg p-4 flex items-center gap-4">
-                <div className="p-3 rounded-full bg-aura-accent/10">
-                  <Laptop className="h-5 w-5 text-aura-accent" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Remote Services</h3>
-                  <p className="text-sm text-aura-textSecondary">Available nationwide</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-8">
-              <NeonButton asChild variant="purple">
-                <Link to="/contact">
-                  Schedule a Consultation
-                </Link>
-              </NeonButton>
-            </div>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-lg blur-xl"></div>
-            <div className="relative tech-border rounded-lg overflow-hidden">
-              <div className="aspect-w-16 aspect-h-9 bg-aura-backgroundLight/40 p-8 flex flex-col justify-center items-center">
-                <div className="flex gap-6 flex-wrap justify-center">
-                  <div className="p-5 rounded-full bg-aura-background border border-aura-accent/30 shadow-neon-blue-soft">
-                    <Link2 className="h-8 w-8 text-aura-accent" />
-                  </div>
-                  <div className="p-5 rounded-full bg-aura-background border border-purple-400/30 shadow-neon-purple-soft">
-                    <ShoppingCart className="h-8 w-8 text-purple-400" />
-                  </div>
-                  <div className="p-5 rounded-full bg-aura-background border border-teal-400/30 shadow-neon-teal-soft">
-                    <Mail className="h-8 w-8 text-teal-400" />
-                  </div>
-                </div>
-                <p className="text-center mt-8 text-aura-textSecondary">
-                  Connecting your digital tools for seamless workflows
-                </p>
-              </div>
-            </div>
-          </motion.div>
+            Get a Custom Integration Quote
+          </Button>
         </div>
       </div>
     </section>
