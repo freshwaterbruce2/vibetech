@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -110,6 +111,7 @@
     @apply bg-[#0B0B17] text-aura-text;
     font-family: 'Inter Variable', 'Inter', sans-serif;
     background-attachment: fixed;
+    font-display: swap; /* Improve text display during font loading */
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -147,5 +149,31 @@
   
   .heading-gradient {
     @apply bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] bg-clip-text text-transparent;
+  }
+
+  /* Focus styles for accessibility */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-aura-accent;
+  }
+
+  /* Improved accessibility for screen readers */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+  }
+}
+
+/* Optimize for print - hide unnecessary elements when printing */
+@media print {
+  nav, footer, .bg-decoration, .particles-bg-dense, button {
+    display: none !important;
+  }
+  main {
+    background: white !important;
+    color: black !important;
+  }
+  .print-break-inside-avoid {
+    break-inside: avoid;
   }
 }

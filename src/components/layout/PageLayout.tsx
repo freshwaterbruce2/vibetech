@@ -4,11 +4,15 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
 import ParticleNetworkCanvas from "@/components/ui/particle-network";
+import { Helmet } from "react-helmet-async";
 
 // Extracted types to improve readability
 interface PageLayoutProps {
   children: React.ReactNode;
   title?: string;
+  description?: string;
+  keywords?: string;
+  canonicalUrl?: string;
   particleOpacity?: number;
   particleCount?: number;
   auroraIntensity?: "low" | "medium" | "high";
@@ -56,6 +60,9 @@ BackgroundEffects.displayName = 'BackgroundEffects';
 const PageLayout: React.FC<PageLayoutProps> = ({
   children,
   title,
+  description,
+  keywords,
+  canonicalUrl,
   particleOpacity = 0.08,
   particleCount = 15,
   auroraIntensity = "medium"
@@ -67,8 +74,26 @@ const PageLayout: React.FC<PageLayoutProps> = ({
     }
   }, [title]);
 
+  // Prepare default metadata
+  const siteTitle = title ? `${title} | Vibe Tech` : "Vibe Tech | Creating innovative digital solutions";
+  const siteDescription = description || "Creating innovative digital solutions with a focus on design and functionality";
+  const siteKeywords = keywords || "vibe tech, web development, digital solutions, tech services";
+  const currentUrl = canonicalUrl || window.location.href;
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#0B0B17]">
+      {/* SEO Optimization with Helmet */}
+      <Helmet>
+        <title>{siteTitle}</title>
+        <meta name="description" content={siteDescription} />
+        <meta name="keywords" content={siteKeywords} />
+        <meta property="og:title" content={siteTitle} />
+        <meta property="og:description" content={siteDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={currentUrl} />
+        <link rel="canonical" href={currentUrl} />
+      </Helmet>
+      
       {/* Circuit board background */}
       <CircuitBoardBackground />
       
