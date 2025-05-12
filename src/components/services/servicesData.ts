@@ -7,7 +7,12 @@ export const services: ServiceType[] = [
     id: "web",
     name: "Web Development",
     description: "Modern web applications built with cutting-edge technologies.",
-    icon: <Layout className="h-6 w-6 text-[color:var(--c-cyan)]" />,
+    icon: {
+      type: Layout,
+      props: {
+        className: "h-6 w-6 text-[color:var(--c-cyan)]"
+      }
+    },
     features: [
       "Responsive design for all devices",
       "SEO optimization for better visibility",
@@ -20,7 +25,12 @@ export const services: ServiceType[] = [
     id: "app",
     name: "App Development",
     description: "Native and cross-platform mobile applications for iOS and Android.",
-    icon: <Code className="h-6 w-6 text-[color:var(--c-purple)]" />,
+    icon: {
+      type: Code,
+      props: {
+        className: "h-6 w-6 text-[color:var(--c-purple)]"
+      }
+    },
     features: [
       "Native iOS and Android development",
       "Cross-platform solutions",
@@ -33,7 +43,12 @@ export const services: ServiceType[] = [
     id: "ai",
     name: "AI Solutions",
     description: "Leverage AI to automate processes and gain valuable insights.",
-    icon: <Lightbulb className="h-6 w-6 text-[color:var(--c-teal)]" />,
+    icon: {
+      type: Lightbulb,
+      props: {
+        className: "h-6 w-6 text-[color:var(--c-teal)]"
+      }
+    },
     features: [
       "Machine learning integration",
       "Natural language processing",
@@ -46,7 +61,12 @@ export const services: ServiceType[] = [
     id: "cloud",
     name: "Cloud Services",
     description: "Scalable cloud infrastructure for your growing business needs.",
-    icon: <Database className="h-6 w-6 text-[color:var(--c-cyan)]" />,
+    icon: {
+      type: Database,
+      props: {
+        className: "h-6 w-6 text-[color:var(--c-cyan)]"
+      }
+    },
     features: [
       "Cloud migration strategy",
       "Serverless architecture",
@@ -59,7 +79,12 @@ export const services: ServiceType[] = [
     id: "security",
     name: "Cybersecurity",
     description: "Protect your digital assets with comprehensive security solutions.",
-    icon: <Shield className="h-6 w-6 text-[color:var(--c-purple)]" />,
+    icon: {
+      type: Shield,
+      props: {
+        className: "h-6 w-6 text-[color:var(--c-purple)]"
+      }
+    },
     features: [
       "Security audits and assessments",
       "Penetration testing",
@@ -72,7 +97,12 @@ export const services: ServiceType[] = [
     id: "consulting",
     name: "Tech Consulting",
     description: "Strategic guidance to transform your business with technology.",
-    icon: <Activity className="h-6 w-6 text-[color:var(--c-teal)]" />,
+    icon: {
+      type: Activity,
+      props: {
+        className: "h-6 w-6 text-[color:var(--c-teal)]"
+      }
+    },
     features: [
       "Digital transformation strategy",
       "Technology roadmapping",
