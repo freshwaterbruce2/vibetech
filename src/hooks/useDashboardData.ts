@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useNotifications } from "@/context/NotificationsContext";
 import { toast } from "@/components/ui/use-toast";
@@ -102,6 +101,10 @@ export const useDashboardData = () => {
     // return () => {
     //   supabase.removeChannel(channel);
     // };
+    
+    // For now, just return a no-op function since we're not actually 
+    // setting up real-time listeners yet
+    return () => {};
   }, []);
 
   useEffect(() => {
@@ -121,10 +124,8 @@ export const useDashboardData = () => {
     
     return () => {
       clearTimeout(timeoutId);
-      // Only call cleanup if it's a function
-      if (typeof cleanup === 'function') {
-        cleanup();
-      }
+      // Call cleanup function
+      cleanup();
     };
   }, [loadDashboardData, setupRealtimeListeners, addNotification]);
   
