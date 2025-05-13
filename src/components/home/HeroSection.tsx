@@ -1,6 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { NeonButton } from "@/components/ui/neon-button";
+import SmartLeadForm from "@/components/lead/SmartLeadForm";
 
 const HeroSection = () => {
   const placeholderAvatar = "/placeholder.svg";
@@ -33,6 +34,16 @@ const HeroSection = () => {
           <p className="text-slate-200/90 text-lg mb-8 max-w-2xl">
             Currently, I'm a Software Engineer at Facebook. I specialize in building exceptional digital experiences that are fast, accessible, and visually appealing.
           </p>
+          
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-3 text-[color:var(--c-cyan)]">Get in touch</h3>
+            <SmartLeadForm 
+              variant="inline" 
+              buttonText="Contact Me" 
+              showServiceInterest={false}
+            />
+          </div>
+          
           <div className="flex flex-col sm:flex-row gap-4">
             <NeonButton variant="gradient" size="lg" asChild>
               <Link to="/portfolio">View My Work</Link>

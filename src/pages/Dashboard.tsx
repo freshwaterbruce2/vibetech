@@ -12,6 +12,7 @@ import TodoList from "@/components/TodoList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { useNotifications } from "@/context/NotificationsContext";
+import NewLeadsMetric from "@/components/dashboard/NewLeadsMetric";
 
 // Mock data for demonstration
 const mockLeads = [
@@ -171,7 +172,13 @@ const Dashboard = () => {
         ) : (
           <>
             <motion.div variants={itemVariants}>
-              <DashboardMetrics metrics={metrics} />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {/* Include the new real-time leads metric */}
+                <NewLeadsMetric />
+                
+                {/* Keep the other mock metrics */}
+                <DashboardMetrics metrics={metrics} />
+              </div>
             </motion.div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">

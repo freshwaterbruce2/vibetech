@@ -13,20 +13,13 @@ interface DashboardMetricsProps {
 
 const DashboardMetrics = ({ metrics }: DashboardMetricsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <>
       <DashboardMetricCard 
         title="Total Leads"
         value={metrics.totalLeads}
         description="from last month"
         icon={Database}
         trend={{ value: "12.5%", positive: true }}
-      />
-      <DashboardMetricCard 
-        title="New Leads Today"
-        value={metrics.newLeadsToday}
-        description="more than yesterday"
-        icon={User}
-        trend={{ value: "2", positive: true }}
       />
       <DashboardMetricCard 
         title="Conversion Rate"
@@ -42,7 +35,7 @@ const DashboardMetrics = ({ metrics }: DashboardMetricsProps) => {
         icon={Activity}
         trend={{ value: "0.5 hours", positive: false }}
       />
-    </div>
+    </>
   );
 };
 
