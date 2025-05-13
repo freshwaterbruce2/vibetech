@@ -1,6 +1,7 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useNotifications } from "@/context/NotificationsContext";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 // Optimized for Pro plan - with real data fetching instead of mock data
@@ -120,7 +121,10 @@ export const useDashboardData = () => {
     
     return () => {
       clearTimeout(timeoutId);
-      if (cleanup) cleanup();
+      // Only call cleanup if it's a function
+      if (typeof cleanup === 'function') {
+        cleanup();
+      }
     };
   }, [loadDashboardData, setupRealtimeListeners, addNotification]);
   

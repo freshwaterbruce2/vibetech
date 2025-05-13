@@ -6,9 +6,9 @@ export async function enrichLeadWithClearbit(leadId: string) {
     // Using optimized config for Pro plan
     const { data, error } = await supabase.functions.invoke('enrich-lead', {
       body: { leadId },
-      // Take advantage of Pro plan's higher timeout limits
-      options: {
-        timeout: 30000 // 30 seconds timeout
+      // Pro plan has higher compute resources, we can take advantage of this
+      headers: {
+        'x-priority': 'high' // Custom header for Pro plan priority processing
       }
     });
     
