@@ -9,6 +9,7 @@ import ParticleNetworkCanvas from "@/components/ui/particle-network";
 import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
 import DashboardRefreshButton from "@/components/dashboard/DashboardRefreshButton";
 import NotificationBadge from "@/components/dashboard/NotificationBadge";
+import TodoList from "@/components/TodoList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 
@@ -143,22 +144,28 @@ const Dashboard = () => {
               <DashboardMetrics metrics={metrics} />
             </motion.div>
             
-            <motion.div 
-              variants={itemVariants}
-              className="relative"
-            >
-              <DashboardTabs 
-                leads={leads} 
-                activeTab={activeTab} 
-                setActiveTab={setActiveTab} 
-              />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+              <motion.div 
+                variants={itemVariants}
+                className="relative lg:col-span-2"
+              >
+                <DashboardTabs 
+                  leads={leads} 
+                  activeTab={activeTab} 
+                  setActiveTab={setActiveTab} 
+                />
+                
+                {/* Tech decorative corner effects */}
+                <div className="absolute -top-1 -left-1 w-5 h-5 border-t-2 border-l-2 border-aura-neonBlue/50"></div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 border-t-2 border-r-2 border-aura-neonBlue/50"></div>
+                <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-2 border-l-2 border-aura-neonBlue/50"></div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-2 border-r-2 border-aura-neonBlue/50"></div>
+              </motion.div>
               
-              {/* Tech decorative corner effects */}
-              <div className="absolute -top-1 -left-1 w-5 h-5 border-t-2 border-l-2 border-aura-neonBlue/50"></div>
-              <div className="absolute -top-1 -right-1 w-5 h-5 border-t-2 border-r-2 border-aura-neonBlue/50"></div>
-              <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-2 border-l-2 border-aura-neonBlue/50"></div>
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-2 border-r-2 border-aura-neonBlue/50"></div>
-            </motion.div>
+              <motion.div variants={itemVariants}>
+                <TodoList />
+              </motion.div>
+            </div>
           </>
         )}
       </motion.div>
