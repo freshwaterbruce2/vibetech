@@ -9,6 +9,97 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      customers: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount_cents: number
+          id: string
+          issued_at: string | null
+          job_id: string | null
+          paid: boolean | null
+        }
+        Insert: {
+          amount_cents: number
+          id?: string
+          issued_at?: string | null
+          job_id?: string | null
+          paid?: boolean | null
+        }
+        Update: {
+          amount_cents?: number
+          id?: string
+          issued_at?: string | null
+          job_id?: string | null
+          paid?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          created_at: string | null
+          customer_id: string | null
+          device: string
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["job_status"] | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id?: string | null
+          device: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["job_status"] | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string | null
+          device?: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["job_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           company: string | null
@@ -45,6 +136,57 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          payload: Json
+          read: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          payload: Json
+          read?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          payload?: Json
+          read?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      todos: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          due_date: string | null
+          id: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -53,7 +195,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      job_status: "pending" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -168,6 +310,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      job_status: ["pending", "in_progress", "completed", "cancelled"],
+    },
   },
 } as const
