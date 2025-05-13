@@ -1,6 +1,7 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useNotifications } from "@/context/NotificationsContext";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast"; // Updated import path
 import { supabase } from "@/integrations/supabase/client";
 
 // Optimized for Pro plan - with real data fetching instead of mock data
