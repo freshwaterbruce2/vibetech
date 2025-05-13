@@ -1,1 +1,5 @@
+
 project_id = "vkuhnmamnhsakgontnfp"
+
+[functions.enrich-lead]
+verify_jwt = true
