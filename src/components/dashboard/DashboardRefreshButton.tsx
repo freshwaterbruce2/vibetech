@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast"; // Updated import path
 
 interface DashboardRefreshButtonProps {
   onRefresh: () => void;
