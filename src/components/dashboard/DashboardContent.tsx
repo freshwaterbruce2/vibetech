@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import TodoList from "@/components/TodoList";
@@ -23,9 +24,10 @@ interface DashboardContentProps {
   };
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  isPro?: boolean; // New optional prop for Pro status
 }
 
-const DashboardContent = ({ leads, metrics, activeTab, setActiveTab }: DashboardContentProps) => {
+const DashboardContent = ({ leads, metrics, activeTab, setActiveTab, isPro = false }: DashboardContentProps) => {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -45,6 +47,15 @@ const DashboardContent = ({ leads, metrics, activeTab, setActiveTab }: Dashboard
           {/* Keep the other mock metrics */}
           <DashboardMetrics metrics={metrics} />
         </div>
+        
+        {/* Pro plan indicator - subtle but visible */}
+        {isPro && (
+          <div className="mb-4 text-right">
+            <span className="bg-aura-neonBlue/10 text-aura-neonBlue text-xs px-2 py-1 rounded-full border border-aura-neonBlue/20">
+              Pro Plan Active
+            </span>
+          </div>
+        )}
       </motion.div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">

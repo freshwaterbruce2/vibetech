@@ -6,9 +6,10 @@ import NotificationBadge from "@/components/dashboard/NotificationBadge";
 
 interface DashboardTopbarProps {
   onRefresh: () => void;
+  isPro?: boolean; // New optional prop
 }
 
-const DashboardTopbar = ({ onRefresh }: DashboardTopbarProps) => {
+const DashboardTopbar = ({ onRefresh, isPro = false }: DashboardTopbarProps) => {
   return (
     <motion.div variants={{
       hidden: { opacity: 0, y: 20 },
@@ -18,7 +19,14 @@ const DashboardTopbar = ({ onRefresh }: DashboardTopbarProps) => {
         transition: { duration: 0.5 }
       }
     }} className="flex justify-between items-center">
-      <DashboardHeader title="CRM Dashboard" />
+      <div className="flex items-center gap-2">
+        <DashboardHeader title="CRM Dashboard" />
+        {isPro && (
+          <span className="bg-gradient-to-r from-aura-neonBlue to-aura-neonPurple bg-clip-text text-transparent text-xs font-semibold">
+            PRO
+          </span>
+        )}
+      </div>
       
       <div className="flex items-center gap-4">
         <NotificationBadge />

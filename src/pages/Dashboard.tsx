@@ -17,6 +17,7 @@ const Dashboard = () => {
     leads,
     metrics,
     loadDashboardData,
+    isPro, // New Pro status from hook
   } = useDashboardData();
 
   const containerVariants = {
@@ -42,7 +43,7 @@ const Dashboard = () => {
         initial="hidden"
         animate={!isLoading ? "visible" : "hidden"}
       >
-        <DashboardTopbar onRefresh={loadDashboardData} />
+        <DashboardTopbar onRefresh={loadDashboardData} isPro={isPro} />
         
         {isLoading ? (
           <DashboardSkeleton />
@@ -53,7 +54,8 @@ const Dashboard = () => {
             leads={leads} 
             metrics={metrics} 
             activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
+            setActiveTab={setActiveTab}
+            isPro={isPro} 
           />
         )}
       </motion.div>

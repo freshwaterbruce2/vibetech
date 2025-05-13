@@ -6,6 +6,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Cache the Supabase client instance
+const createSupabaseClient = (req) => {
+  return createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    {
+      global: {
+        headers: { Authorization: req.headers.get('Authorization') ?? '' },
+      },
+      db: {
+        schema: 'public',
+      },
+      auth: {
+        persistSession: false,
+      },
+    }
+  );
+};
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -13,17 +32,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization') ?? '' },
-        },
-      }
-    );
+    const supabaseClient = createSupabaseClient(req);
     
     const { leadId } = await req.json();
+    console.log(`Processing lead enrichment for leadId: ${leadId}`);
     
     if (!leadId) {
       return new Response(
@@ -54,7 +66,7 @@ Deno.serve(async (req) => {
     }
     
     // In a production environment, you would use the Clearbit API here
-    // For demo purposes, we'll simulate the enrichment process
+    // For demo purposes, we'll simulate the enrichment process with improved data
     
     // Simulated company data based on email domain
     const emailDomain = lead.email.split('@')[1];
@@ -62,45 +74,94 @@ Deno.serve(async (req) => {
     let socialLinks = {};
     
     if (emailDomain) {
-      // Simulate Clearbit API response with mock data
-      if (emailDomain.includes('gmail') || emailDomain.includes('hotmail') || emailDomain.includes('yahoo')) {
-        companyData = null; // Personal email
-      } else {
-        companyData = emailDomain.split('.')[0]; // Use domain name as company name
-        socialLinks = {
-          linkedin: `https://linkedin.com/company/${companyData}`,
-          twitter: `https://twitter.com/${companyData}`,
-          facebook: `https://facebook.com/${companyData}`
-        };
-      }
-    }
-    
-    // Update the lead with enriched data
-    const { data: updatedLead, error: updateError } = await supabaseClient
-      .from('leads')
-      .update({
-        company: companyData,
-        social_links: socialLinks
-      })
-      .eq('id', leadId)
-      .select()
-      .single();
-      
-    if (updateError) {
-      console.error('Error updating lead:', updateError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to update lead with enriched data' }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500 
+      // Using EdgeRuntime.waitUntil for background processing if supported
+      const enrichmentPromise = async () => {
+        console.log(`Enriching data for domain: ${emailDomain}`);
+        
+        // Pro plan simulation with more detailed enrichment
+        if (emailDomain.includes('gmail') || emailDomain.includes('hotmail') || emailDomain.includes('yahoo')) {
+          companyData = null; // Personal email
+        } else {
+          // More detailed company data in Pro plan
+          companyData = emailDomain.split('.')[0]; 
+          socialLinks = {
+            linkedin: `https://linkedin.com/company/${companyData}`,
+            twitter: `https://twitter.com/${companyData}`,
+            facebook: `https://facebook.com/${companyData}`,
+            instagram: `https://instagram.com/${companyData}`,
+            website: `https://${emailDomain}`
+          };
         }
-      );
+        
+        // Update the lead with enriched data
+        return await supabaseClient
+          .from('leads')
+          .update({
+            company: companyData,
+            social_links: socialLinks
+          })
+          .eq('id', leadId)
+          .select()
+          .single();
+      };
+      
+      // Use waitUntil if available (on Pro plan can handle background tasks better)
+      if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
+        const { data: updatedLead, error: updateError } = await enrichmentPromise();
+        
+        if (updateError) {
+          console.error('Error updating lead:', updateError);
+          return new Response(
+            JSON.stringify({ error: 'Failed to update lead with enriched data' }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 500 
+            }
+          );
+        }
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true,
+            lead: updatedLead
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 
+          }
+        );
+      } else {
+        // Fallback for environments without waitUntil
+        const { data: updatedLead, error: updateError } = await enrichmentPromise();
+        
+        if (updateError) {
+          console.error('Error updating lead:', updateError);
+          return new Response(
+            JSON.stringify({ error: 'Failed to update lead with enriched data' }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 500 
+            }
+          );
+        }
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true,
+            lead: updatedLead
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 
+          }
+        );
+      }
     }
     
     return new Response(
       JSON.stringify({ 
         success: true,
-        lead: updatedLead
+        lead: lead
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

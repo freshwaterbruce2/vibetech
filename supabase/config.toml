@@ -3,3 +3,7 @@ project_id = "vkuhnmamnhsakgontnfp"
 
 [functions.enrich-lead]
 verify_jwt = true
+import_map = "./import_map.json"
+# Increasing memory and timeout for Pro plan resources
+memory = 1024
+timeout = 60
