@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
-import { toast } from "@/hooks/use-toast"; // Updated import path
+import { toast } from "@/hooks/use-toast"; // Ensure consistent import path
 
 interface DashboardRefreshButtonProps {
   onRefresh: () => void;
@@ -13,33 +13,35 @@ const DashboardRefreshButton = ({ onRefresh }: DashboardRefreshButtonProps) => {
   
   const handleRefresh = async () => {
     setIsRefreshing(true);
+    
     try {
       await onRefresh();
       toast({
         title: "Dashboard refreshed",
-        description: "Latest data has been loaded successfully",
+        description: "Your dashboard data has been updated successfully.",
       });
     } catch (error) {
+      console.error("Refresh error:", error);
       toast({
         variant: "destructive",
         title: "Refresh failed",
-        description: "Could not refresh dashboard data",
+        description: "Could not refresh dashboard data. Please try again.",
       });
     } finally {
       setIsRefreshing(false);
     }
   };
-
+  
   return (
     <Button 
       variant="outline" 
       size="sm" 
-      onClick={handleRefresh} 
+      onClick={handleRefresh}
       disabled={isRefreshing}
-      className="flex items-center gap-1 bg-aura-backgroundLight border-aura-accent/20 hover:bg-aura-accent/10"
+      className="relative bg-aura-backgroundLight border-aura-neonBlue/30 hover:bg-aura-neonBlue/10"
     >
-      <RefreshCcw className={`h-3 w-3 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-      {isRefreshing ? "Refreshing..." : "Refresh"}
+      <RefreshCcw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+      Refresh
     </Button>
   );
 };
