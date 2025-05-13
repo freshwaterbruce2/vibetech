@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
@@ -12,6 +11,7 @@ import NotificationBadge from "@/components/dashboard/NotificationBadge";
 import TodoList from "@/components/TodoList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
+import { useNotifications } from "@/context/NotificationsContext";
 
 // Mock data for demonstration
 const mockLeads = [
@@ -35,7 +35,7 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [leads, setLeads] = useState(mockLeads);
   const [metrics, setMetrics] = useState(mockMetrics);
-  const [notificationCount, setNotificationCount] = useState(3);
+  const { addNotification } = useNotifications();
 
   const loadDashboardData = async () => {
     setIsLoading(true);
@@ -48,6 +48,13 @@ const Dashboard = () => {
       // In a real app, you would fetch data from an API
       setLeads(mockLeads);
       setMetrics(mockMetrics);
+      
+      // Add a success notification when data is loaded
+      addNotification({
+        title: "Dashboard Updated",
+        message: "Your dashboard data has been refreshed",
+        type: "success"
+      });
     } catch (err) {
       console.error("Failed to load dashboard data:", err);
       setError("Failed to load dashboard data. Please try again.");
@@ -56,6 +63,13 @@ const Dashboard = () => {
         title: "Error loading dashboard",
         description: "Could not load your dashboard data. Please try again.",
       });
+      
+      // Add an error notification
+      addNotification({
+        title: "Dashboard Error",
+        message: "Failed to load dashboard data. Please try again.",
+        type: "error"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -63,15 +77,31 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
+    
+    // Add a welcome notification when the dashboard is first loaded
+    const timeoutId = setTimeout(() => {
+      addNotification({
+        title: "Welcome Back",
+        message: "You have 3 tasks due today. Check your todo list.",
+        type: "info"
+      });
+    }, 2000);
+    
+    return () => clearTimeout(timeoutId);
   }, []);
-
-  const handleNotificationClick = () => {
-    toast({
-      title: "Notifications",
-      description: `You have ${notificationCount} unread notifications`,
-    });
-    setNotificationCount(0);
-  };
+  
+  // Add a notification when a lead is qualified (simulated event)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      addNotification({
+        title: "Lead Status Updated",
+        message: "Bob Johnson has been marked as 'Qualified'",
+        type: "success"
+      });
+    }, 5000);
+    
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -110,7 +140,7 @@ const Dashboard = () => {
           <DashboardHeader title="CRM Dashboard" />
           
           <div className="flex items-center gap-4">
-            <NotificationBadge count={notificationCount} onClick={handleNotificationClick} />
+            <NotificationBadge />
             <DashboardRefreshButton onRefresh={loadDashboardData} />
           </div>
         </motion.div>
