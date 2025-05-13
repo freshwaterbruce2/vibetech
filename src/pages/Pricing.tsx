@@ -25,16 +25,15 @@ const Pricing = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="max-w-7xl mx-auto px-4 pt-24"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-16"
       >
         <PricingHeader 
           billingCycle={billingCycle} 
           setBillingCycle={setBillingCycle} 
         />
 
-        <MarketComparison marketComparisons={marketComparisons} />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        {/* Pricing Tiers */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-16">
           {pricingTiers.map((tier, index) => (
             <PricingTier
               key={tier.name}
@@ -45,10 +44,24 @@ const Pricing = () => {
             />
           ))}
         </div>
-
-        <CustomQuote onRequestQuote={handleSubscribe} />
         
-        <PricingFAQ />
+        {/* Market Comparison Section */}
+        <div className="my-20">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-[#c87eff] to-[#00f7ff] bg-clip-text text-transparent">
+            See How We Compare
+          </h2>
+          <MarketComparison marketComparisons={marketComparisons} />
+        </div>
+
+        {/* Custom Quote Section */}
+        <div className="my-20">
+          <CustomQuote onRequestQuote={handleSubscribe} />
+        </div>
+        
+        {/* FAQ Section */}
+        <div className="mt-20">
+          <PricingFAQ />
+        </div>
       </motion.div>
     </PageLayout>
   );
