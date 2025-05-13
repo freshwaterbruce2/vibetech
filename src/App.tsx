@@ -13,6 +13,7 @@ import BlogPostPage from './pages/public/BlogPostPage';
 import Services from './pages/Services';
 import Tools from './pages/Tools';
 import About from './pages/About';
+import { Toaster } from '@/components/ui/toaster';
 
 const App: React.FC = () => {
   return (
@@ -32,6 +33,7 @@ const App: React.FC = () => {
           <Route path="/tools" element={<Tools />} />
           <Route path="/about" element={<About />} />
         </Routes>
+        <Toaster />
       </div>
     </Router>
   );

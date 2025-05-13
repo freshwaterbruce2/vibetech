@@ -61,9 +61,16 @@ export const useDashboardData = () => {
         message: "Your Pro dashboard data has been refreshed",
         type: "success"
       });
+
+      // Add toast notification
+      toast({
+        title: "Dashboard refreshed",
+        description: "Your dashboard data has been updated successfully.",
+      });
     } catch (err) {
       console.error("Failed to load dashboard data:", err);
       setError("Failed to load dashboard data. Please try again.");
+      
       toast({
         variant: "destructive",
         title: "Error loading dashboard",
@@ -105,7 +112,7 @@ export const useDashboardData = () => {
     
     // For now, just return a no-op function since we're not actually 
     // setting up real-time listeners yet
-    return () => {};
+    return () => {}; // This fixes the Type 'never' has no call signatures error
   }, []);
 
   useEffect(() => {

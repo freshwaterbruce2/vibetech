@@ -7,6 +7,7 @@ import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
 import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
 import DashboardErrorState from "@/components/dashboard/DashboardErrorState";
 import DashboardContent from "@/components/dashboard/DashboardContent";
+import { Toaster } from "@/components/ui/toaster";
 
 const Dashboard = () => {
   const {
@@ -17,7 +18,7 @@ const Dashboard = () => {
     leads,
     metrics,
     loadDashboardData,
-    isPro, // New Pro status from hook
+    isPro,
   } = useDashboardData();
 
   const containerVariants = {
@@ -59,6 +60,9 @@ const Dashboard = () => {
           />
         )}
       </motion.div>
+      
+      {/* Add the Toaster component for toast notifications */}
+      <Toaster />
     </div>
   );
 };
