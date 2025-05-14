@@ -21,24 +21,28 @@ const mockMetrics = {
 };
 
 export const useDashboardData = () => {
-  // State declarations - always in the same order
+  // State declarations
   const [activeTab, setActiveTab] = useState("overview");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [leads, setLeads] = useState(mockLeads);
   const [metrics, setMetrics] = useState(mockMetrics);
-  const [isPro, setIsPro] = useState(true); // Pro plan enabled
+  const [isPro, setIsPro] = useState(true);
   
-  // Refs - always declare all refs before any other hooks
+  // Refs for tracking state
   const isInitialLoadRef = useRef(true);
   const isManualRefreshRef = useRef(false);
+  const setupCompletedRef = useRef(false);
   
-  // External hooks - always call in the same order
+  // External hooks
   const { addNotification } = useNotifications();
 
-  // Setup realtime listeners function - defined before it's used
+  // Setup realtime listeners function
   const setupRealtimeListeners = useCallback(() => {
+    if (setupCompletedRef.current) return () => {};
+    
     console.log("Setting up realtime listeners");
+    setupCompletedRef.current = true;
     
     // Return a cleanup function
     return () => {
@@ -46,7 +50,7 @@ export const useDashboardData = () => {
     };
   }, []);
 
-  // Data loading function - defined before it's used
+  // Data loading function
   const loadDashboardData = useCallback(async () => {
     // Set manual refresh flag if it's not the initial load
     if (!isInitialLoadRef.current) {
@@ -58,7 +62,7 @@ export const useDashboardData = () => {
     
     try {
       // Simulate API call with timeout 
-      await new Promise(resolve => setTimeout(resolve, 500)); // Faster on Pro plan
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       setLeads(mockLeads);
       setMetrics(mockMetrics);
@@ -111,31 +115,35 @@ export const useDashboardData = () => {
     }
   }, [addNotification]);
 
-  // Initial data load effect - always call useEffect in the same order
+  // Initial data load effect - Run ONCE
   useEffect(() => {
-    loadDashboardData();
-    
-    // Set up real-time listeners
-    const cleanup = setupRealtimeListeners();
-    
-    // Add a welcome notification when the dashboard is first loaded
-    const timeoutId = setTimeout(() => {
-      addNotification({
-        title: "Welcome to Pro Dashboard",
-        message: "You now have access to enhanced features and performance.",
-        type: "info"
-      });
-    }, 2000);
-    
-    return () => {
-      clearTimeout(timeoutId);
-      // Call cleanup function
-      cleanup();
-    };
+    if (isInitialLoadRef.current) {
+      loadDashboardData();
+      
+      // Set up real-time listeners
+      const cleanup = setupRealtimeListeners();
+      
+      // Add a welcome notification when the dashboard is first loaded
+      const timeoutId = setTimeout(() => {
+        addNotification({
+          title: "Welcome to Pro Dashboard",
+          message: "You now have access to enhanced features and performance.",
+          type: "info"
+        });
+      }, 2000);
+      
+      return () => {
+        clearTimeout(timeoutId);
+        // Call cleanup function
+        cleanup();
+      };
+    }
   }, [loadDashboardData, setupRealtimeListeners, addNotification]);
   
-  // Lead qualification notification effect - always called
+  // Lead qualification notification effect - ONCE
   useEffect(() => {
+    if (isInitialLoadRef.current) return;
+    
     const timeoutId = setTimeout(() => {
       addNotification({
         title: "Lead Status Updated",
