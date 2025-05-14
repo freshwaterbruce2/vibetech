@@ -1,4 +1,3 @@
-
 import React, { useEffect, memo } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -6,6 +5,7 @@ import MeshAuroraBackground from "@/components/ui/mesh-aurora-background";
 import ParticleNetworkCanvas from "@/components/ui/particle-network";
 import { Helmet } from "react-helmet-async";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useFeatureDetection } from "@/lib/feature-detection";
 
 // Extracted types to improve readability
 interface PageLayoutProps {
@@ -50,15 +50,27 @@ const NeonEffects = memo(() => (
 ));
 NeonEffects.displayName = 'NeonEffects';
 
-const BackgroundEffects = memo(({ particleCount, particleOpacity, auroraIntensity, isMobile }: Pick<PageLayoutProps, 'particleCount' | 'particleOpacity' | 'auroraIntensity'> & { isMobile: boolean }) => (
-  <div className="absolute inset-0 z-1 opacity-50">
-    <MeshAuroraBackground intensity={auroraIntensity} />
-    <ParticleNetworkCanvas 
-      particleCount={isMobile ? Math.floor(particleCount * 0.5) : particleCount} 
-      opacity={particleOpacity} 
-    />
-  </div>
-));
+const BackgroundEffects = memo(({ particleCount, particleOpacity, auroraIntensity, isMobile }: Pick<PageLayoutProps, 'particleCount' | 'particleOpacity' | 'auroraIntensity'> & { isMobile: boolean }) => {
+  const { features } = useFeatureDetection();
+  const hasWebGL = features.webGL.check();
+
+  // If webGL is not supported, show a simpler background
+  if (!hasWebGL) {
+    return (
+      <div className="absolute inset-0 z-1 bg-gradient-to-b from-[#0B0B17]/80 via-[#1a1a2e]/50 to-[#0B0B17]/80 opacity-50"></div>
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 z-1 opacity-50">
+      <MeshAuroraBackground intensity={auroraIntensity} />
+      <ParticleNetworkCanvas 
+        particleCount={isMobile ? Math.floor(particleCount * 0.3) : particleCount} 
+        opacity={particleOpacity} 
+      />
+    </div>
+  );
+});
 BackgroundEffects.displayName = 'BackgroundEffects';
 
 const PageLayout: React.FC<PageLayoutProps> = ({
@@ -72,6 +84,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   auroraIntensity = "medium"
 }) => {
   const isMobile = useIsMobile();
+  const { features } = useFeatureDetection();
 
   // Set page title if provided - moved to useEffect with dependency array
   useEffect(() => {
@@ -79,6 +92,12 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       document.title = `${title} | Vibe Tech`;
     }
   }, [title]);
+
+  // Use reduced animations on mobile for better performance
+  const shouldReduceAnimations = isMobile || !features.webGL.check();
+  
+  // Dynamically adjust particle count based on device capability
+  const optimizedParticleCount = shouldReduceAnimations ? Math.floor(particleCount * 0.3) : particleCount;
 
   // Prepare default metadata
   const siteTitle = title ? `${title} | Vibe Tech` : "Vibe Tech | Creating innovative digital solutions";
@@ -98,7 +117,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         <meta property="og:type" content="website" />
         <meta property="og:url" content={currentUrl} />
         <link rel="canonical" href={currentUrl} />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+        {/* Feature detection meta tags */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </Helmet>
       
       {/* Circuit board background */}
@@ -109,7 +132,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       
       {/* Background effects with optimized rendering */}
       <BackgroundEffects 
-        particleCount={particleCount} 
+        particleCount={optimizedParticleCount} 
         particleOpacity={particleOpacity} 
         auroraIntensity={auroraIntensity}
         isMobile={isMobile}
@@ -118,9 +141,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       {/* Subtle particle overlay for tech effect */}
       <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
       
-      {/* Main content */}
+      {/* Main content with improved mobile padding */}
       <NavBar />
-      <main className="relative z-10 px-4 md:px-0">
+      <main className="relative z-10 px-4 sm:px-6 md:px-0">
         {children}
       </main>
       <Footer />
