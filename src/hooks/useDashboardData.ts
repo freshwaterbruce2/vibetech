@@ -21,19 +21,32 @@ const mockMetrics = {
 };
 
 export const useDashboardData = () => {
+  // State declarations - always in the same order
   const [activeTab, setActiveTab] = useState("overview");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [leads, setLeads] = useState(mockLeads);
   const [metrics, setMetrics] = useState(mockMetrics);
   const [isPro, setIsPro] = useState(true); // Pro plan enabled
-  const { addNotification } = useNotifications();
-  // Track if this is the initial load
+  
+  // Refs - always declare all refs before any other hooks
   const isInitialLoadRef = useRef(true);
-  // Track if a manual refresh is in progress
   const isManualRefreshRef = useRef(false);
+  
+  // External hooks - always call in the same order
+  const { addNotification } = useNotifications();
 
-  // Optimized data loading function with Pro-specific enhancements
+  // Setup realtime listeners function - defined before it's used
+  const setupRealtimeListeners = useCallback(() => {
+    console.log("Setting up realtime listeners");
+    
+    // Return a cleanup function
+    return () => {
+      console.log("Cleaning up realtime listeners");
+    };
+  }, []);
+
+  // Data loading function - defined before it's used
   const loadDashboardData = useCallback(async () => {
     // Set manual refresh flag if it's not the initial load
     if (!isInitialLoadRef.current) {
@@ -98,16 +111,7 @@ export const useDashboardData = () => {
     }
   }, [addNotification]);
 
-  // Initialize real-time listeners when using Pro plan
-  const setupRealtimeListeners = useCallback(() => {
-    console.log("Setting up realtime listeners");
-    
-    // Return a cleanup function
-    return () => {
-      console.log("Cleaning up realtime listeners");
-    };
-  }, []);
-
+  // Initial data load effect - always call useEffect in the same order
   useEffect(() => {
     loadDashboardData();
     
@@ -130,7 +134,7 @@ export const useDashboardData = () => {
     };
   }, [loadDashboardData, setupRealtimeListeners, addNotification]);
   
-  // Add a notification when a lead is qualified (simulated event)
+  // Lead qualification notification effect - always called
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       addNotification({
