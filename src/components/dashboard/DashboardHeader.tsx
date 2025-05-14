@@ -19,6 +19,7 @@ const DashboardHeader = ({ title, className = "" }: DashboardHeaderProps) => {
           align="left"
           className="mb-0"
         />
+        <p className="text-sm text-aura-textSecondary mt-1">Bruce Freshwater's CRM</p>
       </div>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}

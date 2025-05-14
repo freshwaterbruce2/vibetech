@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -44,6 +45,10 @@ const Dashboard = () => {
         animate={!isLoading ? "visible" : "hidden"}
       >
         <DashboardTopbar onRefresh={loadDashboardData} isPro={isPro} />
+        
+        <div className="mb-6 text-sm text-aura-textSecondary">
+          Welcome back, Bruce Freshwater
+        </div>
         
         {isLoading ? (
           <DashboardSkeleton />
