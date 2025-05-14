@@ -60,7 +60,7 @@ const BlogSection = () => {
           ))}
         </div>
         <div className="text-center mt-10">
-          <NeonButton variant="blue" asChild>
+          <NeonButton variant="primary" asChild>
             <Link to="/blog">Read All Articles</Link>
           </NeonButton>
         </div>

@@ -12,6 +12,7 @@ const IntegrationShowcase: React.FC = () => {
       description: "Manage and track affiliate links with powerful analytics and click data.",
       icon: <Link2 className="h-6 w-6" />,
       variant: "blue",
+      buttonVariant: "primary",
       buttonText: "Affiliate Links"
     },
     {
@@ -19,6 +20,7 @@ const IntegrationShowcase: React.FC = () => {
       description: "Create a beautiful storefront for selling products and services online.",
       icon: <ShoppingCart className="h-6 w-6" />,
       variant: "purple",
+      buttonVariant: "secondary",
       buttonText: "E-Commerce"
     },
     {
@@ -26,6 +28,7 @@ const IntegrationShowcase: React.FC = () => {
       description: "Automate email marketing campaigns and grow your audience effectively.",
       icon: <Mail className="h-6 w-6" />,
       variant: "teal",
+      buttonVariant: "accent",
       buttonText: "Email Marketing"
     },
     {
@@ -33,6 +36,7 @@ const IntegrationShowcase: React.FC = () => {
       description: "Track user behavior and conversion metrics to optimize your site.",
       icon: <ChartBar className="h-6 w-6" />,
       variant: "blue",
+      buttonVariant: "primary",
       buttonText: "Analytics"
     },
     {
@@ -40,6 +44,7 @@ const IntegrationShowcase: React.FC = () => {
       description: "Collaborate on projects with powerful brainstorming and management tools.",
       icon: <Users className="h-6 w-6" />,
       variant: "purple",
+      buttonVariant: "secondary",
       buttonText: "Collaboration"
     },
     {
@@ -47,6 +52,7 @@ const IntegrationShowcase: React.FC = () => {
       description: "Design stunning interfaces with our futuristic tech aesthetic.",
       icon: <Paintbrush className="h-6 w-6" />,
       variant: "teal",
+      buttonVariant: "accent",
       buttonText: "Design"
     }
   ];
@@ -79,7 +85,7 @@ const IntegrationShowcase: React.FC = () => {
                   <p className="text-aura-textSecondary mb-6 flex-grow">{integration.description}</p>
                   
                   <div className="mt-auto">
-                    <NeonButton variant={integration.variant as "blue" | "purple" | "teal"} size="sm">
+                    <NeonButton variant={integration.buttonVariant as "primary" | "secondary" | "accent"} size="sm">
                       {integration.buttonText}
                     </NeonButton>
                   </div>
