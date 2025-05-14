@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Index from './pages/Index';
 import Portfolio from './pages/Portfolio';
 import Contact from './pages/Contact';
@@ -14,11 +14,24 @@ import Services from './pages/Services';
 import Tools from './pages/Tools';
 import About from './pages/About';
 import { Toaster } from '@/components/ui/toaster';
+import { useEffect } from 'react';
+
+// ScrollToTop component to handle scrolling to top on route change
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  
+  return null;
+};
 
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="dashboard-bg">
+      <ScrollToTop />
+      <div className="dashboard-bg min-h-screen">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/portfolio" element={<Portfolio />} />
@@ -33,7 +46,7 @@ const App: React.FC = () => {
           <Route path="/tools" element={<Tools />} />
           <Route path="/about" element={<About />} />
         </Routes>
-        {/* Remove the toaster from App.tsx since each page that needs it should have its own */}
+        <Toaster />
       </div>
     </Router>
   );
