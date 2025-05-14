@@ -21,7 +21,7 @@ const Contact = () => {
         <div className="max-w-6xl mx-auto">
           <PageHeader 
             title="Get In Touch"
-            subtitle="Have a question or interested in working with us? Reach out using the form below or contact us directly."
+            subtitle="Have a question or interested in working with Bruce Freshwater? Reach out using the form below or contact directly."
           />
         </div>
       </section>
@@ -86,7 +86,7 @@ const Contact = () => {
               <div>
                 <h2 className="text-2xl font-semibold mb-6 font-heading">Contact Information</h2>
                 <p className="text-aura-textSecondary mb-8">
-                  We'd love to hear from you! Contact us using the information below or fill out the form and we'll get back to you as soon as possible.
+                  Bruce Freshwater would love to hear from you! Contact using the information below or fill out the form and we'll get back to you as soon as possible.
                 </p>
                 <div className="space-y-6">
                   <div className="flex items-start">
@@ -150,8 +150,8 @@ const Contact = () => {
           <div className="space-y-6">
             {[
               {
-                question: "What services do you offer?",
-                answer: "We offer a range of digital services including web development, mobile app development, UI/UX design, and digital strategy consulting."
+                question: "What services does Bruce Freshwater offer?",
+                answer: "Bruce offers a range of digital services including web development, mobile app development, UI/UX design, and digital strategy consulting."
               },
               {
                 question: "How much do your services cost?",
@@ -163,7 +163,7 @@ const Contact = () => {
               },
               {
                 question: "Do you provide ongoing support?",
-                answer: "Yes, we offer various maintenance and support packages to ensure your digital products continue to function optimally after launch."
+                answer: "Yes, Bruce and his team offer various maintenance and support packages to ensure your digital products continue to function optimally after launch."
               }
             ].map((item, index) => (
               <div 

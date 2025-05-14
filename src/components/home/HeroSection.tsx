@@ -14,7 +14,7 @@ const HeroSection = () => {
           <div className="relative w-64 h-64 mx-auto">
             <img 
               src={placeholderAvatar} 
-              alt="Avatar" 
+              alt="Bruce Freshwater" 
               className="rounded-full object-cover animate-glow border-4 border-[color:var(--c-purple)/80] shadow-[0_0_25px_var(--c-purple)]"
             />
           </div>
@@ -23,7 +23,7 @@ const HeroSection = () => {
         {/* Right side - Text with neon elements */}
         <div className="w-full md:w-2/3 md:pl-12">
           <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            Hello! I'm <span className="bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Your Name</span>
+            Hello! I'm <span className="bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Bruce Freshwater</span>
           </h1>
           <div className="mb-6 flex items-center">
             <span className="text-2xl md:text-3xl font-semibold">
@@ -32,7 +32,7 @@ const HeroSection = () => {
             <span className="ml-1 text-3xl animate-pulse">|</span>
           </div>
           <p className="text-slate-200/90 text-lg mb-8 max-w-2xl">
-            Currently, I'm a Software Engineer at Facebook. I specialize in building exceptional digital experiences that are fast, accessible, and visually appealing.
+            Currently, I'm a Software Engineer at Vibe Tech. I specialize in building exceptional digital experiences that are fast, accessible, and visually appealing.
           </p>
           
           <div className="mb-8">
