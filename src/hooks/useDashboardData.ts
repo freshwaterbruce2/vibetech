@@ -1,11 +1,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useNotifications } from "@/context/NotificationsContext";
-import { toast } from "@/hooks/use-toast"; // Correct import path
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-// Optimized for Pro plan - with real data fetching instead of mock data
-// Enhanced with real-time capabilities
 
 // Mock data for demonstration
 const mockLeads = [
@@ -38,19 +35,8 @@ export const useDashboardData = () => {
     setError(null);
     
     try {
-      // On Pro plan we can make more complex queries and parallel requests
-      // For demo purposes we'll keep using mock data but in a production app
-      // this would fetch real data from Supabase
-
       // Simulate API call with timeout 
       await new Promise(resolve => setTimeout(resolve, 500)); // Faster on Pro plan
-      
-      // In a real app, you would fetch data from Supabase here
-      // const { data: leadsData } = await supabase
-      //   .from('leads')
-      //   .select('*')
-      //   .order('created_at', { ascending: false })
-      //   .limit(10);
       
       setLeads(mockLeads);
       setMetrics(mockMetrics);
@@ -90,29 +76,9 @@ export const useDashboardData = () => {
 
   // Initialize real-time listeners when using Pro plan
   const setupRealtimeListeners = useCallback(() => {
-    // Only available on Pro plan - real-time updates
-    // This would connect to Supabase's realtime functionality
-    // that is better supported in the Pro plan
-    
-    // Example (commented out since we're using mock data):
-    // const channel = supabase
-    //   .channel('dashboard-updates')
-    //   .on('postgres_changes', 
-    //     { event: 'INSERT', schema: 'public', table: 'leads' },
-    //     (payload) => {
-    //       // Update leads when a new one is created
-    //       setLeads(prevLeads => [payload.new, ...prevLeads].slice(0, 5));
-    //     }
-    //   )
-    //   .subscribe();
-    
-    // return () => {
-    //   supabase.removeChannel(channel);
-    // };
-    
-    // Always return a cleanup function, even when it does nothing
+    // This function needs to return a cleanup function
     return () => {
-      // No-op cleanup function
+      // No-op cleanup function for now
     };
   }, []);
 
@@ -159,6 +125,6 @@ export const useDashboardData = () => {
     leads,
     metrics,
     loadDashboardData,
-    isPro, // New flag to indicate Pro status
+    isPro,
   };
 };

@@ -12,38 +12,16 @@ export default function NewLeadsMetric() {
 
   useEffect(() => {
     const fetchNewLeads = async () => {
-      setIsLoading(true);
+      // Don't set loading to true since we're already using a default value
       setError(null);
       
       try {
-        // For demo purposes, we're using mock data
+        // Note: We're using mock data for now
         // In a real app, you would fetch this from Supabase
-        
-        try {
-          // Calculate date for 24 hours ago
-          const oneDayAgo = new Date();
-          oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-          
-          // Query leads created in the last 24 hours - commented out for demo
-          // const { count, error } = await supabase
-          //   .from('leads')
-          //   .select('id', { count: 'exact', head: true })
-          //   .gte('created_at', oneDayAgo.toISOString());
-          
-          // if (error) throw error;
-          
-          // if (count !== null) {
-          //   setNewLeadsCount(count);
-          // }
-          
-          // Using mock data instead
-          setNewLeadsCount(5);
-        } catch (err) {
-          console.error('Error fetching new leads:', err);
-          // Don't set error state - we're already using fallback data
-        }
-      } finally {
-        setIsLoading(false);
+        setNewLeadsCount(5);
+      } catch (err) {
+        console.error('Error fetching new leads:', err);
+        // We don't set error state since we have a fallback value
       }
     };
     
@@ -58,10 +36,10 @@ export default function NewLeadsMetric() {
   return (
     <DashboardMetricCard 
       title="New Leads (24h)"
-      value={isLoading ? "..." : newLeadsCount}
-      description={error ? "Failed to load data" : "from yesterday"}
+      value={newLeadsCount}
+      description="from yesterday"
       icon={Database}
-      trend={newLeadsCount > 0 ? { value: `${newLeadsCount}`, positive: true } : undefined}
+      trend={{ value: `${newLeadsCount}`, positive: true }}
     />
   );
 }
