@@ -12,14 +12,12 @@ const DashboardRefreshButton = ({ onRefresh }: DashboardRefreshButtonProps) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   
   const handleRefresh = async () => {
+    if (isRefreshing) return;
     setIsRefreshing(true);
     
     try {
       await onRefresh();
-      toast({
-        title: "Dashboard refreshed",
-        description: "Your dashboard data has been updated successfully.",
-      });
+      // Remove the toast from here as it's already being called in the onRefresh function
     } catch (error) {
       console.error("Refresh error:", error);
       toast({

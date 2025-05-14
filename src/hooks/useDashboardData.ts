@@ -28,6 +28,8 @@ export const useDashboardData = () => {
   const [metrics, setMetrics] = useState(mockMetrics);
   const [isPro, setIsPro] = useState(true); // Pro plan enabled
   const { addNotification } = useNotifications();
+  // Add a ref to track if this is the initial load
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Optimized data loading function with Pro-specific enhancements
   const loadDashboardData = useCallback(async () => {
@@ -41,44 +43,55 @@ export const useDashboardData = () => {
       setLeads(mockLeads);
       setMetrics(mockMetrics);
       
-      // Add a success notification when data is loaded
-      addNotification({
-        title: "Dashboard Updated",
-        message: "Your Pro dashboard data has been refreshed",
-        type: "success"
-      });
+      // Only show notifications if it's not the initial load
+      if (!isInitialLoad) {
+        // Add a success notification when data is loaded
+        addNotification({
+          title: "Dashboard Updated",
+          message: "Your Pro dashboard data has been refreshed",
+          type: "success"
+        });
 
-      // Add toast notification
-      toast({
-        title: "Dashboard refreshed",
-        description: "Your dashboard data has been updated successfully.",
-      });
+        // Add toast notification only on manual refresh
+        toast({
+          title: "Dashboard refreshed",
+          description: "Your dashboard data has been updated successfully.",
+        });
+      }
+      
+      setIsInitialLoad(false);
     } catch (err) {
       console.error("Failed to load dashboard data:", err);
       setError("Failed to load dashboard data. Please try again.");
       
-      toast({
-        variant: "destructive",
-        title: "Error loading dashboard",
-        description: "Could not load your dashboard data. Please try again.",
-      });
+      if (!isInitialLoad) {
+        toast({
+          variant: "destructive",
+          title: "Error loading dashboard",
+          description: "Could not load your dashboard data. Please try again.",
+        });
+        
+        // Add an error notification
+        addNotification({
+          title: "Dashboard Error",
+          message: "Failed to load dashboard data. Please try again.",
+          type: "error"
+        });
+      }
       
-      // Add an error notification
-      addNotification({
-        title: "Dashboard Error",
-        message: "Failed to load dashboard data. Please try again.",
-        type: "error"
-      });
+      setIsInitialLoad(false);
     } finally {
       setIsLoading(false);
     }
-  }, [addNotification]);
+  }, [addNotification, isInitialLoad]);
 
   // Initialize real-time listeners when using Pro plan
   const setupRealtimeListeners = useCallback(() => {
-    // This function needs to return a cleanup function
+    console.log("Setting up realtime listeners");
+    
+    // Return a cleanup function
     return () => {
-      // No-op cleanup function for now
+      console.log("Cleaning up realtime listeners");
     };
   }, []);
 
