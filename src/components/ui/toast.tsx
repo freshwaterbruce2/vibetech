@@ -32,6 +32,7 @@ const toastVariants = cva(
         destructive: "destructive group border-destructive/30 bg-destructive/10 text-destructive-foreground border-l-4 border-l-destructive",
         accent: "border-purple/30 bg-background text-foreground border-l-4 border-l-purple shadow-neon-purple-soft",
         warning: "border-[#FFD600]/30 bg-background text-foreground border-l-4 border-l-[#FFD600] shadow-[0_0_10px_rgba(255,214,0,0.2)]",
+        success: "border-[#00E676]/30 bg-background text-foreground border-l-4 border-l-[#00E676] shadow-[0_0_10px_rgba(0,230,118,0.2)]",
       },
     },
     defaultVariants: {
@@ -88,7 +89,7 @@ const ToastClose = React.forwardRef<
 ))
 ToastClose.displayName = ToastPrimitives.Close.displayName
 
-const ToastIcon = ({ variant }: { variant?: "default" | "destructive" | "accent" | "warning" }) => {
+const ToastIcon = ({ variant }: { variant?: "default" | "destructive" | "accent" | "warning" | "success" }) => {
   switch (variant) {
     case "destructive":
       return <AlertCircle className="h-5 w-5 text-destructive" />
@@ -96,6 +97,8 @@ const ToastIcon = ({ variant }: { variant?: "default" | "destructive" | "accent"
       return <AlertTriangle className="h-5 w-5 text-[#FFD600]" />
     case "accent":
       return <Info className="h-5 w-5 text-purple" />
+    case "success":
+      return <CheckCircle className="h-5 w-5 text-[#00E676]" />
     default:
       return <CheckCircle className="h-5 w-5 text-cyan" />
   }

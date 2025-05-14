@@ -84,10 +84,8 @@ export const useToast = () => {
   };
 };
 
-export { toast };
-
 // For convenience, also provide a direct toast function
-export const toast = (opts: ToastOptions) => {
+const toast = (opts: ToastOptions) => {
   // This would normally use some kind of global state management
   // For now, we're logging to console as a fallback
   console.log('Toast:', opts);
@@ -99,3 +97,5 @@ export const toast = (opts: ToastOptions) => {
     update: () => {}
   };
 };
+
+export { toast };
