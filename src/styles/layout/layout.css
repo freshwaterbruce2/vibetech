@@ -1,0 +1,24 @@
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-[#0B0B17] text-aura-text;
+    font-family: 'Inter Variable', 'Inter', sans-serif;
+    background-attachment: fixed;
+    font-display: swap; /* Improve text display during font loading */
+  }
+}
+
+@layer components {
+  /* Universal page layout styles */
+  .page-container {
+    @apply min-h-screen;
+  }
+  
+  .content-section {
+    @apply py-10 px-4 md:py-16 lg:py-20 max-w-7xl mx-auto;
+  }
+}
