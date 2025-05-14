@@ -1,8 +1,15 @@
 
+/* Import theme variables and fonts first */
 @import url('./styles/theme/fonts.css');
 @import url('./styles/theme/theme-variables.css');
+
+/* Import base Tailwind and core styles */
 @import url('./styles/base.css');
+
+/* Import layout styles */
 @import url('./styles/layout/layout.css');
+
+/* Import component styles */
 @import url('./styles/components/typography.css');
 @import url('./styles/components/glass.css');
 @import url('./styles/components/neon.css');
@@ -10,5 +17,7 @@
 @import url('./styles/components/particles.css');
 @import url('./styles/components/cards.css');
 @import url('./styles/components/stats.css');
+
+/* Import utility styles last so they can override component styles */
 @import url('./styles/utils/utilities.css');
 @import url('./styles/utils/print.css');

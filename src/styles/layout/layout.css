@@ -3,13 +3,6 @@
   * {
     @apply border-border;
   }
-
-  body {
-    @apply bg-[#0B0B17] text-aura-text;
-    font-family: 'Inter Variable', 'Inter', sans-serif;
-    background-attachment: fixed;
-    font-display: swap; /* Improve text display during font loading */
-  }
 }
 
 @layer components {
