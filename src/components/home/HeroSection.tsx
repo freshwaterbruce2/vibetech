@@ -4,8 +4,6 @@ import { NeonButton } from "@/components/ui/neon-button";
 import SmartLeadForm from "@/components/lead/SmartLeadForm";
 
 const HeroSection = () => {
-  const placeholderAvatar = "/placeholder.svg";
-
   return (
     <section className="pt-28 pb-20">
       <div className="glass-card mx-auto max-w-6xl px-6 py-10 lg:flex lg:items-center relative z-10 border border-[color:var(--c-secondary)/20] hover:border-[color:var(--c-secondary)/40] hover:shadow-neon-purple-soft">
@@ -13,9 +11,9 @@ const HeroSection = () => {
         <div className="w-full md:w-1/3 mb-10 md:mb-0 spotlight">
           <div className="relative w-64 h-64 mx-auto">
             <img 
-              src={placeholderAvatar} 
+              src="/lovable-uploads/08428935-73c2-4027-a962-e5ef443f73ce.png" 
               alt="Bruce Freshwater" 
-              className="rounded-full object-cover animate-glow border-4 border-[color:var(--c-secondary)/80] shadow-[0_0_25px_var(--c-secondary)]"
+              className="rounded-full object-cover w-full h-full animate-glow border-4 border-[color:var(--c-secondary)/80] shadow-[0_0_25px_var(--c-secondary)]"
             />
           </div>
         </div>

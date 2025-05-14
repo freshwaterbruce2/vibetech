@@ -1,16 +1,18 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  ::selection {
-    @apply bg-[color:var(--c-cyan)/30] text-white;
-  }
-  
   body {
     @apply bg-[#0B0B17] text-aura-text;
     font-family: 'Inter Variable', 'Inter', sans-serif;
     background-attachment: fixed;
     font-display: swap; /* Improve text display during font loading */
+  }
+  
+  /* Set default focus outline styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-[color:var(--c-cyan)] ring-opacity-60;
   }
 }

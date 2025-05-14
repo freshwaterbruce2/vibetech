@@ -1,18 +1,25 @@
 
-@layer components {
-  /* Focus styles for accessibility */
-  :focus-visible {
-    @apply outline-2 outline-offset-2 outline-aura-accent;
-  }
-
-  /* Improved accessibility for screen readers */
-  .sr-only {
-    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
-    clip: rect(0, 0, 0, 0);
-    clip-path: inset(50%);
+@layer utilities {
+  /* Spotlight effect */
+  .spotlight {
+    position: relative;
   }
   
-  /* Consistent gradient text styles */
+  .spotlight::after {
+    content: "";
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle at center, rgba(156, 87, 255, 0.15), transparent 70%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  
+  .spotlight:hover::after {
+    opacity: 1;
+  }
+
+  /* Gradient text styles */
   .gradient-text {
     @apply bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] bg-clip-text text-transparent;
   }
@@ -36,5 +43,28 @@
 
   .btn-small {
     @apply px-4 py-1.5 rounded text-sm font-medium;
+  }
+  
+  /* Content widths */
+  .content-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+  
+  .content-section {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+  
+  /* Background overlay utilities */
+  .bg-overlay-dark {
+    @apply bg-black bg-opacity-50;
+  }
+  
+  .bg-overlay-gradient {
+    @apply bg-gradient-to-b from-black/70 to-transparent;
+  }
+  
+  /* Lead text styling */
+  .lead-text {
+    @apply text-lg text-aura-textSecondary leading-relaxed;
   }
 }
