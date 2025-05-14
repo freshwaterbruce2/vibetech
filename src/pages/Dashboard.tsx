@@ -60,9 +60,6 @@ const Dashboard = () => {
           />
         )}
       </motion.div>
-      
-      {/* Add the Toaster component for toast notifications */}
-      <Toaster />
     </div>
   );
 };
