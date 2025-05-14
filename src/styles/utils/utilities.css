@@ -1,0 +1,36 @@
+
+@layer components {
+  /* Focus styles for accessibility */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-aura-accent;
+  }
+
+  /* Improved accessibility for screen readers */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+  }
+  
+  /* Consistent gradient text styles */
+  .gradient-text {
+    @apply bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] bg-clip-text text-transparent;
+  }
+
+  .gradient-text-full {
+    @apply bg-gradient-to-r from-[color:var(--c-cyan)] via-[color:var(--c-purple)] to-[color:var(--c-teal)] bg-clip-text text-transparent;
+  }
+
+  /* Consistent button sizing */
+  .btn-standard {
+    @apply px-6 py-2 rounded-md text-base font-medium;
+  }
+
+  .btn-large {
+    @apply px-8 py-3 rounded-md text-lg font-medium;
+  }
+
+  .btn-small {
+    @apply px-4 py-1.5 rounded text-sm font-medium;
+  }
+}
