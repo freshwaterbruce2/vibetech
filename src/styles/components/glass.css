@@ -12,7 +12,7 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(90deg, var(--c-cyan), var(--c-purple));
+    background: linear-gradient(90deg, var(--c-primary), var(--c-secondary));
     -webkit-mask: 
       linear-gradient(#fff 0 0) content-box,
       linear-gradient(#fff 0 0);
@@ -22,9 +22,17 @@
     opacity: 0.6;
   }
   
-  /* Glass Panel - for larger content areas */
+  /* Glass Panel Variants */
   .glass-panel {
     @apply bg-[rgba(18,18,30,0.45)] backdrop-blur-[8px] border border-white/5 rounded-lg;
+  }
+  
+  .glass-panel-dark {
+    @apply bg-[rgba(11,11,23,0.65)] backdrop-blur-[8px] border border-white/5 rounded-lg;
+  }
+  
+  .glass-panel-light {
+    @apply bg-[rgba(255,255,255,0.08)] backdrop-blur-[8px] border border-white/10 rounded-lg;
   }
   
   /* Glass Navbar */
@@ -36,5 +44,11 @@
   .glass-button {
     @apply bg-[rgba(255,255,255,0.1)] backdrop-blur-sm border border-white/20 
     hover:bg-[rgba(255,255,255,0.15)] transition-all duration-300;
+  }
+  
+  /* Glass Input */
+  .glass-input {
+    @apply bg-[rgba(255,255,255,0.05)] backdrop-blur-sm border border-white/10
+    focus:border-[color:var(--c-primary)/40] focus:ring-1 focus:ring-[color:var(--c-primary)/20];
   }
 }

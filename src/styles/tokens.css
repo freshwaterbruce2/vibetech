@@ -5,11 +5,18 @@
    --bg-mid: #111125;
    --bg-end: #14182C;
    --glass-bg: rgba(255,255,255,.06);   /* 6% opacity for lift */
-   --c-cyan: #00F0FF;                   /* verified electric blue */
-   --c-purple: #8A00C4;                 /* neon purple */
-   --c-teal: #00FFCC;                   /* teal accent for variation */
    
-   /* Additional common colors */
+   /* Primary colors with consistent naming */
+   --c-primary: #00F0FF;                /* primary cyan/electric blue */
+   --c-secondary: #8A00C4;              /* secondary purple */
+   --c-accent: #00FFCC;                 /* teal accent */
+   
+   /* Aliases for backward compatibility */
+   --c-cyan: var(--c-primary);
+   --c-purple: var(--c-secondary);
+   --c-teal: var(--c-accent);
+   
+   /* Feedback colors */
    --c-success: #00E676;               /* success green */
    --c-warning: #FFD600;               /* warning yellow */
    --c-error: #FF1744;                 /* error red */
@@ -19,4 +26,23 @@
    --text-primary: rgba(255,255,255,1);
    --text-secondary: rgba(255,255,255,.7);
    --text-tertiary: rgba(255,255,255,.5);
+   
+   /* Spacing units for consistency */
+   --space-1: 0.25rem;
+   --space-2: 0.5rem;
+   --space-3: 0.75rem;
+   --space-4: 1rem;
+   --space-6: 1.5rem;
+   --space-8: 2rem;
+   --space-12: 3rem;
+   --space-16: 4rem;
+   --space-20: 5rem;
+   
+   /* Border radiuses */
+   --radius-sm: 0.25rem;
+   --radius-md: 0.5rem;
+   --radius-lg: 0.75rem;
+   --radius-xl: 1rem;
+   --radius-2xl: 1.5rem;
+   --radius-full: 9999px;
 }

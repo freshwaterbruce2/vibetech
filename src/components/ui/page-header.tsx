@@ -9,18 +9,27 @@ interface PageHeaderProps {
   subtitle?: string;
   align?: "left" | "center" | "right";
   className?: string;
+  size?: "sm" | "md" | "lg" | "xl"; // Add size option
 }
 
 const PageHeader = ({ 
   title, 
   subtitle, 
   align = "center", 
-  className 
+  className,
+  size = "lg"
 }: PageHeaderProps) => {
   const alignClasses = {
     left: "text-left",
     center: "text-center",
     right: "text-right"
+  };
+
+  const sizeClasses = {
+    sm: "text-2xl md:text-3xl lg:text-4xl",
+    md: "text-3xl md:text-4xl lg:text-5xl",
+    lg: "text-4xl md:text-5xl lg:text-6xl",
+    xl: "text-5xl md:text-6xl lg:text-7xl"
   };
 
   return (
@@ -33,15 +42,18 @@ const PageHeader = ({
           className="mb-4"
         >
           <div className="inline-block">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6 gradient-text-full relative neon-text-glow">
+            <h1 className={cn(
+              sizeClasses[size],
+              "font-bold font-heading mb-6 gradient-text-full relative neon-text-glow tracking-tight"
+            )}>
               {title}
-              <span className="absolute -inset-1 rounded-lg blur-xl bg-gradient-to-r from-[color:var(--c-cyan)]/20 via-[color:var(--c-purple)]/20 to-[color:var(--c-teal)]/20 z-[-1]"></span>
+              <span className="absolute -inset-1 rounded-lg blur-xl bg-gradient-to-r from-[color:var(--c-primary)]/20 via-[color:var(--c-secondary)]/20 to-[color:var(--c-accent)]/20 z-[-1]"></span>
             </h1>
             <div className="neon-divider w-3/4 mx-auto"></div>
           </div>
         </motion.div>
         {subtitle && (
-          <p className="text-aura-textSecondary max-w-3xl mx-auto">
+          <p className="text-aura-textSecondary max-w-3xl mx-auto lead-text">
             {subtitle}
           </p>
         )}
