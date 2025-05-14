@@ -82,6 +82,7 @@ export default function SmartLeadForm({
       toast({
         title: "Lead captured successfully!",
         description: "Thank you for your interest. We'll be in touch soon.",
+        variant: "success",
       });
       
       // Reset form
