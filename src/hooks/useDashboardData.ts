@@ -35,7 +35,7 @@ export const useDashboardData = () => {
   // Refs for tracking state
   const isInitialLoadRef = useRef(true);
   const isManualRefreshRef = useRef(false);
-  const setupCompletedRef = useRef(false);
+  const dataLoadedRef = useRef(false);
   
   // Data loading function
   const loadDashboardData = useCallback(async () => {
@@ -49,10 +49,13 @@ export const useDashboardData = () => {
     
     try {
       // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       setLeads(mockLeads);
       setMetrics(mockMetrics);
+      
+      // Mark data as loaded
+      dataLoadedRef.current = true;
       
       // Only show notifications if it's a manual refresh (not the initial load)
       if (!isInitialLoadRef.current && isManualRefreshRef.current) {
@@ -102,27 +105,16 @@ export const useDashboardData = () => {
     }
   }, [addNotification]);
   
-  // Setup realtime listeners function
-  const setupRealtimeListeners = useCallback(() => {
-    if (setupCompletedRef.current) return () => {};
-    
-    console.log("Setting up realtime listeners");
-    setupCompletedRef.current = true;
-    
-    // Return a cleanup function
-    return () => {
-      console.log("Cleaning up realtime listeners");
-    };
-  }, []);
-
-  // Initial data load effect
+  // Initial data load effect - only run once
   useEffect(() => {
-    loadDashboardData();
+    if (!dataLoadedRef.current) {
+      loadDashboardData();
+    }
     
-    // Set up real-time listeners
-    const cleanup = setupRealtimeListeners();
+    // Setup simple logging for debugging
+    console.log("Setting up realtime listeners");
     
-    // Add a welcome notification when the dashboard is first loaded
+    // Welcome notification
     if (isInitialLoadRef.current) {
       const timeoutId = setTimeout(() => {
         addNotification({
@@ -134,16 +126,19 @@ export const useDashboardData = () => {
       
       return () => {
         clearTimeout(timeoutId);
-        cleanup();
+        console.log("Cleaning up realtime listeners");
       };
     }
     
-    return cleanup;
-  }, [loadDashboardData, setupRealtimeListeners, addNotification]);
+    return () => {
+      console.log("Cleaning up realtime listeners");
+    };
+  }, [loadDashboardData, addNotification]);
   
-  // Lead qualification notification effect - moved outside of conditional
+  // Lead qualification notification effect 
   useEffect(() => {
-    if (!isInitialLoadRef.current) {
+    // Only show this notification after initial load is complete and data is loaded
+    if (!isInitialLoadRef.current && dataLoadedRef.current) {
       const timeoutId = setTimeout(() => {
         addNotification({
           title: "Lead Status Updated",
@@ -154,9 +149,8 @@ export const useDashboardData = () => {
       
       return () => clearTimeout(timeoutId);
     }
-    
     return undefined;
-  }, [addNotification, isInitialLoadRef]);
+  }, [addNotification, dataLoadedRef.current]);
 
   return {
     activeTab,
