@@ -17,7 +17,7 @@ const FuturisticDemo = () => {
             <h3 className="text-xl font-bold mb-3 text-cyan">Neon Blue Card</h3>
             <p className="text-white/80">This card features a blue neon glow effect with glass morphism.</p>
             <div className="mt-4">
-              <NeonButton variant="blue">Blue Button</NeonButton>
+              <NeonButton variant="primary">Primary Button</NeonButton>
             </div>
           </FuturisticCard>
           
@@ -26,7 +26,7 @@ const FuturisticDemo = () => {
             <h3 className="text-xl font-bold mb-3 text-purple">Neon Purple Card</h3>
             <p className="text-white/80">This card features a purple neon glow effect with glass morphism.</p>
             <div className="mt-4">
-              <NeonButton variant="purple">Purple Button</NeonButton>
+              <NeonButton variant="secondary">Secondary Button</NeonButton>
             </div>
           </FuturisticCard>
           
@@ -35,7 +35,7 @@ const FuturisticDemo = () => {
             <h3 className="text-xl font-bold mb-3 text-teal">Neon Teal Card</h3>
             <p className="text-white/80">This card features a teal neon glow effect with glass morphism.</p>
             <div className="mt-4">
-              <NeonButton variant="teal">Teal Button</NeonButton>
+              <NeonButton variant="accent">Accent Button</NeonButton>
             </div>
           </FuturisticCard>
           
@@ -48,7 +48,7 @@ const FuturisticDemo = () => {
               </p>
               <div className="mt-6 flex justify-center gap-4">
                 <NeonButton variant="gradient">Gradient Button</NeonButton>
-                <NeonButton variant="electric-teal">Electric Teal</NeonButton>
+                <NeonButton variant="electric">Electric Button</NeonButton>
               </div>
             </div>
           </FuturisticCard>
