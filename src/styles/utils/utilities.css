@@ -21,6 +21,10 @@
     @apply bg-gradient-to-r from-[color:var(--c-cyan)] via-[color:var(--c-purple)] to-[color:var(--c-teal)] bg-clip-text text-transparent;
   }
 
+  .gradient-text-secondary {
+    @apply bg-gradient-to-r from-[color:var(--c-purple)] to-[color:var(--c-teal)] bg-clip-text text-transparent;
+  }
+
   /* Consistent button sizing */
   .btn-standard {
     @apply px-6 py-2 rounded-md text-base font-medium;

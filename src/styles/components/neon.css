@@ -76,18 +76,7 @@
     @apply text-[#00FFCC] drop-shadow-[0_0_8px_#00FFCC];
   }
   
-  /* Gradient text classes */
-  .gradient-text {
-    @apply bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] bg-clip-text text-transparent;
-  }
-  
-  .gradient-text-full {
-    @apply bg-gradient-to-r from-[color:var(--c-cyan)] via-[color:var(--c-purple)] to-[color:var(--c-teal)] bg-clip-text text-transparent;
-  }
-  
-  .gradient-text-secondary {
-    @apply bg-gradient-to-r from-[color:var(--c-purple)] to-[color:var(--c-teal)] bg-clip-text text-transparent;
-  }
+  /* Gradient text classes moved to utilities.css */
   
   /* Neon divider line */
   .neon-divider {
