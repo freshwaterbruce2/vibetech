@@ -33,7 +33,7 @@ const App: React.FC = () => {
           <Route path="/tools" element={<Tools />} />
           <Route path="/about" element={<About />} />
         </Routes>
-        <Toaster />
+        {/* Remove the toaster from App.tsx since each page that needs it should have its own */}
       </div>
     </Router>
   );
