@@ -29,27 +29,14 @@ export const useDashboardData = () => {
   const [metrics, setMetrics] = useState(mockMetrics);
   const [isPro, setIsPro] = useState(true);
   
+  // External hooks
+  const { addNotification } = useNotifications();
+  
   // Refs for tracking state
   const isInitialLoadRef = useRef(true);
   const isManualRefreshRef = useRef(false);
   const setupCompletedRef = useRef(false);
   
-  // External hooks
-  const { addNotification } = useNotifications();
-
-  // Setup realtime listeners function
-  const setupRealtimeListeners = useCallback(() => {
-    if (setupCompletedRef.current) return () => {};
-    
-    console.log("Setting up realtime listeners");
-    setupCompletedRef.current = true;
-    
-    // Return a cleanup function
-    return () => {
-      console.log("Cleaning up realtime listeners");
-    };
-  }, []);
-
   // Data loading function
   const loadDashboardData = useCallback(async () => {
     // Set manual refresh flag if it's not the initial load
@@ -61,7 +48,7 @@ export const useDashboardData = () => {
     setError(null);
     
     try {
-      // Simulate API call with timeout 
+      // Simulate API call with timeout
       await new Promise(resolve => setTimeout(resolve, 500));
       
       setLeads(mockLeads);
@@ -114,16 +101,29 @@ export const useDashboardData = () => {
       setIsLoading(false);
     }
   }, [addNotification]);
+  
+  // Setup realtime listeners function
+  const setupRealtimeListeners = useCallback(() => {
+    if (setupCompletedRef.current) return () => {};
+    
+    console.log("Setting up realtime listeners");
+    setupCompletedRef.current = true;
+    
+    // Return a cleanup function
+    return () => {
+      console.log("Cleaning up realtime listeners");
+    };
+  }, []);
 
-  // Initial data load effect - Run ONCE
+  // Initial data load effect
   useEffect(() => {
+    loadDashboardData();
+    
+    // Set up real-time listeners
+    const cleanup = setupRealtimeListeners();
+    
+    // Add a welcome notification when the dashboard is first loaded
     if (isInitialLoadRef.current) {
-      loadDashboardData();
-      
-      // Set up real-time listeners
-      const cleanup = setupRealtimeListeners();
-      
-      // Add a welcome notification when the dashboard is first loaded
       const timeoutId = setTimeout(() => {
         addNotification({
           title: "Welcome to Pro Dashboard",
@@ -134,26 +134,29 @@ export const useDashboardData = () => {
       
       return () => {
         clearTimeout(timeoutId);
-        // Call cleanup function
         cleanup();
       };
     }
+    
+    return cleanup;
   }, [loadDashboardData, setupRealtimeListeners, addNotification]);
   
-  // Lead qualification notification effect - ONCE
+  // Lead qualification notification effect - moved outside of conditional
   useEffect(() => {
-    if (isInitialLoadRef.current) return;
+    if (!isInitialLoadRef.current) {
+      const timeoutId = setTimeout(() => {
+        addNotification({
+          title: "Lead Status Updated",
+          message: "Bob Johnson has been marked as 'Qualified'",
+          type: "success"
+        });
+      }, 5000);
+      
+      return () => clearTimeout(timeoutId);
+    }
     
-    const timeoutId = setTimeout(() => {
-      addNotification({
-        title: "Lead Status Updated",
-        message: "Bob Johnson has been marked as 'Qualified'",
-        type: "success"
-      });
-    }, 5000);
-    
-    return () => clearTimeout(timeoutId);
-  }, [addNotification]);
+    return undefined;
+  }, [addNotification, isInitialLoadRef]);
 
   return {
     activeTab,

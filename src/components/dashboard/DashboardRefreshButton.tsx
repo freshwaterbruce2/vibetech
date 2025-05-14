@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 
 interface DashboardRefreshButtonProps {
   onRefresh: () => void;
@@ -21,12 +20,7 @@ const DashboardRefreshButton = ({ onRefresh }: DashboardRefreshButtonProps) => {
       await onRefresh();
     } catch (error) {
       console.error("Refresh error:", error);
-      // Only show error toast if the error wasn't already handled in useDashboardData
-      toast({
-        variant: "destructive",
-        title: "Refresh failed",
-        description: "Could not refresh dashboard data. Please try again.",
-      });
+      // Toast handling is now fully managed in the useDashboardData hook
     } finally {
       setIsRefreshing(false);
     }
