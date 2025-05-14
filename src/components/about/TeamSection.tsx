@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { toast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface TeamMember {
   name: string;
