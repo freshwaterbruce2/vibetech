@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -60,6 +59,9 @@ const Dashboard = () => {
           />
         )}
       </motion.div>
+      
+      {/* Keep the Toaster component here to handle toast notifications */}
+      <Toaster />
     </div>
   );
 };

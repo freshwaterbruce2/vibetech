@@ -1,10 +1,10 @@
 
-import { useState } from 'react';
 import { Database } from 'lucide-react';
 import DashboardMetricCard from '@/components/dashboard/DashboardMetricCard';
 
 export default function NewLeadsMetric() {
-  const [newLeadsCount] = useState<number>(5); // Default to 5 for immediate display
+  // Use a simple value instead of useState to avoid unnecessary re-renders
+  const newLeadsCount = 5; // Default to 5 for immediate display
 
   return (
     <DashboardMetricCard 
