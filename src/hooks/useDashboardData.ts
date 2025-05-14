@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNotifications } from "@/context/NotificationsContext";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,11 +28,18 @@ export const useDashboardData = () => {
   const [metrics, setMetrics] = useState(mockMetrics);
   const [isPro, setIsPro] = useState(true); // Pro plan enabled
   const { addNotification } = useNotifications();
-  // Add a ref to track if this is the initial load
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  // Track if this is the initial load
+  const isInitialLoadRef = useRef(true);
+  // Track if a manual refresh is in progress
+  const isManualRefreshRef = useRef(false);
 
   // Optimized data loading function with Pro-specific enhancements
   const loadDashboardData = useCallback(async () => {
+    // Set manual refresh flag if it's not the initial load
+    if (!isInitialLoadRef.current) {
+      isManualRefreshRef.current = true;
+    }
+    
     setIsLoading(true);
     setError(null);
     
@@ -43,8 +50,8 @@ export const useDashboardData = () => {
       setLeads(mockLeads);
       setMetrics(mockMetrics);
       
-      // Only show notifications if it's not the initial load
-      if (!isInitialLoad) {
+      // Only show notifications if it's a manual refresh (not the initial load)
+      if (!isInitialLoadRef.current && isManualRefreshRef.current) {
         // Add a success notification when data is loaded
         addNotification({
           title: "Dashboard Updated",
@@ -57,14 +64,17 @@ export const useDashboardData = () => {
           title: "Dashboard refreshed",
           description: "Your dashboard data has been updated successfully.",
         });
+        
+        // Reset manual refresh flag
+        isManualRefreshRef.current = false;
       }
       
-      setIsInitialLoad(false);
+      isInitialLoadRef.current = false;
     } catch (err) {
       console.error("Failed to load dashboard data:", err);
       setError("Failed to load dashboard data. Please try again.");
       
-      if (!isInitialLoad) {
+      if (!isInitialLoadRef.current && isManualRefreshRef.current) {
         toast({
           variant: "destructive",
           title: "Error loading dashboard",
@@ -77,13 +87,16 @@ export const useDashboardData = () => {
           message: "Failed to load dashboard data. Please try again.",
           type: "error"
         });
+        
+        // Reset manual refresh flag
+        isManualRefreshRef.current = false;
       }
       
-      setIsInitialLoad(false);
+      isInitialLoadRef.current = false;
     } finally {
       setIsLoading(false);
     }
-  }, [addNotification, isInitialLoad]);
+  }, [addNotification]);
 
   // Initialize real-time listeners when using Pro plan
   const setupRealtimeListeners = useCallback(() => {

@@ -16,10 +16,12 @@ const DashboardRefreshButton = ({ onRefresh }: DashboardRefreshButtonProps) => {
     setIsRefreshing(true);
     
     try {
+      // Call onRefresh but don't add another toast here
       await onRefresh();
-      // Remove the toast from here as it's already being called in the onRefresh function
+      // Toast is now handled inside the useDashboardData hook
     } catch (error) {
       console.error("Refresh error:", error);
+      // Only show error toast if the error wasn't already caught in useDashboardData
       toast({
         variant: "destructive",
         title: "Refresh failed",
