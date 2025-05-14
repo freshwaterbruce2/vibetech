@@ -6,8 +6,8 @@ import DashboardMetricCard from '@/components/dashboard/DashboardMetricCard';
 import { toast } from '@/hooks/use-toast';
 
 export default function NewLeadsMetric() {
-  const [newLeadsCount, setNewLeadsCount] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [newLeadsCount, setNewLeadsCount] = useState<number>(5); // Default to 5 for immediate display
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -16,30 +16,31 @@ export default function NewLeadsMetric() {
       setError(null);
       
       try {
-        // For demo purposes, use a fallback value
-        // This makes sure the component always shows something meaningful
-        setNewLeadsCount(5); // Default demo value
+        // For demo purposes, we're using mock data
+        // In a real app, you would fetch this from Supabase
         
         try {
           // Calculate date for 24 hours ago
           const oneDayAgo = new Date();
           oneDayAgo.setDate(oneDayAgo.getDate() - 1);
           
-          // Query leads created in the last 24 hours
-          const { count, error } = await supabase
-            .from('leads')
-            .select('id', { count: 'exact', head: true })
-            .gte('created_at', oneDayAgo.toISOString());
+          // Query leads created in the last 24 hours - commented out for demo
+          // const { count, error } = await supabase
+          //   .from('leads')
+          //   .select('id', { count: 'exact', head: true })
+          //   .gte('created_at', oneDayAgo.toISOString());
           
-          if (error) throw error;
+          // if (error) throw error;
           
-          if (count !== null) {
-            setNewLeadsCount(count);
-          }
+          // if (count !== null) {
+          //   setNewLeadsCount(count);
+          // }
+          
+          // Using mock data instead
+          setNewLeadsCount(5);
         } catch (err) {
           console.error('Error fetching new leads:', err);
           // Don't set error state - we're already using fallback data
-          // Just log to console for debugging
         }
       } finally {
         setIsLoading(false);
