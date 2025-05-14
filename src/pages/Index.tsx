@@ -13,7 +13,11 @@ const Index = () => {
   }, []);
 
   return (
-    <PageLayout>
+    <PageLayout 
+      title="Home" 
+      description="Vibe Tech - Creating innovative digital solutions with a focus on design and functionality. Expert web development, UI/UX design, and software solutions."
+      keywords="vibe tech, digital solutions, web development, UI/UX design, software development, Bruce Freshwater"
+    >
       {/* Hero Section */}
       <HeroSection />
       

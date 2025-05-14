@@ -18,7 +18,13 @@ const Portfolio = () => {
     : projects.filter(project => project.category.toLowerCase() === filter);
 
   return (
-    <PageLayout title="Portfolio" particleOpacity={0.15} particleCount={20}>
+    <PageLayout 
+      title="Portfolio" 
+      particleOpacity={0.15} 
+      particleCount={20}
+      description="Browse our showcase of successful projects. Explore our portfolio of websites, applications, and digital solutions created for clients across various industries."
+      keywords="portfolio, web projects, digital solutions, client projects, case studies, UI/UX showcase"
+    >
       {/* Hero Section */}
       <PortfolioHeroSection />
 

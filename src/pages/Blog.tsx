@@ -24,7 +24,11 @@ const Blog = () => {
   };
 
   return (
-    <PageLayout title="Blog">
+    <PageLayout 
+      title="Blog" 
+      description="Explore the latest insights, trends, and updates from Vibe Tech. Our blog covers web development, UI/UX design, tech innovations, and digital strategy."
+      keywords="tech blog, web development insights, UI/UX trends, tech news, digital strategy, Bruce Freshwater blog"
+    >
       <BlogHero />
       <BlogSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 

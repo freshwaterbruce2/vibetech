@@ -8,7 +8,11 @@ import PageLayout from "@/components/layout/PageLayout";
 
 const About = () => {
   return (
-    <PageLayout title="About">
+    <PageLayout 
+      title="About" 
+      description="Learn about Vibe Tech - our mission, vision, and the team behind our innovative digital solutions. Meet Bruce Freshwater and our talented professionals."
+      keywords="Vibe Tech team, Bruce Freshwater, tech company, software development team, digital agency"
+    >
       {/* Hero Section */}
       <AboutHeroSection />
       

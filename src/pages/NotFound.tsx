@@ -5,7 +5,11 @@ import PageLayout from "@/components/layout/PageLayout";
 
 const NotFound = () => {
   return (
-    <PageLayout title="Page Not Found">
+    <PageLayout 
+      title="Page Not Found" 
+      description="Sorry, the page you are looking for could not be found. Return to the Vibe Tech homepage or contact us for assistance."
+      keywords="404, page not found, error page"
+    >
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 relative overflow-hidden">
         {/* Background grid effect */}
         <div className="absolute inset-0 z-0 opacity-10">
