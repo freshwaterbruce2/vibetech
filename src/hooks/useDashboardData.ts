@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useNotifications } from "@/context/NotificationsContext";
-import { toast } from "@/hooks/use-toast"; // Updated import path
+import { toast } from "@/hooks/use-toast"; // Correct import path
 import { supabase } from "@/integrations/supabase/client";
 
 // Optimized for Pro plan - with real data fetching instead of mock data
@@ -110,9 +110,10 @@ export const useDashboardData = () => {
     //   supabase.removeChannel(channel);
     // };
     
-    // For now, just return a no-op function since we're not actually 
-    // setting up real-time listeners yet
-    return () => {}; // This fixes the Type 'never' has no call signatures error
+    // Always return a cleanup function, even when it does nothing
+    return () => {
+      // No-op cleanup function
+    };
   }, []);
 
   useEffect(() => {
