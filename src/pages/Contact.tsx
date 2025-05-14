@@ -15,7 +15,12 @@ const Contact = () => {
   };
 
   return (
-    <PageLayout title="Contact">
+    <PageLayout 
+      title="Contact" 
+      description="Get in touch with Bruce Freshwater and the Vibe Tech team. Contact us for project inquiries, collaborations, or to learn more about our services."
+      keywords="contact Vibe Tech, Bruce Freshwater contact, tech services inquiry, get a quote"
+      canonicalUrl="https://vibetech.com/contact"
+    >
       {/* Hero Section */}
       <section className="pt-28 pb-12 px-4">
         <div className="max-w-6xl mx-auto">

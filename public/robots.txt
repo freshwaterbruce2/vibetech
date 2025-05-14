@@ -1,11 +1,13 @@
 
 # Vibe Tech - robots.txt
-# Updated: 2025-05-12
+# Updated: 2025-05-14
 
 # Allow all web crawlers
 User-agent: *
 Allow: /
 Disallow: /dashboard # Exclude dashboard pages from indexing
+Disallow: /palette-preview # Exclude dev/preview pages
+Disallow: /futuristic-demo # Exclude dev/preview pages
 
 # Google specific rules
 User-agent: Googlebot
