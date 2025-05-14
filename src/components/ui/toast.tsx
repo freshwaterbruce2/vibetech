@@ -1,7 +1,8 @@
+
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
-import { X } from "lucide-react"
+import { X, AlertTriangle, AlertCircle, CheckCircle, Info } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -27,9 +28,10 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
-        destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
+        default: "border-cyan/30 bg-background text-foreground border-l-4 border-l-cyan shadow-neon-blue-soft",
+        destructive: "destructive group border-destructive/30 bg-destructive/10 text-destructive-foreground border-l-4 border-l-destructive",
+        accent: "border-purple/30 bg-background text-foreground border-l-4 border-l-purple shadow-neon-purple-soft",
+        warning: "border-[#FFD600]/30 bg-background text-foreground border-l-4 border-l-[#FFD600] shadow-[0_0_10px_rgba(255,214,0,0.2)]",
       },
     },
     defaultVariants: {
@@ -86,6 +88,19 @@ const ToastClose = React.forwardRef<
 ))
 ToastClose.displayName = ToastPrimitives.Close.displayName
 
+const ToastIcon = ({ variant }: { variant?: "default" | "destructive" | "accent" | "warning" }) => {
+  switch (variant) {
+    case "destructive":
+      return <AlertCircle className="h-5 w-5 text-destructive" />
+    case "warning":
+      return <AlertTriangle className="h-5 w-5 text-[#FFD600]" />
+    case "accent":
+      return <Info className="h-5 w-5 text-purple" />
+    default:
+      return <CheckCircle className="h-5 w-5 text-cyan" />
+  }
+}
+
 const ToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
@@ -124,4 +139,5 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  ToastIcon,
 }

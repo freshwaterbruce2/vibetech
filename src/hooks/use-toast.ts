@@ -7,7 +7,7 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
+const TOAST_LIMIT = 5  // Increased from 1 to allow multiple toasts
 const TOAST_REMOVE_DELAY = 5000 // 5 seconds toast display time
 
 type ToasterToast = ToastProps & {
@@ -15,6 +15,9 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  icon?: React.ReactNode
+  duration?: number
+  important?: boolean
 }
 
 const actionTypes = {
@@ -57,7 +60,7 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-const addToRemoveQueue = (toastId: string) => {
+const addToRemoveQueue = (toastId: string, duration: number = TOAST_REMOVE_DELAY) => {
   if (toastTimeouts.has(toastId)) {
     return
   }
@@ -68,7 +71,7 @@ const addToRemoveQueue = (toastId: string) => {
       type: "REMOVE_TOAST",
       toastId: toastId,
     })
-  }, TOAST_REMOVE_DELAY)
+  }, duration)
 
   toastTimeouts.set(toastId, timeout)
 }
@@ -96,14 +99,16 @@ export const reducer = (state: State, action: Action): State => {
         addToRemoveQueue(toastId)
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
+          if (!toast.important) { // Don't auto-dismiss important toasts
+            addToRemoveQueue(toast.id)
+          }
         })
       }
 
       return {
         ...state,
         toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
+          (t.id === toastId || toastId === undefined) && !t.important
             ? {
                 ...t,
                 open: false,
@@ -141,6 +146,7 @@ type Toast = Omit<ToasterToast, "id">
 
 function toast({ ...props }: Toast) {
   const id = genId()
+  const duration = props.duration || TOAST_REMOVE_DELAY
 
   const update = (props: ToasterToast) =>
     dispatch({
@@ -161,11 +167,32 @@ function toast({ ...props }: Toast) {
     },
   })
 
+  if (!props.important && duration !== Infinity) {
+    addToRemoveQueue(id, duration)
+  }
+
   return {
     id: id,
     dismiss,
     update,
   }
+}
+
+// Predefined toast variants
+toast.success = (props: Omit<Toast, "variant">) => {
+  return toast({ variant: "default", ...props })
+}
+
+toast.error = (props: Omit<Toast, "variant">) => {
+  return toast({ variant: "destructive", ...props })
+}
+
+toast.info = (props: Omit<Toast, "variant">) => {
+  return toast({ variant: "accent", ...props })
+}
+
+toast.warning = (props: Omit<Toast, "variant">) => {
+  return toast({ variant: "warning", ...props })
 }
 
 function useToast() {
