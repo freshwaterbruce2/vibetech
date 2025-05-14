@@ -8,6 +8,7 @@ interface SectionHeadingProps {
   className?: string;
   align?: "left" | "center" | "right";
   size?: "sm" | "md" | "lg" | "xl";
+  variant?: "default" | "gradient" | "full-gradient";
 }
 
 const SectionHeading = ({
@@ -15,6 +16,7 @@ const SectionHeading = ({
   className,
   align = "center",
   size = "lg",
+  variant = "default"
 }: SectionHeadingProps) => {
   const alignmentClasses = {
     left: "text-left",
@@ -28,6 +30,12 @@ const SectionHeading = ({
     lg: "text-3xl md:text-4xl",
     xl: "text-4xl md:text-5xl lg:text-[2.5rem]",
   };
+  
+  const variantClasses = {
+    default: "text-aura-text",
+    gradient: "gradient-text",
+    "full-gradient": "gradient-text-full",
+  };
 
   return (
     <motion.div
@@ -36,7 +44,11 @@ const SectionHeading = ({
       transition={{ duration: 0.5 }}
       className={cn(alignmentClasses[align], "mb-10", className)}
     >
-      <h2 className={cn("font-heading font-extrabold slice-heading", sizeClasses[size])}>
+      <h2 className={cn(
+        "font-heading font-extrabold slice-heading tracking-tight",
+        sizeClasses[size],
+        variantClasses[variant]
+      )}>
         {children}
       </h2>
     </motion.div>

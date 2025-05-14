@@ -7,18 +7,19 @@ import { type ButtonProps } from "@/components/ui/button";
 // Create a separate type for NeonButtonProps that extends ButtonProps
 // but overrides the variant property to use our custom variants
 interface NeonButtonProps extends Omit<ButtonProps, "variant"> {
-  variant?: "blue" | "purple" | "teal" | "gradient" | "electric-teal";
+  variant?: "primary" | "secondary" | "accent" | "gradient" | "electric";
   glowIntensity?: "low" | "medium" | "high";
 }
 
 const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
-  ({ className, variant = "blue", glowIntensity = "medium", children, ...props }, ref) => {
+  ({ className, variant = "primary", glowIntensity = "medium", children, ...props }, ref) => {
     const variantStyles = {
-      blue: "border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] hover:shadow-neon-blue-soft before:from-[color:var(--c-cyan)] before:to-[color:var(--c-cyan)/70]",
-      purple: "border-[color:var(--c-purple)/30] hover:border-[color:var(--c-purple)/60] hover:shadow-neon-purple-soft before:from-[color:var(--c-purple)] before:to-[color:var(--c-purple)/70]",
-      teal: "border-[color:var(--c-teal)/30] hover:border-[color:var(--c-teal)/60] hover:shadow-neon-teal-soft before:from-[color:var(--c-teal)] before:to-[color:var(--c-teal)/70]",
-      "electric-teal": "border-[color:var(--c-teal)/30] hover:border-[color:var(--c-teal)/60] hover:shadow-neon-teal-soft before:from-[color:var(--c-teal)] before:to-[color:#00e0b0]/70]",
-      gradient: "border-white/20 hover:border-white/40 hover:shadow-neon-blue-soft before:from-[color:var(--c-cyan)] before:via-[color:var(--c-purple)] before:to-[color:var(--c-teal)]",
+      // Use the new color names from tokens.css
+      primary: "border-[color:var(--c-primary)/30] hover:border-[color:var(--c-primary)/60] hover:shadow-neon-blue-soft before:from-[color:var(--c-primary)] before:to-[color:var(--c-primary)/70]",
+      secondary: "border-[color:var(--c-secondary)/30] hover:border-[color:var(--c-secondary)/60] hover:shadow-neon-purple-soft before:from-[color:var(--c-secondary)] before:to-[color:var(--c-secondary)/70]",
+      accent: "border-[color:var(--c-accent)/30] hover:border-[color:var(--c-accent)/60] hover:shadow-neon-teal-soft before:from-[color:var(--c-accent)] before:to-[color:var(--c-accent)/70]",
+      electric: "border-[color:var(--c-accent)/30] hover:border-[color:var(--c-accent)/60] hover:shadow-neon-teal-soft before:from-[color:var(--c-accent)] before:to-[color:#00e0b0]/70]",
+      gradient: "border-white/20 hover:border-white/40 hover:shadow-neon-blue-soft before:from-[color:var(--c-primary)] before:via-[color:var(--c-secondary)] before:to-[color:var(--c-accent)]",
     };
     
     const glowStyles = {
