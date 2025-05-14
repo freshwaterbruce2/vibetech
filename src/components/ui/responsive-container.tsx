@@ -2,12 +2,14 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useBreakpoints } from "@/hooks/use-breakpoints"
+import { useBrowserCapabilities } from "@/hooks/use-browser-capabilities"
 
 type ResponsiveContainerProps = React.HTMLAttributes<HTMLDivElement> & {
   as?: React.ElementType
   maxWidth?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "full" | "none"
   padded?: boolean
   centered?: boolean
+  adaptForTouch?: boolean
 }
 
 const ResponsiveContainer = React.forwardRef<HTMLDivElement, ResponsiveContainerProps>(
@@ -18,48 +20,61 @@ const ResponsiveContainer = React.forwardRef<HTMLDivElement, ResponsiveContainer
     maxWidth = "xl", 
     padded = true,
     centered = true,
+    adaptForTouch = true,
     ...props 
   }, ref) => {
     // Get current breakpoint
-    const { current } = useBreakpoints()
+    const { current, isMobile } = useBreakpoints();
+    const { isTouchDevice } = useBrowserCapabilities();
     
     // Calculate appropriate padding based on screen size
     const getPadding = () => {
-      if (!padded) return ""
+      if (!padded) return "";
+      
+      // Add extra padding for touch devices if requested
+      const touchExtraPadding = (adaptForTouch && isTouchDevice) ? "py-2" : "";
       
       switch (current) {
         case "xs":
-          return "px-4"
+          return `px-4 ${touchExtraPadding}`;
         case "sm":
-          return "px-6"
+          return `px-6 ${touchExtraPadding}`;
         default:
-          return "px-4 sm:px-6 md:px-8"
+          return `px-4 sm:px-6 md:px-8 ${touchExtraPadding}`;
       }
-    }
+    };
     
     // Calculate max-width based on prop
     const getMaxWidth = () => {
       switch (maxWidth) {
         case "xs":
-          return "max-w-xs"
+          return "max-w-xs";
         case "sm":
-          return "max-w-screen-sm"
+          return "max-w-screen-sm";
         case "md":
-          return "max-w-screen-md"  
+          return "max-w-screen-md";  
         case "lg":
-          return "max-w-screen-lg"
+          return "max-w-screen-lg";
         case "xl":
-          return "max-w-screen-xl"
+          return "max-w-screen-xl";
         case "2xl":
-          return "max-w-screen-2xl"
+          return "max-w-screen-2xl";
         case "full":
-          return "max-w-full"
+          return "max-w-full";
         case "none":
-          return ""
+          return "";
         default:
-          return "max-w-screen-xl"
+          return "max-w-screen-xl";
       }
-    }
+    };
+    
+    // Add touch-friendly classes if needed
+    const getTouchClasses = () => {
+      if (adaptForTouch && isTouchDevice) {
+        return "touch-manipulation"; // CSS touch-action property
+      }
+      return "";
+    };
 
     return (
       <Component
@@ -67,6 +82,7 @@ const ResponsiveContainer = React.forwardRef<HTMLDivElement, ResponsiveContainer
         className={cn(
           getMaxWidth(),
           getPadding(),
+          getTouchClasses(),
           centered && "mx-auto",
           "w-full",
           className
@@ -75,10 +91,10 @@ const ResponsiveContainer = React.forwardRef<HTMLDivElement, ResponsiveContainer
       >
         {children}
       </Component>
-    )
+    );
   }
-)
+);
 
-ResponsiveContainer.displayName = "ResponsiveContainer"
+ResponsiveContainer.displayName = "ResponsiveContainer";
 
-export { ResponsiveContainer }
+export { ResponsiveContainer };

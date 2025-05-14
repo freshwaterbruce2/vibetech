@@ -1,23 +1,14 @@
-
-// This is the main implementation file for the toast functionality
 import * as React from "react"
+import { ToastActionElement, type ToastProps } from "@/components/ui/toast"
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
-
-const TOAST_LIMIT = 5  // Increased from 1 to allow multiple toasts
-const TOAST_REMOVE_DELAY = 5000 // 5 seconds toast display time
+const TOAST_LIMIT = 5
+const TOAST_REMOVE_DELAY = 5000
 
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
-  icon?: React.ReactNode
-  duration?: number
-  important?: boolean
 }
 
 const actionTypes = {
@@ -43,15 +34,15 @@ type Action =
     }
   | {
       type: ActionType["UPDATE_TOAST"]
-      toast: Partial<ToasterToast>
+      toast: Partial<ToasterToast> & { id: string }
     }
   | {
       type: ActionType["DISMISS_TOAST"]
-      toastId?: ToasterToast["id"]
+      toastId?: string
     }
   | {
       type: ActionType["REMOVE_TOAST"]
-      toastId?: ToasterToast["id"]
+      toastId?: string
     }
 
 interface State {
@@ -60,7 +51,7 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-const addToRemoveQueue = (toastId: string, duration: number = TOAST_REMOVE_DELAY) => {
+const addToRemoveQueue = (toastId: string) => {
   if (toastTimeouts.has(toastId)) {
     return
   }
@@ -71,7 +62,7 @@ const addToRemoveQueue = (toastId: string, duration: number = TOAST_REMOVE_DELAY
       type: "REMOVE_TOAST",
       toastId: toastId,
     })
-  }, duration)
+  }, TOAST_REMOVE_DELAY)
 
   toastTimeouts.set(toastId, timeout)
 }
@@ -95,20 +86,20 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
+      // ! Side effects ! - This could be extracted into a dismissToast() action,
+      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
         state.toasts.forEach((toast) => {
-          if (!toast.important) { // Don't auto-dismiss important toasts
-            addToRemoveQueue(toast.id)
-          }
+          addToRemoveQueue(toast.id)
         })
       }
 
       return {
         ...state,
         toasts: state.toasts.map((t) =>
-          (t.id === toastId || toastId === undefined) && !t.important
+          t.id === toastId || toastId === undefined
             ? {
                 ...t,
                 open: false,
@@ -146,13 +137,13 @@ type Toast = Omit<ToasterToast, "id">
 
 function toast({ ...props }: Toast) {
   const id = genId()
-  const duration = props.duration || TOAST_REMOVE_DELAY
 
-  const update = (props: ToasterToast) =>
+  const update = (props: Partial<ToasterToast>) =>
     dispatch({
       type: "UPDATE_TOAST",
       toast: { ...props, id },
     })
+
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
 
   dispatch({
@@ -167,32 +158,46 @@ function toast({ ...props }: Toast) {
     },
   })
 
-  if (!props.important && duration !== Infinity) {
-    addToRemoveQueue(id, duration)
-  }
-
   return {
-    id: id,
+    id,
     dismiss,
     update,
   }
 }
 
-// Predefined toast variants
-toast.success = (props: Omit<Toast, "variant">) => {
-  return toast({ variant: "default", ...props })
+// Feature detection toast - shows friendly messages about browser capabilities
+toast.feature = (featureName: string, fallback: string) => {
+  return toast({
+    variant: "default",
+    title: `${featureName} not supported`,
+    description: `Your browser doesn't support ${featureName}. Using ${fallback} instead.`,
+  })
 }
 
-toast.error = (props: Omit<Toast, "variant">) => {
-  return toast({ variant: "destructive", ...props })
+// Success toast
+toast.success = (title: string, description?: string) => {
+  return toast({
+    variant: "success",
+    title,
+    description,
+  })
 }
 
-toast.info = (props: Omit<Toast, "variant">) => {
-  return toast({ variant: "accent", ...props })
+// Error toast
+toast.error = (title: string, description?: string) => {
+  return toast({
+    variant: "destructive",
+    title,
+    description,
+  })
 }
 
-toast.warning = (props: Omit<Toast, "variant">) => {
-  return toast({ variant: "warning", ...props })
+// Info toast
+toast.info = (title: string, description?: string) => {
+  return toast({
+    title,
+    description,
+  })
 }
 
 function useToast() {
