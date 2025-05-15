@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { NeonButton } from "@/components/ui/neon-button";
 import SmartLeadForm from "@/components/lead/SmartLeadForm";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const HeroSection = () => {
   return (
@@ -11,9 +12,9 @@ const HeroSection = () => {
         <div className="w-full md:w-1/3 mb-10 md:mb-0 spotlight">
           <div className="relative w-64 h-64 mx-auto overflow-hidden rounded-full border-4 border-[rgba(185,51,255,0.8)] shadow-[0_0_25px_rgba(185,51,255,0.6)]">
             <img 
-              src="/lovable-uploads/0847a67c-701c-4155-b806-b60bf0ea8c63.png" 
+              src="/lovable-uploads/33f27e59-6d72-4fe0-85b4-e930150ede82.png" 
               alt="Bruce Freshwater" 
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full object-center scale-110"
             />
           </div>
         </div>
