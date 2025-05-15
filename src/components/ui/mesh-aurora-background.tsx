@@ -38,7 +38,7 @@ const MeshAuroraBackground = ({
       
       {/* Second blob (purple) */}
       <motion.div
-        className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full blur-[120px] bg-[#9426ff]/20"
+        className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full blur-[120px] bg-[#6e5aff]/20"
         animate={{
           x: ['5%', '-5%', '5%'],
           y: ['10%', '-10%', '10%'],
@@ -51,9 +51,9 @@ const MeshAuroraBackground = ({
         style={{ opacity }}
       />
       
-      {/* Third blob (deep purple) - more subtle */}
+      {/* Third blob (deep blue) - more subtle */}
       <motion.div
-        className="absolute -top-1/4 left-1/2 transform -translate-x-1/2 w-3/4 h-3/4 rounded-full blur-[150px] bg-[#4a007d]/15"
+        className="absolute -top-1/4 left-1/2 transform -translate-x-1/2 w-3/4 h-3/4 rounded-full blur-[150px] bg-[#0a3964]/15"
         animate={{
           scale: [1, scale, 1],
         }}
