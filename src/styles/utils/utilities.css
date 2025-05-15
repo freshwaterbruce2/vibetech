@@ -9,7 +9,7 @@
     content: "";
     position: absolute;
     inset: -20px;
-    background: radial-gradient(circle at center, rgba(156, 87, 255, 0.15), transparent 70%);
+    background: radial-gradient(circle at center, rgba(0, 247, 255, 0.15), transparent 70%);
     z-index: -1;
     opacity: 0;
     transition: opacity 0.5s ease;
@@ -21,7 +21,7 @@
 
   /* Gradient text styles */
   .gradient-text {
-    @apply bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-teal)] bg-clip-text text-transparent;
   }
 
   .gradient-text-full {

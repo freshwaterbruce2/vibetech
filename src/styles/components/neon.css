@@ -20,7 +20,7 @@
   
   .neon-sweep-btn::before {
     content: '';
-    @apply absolute inset-0 bg-neon-sweep-gradient bg-[length:400%_100%] opacity-0 hover:opacity-20 animate-neon-sweep transition-opacity duration-300;
+    @apply absolute inset-0 bg-gradient-to-r from-[#28f0ff] via-[#6e5aff] to-[#00ffcc] bg-[length:400%_100%] opacity-0 hover:opacity-20 animate-neon-sweep transition-opacity duration-300;
     z-index: 0;
   }
   
@@ -47,7 +47,7 @@
   
   /* Icon Gradients */
   .icon-gradient {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-futuristic-neonBlue via-futuristic-neonPurple to-futuristic-neonTeal;
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-futuristic-neonBlue to-futuristic-neonTeal;
   }
   
   /* Icon variants */

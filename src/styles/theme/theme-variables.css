@@ -5,7 +5,7 @@
   --bg-mid: #111125;
   --bg-end: #14182C;
   --c-cyan: #28f0ff;
-  --c-purple: #9c57ff;
+  --c-purple: #6e5aff;
   --c-teal: #00ffcc;
   --glass-bg: rgba(21, 23, 34, 0.7);
   
@@ -37,7 +37,7 @@
     --primary: 184 100% 58%;
     --primary-foreground: 220 20% 12%;
 
-    --secondary: 267 100% 67%;
+    --secondary: 250 100% 67%;
     --secondary-foreground: 220 20% 98%;
 
     --accent: 166 100% 50%;
