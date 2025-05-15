@@ -8,11 +8,30 @@
     @apply bg-[#0B0B17] text-aura-text;
     font-family: 'Inter Variable', 'Inter', sans-serif;
     background-attachment: fixed;
-    font-display: swap; /* Improve text display during font loading */
+    font-display: swap;
+    overflow-x: hidden;
   }
   
   /* Set default focus outline styles for accessibility */
   *:focus-visible {
-    @apply outline-none ring-2 ring-[color:var(--c-cyan)] ring-opacity-60;
+    @apply outline-none ring-2 ring-[color:var(--c-cyan)] ring-opacity-70;
+  }
+  
+  /* Enhanced scrollbars for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-[#0B0B17];
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-[color:var(--c-cyan)/30] rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-[color:var(--c-cyan)/50];
   }
 }

@@ -4,23 +4,23 @@
    --bg-start: #0B0B17;
    --bg-mid: #111125;
    --bg-end: #14182C;
-   --glass-bg: rgba(255,255,255,.06);   /* 6% opacity for lift */
+   --glass-bg: rgba(21, 23, 34, 0.7);
    
-   /* Primary colors with consistent naming */
-   --c-primary: #00F0FF;                /* primary cyan/electric blue */
-   --c-secondary: #8A00C4;              /* secondary purple */
-   --c-accent: #00FFCC;                 /* teal accent */
+   /* Primary colors with consistent naming and more vibrance */
+   --c-primary: #28f0ff;                /* brighter cyan/electric blue */
+   --c-secondary: #9426ff;              /* brighter purple */
+   --c-accent: #00ffcc;                 /* brighter teal accent */
    
    /* Aliases for backward compatibility */
    --c-cyan: var(--c-primary);
    --c-purple: var(--c-secondary);
    --c-teal: var(--c-accent);
    
-   /* Feedback colors */
-   --c-success: #00E676;               /* success green */
-   --c-warning: #FFD600;               /* warning yellow */
-   --c-error: #FF1744;                 /* error red */
-   --c-info: #29B6F6;                  /* info blue */
+   /* Feedback colors with increased vibrancy */
+   --c-success: #00ff8c;               /* brighter success green */
+   --c-warning: #ffdd00;               /* brighter warning yellow */
+   --c-error: #ff2c59;                 /* brighter error red */
+   --c-info: #29c5ff;                  /* brighter info blue */
    
    /* Text colors */
    --text-primary: rgba(255,255,255,1);

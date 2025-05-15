@@ -12,7 +12,7 @@
   /* Circuit Board Background - fixed pattern with proper SVG escaping */
   .circuit-bg {
     background-color: rgb(10, 12, 18);
-    background-image: url("/assets/circuit.svg");
+    background-image: url("/assets/circuit-board-bg.svg");
   }
 
   /* Dashboard-style background for consistent look across pages */
@@ -20,36 +20,36 @@
     @apply bg-aura-background relative overflow-hidden;
     background-image: 
       linear-gradient(to bottom, var(--bg-start), var(--bg-mid)),
-      url("/assets/chip-circuit.svg");
+      url("/assets/circuit-board-bg.svg");
     background-attachment: fixed;
     background-size: cover;
   }
   
-  /* Card variants with consistent styling */
+  /* Card variants with consistent styling and more vibrant borders */
   .content-card {
-    @apply glass-card p-6 border-[color:var(--c-cyan)/20] hover:border-[color:var(--c-cyan)/40] transition-all duration-300;
+    @apply glass-card p-6 border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] transition-all duration-300;
   }
   
   .content-card-purple {
-    @apply glass-card p-6 border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] transition-all duration-300;
+    @apply glass-card p-6 border-[color:var(--c-purple)/30] hover:border-[color:var(--c-purple)/60] transition-all duration-300;
   }
   
   .content-card-teal {
-    @apply glass-card p-6 border-[color:var(--c-teal)/20] hover:border-[color:var(--c-teal)/40] transition-all duration-300;
+    @apply glass-card p-6 border-[color:var(--c-teal)/30] hover:border-[color:var(--c-teal)/60] transition-all duration-300;
   }
   
   /* Feature card with icon */
   .feature-card {
-    @apply glass-card p-6 border-[color:var(--c-cyan)/20];
+    @apply glass-card p-6 border-[color:var(--c-cyan)/30];
   }
   
   .feature-card:hover {
-    @apply border-[color:var(--c-cyan)/40] shadow-neon-blue-soft transform -translate-y-1;
+    @apply border-[color:var(--c-cyan)/60] shadow-neon-blue transform -translate-y-1;
   }
   
   /* New glass card with neon purple effect */
   .glass-card-purple {
-    @apply bg-[rgba(255,255,255,0.05)] backdrop-blur-[24px] border border-[rgba(255,255,255,0.15)];
+    @apply bg-[rgba(21,23,34,0.7)] backdrop-blur-[24px] border border-[rgba(148,38,255,0.25)];
     box-shadow: 0 0 18px rgba(148, 38, 255, 0.35);
     border-radius: 1.25rem;
   }
@@ -61,7 +61,7 @@
   
   /* Service number pills for horizontal display */
   .service-pill {
-    @apply px-3 py-1 text-sm rounded-full bg-[rgba(0,247,255,0.1)] border border-[rgba(0,247,255,0.2)] text-[#00f7ff] font-medium;
+    @apply px-3 py-1 text-sm rounded-full bg-[rgba(40,240,255,0.15)] border border-[rgba(40,240,255,0.25)] text-[#28f0ff] font-medium;
   }
   
   /* Add mesh aurora background utility */
@@ -74,12 +74,48 @@
   .mesh-aurora-bg::before {
     content: '';
     @apply absolute inset-0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Ccircle cx='2' cy='2' r='0.5' fill='%2300f7ff' opacity='0.15'/%3E%3C/svg%3E");
-    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Ccircle cx='2' cy='2' r='0.5' fill='%2328f0ff' opacity='0.15'/%3E%3C/svg%3E");
+    opacity: 0.05;
   }
 
   /* Glass card - our primary UI component */
   .glass-card {
-    @apply bg-[rgba(255,255,255,0.05)] backdrop-blur-[20px] rounded-xl;
+    @apply bg-[rgba(21,23,34,0.7)] backdrop-blur-[20px] rounded-xl border border-white/10;
+  }
+  
+  /* Enhanced card hover states */
+  .glass-card:hover {
+    @apply border-white/15;
+  }
+  
+  /* Feature card glow effects */
+  .glow-card-cyan {
+    @apply relative;
+  }
+  
+  .glow-card-cyan::after {
+    content: '';
+    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300;
+    box-shadow: 0 0 25px 5px rgba(40, 240, 255, 0.25);
+    pointer-events: none;
+  }
+  
+  .glow-card-cyan:hover::after {
+    @apply opacity-100;
+  }
+  
+  .glow-card-purple {
+    @apply relative;
+  }
+  
+  .glow-card-purple::after {
+    content: '';
+    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300;
+    box-shadow: 0 0 25px 5px rgba(148, 38, 255, 0.25);
+    pointer-events: none;
+  }
+  
+  .glow-card-purple:hover::after {
+    @apply opacity-100;
   }
 }
