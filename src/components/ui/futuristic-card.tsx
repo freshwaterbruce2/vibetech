@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 interface FuturisticCardProps {
   children: React.ReactNode;
   className?: string;
-  variant?: "blue" | "purple" | "teal" | "glass";
+  variant?: "blue" | "purple" | "pink" | "teal" | "glass";
   hoverEffect?: boolean;
   glowIntensity?: "low" | "medium" | "high";
 }
@@ -21,7 +21,8 @@ const FuturisticCard = ({
   const variants = {
     blue: "border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] shadow-neon-blue-soft",
     purple: "border-[color:var(--c-purple)/30] hover:border-[color:var(--c-purple)/60] shadow-neon-purple-soft",
-    teal: "border-teal/30 hover:border-teal/60 shadow-neon-teal-soft",
+    pink: "border-[color:var(--c-pink)/30] hover:border-[color:var(--c-pink)/60] shadow-neon-pink-soft",
+    teal: "border-[color:var(--c-teal)/30] hover:border-[color:var(--c-teal)/60] shadow-neon-teal-soft",
     glass: "border-white/10 hover:border-white/20",
   };
 
@@ -52,7 +53,8 @@ const FuturisticCard = ({
           {
             "bg-[color:var(--c-cyan)]": variant === "blue",
             "bg-[color:var(--c-purple)]": variant === "purple",
-            "bg-teal": variant === "teal",
+            "bg-[color:var(--c-pink)]": variant === "pink",
+            "bg-[color:var(--c-teal)]": variant === "teal",
           }
         )} />
       )}

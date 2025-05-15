@@ -1,22 +1,23 @@
 
 :root {
-  /* Base colors - more vibrant */
-  --bg-start: #0B0B17;
-  --bg-mid: #111125;
-  --bg-end: #14182C;
-  --c-cyan: #28f0ff;
-  --c-purple: #9426ff;
-  --c-teal: #00ffcc;
-  --glass-bg: rgba(21, 23, 34, 0.7);
+  /* Base colors - ultra vibrant neon */
+  --bg-start: #080810;
+  --bg-mid: #0D0D1A;
+  --bg-end: #111125;
+  --c-cyan: #00FFFF;
+  --c-purple: #B933FF;
+  --c-pink: #FF00AA;
+  --c-teal: #00FFCC;
+  --glass-bg: rgba(13, 15, 28, 0.65);
   
   /* Text colors */
   --c-text: #ffffff;
-  --c-text-secondary: #8E9196;
+  --c-text-secondary: #9BA1CC;
   
   /* Primary and secondary colors */
   --c-primary: var(--c-cyan);
   --c-secondary: var(--c-purple);
-  --c-accent: var(--c-teal);
+  --c-accent: var(--c-pink);
   
   /* Default border radius */
   --radius: 0.5rem;
@@ -25,33 +26,33 @@
 /* Base theme variables for shadcn components */
 @layer base {
   :root {
-    --background: 230 25% 7%;
+    --background: 230 30% 5%;
     --foreground: 220 20% 98%;
 
-    --card: 230 25% 10%;
+    --card: 230 30% 8%;
     --card-foreground: 220 20% 98%;
 
-    --popover: 230 25% 10%;
+    --popover: 230 30% 8%;
     --popover-foreground: 220 20% 98%;
 
-    --primary: 184 100% 58%;
-    --primary-foreground: 220 20% 12%;
+    --primary: 180 100% 50%;
+    --primary-foreground: 230 30% 10%;
 
-    --secondary: 250 100% 67%;
+    --secondary: 270 100% 60%;
     --secondary-foreground: 220 20% 98%;
 
-    --accent: 166 100% 50%;
-    --accent-foreground: 220 20% 12%;
+    --accent: 320 100% 50%;
+    --accent-foreground: 230 30% 10%;
 
-    --muted: 230 25% 15%;
-    --muted-foreground: 220 20% 60%;
+    --muted: 230 30% 15%;
+    --muted-foreground: 220 20% 70%;
 
     --destructive: 0 100% 50%;
     --destructive-foreground: 220 20% 98%;
 
-    --border: 230 25% 20%;
-    --input: 230 25% 20%;
-    --ring: 184 100% 58%;
+    --border: 230 30% 20%;
+    --input: 230 30% 20%;
+    --ring: 180 100% 50%;
 
     --radius: 0.5rem;
   }

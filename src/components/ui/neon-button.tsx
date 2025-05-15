@@ -17,8 +17,8 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
       // Updated to use more vibrant color tokens
       primary: "border-[color:var(--c-primary)/40] hover:border-[color:var(--c-primary)/80] hover:shadow-neon-blue before:from-[color:var(--c-primary)] before:to-[color:var(--c-primary)/70]",
       secondary: "border-[color:var(--c-secondary)/40] hover:border-[color:var(--c-secondary)/80] hover:shadow-neon-purple before:from-[color:var(--c-secondary)] before:to-[color:var(--c-secondary)/70]",
-      accent: "border-[color:var(--c-accent)/40] hover:border-[color:var(--c-accent)/80] hover:shadow-neon-teal before:from-[color:var(--c-accent)] before:to-[color:var(--c-accent)/70]",
-      electric: "border-[color:var(--c-accent)/40] hover:border-[color:var(--c-accent)/80] hover:shadow-neon-teal before:from-[color:var(--c-accent)] before:to-[#00e0b0]/70]",
+      accent: "border-[color:var(--c-accent)/40] hover:border-[color:var(--c-accent)/80] hover:shadow-neon-pink before:from-[color:var(--c-accent)] before:to-[color:var(--c-accent)/70]",
+      electric: "border-[color:var(--c-tertiary)/40] hover:border-[color:var(--c-tertiary)/80] hover:shadow-neon-teal before:from-[color:var(--c-tertiary)] before:to-[#00e0b0]/70]",
       gradient: "border-white/30 hover:border-white/50 hover:shadow-neon-blue before:from-[color:var(--c-primary)] before:via-[color:var(--c-secondary)] before:to-[color:var(--c-accent)]",
     };
     
