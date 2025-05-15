@@ -11,18 +11,18 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: "Project Title 1",
-    description: "Brief description of the project and the technologies used."
+    title: "Project Alpha",
+    description: "A React & Node.js platform that doubled engagement in 30 days."
   },
   {
     id: 2,
-    title: "Project Title 2",
-    description: "Brief description of the project and the technologies used."
+    title: "Project Beta",
+    description: "An accessible e-commerce build driving 40% more sales."
   },
   {
     id: 3,
-    title: "Project Title 3",
-    description: "Brief description of the project and the technologies used."
+    title: "Project Gamma",
+    description: "A Flutter app noted for its seamless offline experience."
   }
 ];
 
@@ -30,7 +30,7 @@ const PortfolioSection = () => {
   return (
     <section className="py-16 px-4 relative">
       <div className="max-w-6xl mx-auto relative z-10">
-        <h2 className="text-3xl font-bold mb-12 text-center font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Recent Projects</h2>
+        <h2 className="text-3xl font-bold mb-12 text-center font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">Spotlight on Recent Wins</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project) => (
             <Link 
@@ -38,7 +38,7 @@ const PortfolioSection = () => {
               to={`/portfolio/project-${project.id}`}
               className="group"
             >
-              <div className="glass-card border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 h-full">
+              <div className="glass-card border border-[rgba(185,51,255,0.2)] hover:border-[rgba(185,51,255,0.4)] hover:shadow-neon-purple transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 h-full">
                 <div className="h-48 overflow-hidden">
                   <img 
                     src={`/placeholder.svg`} 
