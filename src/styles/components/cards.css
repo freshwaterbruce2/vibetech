@@ -11,7 +11,7 @@
 
   /* Circuit Board Background - fixed pattern with proper SVG escaping */
   .circuit-bg {
-    background-color: #080810;
+    background-color: #05050E;
     background-image: url("/assets/circuit-board-bg.svg");
   }
 
@@ -27,45 +27,45 @@
   
   /* Card variants with consistent styling and more vibrant borders */
   .content-card {
-    @apply glass-card p-6 border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] transition-all duration-300;
+    @apply glass-card p-6 border-[rgba(0,255,255,0.3)] hover:border-[rgba(0,255,255,0.6)] transition-all duration-300;
   }
   
   .content-card-purple {
-    @apply glass-card p-6 border-[color:var(--c-purple)/30] hover:border-[color:var(--c-purple)/60] transition-all duration-300;
+    @apply glass-card p-6 border-[rgba(185,51,255,0.3)] hover:border-[rgba(185,51,255,0.6)] transition-all duration-300;
   }
   
   .content-card-pink {
-    @apply glass-card p-6 border-[color:var(--c-pink)/30] hover:border-[color:var(--c-pink)/60] transition-all duration-300;
+    @apply glass-card p-6 border-[rgba(255,0,170,0.3)] hover:border-[rgba(255,0,170,0.6)] transition-all duration-300;
   }
   
   .content-card-teal {
-    @apply glass-card p-6 border-[color:var(--c-teal)/30] hover:border-[color:var(--c-teal)/60] transition-all duration-300;
+    @apply glass-card p-6 border-[rgba(0,255,204,0.3)] hover:border-[rgba(0,255,204,0.6)] transition-all duration-300;
   }
   
   /* Feature card with icon */
   .feature-card {
-    @apply glass-card p-6 border-[color:var(--c-cyan)/30];
+    @apply glass-card p-6 border-[rgba(0,255,255,0.3)];
   }
   
   .feature-card:hover {
-    @apply border-[color:var(--c-cyan)/60] shadow-neon-blue transform -translate-y-1;
+    @apply border-[rgba(0,255,255,0.6)] shadow-neon-blue transform -translate-y-1;
   }
   
   /* New glass card with neon effects */
   .glass-card-cyan {
-    @apply bg-[rgba(13,15,28,0.7)] backdrop-blur-[24px] border border-[rgba(0,255,255,0.25)];
+    @apply bg-[rgba(10,12,24,0.7)] backdrop-blur-[24px] border border-[rgba(0,255,255,0.25)];
     box-shadow: 0 0 18px rgba(0, 255, 255, 0.35);
     border-radius: 1.25rem;
   }
   
   .glass-card-purple {
-    @apply bg-[rgba(13,15,28,0.7)] backdrop-blur-[24px] border border-[rgba(185,51,255,0.25)];
+    @apply bg-[rgba(10,12,24,0.7)] backdrop-blur-[24px] border border-[rgba(185,51,255,0.25)];
     box-shadow: 0 0 18px rgba(185, 51, 255, 0.35);
     border-radius: 1.25rem;
   }
   
   .glass-card-pink {
-    @apply bg-[rgba(13,15,28,0.7)] backdrop-blur-[24px] border border-[rgba(255,0,170,0.25)];
+    @apply bg-[rgba(10,12,24,0.7)] backdrop-blur-[24px] border border-[rgba(255,0,170,0.25)];
     box-shadow: 0 0 18px rgba(255, 0, 170, 0.35);
     border-radius: 1.25rem;
   }
@@ -102,7 +102,7 @@
   /* Add mesh aurora background utility */
   .mesh-aurora-bg {
     @apply absolute inset-0 -z-10 overflow-hidden;
-    background: linear-gradient(120deg, #080810 0%, #0D0D1A 50%, #111125 100%);
+    background: linear-gradient(120deg, #05050E 0%, #0A0A18 50%, #0F0F22 100%);
     opacity: 0.8;
   }
   
@@ -156,6 +156,22 @@
   }
   
   .glow-card-pink:hover::after {
+    @apply opacity-100;
+  }
+
+  /* New burning neon hover effect */
+  .burning-neon {
+    @apply relative overflow-hidden;
+  }
+
+  .burning-neon::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 rounded-xl;
+    background: radial-gradient(circle at center, rgba(0, 255, 255, 0.35), transparent 70%);
+    z-index: -1;
+  }
+
+  .burning-neon:hover::before {
     @apply opacity-100;
   }
 }

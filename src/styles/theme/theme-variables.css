@@ -1,14 +1,14 @@
 
 :root {
   /* Base colors - ultra vibrant neon */
-  --bg-start: #080810;
-  --bg-mid: #0D0D1A;
-  --bg-end: #111125;
+  --bg-start: #05050E;
+  --bg-mid: #0A0A18;
+  --bg-end: #0F0F22;
   --c-cyan: #00FFFF;
   --c-purple: #B933FF;
   --c-pink: #FF00AA;
   --c-teal: #00FFCC;
-  --glass-bg: rgba(13, 15, 28, 0.65);
+  --glass-bg: rgba(10, 12, 24, 0.65);
   
   /* Text colors */
   --c-text: #ffffff;
@@ -26,13 +26,13 @@
 /* Base theme variables for shadcn components */
 @layer base {
   :root {
-    --background: 230 30% 5%;
+    --background: 230 30% 4%;
     --foreground: 220 20% 98%;
 
-    --card: 230 30% 8%;
+    --card: 230 30% 6%;
     --card-foreground: 220 20% 98%;
 
-    --popover: 230 30% 8%;
+    --popover: 230 30% 6%;
     --popover-foreground: 220 20% 98%;
 
     --primary: 180 100% 50%;
