@@ -1,75 +1,80 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
   <!-- Dark background -->
-  <rect width="100%" height="100%" fill="#080810"/>
+  <rect width="100%" height="100%" fill="#05050E"/>
   
   <!-- Circuit lines - horizontal with vibrant neon colors -->
-  <path d="M0,100 H1200" stroke="#B933FF" stroke-width="1" opacity="0.3" />
-  <path d="M0,200 H1200" stroke="#00FFFF" stroke-width="1" opacity="0.3" />
-  <path d="M0,300 H1200" stroke="#FF00AA" stroke-width="1" opacity="0.3" />
-  <path d="M0,400 H1200" stroke="#00FFCC" stroke-width="1" opacity="0.3" />
-  <path d="M0,500 H1200" stroke="#B933FF" stroke-width="1" opacity="0.3" />
-  <path d="M0,600 H1200" stroke="#00FFFF" stroke-width="1" opacity="0.3" />
-  <path d="M0,700 H1200" stroke="#FF00AA" stroke-width="1" opacity="0.3" />
+  <path d="M0,100 H1200" stroke="#B933FF" stroke-width="1" opacity="0.35" />
+  <path d="M0,200 H1200" stroke="#00FFFF" stroke-width="1" opacity="0.35" />
+  <path d="M0,300 H1200" stroke="#FF00AA" stroke-width="1" opacity="0.35" />
+  <path d="M0,400 H1200" stroke="#00FFCC" stroke-width="1" opacity="0.35" />
+  <path d="M0,500 H1200" stroke="#B933FF" stroke-width="1" opacity="0.35" />
+  <path d="M0,600 H1200" stroke="#00FFFF" stroke-width="1" opacity="0.35" />
+  <path d="M0,700 H1200" stroke="#FF00AA" stroke-width="1" opacity="0.35" />
 
   <!-- Circuit lines - vertical with vibrant neon colors -->
-  <path d="M100,0 V800" stroke="#B933FF" stroke-width="1" opacity="0.3" />
-  <path d="M300,0 V800" stroke="#00FFFF" stroke-width="1" opacity="0.3" />
-  <path d="M500,0 V800" stroke="#FF00AA" stroke-width="1" opacity="0.3" />
-  <path d="M700,0 V800" stroke="#00FFCC" stroke-width="1" opacity="0.3" />
-  <path d="M900,0 V800" stroke="#B933FF" stroke-width="1" opacity="0.3" />
-  <path d="M1100,0 V800" stroke="#00FFFF" stroke-width="1" opacity="0.3" />
+  <path d="M100,0 V800" stroke="#B933FF" stroke-width="1" opacity="0.35" />
+  <path d="M300,0 V800" stroke="#00FFFF" stroke-width="1" opacity="0.35" />
+  <path d="M500,0 V800" stroke="#FF00AA" stroke-width="1" opacity="0.35" />
+  <path d="M700,0 V800" stroke="#00FFCC" stroke-width="1" opacity="0.35" />
+  <path d="M900,0 V800" stroke="#B933FF" stroke-width="1" opacity="0.35" />
+  <path d="M1100,0 V800" stroke="#00FFFF" stroke-width="1" opacity="0.35" />
 
   <!-- Circuit connections and nodes with vibrant neon colors -->
-  <circle cx="100" cy="100" r="5" fill="#00FFFF" opacity="0.7"/>
-  <circle cx="300" cy="200" r="5" fill="#B933FF" opacity="0.7"/>
-  <circle cx="500" cy="300" r="5" fill="#FF00AA" opacity="0.7"/>
-  <circle cx="700" cy="400" r="5" fill="#00FFCC" opacity="0.7"/>
-  <circle cx="900" cy="500" r="5" fill="#00FFFF" opacity="0.7"/>
-  <circle cx="1100" cy="600" r="5" fill="#B933FF" opacity="0.7"/>
+  <circle cx="100" cy="100" r="5" fill="#00FFFF" opacity="0.8"/>
+  <circle cx="300" cy="200" r="5" fill="#B933FF" opacity="0.8"/>
+  <circle cx="500" cy="300" r="5" fill="#FF00AA" opacity="0.8"/>
+  <circle cx="700" cy="400" r="5" fill="#00FFCC" opacity="0.8"/>
+  <circle cx="900" cy="500" r="5" fill="#00FFFF" opacity="0.8"/>
+  <circle cx="1100" cy="600" r="5" fill="#B933FF" opacity="0.8"/>
   
   <!-- Central circuit board/chip -->
-  <rect x="500" y="300" width="200" height="200" stroke="#00FFFF" stroke-width="2" fill="none" opacity="0.8"/>
-  <rect x="520" y="320" width="160" height="160" stroke="#B933FF" stroke-width="1.5" fill="none" opacity="0.7"/>
-  <rect x="540" y="340" width="120" height="120" stroke="#FF00AA" stroke-width="1" fill="none" opacity="0.7"/>
+  <rect x="500" y="300" width="200" height="200" stroke="#00FFFF" stroke-width="2" fill="none" opacity="0.9"/>
+  <rect x="520" y="320" width="160" height="160" stroke="#B933FF" stroke-width="1.5" fill="none" opacity="0.8"/>
+  <rect x="540" y="340" width="120" height="120" stroke="#FF00AA" stroke-width="1" fill="none" opacity="0.8"/>
   
   <!-- Connection paths to chip with vibrant neon colors -->
-  <path d="M100,100 H300 V200 H500 V300" stroke="#00FFFF" stroke-width="1.5" opacity="0.5"/>
-  <path d="M1100,600 H900 V500 H700 V400" stroke="#B933FF" stroke-width="1.5" opacity="0.5"/>
-  <path d="M500,300 H400 V600 H300" stroke="#FF00AA" stroke-width="1.5" opacity="0.5"/>
-  <path d="M700,400 H800 V200 H900" stroke="#00FFCC" stroke-width="1.5" opacity="0.5"/>
+  <path d="M100,100 H300 V200 H500 V300" stroke="#00FFFF" stroke-width="1.5" opacity="0.6"/>
+  <path d="M1100,600 H900 V500 H700 V400" stroke="#B933FF" stroke-width="1.5" opacity="0.6"/>
+  <path d="M500,300 H400 V600 H300" stroke="#FF00AA" stroke-width="1.5" opacity="0.6"/>
+  <path d="M700,400 H800 V200 H900" stroke="#00FFCC" stroke-width="1.5" opacity="0.6"/>
   
   <!-- Small circuit elements with vibrant neon colors -->
-  <rect x="100" y="400" width="25" height="25" stroke="#00FFFF" stroke-width="1.5" fill="none" opacity="0.6"/>
-  <rect x="1000" y="300" width="25" height="25" stroke="#B933FF" stroke-width="1.5" fill="none" opacity="0.6"/>
-  <rect x="200" y="600" width="25" height="25" stroke="#FF00AA" stroke-width="1.5" fill="none" opacity="0.6"/>
-  <rect x="900" y="700" width="25" height="25" stroke="#00FFCC" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <rect x="100" y="400" width="25" height="25" stroke="#00FFFF" stroke-width="1.5" fill="none" opacity="0.7"/>
+  <rect x="1000" y="300" width="25" height="25" stroke="#B933FF" stroke-width="1.5" fill="none" opacity="0.7"/>
+  <rect x="200" y="600" width="25" height="25" stroke="#FF00AA" stroke-width="1.5" fill="none" opacity="0.7"/>
+  <rect x="900" y="700" width="25" height="25" stroke="#00FFCC" stroke-width="1.5" fill="none" opacity="0.7"/>
   
   <!-- Additional small nodes with vibrant neon colors -->
-  <circle cx="200" cy="150" r="3" fill="#00FFFF" opacity="0.7"/>
-  <circle cx="400" cy="250" r="3" fill="#B933FF" opacity="0.7"/>
-  <circle cx="600" cy="550" r="3" fill="#FF00AA" opacity="0.7"/>
-  <circle cx="800" cy="650" r="3" fill="#00FFCC" opacity="0.7"/>
+  <circle cx="200" cy="150" r="3" fill="#00FFFF" opacity="0.8"/>
+  <circle cx="400" cy="250" r="3" fill="#B933FF" opacity="0.8"/>
+  <circle cx="600" cy="550" r="3" fill="#FF00AA" opacity="0.8"/>
+  <circle cx="800" cy="650" r="3" fill="#00FFCC" opacity="0.8"/>
   
   <!-- Additional decorative elements - circles and paths -->
-  <circle cx="250" cy="220" r="15" stroke="#00FFFF" stroke-width="1" fill="none" opacity="0.4"/>
-  <circle cx="850" cy="420" r="15" stroke="#FF00AA" stroke-width="1" fill="none" opacity="0.4"/>
+  <circle cx="250" cy="220" r="15" stroke="#00FFFF" stroke-width="1" fill="none" opacity="0.5"/>
+  <circle cx="850" cy="420" r="15" stroke="#FF00AA" stroke-width="1" fill="none" opacity="0.5"/>
   
-  <path d="M250,200 C300,220 320,280 350,300" stroke="#00FFCC" stroke-width="1.5" opacity="0.5" fill="none"/>
-  <path d="M850,400 C900,380 920,420 950,450" stroke="#B933FF" stroke-width="1.5" opacity="0.5" fill="none"/>
+  <path d="M250,200 C300,220 320,280 350,300" stroke="#00FFCC" stroke-width="1.5" opacity="0.6" fill="none"/>
+  <path d="M850,400 C900,380 920,420 950,450" stroke="#B933FF" stroke-width="1.5" opacity="0.6" fill="none"/>
   
   <!-- Microchip details -->
-  <path d="M550,350 H610 M550,370 H610 M550,390 H610" stroke="#00FFFF" stroke-width="1" opacity="0.8"/>
-  <path d="M550,410 H610" stroke="#FF00AA" stroke-width="1" opacity="0.8"/>
+  <path d="M550,350 H610 M550,370 H610 M550,390 H610" stroke="#00FFFF" stroke-width="1" opacity="0.9"/>
+  <path d="M550,410 H610" stroke="#FF00AA" stroke-width="1" opacity="0.9"/>
   
   <!-- Integrated circuit corners -->
-  <path d="M510,310 L510,330 L530,330" stroke="#00FFFF" stroke-width="2" opacity="0.9" fill="none"/>
-  <path d="M670,310 L670,330 L650,330" stroke="#00FFFF" stroke-width="2" opacity="0.9" fill="none"/>
-  <path d="M510,490 L510,470 L530,470" stroke="#00FFFF" stroke-width="2" opacity="0.9" fill="none"/>
-  <path d="M670,490 L670,470 L650,470" stroke="#00FFFF" stroke-width="2" opacity="0.9" fill="none"/>
+  <path d="M510,310 L510,330 L530,330" stroke="#00FFFF" stroke-width="2" opacity="1" fill="none"/>
+  <path d="M670,310 L670,330 L650,330" stroke="#00FFFF" stroke-width="2" opacity="1" fill="none"/>
+  <path d="M510,490 L510,470 L530,470" stroke="#00FFFF" stroke-width="2" opacity="1" fill="none"/>
+  <path d="M670,490 L670,470 L650,470" stroke="#00FFFF" stroke-width="2" opacity="1" fill="none"/>
   
   <!-- Glow effects -->
-  <circle cx="100" cy="100" r="8" fill="#00FFFF" opacity="0.3" filter="blur(3px)"/>
-  <circle cx="300" cy="200" r="8" fill="#B933FF" opacity="0.3" filter="blur(3px)"/>
-  <circle cx="500" cy="300" r="8" fill="#FF00AA" opacity="0.3" filter="blur(3px)"/>
+  <circle cx="100" cy="100" r="8" fill="#00FFFF" opacity="0.4" filter="blur(3px)"/>
+  <circle cx="300" cy="200" r="8" fill="#B933FF" opacity="0.4" filter="blur(3px)"/>
+  <circle cx="500" cy="300" r="8" fill="#FF00AA" opacity="0.4" filter="blur(3px)"/>
+
+  <!-- Enhanced glow effects -->
+  <circle cx="600" cy="400" r="20" fill="#00FFFF" opacity="0.2" filter="blur(10px)"/>
+  <circle cx="400" cy="600" r="25" fill="#B933FF" opacity="0.2" filter="blur(12px)"/>
+  <circle cx="200" cy="300" r="15" fill="#FF00AA" opacity="0.2" filter="blur(8px)"/>
 </svg>

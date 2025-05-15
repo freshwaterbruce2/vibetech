@@ -184,25 +184,29 @@
     @apply border border-[rgba(0,255,204,0.6)] shadow-neon-teal rounded-md p-4 relative animate-pulse-glow;
   }
   
-  /* Circuit corner decoration elements */
+  /* Circuit corner decoration elements - fixed syntax */
   .circuit-corner {
     @apply absolute w-20 h-20 pointer-events-none opacity-30;
   }
   
   .circuit-corner-tl {
-    @apply top-0 left-0 border-t-2 border-l-2 border-[rgba(185,51,255,0.4)];
+    @apply absolute top-0 left-0 border-t-2 border-l-2;
+    border-color: rgba(185,51,255,0.4);
   }
   
   .circuit-corner-tr {
-    @apply top-0 right-0 border-t-2 border-r-2 border-[rgba(0,255,255,0.4)];
+    @apply absolute top-0 right-0 border-t-2 border-r-2;
+    border-color: rgba(0,255,255,0.4);
   }
   
   .circuit-corner-bl {
-    @apply bottom-0 left-0 border-b-2 border-l-2 border-[rgba(255,0,170,0.4)];
+    @apply absolute bottom-0 left-0 border-b-2 border-l-2;
+    border-color: rgba(255,0,170,0.4);
   }
   
   .circuit-corner-br {
-    @apply bottom-0 right-0 border-b-2 border-r-2 border-[rgba(0,255,204,0.4)];
+    @apply absolute bottom-0 right-0 border-b-2 border-r-2;
+    border-color: rgba(0,255,204,0.4);
   }
   
   /* Enhanced card hover effects with neon glow */
@@ -228,5 +232,25 @@
   .neon-card-hover-teal:hover {
     @apply transform -translate-y-1;
     box-shadow: 0 0 20px 3px rgba(0,255,204,1);
+  }
+
+  /* New animated neon border */
+  .neon-border-animated {
+    @apply relative;
+  }
+  
+  .neon-border-animated::after {
+    content: '';
+    @apply absolute inset-0 rounded-xl;
+    background: linear-gradient(90deg, var(--c-cyan), var(--c-purple), var(--c-pink), var(--c-teal), var(--c-cyan));
+    background-size: 400% 100%;
+    animation: neon-sweep 8s infinite;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 1.5px;
+    pointer-events: none;
   }
 }
