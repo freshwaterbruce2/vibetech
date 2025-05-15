@@ -2,24 +2,24 @@
 @layer components {
   /* Neon Elements */
   .neon-border {
-    @apply border border-[color:var(--c-cyan)/30] shadow-neon-blue-soft;
+    @apply border border-[rgba(0,255,255,0.3)] shadow-neon-blue-soft;
   }
   
   .neon-border-purple {
-    @apply border border-[color:var(--c-purple)/30] shadow-neon-purple-soft;
+    @apply border border-[rgba(185,51,255,0.3)] shadow-neon-purple-soft;
   }
   
   .neon-border-pink {
-    @apply border border-[color:var(--c-pink)/30] shadow-neon-pink-soft;
+    @apply border border-[rgba(255,0,170,0.3)] shadow-neon-pink-soft;
   }
   
   .neon-border-teal {
-    @apply border border-[color:var(--c-teal)/30] shadow-neon-teal-soft;
+    @apply border border-[rgba(0,255,204,0.3)] shadow-neon-teal-soft;
   }
   
   /* Neon Sweep Button */
   .neon-sweep-btn {
-    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[color:var(--c-cyan)/30] hover:border-[color:var(--c-cyan)/60] shadow-neon-blue-soft transition-all duration-300;
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[rgba(0,255,255,0.3)] hover:border-[rgba(0,255,255,0.6)] shadow-neon-blue-soft transition-all duration-300;
   }
   
   .neon-sweep-btn::before {
@@ -30,32 +30,32 @@
   
   /* Neon Button variants */
   .neon-btn-purple {
-    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[color:var(--c-purple)/30] hover:border-[color:var(--c-purple)/60] shadow-neon-purple-soft transition-all duration-300;
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[rgba(185,51,255,0.3)] hover:border-[rgba(185,51,255,0.6)] shadow-neon-purple-soft transition-all duration-300;
   }
   
   .neon-btn-purple::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-[color:var(--c-purple)] to-[color:var(--c-purple)/70] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
+    @apply absolute inset-0 bg-gradient-to-r from-purple to-[rgba(185,51,255,0.7)] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
     z-index: 0;
   }
   
   .neon-btn-pink {
-    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[color:var(--c-pink)/30] hover:border-[color:var(--c-pink)/60] shadow-neon-pink-soft transition-all duration-300;
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[rgba(255,0,170,0.3)] hover:border-[rgba(255,0,170,0.6)] shadow-neon-pink-soft transition-all duration-300;
   }
   
   .neon-btn-pink::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-[color:var(--c-pink)] to-[color:var(--c-pink)/70] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
+    @apply absolute inset-0 bg-gradient-to-r from-pink to-[rgba(255,0,170,0.7)] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
     z-index: 0;
   }
   
   .neon-btn-teal {
-    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[color:var(--c-teal)/30] hover:border-[color:var(--c-teal)/60] shadow-neon-teal-soft transition-all duration-300;
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[rgba(0,255,204,0.3)] hover:border-[rgba(0,255,204,0.6)] shadow-neon-teal-soft transition-all duration-300;
   }
   
   .neon-btn-teal::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-[color:var(--c-teal)] to-[color:var(--c-teal)/70] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
+    @apply absolute inset-0 bg-gradient-to-r from-teal to-[rgba(0,255,204,0.7)] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
     z-index: 0;
   }
   
@@ -66,53 +66,53 @@
   
   /* Icon variants with new colors */
   .icon-gradient-cyan {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-cyan)/70];
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-cyan to-[rgba(0,255,255,0.7)];
   }
   
   .icon-gradient-purple {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-[color:var(--c-purple)] to-[color:var(--c-purple)/70];
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-purple to-[rgba(185,51,255,0.7)];
   }
   
   .icon-gradient-pink {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-[color:var(--c-pink)] to-[color:var(--c-pink)/70];
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-pink to-[rgba(255,0,170,0.7)];
   }
   
   .icon-gradient-teal {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-[color:var(--c-teal)] to-[color:var(--c-teal)/70];
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-teal to-[rgba(0,255,204,0.7)];
   }
   
   /* Text with neon glow */
   .neon-text {
-    @apply text-[color:var(--c-cyan)] drop-shadow-[0_0_10px_var(--c-cyan)];
+    @apply text-cyan drop-shadow-[0_0_10px_rgba(0,255,255,1)];
   }
   
   .neon-text-purple {
-    @apply text-[color:var(--c-purple)] drop-shadow-[0_0_10px_var(--c-purple)];
+    @apply text-purple drop-shadow-[0_0_10px_rgba(185,51,255,1)];
   }
 
   .neon-text-pink {
-    @apply text-[color:var(--c-pink)] drop-shadow-[0_0_10px_var(--c-pink)];
+    @apply text-pink drop-shadow-[0_0_10px_rgba(255,0,170,1)];
   }
   
   .neon-text-teal {
-    @apply text-[color:var(--c-teal)] drop-shadow-[0_0_10px_var(--c-teal)];
+    @apply text-teal drop-shadow-[0_0_10px_rgba(0,255,204,1)];
   }
   
   /* Neon divider line */
   .neon-divider {
-    @apply h-px bg-gradient-to-r from-transparent via-[color:var(--c-cyan)/50] to-transparent my-6;
+    @apply h-px bg-gradient-to-r from-transparent via-[rgba(0,255,255,0.5)] to-transparent my-6;
   }
   
   .neon-divider-purple {
-    @apply h-px bg-gradient-to-r from-transparent via-[color:var(--c-purple)/50] to-transparent my-6;
+    @apply h-px bg-gradient-to-r from-transparent via-[rgba(185,51,255,0.5)] to-transparent my-6;
   }
 
   .neon-divider-pink {
-    @apply h-px bg-gradient-to-r from-transparent via-[color:var(--c-pink)/50] to-transparent my-6;
+    @apply h-px bg-gradient-to-r from-transparent via-[rgba(255,0,170,0.5)] to-transparent my-6;
   }
   
   .neon-divider-teal {
-    @apply h-px bg-gradient-to-r from-transparent via-[color:var(--c-teal)/50] to-transparent my-6;
+    @apply h-px bg-gradient-to-r from-transparent via-[rgba(0,255,204,0.5)] to-transparent my-6;
   }
   
   /* Neon highlight for hover effects */
@@ -121,67 +121,67 @@
   }
   
   .neon-highlight-hover:hover {
-    @apply bg-[color:var(--c-cyan)/10] shadow-neon-blue-soft;
+    @apply bg-[rgba(0,255,255,0.1)] shadow-neon-blue-soft;
   }
   
   .neon-highlight-hover-purple:hover {
-    @apply bg-[color:var(--c-purple)/10] shadow-neon-purple-soft;
+    @apply bg-[rgba(185,51,255,0.1)] shadow-neon-purple-soft;
   }
 
   .neon-highlight-hover-pink:hover {
-    @apply bg-[color:var(--c-pink)/10] shadow-neon-pink-soft;
+    @apply bg-[rgba(255,0,170,0.1)] shadow-neon-pink-soft;
   }
   
   .neon-highlight-hover-teal:hover {
-    @apply bg-[color:var(--c-teal)/10] shadow-neon-teal-soft;
+    @apply bg-[rgba(0,255,204,0.1)] shadow-neon-teal-soft;
   }
   
   /* Enhanced neon effects */
   
   /* Neon text with enhanced glow effect */
   .neon-text-glow {
-    text-shadow: 0 0 7px var(--c-cyan),
-                 0 0 10px var(--c-cyan),
-                 0 0 21px var(--c-cyan);
+    text-shadow: 0 0 7px rgba(0,255,255,1),
+                 0 0 10px rgba(0,255,255,1),
+                 0 0 21px rgba(0,255,255,1);
     @apply text-white;
   }
   
   .neon-text-glow-purple {
-    text-shadow: 0 0 7px var(--c-purple),
-                 0 0 10px var(--c-purple),
-                 0 0 21px var(--c-purple);
+    text-shadow: 0 0 7px rgba(185,51,255,1),
+                 0 0 10px rgba(185,51,255,1),
+                 0 0 21px rgba(185,51,255,1);
     @apply text-white;
   }
 
   .neon-text-glow-pink {
-    text-shadow: 0 0 7px var(--c-pink),
-                 0 0 10px var(--c-pink),
-                 0 0 21px var(--c-pink);
+    text-shadow: 0 0 7px rgba(255,0,170,1),
+                 0 0 10px rgba(255,0,170,1),
+                 0 0 21px rgba(255,0,170,1);
     @apply text-white;
   }
   
   .neon-text-glow-teal {
-    text-shadow: 0 0 7px var(--c-teal),
-                 0 0 10px var(--c-teal),
-                 0 0 21px var(--c-teal);
+    text-shadow: 0 0 7px rgba(0,255,204,1),
+                 0 0 10px rgba(0,255,204,1),
+                 0 0 21px rgba(0,255,204,1);
     @apply text-white;
   }
   
   /* Neon box with subtle pulsing effect */
   .neon-box {
-    @apply border border-[color:var(--c-cyan)/60] shadow-neon-blue rounded-md p-4 relative animate-pulse-glow;
+    @apply border border-[rgba(0,255,255,0.6)] shadow-neon-blue rounded-md p-4 relative animate-pulse-glow;
   }
   
   .neon-box-purple {
-    @apply border border-[color:var(--c-purple)/60] shadow-neon-purple rounded-md p-4 relative animate-pulse-glow;
+    @apply border border-[rgba(185,51,255,0.6)] shadow-neon-purple rounded-md p-4 relative animate-pulse-glow;
   }
 
   .neon-box-pink {
-    @apply border border-[color:var(--c-pink)/60] shadow-neon-pink rounded-md p-4 relative animate-pulse-glow;
+    @apply border border-[rgba(255,0,170,0.6)] shadow-neon-pink rounded-md p-4 relative animate-pulse-glow;
   }
   
   .neon-box-teal {
-    @apply border border-[color:var(--c-teal)/60] shadow-neon-teal rounded-md p-4 relative animate-pulse-glow;
+    @apply border border-[rgba(0,255,204,0.6)] shadow-neon-teal rounded-md p-4 relative animate-pulse-glow;
   }
   
   /* Circuit corner decoration elements */
@@ -190,19 +190,19 @@
   }
   
   .circuit-corner-tl {
-    @apply top-0 left-0 border-t-2 border-l-2 border-[color:var(--c-purple)]/40;
+    @apply top-0 left-0 border-t-2 border-l-2 border-[rgba(185,51,255,0.4)];
   }
   
   .circuit-corner-tr {
-    @apply top-0 right-0 border-t-2 border-r-2 border-[color:var(--c-cyan)]/40;
+    @apply top-0 right-0 border-t-2 border-r-2 border-[rgba(0,255,255,0.4)];
   }
   
   .circuit-corner-bl {
-    @apply bottom-0 left-0 border-b-2 border-l-2 border-[color:var(--c-pink)]/40;
+    @apply bottom-0 left-0 border-b-2 border-l-2 border-[rgba(255,0,170,0.4)];
   }
   
   .circuit-corner-br {
-    @apply bottom-0 right-0 border-b-2 border-r-2 border-[color:var(--c-teal)]/40;
+    @apply bottom-0 right-0 border-b-2 border-r-2 border-[rgba(0,255,204,0.4)];
   }
   
   /* Enhanced card hover effects with neon glow */
@@ -212,21 +212,21 @@
   
   .neon-card-hover:hover {
     @apply transform -translate-y-1;
-    box-shadow: 0 0 20px 3px var(--c-cyan);
+    box-shadow: 0 0 20px 3px rgba(0,255,255,1);
   }
   
   .neon-card-hover-purple:hover {
     @apply transform -translate-y-1;
-    box-shadow: 0 0 20px 3px var(--c-purple);
+    box-shadow: 0 0 20px 3px rgba(185,51,255,1);
   }
 
   .neon-card-hover-pink:hover {
     @apply transform -translate-y-1;
-    box-shadow: 0 0 20px 3px var(--c-pink);
+    box-shadow: 0 0 20px 3px rgba(255,0,170,1);
   }
   
   .neon-card-hover-teal:hover {
     @apply transform -translate-y-1;
-    box-shadow: 0 0 20px 3px var(--c-teal);
+    box-shadow: 0 0 20px 3px rgba(0,255,204,1);
   }
 }
