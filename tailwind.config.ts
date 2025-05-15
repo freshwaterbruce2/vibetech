@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -71,33 +72,35 @@ export default {
 					textSecondary: 'hsl(var(--aura-text-secondary))',
 					neonBlue: 'var(--c-cyan)',
 					neonPurple: 'var(--c-purple)',
+					neonPink: 'var(--c-pink)',
 					neonCyan: 'var(--c-cyan)',
 					neonOrange: '#ff7b00',
 					neonGreen: '#00ff66',
-					neonPink: '#ff00e4',
 					darkBg: 'var(--bg-start)',
 					darkBgLight: '#12141c'
 				},
 				
-				// Updated futuristic colors to match 2025-grade spec
+				// Updated futuristic colors to match neon glassmorphism
 				futuristic: {
 					neonBlue: 'var(--c-cyan)',
 					neonPurple: 'var(--c-purple)', 
-					neonTeal: '#00FFCC',
+					neonPink: 'var(--c-pink)',
+					neonTeal: 'var(--c-teal)',
 					darkBg: 'var(--bg-start)',
 					darkBgLight: 'var(--bg-mid)',
 					glassOverlay: 'var(--glass-bg)',
-					cardBorder: 'rgba(0, 240, 255, 0.3)'
+					cardBorder: 'rgba(0, 255, 255, 0.3)'
 				},
 				
 				// Define these colors directly to enable opacity variants
 				cyan: 'var(--c-cyan)',
 				purple: 'var(--c-purple)',
-				teal: '#00FFCC',
+				pink: 'var(--c-pink)',
+				teal: 'var(--c-teal)',
 			},
 			backgroundImage: {
 				'radial-tech': 'radial-gradient(at 50% 75%,var(--bg-start) 0%,var(--bg-mid) 45%,var(--bg-end) 100%),url("/assets/circuit.svg")',
-				'hero-gradient': 'radial-gradient(at 50% 75%, #0B0B17 0%, #111125 50%, #14182C 100%), url("/assets/circuit.svg")'
+				'hero-gradient': 'radial-gradient(at 50% 75%, #080810 0%, #0D0D1A 50%, #111125 100%), url("/assets/circuit.svg")'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -129,15 +132,15 @@ export default {
 				'glow': {
 					'0%': {
 						opacity: '1',
-						textShadow: '0 0 20px rgba(0, 240, 255, 0.8), 0 0 30px rgba(0, 240, 255, 0.6), 0 0 40px rgba(0, 240, 255, 0.4)'
+						textShadow: '0 0 20px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.4)'
 					},
 					'50%': {
 						opacity: '0.8',
-						textShadow: '0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3), 0 0 30px rgba(0, 240, 255, 0.2)'
+						textShadow: '0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3), 0 0 30px rgba(0, 255, 255, 0.2)'
 					},
 					'100%': {
 						opacity: '1',
-						textShadow: '0 0 20px rgba(0, 240, 255, 0.8), 0 0 30px rgba(0, 240, 255, 0.6), 0 0 40px rgba(0, 240, 255, 0.4)'
+						textShadow: '0 0 20px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.4)'
 					}
 				},
 				'float': {
@@ -163,7 +166,7 @@ export default {
 					}
 				},
 				
-				// Updated animations for 2025-grade microinteractions
+				// Updated animations for neon glassmorphism microinteractions
 				'flicker': {
 					'0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100%': {
 						opacity: '0.99',
@@ -176,10 +179,10 @@ export default {
 				},
 				'circuit': {
 					'0%': { 
-						backgroundPosition: '0% 0%' 
+						transform: 'translateX(-100%)' 
 					},
 					'100%': { 
-						backgroundPosition: '100% 100%' 
+						transform: 'translateX(100%)' 
 					}
 				},
 				'scan-line': {
@@ -212,16 +215,16 @@ export default {
 				'pulse-glow': {
 					'0%, 100%': {
 						opacity: '1',
-						boxShadow: '0 0 20px rgba(40, 240, 255, 0.7), 0 0 30px rgba(40, 240, 255, 0.5)'
+						boxShadow: '0 0 20px rgba(0, 255, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.5)'
 					},
 					'50%': {
 						opacity: '0.7',
-						boxShadow: '0 0 10px rgba(40, 240, 255, 0.5), 0 0 15px rgba(40, 240, 255, 0.3)'
+						boxShadow: '0 0 10px rgba(0, 255, 255, 0.5), 0 0 15px rgba(0, 255, 255, 0.3)'
 					}
 				},
 				'flicker-border': {
-					'0%, 100%': { borderColor: 'rgba(40, 240, 255, 0.3)' },
-					'50%': { borderColor: 'rgba(40, 240, 255, 0.1)' }
+					'0%, 100%': { borderColor: 'rgba(0, 255, 255, 0.3)' },
+					'50%': { borderColor: 'rgba(0, 255, 255, 0.1)' }
 				},
 				'slice-reveal': {
 					'0%': { transform: 'scaleX(0)', transformOrigin: 'left' },
@@ -251,15 +254,14 @@ export default {
 				}
 			},
 			animation: {
-				
-				// Updated animations for 2025-grade microinteractions
+				// Updated animations for neon glassmorphism microinteractions
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'glow': 'glow 2.5s ease-in-out infinite',
 				'float': 'float 3s ease-in-out infinite',
 				'pulse-ring': 'pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite',
 				'flicker': 'flicker 3s linear infinite',
-				'circuit': 'circuit 20s linear infinite',
+				'circuit': 'circuit 3s linear infinite',
 				'scan-line': 'scan-line 8s linear infinite',
 				'rotate-slow': 'rotate-slow 30s linear infinite',
 				'gradient-shift': 'gradient-shift 8s ease infinite',
@@ -273,25 +275,25 @@ export default {
 				'hover-float': 'hover-float 2s ease-in-out infinite'
 			},
 			backgroundImage: {
-				
-				'futuristic-gradient': 'linear-gradient(135deg, #0B0B17 0%, #111125 100%)',
-				'accent-gradient': 'linear-gradient(90deg, #28f0ff 0%, #9c57ff 50%, #00ffcc 100%)',
-				'neon-sweep-gradient': 'linear-gradient(90deg, #28f0ff 0%, #9c57ff 33%, #00ffcc 66%, #28f0ff 100%)',
-				'circuit-pattern': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Cpath fill='%2328f0ff' fill-opacity='0.05' d='M20 13C18.22 13 17 14.22 17 16s1.22 3 3 3 3-1.22 3-3-1.22-3-3-3zM15 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM20 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM30 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM20 46h8v4h-8v-4zM15 30c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM13 34v6H7v-6h6zM90 10c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM89 19h-8v-8h8v8zM95 85c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5z'/%3E%3C/svg%3E\")",
-				'circuit-pattern-dark': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Cpath fill='%2328f0ff' fill-opacity='0.05' d='M20 13C18.22 13 17 14.22 17 16s1.22 3 3 3 3-1.22 3-3-1.22-3-3-3zM15 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM20 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM30 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM20 46h8v4h-8v-4zM15 30c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM13 34v6H7v-6h6zM90 10c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM89 19h-8v-8h8v8zM95 85c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5z'/%3E%3C/svg%3E\")"
+				'futuristic-gradient': 'linear-gradient(135deg, #080810 0%, #0D0D1A 100%)',
+				'accent-gradient': 'linear-gradient(90deg, #00FFFF 0%, #B933FF 50%, #FF00AA 100%)',
+				'neon-sweep-gradient': 'linear-gradient(90deg, #00FFFF 0%, #B933FF 33%, #FF00AA 66%, #00FFFF 100%)',
+				'circuit-pattern': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Cpath fill='%2300FFFF' fill-opacity='0.05' d='M20 13C18.22 13 17 14.22 17 16s1.22 3 3 3 3-1.22 3-3-1.22-3-3-3zM15 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM20 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM30 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM20 46h8v4h-8v-4zM15 30c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM13 34v6H7v-6h6zM90 10c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM89 19h-8v-8h8v8zM95 85c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5z'/%3E%3C/svg%3E\")",
+				'circuit-pattern-dark': "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Cpath fill='%2300FFFF' fill-opacity='0.05' d='M20 13C18.22 13 17 14.22 17 16s1.22 3 3 3 3-1.22 3-3-1.22-3-3-3zM15 3c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM20 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM30 50c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM20 46h8v4h-8v-4zM15 30c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM13 34v6H7v-6h6zM90 10c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5zM89 19h-8v-8h8v8zM95 85c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5 5-2.24 5-5z'/%3E%3C/svg%3E\")"
 			},
 			boxShadow: {
-				
-				// Updated shadow effects for 2025-grade UI
-				'neon': '0 0 5px rgba(40, 240, 255, 0.4), 0 0 20px rgba(40, 240, 255, 0.2)',
-				'neon-lg': '0 0 10px rgba(40, 240, 255, 0.5), 0 0 30px rgba(40, 240, 255, 0.3), 0 0 50px rgba(40, 240, 255, 0.1)',
-				'neon-blue': '0 0 10px rgba(40, 240, 255, 0.7), 0 0 20px rgba(40, 240, 255, 0.4)',
-				'neon-purple': '0 0 10px rgba(156, 87, 255, 0.7), 0 0 20px rgba(156, 87, 255, 0.4)',
+				// Updated shadow effects for neon glassmorphism
+				'neon': '0 0 5px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.2)',
+				'neon-lg': '0 0 10px rgba(0, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.3), 0 0 50px rgba(0, 255, 255, 0.1)',
+				'neon-blue': '0 0 10px rgba(0, 255, 255, 0.7), 0 0 20px rgba(0, 255, 255, 0.4)',
+				'neon-purple': '0 0 10px rgba(185, 51, 255, 0.7), 0 0 20px rgba(185, 51, 255, 0.4)',
+				'neon-pink': '0 0 10px rgba(255, 0, 170, 0.7), 0 0 20px rgba(255, 0, 170, 0.4)',
 				'neon-teal': '0 0 10px rgba(0, 255, 204, 0.7), 0 0 20px rgba(0, 255, 204, 0.4)',
-				'neon-blue-soft': '0 0 10px rgba(40, 240, 255, 0.2)',
-				'neon-purple-soft': '0 0 10px rgba(156, 87, 255, 0.2)',
+				'neon-blue-soft': '0 0 10px rgba(0, 255, 255, 0.2)',
+				'neon-purple-soft': '0 0 10px rgba(185, 51, 255, 0.2)',
+				'neon-pink-soft': '0 0 10px rgba(255, 0, 170, 0.2)',
 				'neon-teal-soft': '0 0 10px rgba(0, 255, 204, 0.2)',
-				'glassmorphic': '0 8px 32px 0 rgba(11, 11, 23, 0.3)'
+				'glassmorphic': '0 8px 32px 0 rgba(8, 8, 16, 0.5)'
 			}
 		}
 	},

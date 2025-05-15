@@ -30,26 +30,37 @@ const CircuitBoardBackground = memo(() => (
 CircuitBoardBackground.displayName = 'CircuitBoardBackground';
 
 const GradientOverlay = memo(() => (
-  <div className="absolute inset-0 z-1 bg-gradient-to-b from-[#0B0B17] via-transparent to-[#0B0B17] opacity-70"></div>
+  <div className="absolute inset-0 z-1 bg-gradient-to-b from-[#080810] via-transparent to-[#080810] opacity-80"></div>
 ));
 GradientOverlay.displayName = 'GradientOverlay';
 
 const CornerDecorations = memo(() => (
   <>
-    <div className="absolute top-4 left-4 md:top-10 md:left-10 w-12 h-12 md:w-20 md:h-20 border-t-2 border-l-2 border-[#9426ff]/40 pointer-events-none"></div>
-    <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 w-12 h-12 md:w-20 md:h-20 border-b-2 border-r-2 border-[#28f0ff]/40 pointer-events-none"></div>
+    <div className="absolute top-4 left-4 md:top-10 md:left-10 w-12 h-12 md:w-20 md:h-20 border-t-2 border-l-2 border-[#B933FF]/40 pointer-events-none"></div>
+    <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 w-12 h-12 md:w-20 md:h-20 border-b-2 border-r-2 border-[#00FFFF]/40 pointer-events-none"></div>
+    <div className="absolute top-4 right-4 md:top-10 md:right-10 w-12 h-12 md:w-20 md:h-20 border-t-2 border-r-2 border-[#FF00AA]/40 pointer-events-none"></div>
+    <div className="absolute bottom-4 left-4 md:bottom-10 md:left-10 w-12 h-12 md:w-20 md:h-20 border-b-2 border-l-2 border-[#00FFCC]/40 pointer-events-none"></div>
   </>
 ));
 CornerDecorations.displayName = 'CornerDecorations';
 
 const NeonEffects = memo(() => (
   <>
-    <div className="fixed bottom-0 left-0 w-full h-16 md:h-24 bg-gradient-to-t from-[#9426ff]/10 to-transparent z-[1] pointer-events-none"></div>
-    <div className="fixed top-1/4 -left-10 md:-left-20 w-20 h-20 md:w-40 md:h-40 rounded-full bg-[#9426ff]/15 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
-    <div className="fixed top-3/4 -right-10 md:-right-20 w-20 h-20 md:w-40 md:h-40 rounded-full bg-[#28f0ff]/15 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+    <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#B933FF]/10 to-transparent z-[1] pointer-events-none"></div>
+    <div className="fixed top-1/4 -left-20 w-40 h-40 rounded-full bg-[#B933FF]/15 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+    <div className="fixed top-3/4 -right-20 w-40 h-40 rounded-full bg-[#00FFFF]/15 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+    <div className="fixed bottom-1/4 -left-20 w-40 h-40 rounded-full bg-[#FF00AA]/15 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
   </>
 ));
 NeonEffects.displayName = 'NeonEffects';
+
+// Circuit animated line along the top of the screen
+const CircuitHeaderLine = memo(() => (
+  <div className="fixed top-0 left-0 w-full h-[1px] bg-[#00FFFF]/30 z-[2] pointer-events-none">
+    <div className="h-full w-10 bg-[#00FFFF] animate-[circuit_5s_linear_infinite]"></div>
+  </div>
+));
+CircuitHeaderLine.displayName = 'CircuitHeaderLine';
 
 const BackgroundEffects = memo(({ particleCount, particleOpacity, auroraIntensity, isMobile }: Pick<PageLayoutProps, 'particleCount' | 'particleOpacity' | 'auroraIntensity'> & { isMobile: boolean }) => {
   const { features } = useFeatureDetection();
@@ -58,7 +69,7 @@ const BackgroundEffects = memo(({ particleCount, particleOpacity, auroraIntensit
   // If webGL is not supported, show a simpler background
   if (!hasWebGL) {
     return (
-      <div className="absolute inset-0 z-1 bg-gradient-to-b from-[#0B0B17]/80 via-[#1a1a2e]/50 to-[#0B0B17]/80 opacity-50"></div>
+      <div className="absolute inset-0 z-1 bg-gradient-to-b from-[#080810]/80 via-[#0D0D1A]/50 to-[#080810]/80 opacity-60"></div>
     );
   }
 
@@ -80,14 +91,14 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   description,
   keywords,
   canonicalUrl,
-  particleOpacity = 0.12,
-  particleCount = 18,
+  particleOpacity = 0.15,
+  particleCount = 22,
   auroraIntensity = "medium"
 }) => {
   const isMobile = useIsMobile();
   const { features } = useFeatureDetection();
 
-  // Set page title if provided - moved to useEffect with dependency array
+  // Set page title if provided
   useEffect(() => {
     if (title) {
       document.title = `${title} | Vibe Tech`;
@@ -107,7 +118,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   const currentUrl = canonicalUrl || window.location.href;
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#0B0B17]">
+    <div className="min-h-screen relative overflow-hidden bg-[#080810]">
       {/* SEO Optimization with Helmet */}
       <Helmet>
         <title>{siteTitle}</title>
@@ -141,6 +152,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       
       {/* Subtle particle overlay for tech effect */}
       <div className="particles-bg-dense absolute inset-0 z-[1] opacity-40 pointer-events-none"></div>
+      
+      {/* Circuit line animation at top of screen */}
+      <CircuitHeaderLine />
       
       {/* Main content with improved mobile padding */}
       <NavBar />
