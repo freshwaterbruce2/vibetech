@@ -43,7 +43,7 @@ const ServicesSection = () => {
             >
               <div className="text-4xl mb-3">{service.icon}</div>
               <h3 className="text-xl font-semibold mb-3 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">{service.title}</h3>
-              <p className="text-slate-200/90">{service.description}</p>
+              <p className="text-white">{service.description}</p>
             </div>
           ))}
         </div>

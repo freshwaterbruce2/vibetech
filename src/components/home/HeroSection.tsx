@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { NeonButton } from "@/components/ui/neon-button";
 import SmartLeadForm from "@/components/lead/SmartLeadForm";
@@ -14,27 +15,27 @@ const HeroSection = () => {
         
         {/* Right side - Text with neon elements */}
         <div className="w-full md:w-2/3 md:pl-12">
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-            Hello, I'm <span className="text-[color:var(--c-purple)]">Bruce Freshwater</span>
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight text-white">
+            Hello, I'm <span className="text-[color:var(--c-cyan)]">Bruce Freshwater</span>
           </h1>
           <div className="mb-6">
-            <h2 className="text-2xl md:text-3xl font-semibold">
+            <h2 className="text-2xl md:text-3xl font-semibold text-white">
               Your Partner in Next-Level Digital Experiences
             </h2>
           </div>
-          <p className="lead-text mb-8 max-w-2xl">
+          <p className="lead-text mb-8 max-w-2xl text-white">
             Imagine a world where your website or app loads instantly, welcomes every user, and feels as intuitive as a conversation. That's the power of design and code working in perfect harmony.
           </p>
           
           <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-3 text-[color:var(--c-purple)]">Ready to Ignite Your Vision?</h3>
-            <p className="mb-4 text-aura-textSecondary">Tell me your goals, and together we'll craft a digital solution that dazzles and delivers.</p>
+            <h3 className="text-lg font-semibold mb-3 text-[color:var(--c-cyan)]">Ready to Ignite Your Vision?</h3>
+            <p className="mb-4 text-white">Tell me your goals, and together we'll craft a digital solution that dazzles and delivers.</p>
             <SmartLeadForm variant="inline" buttonText="Contact Me" showServiceInterest={false} />
             
             <div className="text-center my-4">
               <span className="px-4 relative inline-flex items-center">
                 <span className="neon-divider-purple absolute left-0 w-full top-1/2"></span>
-                <span className="bg-aura-background px-4 relative z-10 text-aura-textSecondary">or</span>
+                <span className="bg-aura-background px-4 relative z-10 text-white">or</span>
               </span>
             </div>
           </div>
