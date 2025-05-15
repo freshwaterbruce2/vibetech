@@ -12,7 +12,7 @@
 /* Import component styles */
 @import url('./styles/components/typography.css');
 @import url('./styles/components/glass.css');
-@import url('./styles/components/neon.css');
+@import url('./styles/components/neon/index.css');
 @import url('./styles/components/animations.css');
 @import url('./styles/components/particles.css');
 @import url('./styles/components/cards.css');
