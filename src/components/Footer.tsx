@@ -1,93 +1,69 @@
-
 import { Link } from "react-router-dom";
-import { Instagram, Linkedin, Mail, Twitter } from "lucide-react";
+import NewsletterSubscribe from "./NewsletterSubscribe";
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="bg-aura-backgroundLight border-t border-aura-accent/10 py-12 px-4">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div>
-          <Link to="/" className="text-2xl font-heading font-bold bg-gradient-to-r from-aura-accent to-purple-400 bg-clip-text text-transparent">
-            Vibe Tech
-          </Link>
-          <p className="mt-4 text-aura-textSecondary">
-            Creating innovative digital solutions with a focus on design and functionality.
-          </p>
-        </div>
-        
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-          <ul className="space-y-2">
-            <li>
-              <Link to="/" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to="/portfolio" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-                Portfolio
-              </Link>
-            </li>
-            <li>
-              <Link to="/blog" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-                Blog
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-                Contact
-              </Link>
-            </li>
-          </ul>
-        </div>
-        
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Connect</h3>
-          <div className="flex space-x-4 mb-4">
-            <a href="#" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-              <Twitter size={20} />
-              <span className="sr-only">Twitter</span>
-            </a>
-            <a href="#" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-              <Instagram size={20} />
-              <span className="sr-only">Instagram</span>
-            </a>
-            <a href="#" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-              <Linkedin size={20} />
-              <span className="sr-only">LinkedIn</span>
-            </a>
-            <a href="mailto:freshwaterbruce@icloud.com" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
-              <Mail size={20} />
-              <span className="sr-only">Email</span>
-            </a>
+    <footer className="border-t border-aura-accent/10 mt-auto py-10 relative z-10">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+          <div>
+            <h3 className="text-2xl font-bold mb-4 font-heading bg-gradient-to-r from-aura-accent to-aura-accentSecondary bg-clip-text text-transparent">
+              Vibe Tech
+            </h3>
+            <p className="text-aura-textSecondary mb-4">
+              Innovative digital solutions where bold design meets rock-solid functionality.
+            </p>
+            <div className="text-aura-textSecondary">
+              <p>Bruce Freshwater · freshwaterbruce@icloud.com</p>
+              <p>(803) 825-8860</p>
+            </div>
           </div>
-          <p className="text-aura-textSecondary">
-            Bruce Freshwater
-          </p>
-          <p className="text-aura-textSecondary">
-            <a href="mailto:freshwaterbruce@icloud.com" className="hover:text-aura-accent">
-              freshwaterbruce@icloud.com
-            </a>
-          </p>
-          <p className="text-aura-textSecondary">
-            <a href="tel:18038258860" className="hover:text-aura-accent">
-              1-803-825-8860
-            </a>
-          </p>
+          
+          <div>
+            <h4 className="font-bold mb-4 text-lg">Quick Links</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/services" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
+                  Services
+                </Link>
+              </li>
+              <li>
+                <Link to="/portfolio" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
+                  Portfolio
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-aura-textSecondary hover:text-aura-accent transition-colors">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <NewsletterSubscribe className="w-full" />
+          </div>
         </div>
-      </div>
-      
-      <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-aura-accent/20 text-center">
-        <p className="text-aura-textSecondary text-sm">
-          © {currentYear} Vibe Tech. All rights reserved.
-        </p>
+        
+        <div className="pt-6 border-t border-aura-accent/10 flex flex-col md:flex-row items-center justify-between">
+          <p className="text-aura-textSecondary text-sm mb-4 md:mb-0">
+            &copy; 2025 Vibe Tech. All rights reserved.
+          </p>
+          
+          <div className="flex space-x-6">
+            <Link to="/privacy" className="text-aura-textSecondary hover:text-aura-accent transition-colors text-sm">
+              Privacy Policy
+            </Link>
+            <Link to="/terms" className="text-aura-textSecondary hover:text-aura-accent transition-colors text-sm">
+              Terms of Service
+            </Link>
+          </div>
+        </div>
       </div>
     </footer>
   );
