@@ -1,3 +1,4 @@
+
 import React, { useEffect, memo } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -22,7 +23,7 @@ interface PageLayoutProps {
 // Memoized background components to prevent unnecessary re-renders
 const CircuitBoardBackground = memo(() => (
   <div 
-    className="absolute inset-0 z-0 bg-no-repeat bg-cover opacity-90"
+    className="absolute inset-0 z-0 bg-no-repeat bg-cover opacity-100"
     style={{ backgroundImage: "url('/assets/circuit-board-bg.svg')" }}
   />
 ));
@@ -35,17 +36,17 @@ GradientOverlay.displayName = 'GradientOverlay';
 
 const CornerDecorations = memo(() => (
   <>
-    <div className="absolute top-4 left-4 md:top-10 md:left-10 w-12 h-12 md:w-20 md:h-20 border-t-2 border-l-2 border-[#9426ff]/20 pointer-events-none"></div>
-    <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 w-12 h-12 md:w-20 md:h-20 border-b-2 border-r-2 border-[#00f7ff]/20 pointer-events-none"></div>
+    <div className="absolute top-4 left-4 md:top-10 md:left-10 w-12 h-12 md:w-20 md:h-20 border-t-2 border-l-2 border-[#9426ff]/40 pointer-events-none"></div>
+    <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 w-12 h-12 md:w-20 md:h-20 border-b-2 border-r-2 border-[#28f0ff]/40 pointer-events-none"></div>
   </>
 ));
 CornerDecorations.displayName = 'CornerDecorations';
 
 const NeonEffects = memo(() => (
   <>
-    <div className="fixed bottom-0 left-0 w-full h-16 md:h-24 bg-gradient-to-t from-[#9426ff]/5 to-transparent z-[1] pointer-events-none"></div>
-    <div className="fixed top-1/4 -left-10 md:-left-20 w-20 h-20 md:w-40 md:h-40 rounded-full bg-[#4a007d]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
-    <div className="fixed top-3/4 -right-10 md:-right-20 w-20 h-20 md:w-40 md:h-40 rounded-full bg-[#00f7ff]/10 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+    <div className="fixed bottom-0 left-0 w-full h-16 md:h-24 bg-gradient-to-t from-[#9426ff]/10 to-transparent z-[1] pointer-events-none"></div>
+    <div className="fixed top-1/4 -left-10 md:-left-20 w-20 h-20 md:w-40 md:h-40 rounded-full bg-[#9426ff]/15 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
+    <div className="fixed top-3/4 -right-10 md:-right-20 w-20 h-20 md:w-40 md:h-40 rounded-full bg-[#28f0ff]/15 blur-3xl z-[1] pointer-events-none animate-pulse"></div>
   </>
 ));
 NeonEffects.displayName = 'NeonEffects';
@@ -62,7 +63,7 @@ const BackgroundEffects = memo(({ particleCount, particleOpacity, auroraIntensit
   }
 
   return (
-    <div className="absolute inset-0 z-1 opacity-50">
+    <div className="absolute inset-0 z-1 opacity-60">
       <MeshAuroraBackground intensity={auroraIntensity} />
       <ParticleNetworkCanvas 
         particleCount={isMobile ? Math.floor(particleCount * 0.3) : particleCount} 
@@ -79,8 +80,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   description,
   keywords,
   canonicalUrl,
-  particleOpacity = 0.08,
-  particleCount = 15,
+  particleOpacity = 0.12,
+  particleCount = 18,
   auroraIntensity = "medium"
 }) => {
   const isMobile = useIsMobile();
@@ -148,7 +149,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       </main>
       <Footer />
       
-      {/* Enhanced floating neon elements */}
+      {/* Enhanced floating neon elements with more vibrant colors */}
       <NeonEffects />
       
       {/* Add corner circuit decorative elements */}

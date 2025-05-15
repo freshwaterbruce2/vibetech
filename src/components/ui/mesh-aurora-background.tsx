@@ -12,9 +12,9 @@ const MeshAuroraBackground = ({
   intensity = 'low' 
 }: MeshAuroraBackgroundProps) => {
   const intensityValues = {
-    low: { opacity: 0.04, scale: 1.1 },
-    medium: { opacity: 0.06, scale: 1.2 },
-    high: { opacity: 0.10, scale: 1.3 },
+    low: { opacity: 0.06, scale: 1.1 },
+    medium: { opacity: 0.08, scale: 1.2 },
+    high: { opacity: 0.12, scale: 1.3 },
   };
 
   const { opacity, scale } = intensityValues[intensity];
@@ -23,7 +23,7 @@ const MeshAuroraBackground = ({
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
       {/* First blob (electric blue) */}
       <motion.div
-        className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full blur-[120px] bg-[#00f7ff]/20"
+        className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full blur-[120px] bg-[#28f0ff]/25"
         animate={{
           x: ['-5%', '5%', '-5%'],
           y: ['-5%', '10%', '-5%'],
@@ -38,7 +38,7 @@ const MeshAuroraBackground = ({
       
       {/* Second blob (purple) */}
       <motion.div
-        className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full blur-[120px] bg-[#6e5aff]/20"
+        className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full blur-[120px] bg-[#9426ff]/25"
         animate={{
           x: ['5%', '-5%', '5%'],
           y: ['10%', '-10%', '10%'],
@@ -51,9 +51,9 @@ const MeshAuroraBackground = ({
         style={{ opacity }}
       />
       
-      {/* Third blob (deep blue) - more subtle */}
+      {/* Third blob (teal accent) - adding more vibrance */}
       <motion.div
-        className="absolute -top-1/4 left-1/2 transform -translate-x-1/2 w-3/4 h-3/4 rounded-full blur-[150px] bg-[#0a3964]/15"
+        className="absolute -top-1/4 left-1/2 transform -translate-x-1/2 w-3/4 h-3/4 rounded-full blur-[150px] bg-[#00ffcc]/15"
         animate={{
           scale: [1, scale, 1],
         }}
@@ -62,7 +62,7 @@ const MeshAuroraBackground = ({
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        style={{ opacity: opacity * 0.6 }}
+        style={{ opacity: opacity * 0.7 }}
       />
     </div>
   );

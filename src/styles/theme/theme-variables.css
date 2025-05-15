@@ -1,11 +1,11 @@
 
 :root {
-  /* Base colors */
+  /* Base colors - more vibrant */
   --bg-start: #0B0B17;
   --bg-mid: #111125;
   --bg-end: #14182C;
   --c-cyan: #28f0ff;
-  --c-purple: #6e5aff;
+  --c-purple: #9426ff;
   --c-teal: #00ffcc;
   --glass-bg: rgba(21, 23, 34, 0.7);
   
