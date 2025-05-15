@@ -1,21 +1,14 @@
-
 import { Link } from "react-router-dom";
 import { NeonButton } from "@/components/ui/neon-button";
 import SmartLeadForm from "@/components/lead/SmartLeadForm";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-
 const HeroSection = () => {
-  return (
-    <section className="pt-28 pb-20">
+  return <section className="pt-28 pb-20">
       <div className="glass-card mx-auto max-w-6xl px-6 py-10 lg:flex lg:items-center relative z-10 border border-[rgba(185,51,255,0.2)] hover:border-[rgba(185,51,255,0.4)] hover:shadow-neon-purple-soft">
         {/* Left side - Avatar with neon border */}
         <div className="w-full md:w-1/3 mb-10 md:mb-0 spotlight">
           <div className="relative w-64 h-64 mx-auto overflow-hidden rounded-full border-4 border-[rgba(185,51,255,0.8)] shadow-[0_0_25px_rgba(185,51,255,0.6)]">
-            <img 
-              src="/lovable-uploads/33f27e59-6d72-4fe0-85b4-e930150ede82.png" 
-              alt="Bruce Freshwater" 
-              className="object-cover w-full h-full object-center scale-110"
-            />
+            <img src="/lovable-uploads/33f27e59-6d72-4fe0-85b4-e930150ede82.png" alt="Bruce Freshwater" className="w-full h-full object-center scale-110 object-contain" />
           </div>
         </div>
         
@@ -36,11 +29,7 @@ const HeroSection = () => {
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-3 text-[color:var(--c-purple)]">Ready to Ignite Your Vision?</h3>
             <p className="mb-4 text-aura-textSecondary">Tell me your goals, and together we'll craft a digital solution that dazzles and delivers.</p>
-            <SmartLeadForm 
-              variant="inline" 
-              buttonText="Contact Me" 
-              showServiceInterest={false}
-            />
+            <SmartLeadForm variant="inline" buttonText="Contact Me" showServiceInterest={false} />
             
             <div className="text-center my-4">
               <span className="px-4 relative inline-flex items-center">
@@ -57,8 +46,6 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default HeroSection;
