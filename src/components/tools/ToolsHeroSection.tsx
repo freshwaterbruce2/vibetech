@@ -15,6 +15,7 @@ const ToolsHeroSection: React.FC<ToolsHeroSectionProps> = ({ toolsData }) => {
         <PageHeader 
           title="Advanced Tools"
           subtitle="Discover our carefully curated suite of tools and integrations designed to enhance your online presence, optimize your marketing efforts, and streamline your business operations."
+          className="text-white"
         />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
