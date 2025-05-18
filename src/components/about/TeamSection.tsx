@@ -39,8 +39,8 @@ const TeamSection: React.FC = () => {
               <AvatarImage src={member.imageUrl} alt={member.name} />
               <AvatarFallback>{member.name.substring(0, 2)}</AvatarFallback>
             </Avatar>
-            <h3 className="text-xl font-semibold text-center">{member.name}</h3>
-            <p className="text-center text-aura-textSecondary">{member.role}</p>
+            <h3 className="text-xl font-semibold text-center text-gray-50">{member.name}</h3>
+            <p className="text-center text-gray-50">{member.role}</p>
           </div>)}
       </div>
     </section>;
