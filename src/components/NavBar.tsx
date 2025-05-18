@@ -37,7 +37,7 @@ const NavBar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className="text-aura-textSecondary hover:text-aura-accent transition-colors"
+                className="text-white hover:text-aura-accent transition-colors"
               >
                 {link.label}
               </Link>
@@ -47,7 +47,7 @@ const NavBar = () => {
           {/* Theme toggle and mobile menu button */}
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <button className="md:hidden text-aura-textSecondary hover:text-aura-accent">
+            <button className="md:hidden text-white hover:text-aura-accent">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
