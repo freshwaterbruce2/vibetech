@@ -55,8 +55,8 @@ const NewsletterSubscribe = ({
   return (
     <div className={`w-full ${className}`}>
       <div className="bg-aura-backgroundLight border border-aura-accent/10 rounded-lg p-6 shadow-lg backdrop-blur-sm">
-        <h3 className="text-xl font-bold mb-2 font-heading">{title}</h3>
-        <p className="text-aura-textSecondary mb-4">{description}</p>
+        <h3 className="text-xl font-bold mb-2 font-heading text-white">{title}</h3>
+        <p className="text-white mb-4">{description}</p>
         
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
