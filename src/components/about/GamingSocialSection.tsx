@@ -30,11 +30,11 @@ const GamingSocialSection = () => {
               </div>
               <div className="px-4 py-2 bg-aura-background border border-aura-accent/20 rounded-full flex items-center gap-2">
                 <Gamepad size={16} className="text-aura-accent" />
-                <span>Gaming</span>
+                <span className="text-gray-50">Gaming</span>
               </div>
               <div className="px-4 py-2 bg-aura-background border border-aura-accent/20 rounded-full flex items-center gap-2">
                 <User size={16} className="text-aura-accent" />
-                <span>Social Media</span>
+                <span className="text-gray-50">Social Media</span>
               </div>
             </div>
           </div>
