@@ -63,7 +63,7 @@ const IntegrationShowcase: React.FC = () => {
         <h2 className="text-3xl font-bold mb-4 text-center font-heading">
           Featured <span className="bg-gradient-to-r from-purple-400 to-aura-accent bg-clip-text text-transparent">Integrations</span>
         </h2>
-        <p className="text-aura-textSecondary text-center mb-12 max-w-2xl mx-auto">
+        <p className="text-white text-center mb-12 max-w-2xl mx-auto">
           Explore our featured integrations that can help elevate your digital presence and streamline your workflow.
         </p>
 
@@ -81,8 +81,8 @@ const IntegrationShowcase: React.FC = () => {
                     {integration.icon}
                   </div>
                   
-                  <h3 className="text-xl font-semibold mb-2">{integration.name}</h3>
-                  <p className="text-aura-textSecondary mb-6 flex-grow">{integration.description}</p>
+                  <h3 className="text-xl font-semibold mb-2 text-white">{integration.name}</h3>
+                  <p className="text-white mb-6 flex-grow">{integration.description}</p>
                   
                   <div className="mt-auto">
                     <NeonButton variant={integration.buttonVariant as "primary" | "secondary" | "accent"} size="sm">
