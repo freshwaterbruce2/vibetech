@@ -30,16 +30,16 @@
   }
   
   p, li, span {
-    @apply text-base leading-relaxed;
+    @apply text-base leading-relaxed text-white;
     line-height: 1.6;
   }
 
   .lead-text {
-    @apply text-lg md:text-xl text-aura-textSecondary;
+    @apply text-lg md:text-xl text-white;
   }
 
   .subtle-text {
-    @apply text-sm text-aura-textSecondary;
+    @apply text-sm text-white;
   }
   
   ::selection {
