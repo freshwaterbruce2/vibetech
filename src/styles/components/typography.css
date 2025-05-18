@@ -1,7 +1,7 @@
 
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-extrabold tracking-tight;
+    @apply font-heading font-extrabold tracking-tight text-white;
     line-height: 1.2;
   }
   
