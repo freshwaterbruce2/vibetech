@@ -28,7 +28,7 @@ const MarketComparison = ({ marketComparisons }: MarketComparisonProps) => {
           {marketComparisons.map((comparison, i) => (
             <div 
               key={i} 
-              className={`hidden md:block text-center ${comparison.highlighted ? "text-aura-accent font-bold" : "text-white"}`}
+              className={`hidden md:block text-center ${comparison.highlighted ? "text-aura-accent font-bold" : "text-white font-semibold"}`}
             >
               {comparison.category}
             </div>
