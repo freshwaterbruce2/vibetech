@@ -41,11 +41,11 @@ const BlogSection = () => {
             <div key={post.id} className="glass-card border border-[rgba(0,255,255,0.2)] hover:border-[rgba(0,255,255,0.4)] hover:shadow-neon-blue transform transition-all duration-300 hover:-translate-y-1">
               <div className="p-6">
                 <div className="flex flex-col">
-                  <span className="text-sm text-slate-400 mb-2">{post.date} • {post.title}</span>
+                  <span className="text-sm text-white mb-2">{post.date} • {post.title}</span>
                   <h3 className="text-xl font-semibold mb-3 font-heading text-[color:var(--c-cyan)]">
                     {post.title}
                   </h3>
-                  <p className="text-slate-300 mb-4">
+                  <p className="text-white mb-4">
                     {post.description}
                   </p>
                   <Link to={`/blog/${post.slug}`} className="text-[color:var(--c-cyan)] font-medium hover:underline mt-auto self-start">

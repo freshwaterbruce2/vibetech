@@ -50,7 +50,7 @@ const PortfolioSection = () => {
                   <h3 className="text-xl font-semibold mb-2 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">
                     {project.title}
                   </h3>
-                  <p className="text-sm text-slate-200/90">
+                  <p className="text-white">
                     {project.description}
                   </p>
                 </div>
