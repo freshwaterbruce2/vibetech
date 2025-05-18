@@ -44,9 +44,9 @@ const PricingTier = ({ tier, billingCycle, index, onSubscribe }: PricingTierProp
             <span className="text-4xl font-bold bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">
               {billingCycle === "monthly" ? tier.price.monthly : tier.price.yearly}
             </span>
-            <span className="text-slate-200/90 ml-1">/ month</span>
+            <span className="text-white ml-1">/ month</span>
           </div>
-          <CardDescription className="mt-2 text-slate-200/90">{tier.description}</CardDescription>
+          <CardDescription className="mt-2 text-white">{tier.description}</CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
           <ul className="space-y-3">
@@ -57,15 +57,15 @@ const PricingTier = ({ tier, billingCycle, index, onSubscribe }: PricingTierProp
                 ) : (
                   <X className="h-5 w-5 text-gray-400 shrink-0 mt-0.5" />
                 )}
-                <span className={!feature.included ? "text-aura-textSecondary" : "text-slate-200/90"}>
+                <span className={!feature.included ? "text-white/70" : "text-white"}>
                   {feature.text}
                   {feature.tooltip && (
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info className="inline-block h-4 w-4 ml-1 text-aura-textSecondary cursor-help" />
+                          <Info className="inline-block h-4 w-4 ml-1 text-white/70 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="bg-aura-backgroundLight border-[color:var(--c-purple)/20] text-aura-text p-2">
+                        <TooltipContent className="bg-aura-backgroundLight border-[color:var(--c-purple)/20] text-white p-2">
                           {feature.tooltip}
                         </TooltipContent>
                       </Tooltip>
@@ -84,15 +84,15 @@ const PricingTier = ({ tier, billingCycle, index, onSubscribe }: PricingTierProp
                 {tier.comparisons.map((comparison, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <ArrowRight className="h-4 w-4 text-[#00f7ff] shrink-0 mt-0.5" />
-                    <span className="text-slate-200/90">
+                    <span className="text-white">
                       {comparison.text}
                       {comparison.tooltip && (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="inline-block h-3 w-3 ml-1 text-aura-textSecondary cursor-help" />
+                              <Info className="inline-block h-3 w-3 ml-1 text-white/70 cursor-help" />
                             </TooltipTrigger>
-                            <TooltipContent className="bg-aura-backgroundLight border-[color:var(--c-purple)/20] text-aura-text p-2 max-w-xs">
+                            <TooltipContent className="bg-aura-backgroundLight border-[color:var(--c-purple)/20] text-white p-2 max-w-xs">
                               {comparison.tooltip}
                             </TooltipContent>
                           </Tooltip>

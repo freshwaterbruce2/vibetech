@@ -49,10 +49,10 @@ const PricingFAQ = () => {
             value={`item-${index}`}
             className="bg-aura-backgroundLight rounded-lg mb-4 px-6 border border-aura-accent/10 overflow-hidden"
           >
-            <AccordionTrigger className="py-5 text-left text-lg font-medium hover:no-underline">
+            <AccordionTrigger className="py-5 text-left text-lg font-medium hover:no-underline text-white">
               {item.question}
             </AccordionTrigger>
-            <AccordionContent className="text-aura-textSecondary pb-5">
+            <AccordionContent className="text-white pb-5">
               {item.answer}
             </AccordionContent>
           </AccordionItem>
@@ -60,7 +60,7 @@ const PricingFAQ = () => {
       </Accordion>
       
       <div className="mt-12 text-center">
-        <p className="text-aura-textSecondary">
+        <p className="text-white">
           Still have questions? <a href="/contact" className="text-aura-accent hover:underline">Contact our team</a> for more information.
         </p>
       </div>

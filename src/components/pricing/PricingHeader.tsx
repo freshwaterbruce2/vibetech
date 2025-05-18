@@ -32,7 +32,7 @@ const PricingHeader = ({ billingCycle, setBillingCycle }: PricingHeaderProps) =>
       {/* Billing toggle with savings indicator */}
       <div className="flex flex-col items-center">
         <div className="flex items-center justify-center mb-4">
-          <span className={`mr-3 ${billingCycle === "monthly" ? "text-aura-text font-medium" : "text-aura-textSecondary"}`}>Monthly</span>
+          <span className={`mr-3 ${billingCycle === "monthly" ? "text-white font-medium" : "text-white/70"}`}>Monthly</span>
           <button
             onClick={() => setBillingCycle(billingCycle === "monthly" ? "yearly" : "monthly")}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aura-accent focus-visible:ring-offset-2 ${
@@ -46,7 +46,7 @@ const PricingHeader = ({ billingCycle, setBillingCycle }: PricingHeaderProps) =>
               }`}
             />
           </button>
-          <span className={`ml-3 flex items-center ${billingCycle === "yearly" ? "text-aura-text font-medium" : "text-aura-textSecondary"}`}>
+          <span className={`ml-3 flex items-center ${billingCycle === "yearly" ? "text-white font-medium" : "text-white/70"}`}>
             Yearly 
             <Badge className="ml-1 bg-aura-accent/10 text-aura-accent border-aura-accent/30">Save 20%</Badge>
           </span>

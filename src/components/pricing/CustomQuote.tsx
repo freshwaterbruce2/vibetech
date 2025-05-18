@@ -22,7 +22,7 @@ const CustomQuote = ({ onRequestQuote }: CustomQuoteProps) => {
       <h2 className="text-2xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">
         Need a custom solution?
       </h2>
-      <p className="mb-8 text-aura-text max-w-xl mx-auto">
+      <p className="mb-8 text-white max-w-xl mx-auto">
         We offer tailored services for businesses with specific requirements. 
         Our custom plans provide the perfect balance between affordability and professional quality,
         with transparent pricing and no hidden fees.
@@ -36,7 +36,7 @@ const CustomQuote = ({ onRequestQuote }: CustomQuoteProps) => {
         </Button>
         <Button
           variant="outline"
-          className="border-[rgba(148,38,255,0.3)] text-aura-text hover:bg-[rgba(148,38,255,0.1)] hover:text-aura-text px-6 py-6 h-auto text-lg font-medium"
+          className="border-[rgba(148,38,255,0.3)] text-white hover:bg-[rgba(148,38,255,0.1)] hover:text-white px-6 py-6 h-auto text-lg font-medium"
           onClick={() => window.location.href = '/contact'}
         >
           Contact Sales Team
@@ -47,15 +47,15 @@ const CustomQuote = ({ onRequestQuote }: CustomQuoteProps) => {
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto text-sm">
         <div className="flex flex-col items-center">
           <div className="text-aura-accent text-xl font-bold mb-1">100%</div>
-          <div className="text-aura-textSecondary">Satisfaction Guarantee</div>
+          <div className="text-white">Satisfaction Guarantee</div>
         </div>
         <div className="flex flex-col items-center">
           <div className="text-aura-accent text-xl font-bold mb-1">24/7</div>
-          <div className="text-aura-textSecondary">Customer Support</div>
+          <div className="text-white">Customer Support</div>
         </div>
         <div className="flex flex-col items-center">
           <div className="text-aura-accent text-xl font-bold mb-1">14-Day</div>
-          <div className="text-aura-textSecondary">Risk-Free Trial</div>
+          <div className="text-white">Risk-Free Trial</div>
         </div>
       </div>
     </motion.div>
