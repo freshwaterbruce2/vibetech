@@ -28,7 +28,7 @@ const MarketComparison = ({ marketComparisons }: MarketComparisonProps) => {
           {marketComparisons.map((comparison, i) => (
             <div 
               key={i} 
-              className={`hidden md:block text-center ${comparison.highlighted ? "text-aura-accent font-bold" : "text-aura-textSecondary"}`}
+              className={`hidden md:block text-center ${comparison.highlighted ? "text-aura-accent font-bold" : "text-white"}`}
             >
               {comparison.category}
             </div>
@@ -38,23 +38,23 @@ const MarketComparison = ({ marketComparisons }: MarketComparisonProps) => {
           <div className="md:hidden space-y-8">
             {marketComparisons.map((comparison, i) => (
               <div key={i} className={`p-4 ${comparison.highlighted ? "bg-aura-accent/10 rounded-lg border border-aura-accent/30" : ""}`}>
-                <h3 className={`text-center text-lg font-bold mb-4 ${comparison.highlighted ? "text-aura-accent" : "text-aura-text"}`}>
+                <h3 className={`text-center text-lg font-bold mb-4 ${comparison.highlighted ? "text-aura-accent" : "text-white"}`}>
                   {comparison.category}
                 </h3>
                 
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="font-medium text-aura-text">Pricing:</div>
-                  <div className={comparison.highlighted ? "font-bold text-aura-accent" : "text-aura-textSecondary"}>
+                  <div className="font-medium text-white">Pricing:</div>
+                  <div className={comparison.highlighted ? "font-bold text-aura-accent" : "text-white"}>
                     {comparison.pricing}
                   </div>
                   
-                  <div className="font-medium text-aura-text">Service:</div>
-                  <div className={comparison.highlighted ? "font-medium text-aura-text" : "text-aura-textSecondary"}>
+                  <div className="font-medium text-white">Service:</div>
+                  <div className={comparison.highlighted ? "font-medium text-white" : "text-white"}>
                     {comparison.description}
                   </div>
                   
-                  <div className="font-medium text-aura-text">Features:</div>
-                  <div className={comparison.highlighted ? "font-medium text-aura-text" : "text-aura-textSecondary"}>
+                  <div className="font-medium text-white">Features:</div>
+                  <div className={comparison.highlighted ? "font-medium text-white" : "text-white"}>
                     {comparison.limitations}
                   </div>
                 </div>
@@ -65,29 +65,29 @@ const MarketComparison = ({ marketComparisons }: MarketComparisonProps) => {
           {/* Desktop view rows */}
           <div className="hidden md:grid md:grid-cols-1 gap-6">
             <div className="flex items-center">
-              <span className="font-medium text-aura-text">Pricing</span>
+              <span className="font-medium text-white">Pricing</span>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="ml-2 h-4 w-4 text-aura-textSecondary" />
+                    <Info className="ml-2 h-4 w-4 text-white" />
                   </TooltipTrigger>
-                  <TooltipContent className="bg-aura-backgroundLight border-[color:var(--c-purple)/20] text-aura-text">
+                  <TooltipContent className="bg-aura-backgroundLight border-[color:var(--c-purple)/20] text-white">
                     Monthly costs or one-time project fees
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
             
-            <div className="font-medium text-aura-text">Service Type</div>
+            <div className="font-medium text-white">Service Type</div>
             
             <div className="flex items-center">
-              <span className="font-medium text-aura-text">Features</span>
+              <span className="font-medium text-white">Features</span>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="ml-2 h-4 w-4 text-aura-textSecondary" />
+                    <Info className="ml-2 h-4 w-4 text-white" />
                   </TooltipTrigger>
-                  <TooltipContent className="bg-aura-backgroundLight border-[color:var(--c-purple)/20] text-aura-text">
+                  <TooltipContent className="bg-aura-backgroundLight border-[color:var(--c-purple)/20] text-white">
                     Key capabilities and limitations
                   </TooltipContent>
                 </Tooltip>
@@ -104,15 +104,15 @@ const MarketComparison = ({ marketComparisons }: MarketComparisonProps) => {
                   : ""
               }`}
             >
-              <div className={`text-center ${comparison.highlighted ? "font-bold text-aura-accent" : "text-aura-textSecondary"}`}>
+              <div className={`text-center ${comparison.highlighted ? "font-bold text-aura-accent" : "text-white"}`}>
                 {comparison.pricing}
               </div>
               
-              <div className={`text-center text-sm ${comparison.highlighted ? "font-medium text-aura-text" : "text-aura-textSecondary"}`}>
+              <div className={`text-center text-sm ${comparison.highlighted ? "font-medium text-white" : "text-white"}`}>
                 {comparison.description}
               </div>
               
-              <div className={`text-center text-sm ${comparison.highlighted ? "font-medium text-aura-text" : "text-aura-textSecondary"}`}>
+              <div className={`text-center text-sm ${comparison.highlighted ? "font-medium text-white" : "text-white"}`}>
                 {comparison.limitations}
               </div>
             </div>
