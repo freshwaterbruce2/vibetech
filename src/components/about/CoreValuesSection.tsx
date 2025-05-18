@@ -22,7 +22,7 @@ const CoreValuesSection = () => {
               <div className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-aura-accent/10 border border-aura-accent/20">
                 {value.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-3 font-heading">{value.title}</h3>
+              <h3 className="text-xl font-semibold mb-3 font-heading text-fuchsia-500">{value.title}</h3>
               <p className="text-gray-50">{value.description}</p>
             </div>)}
         </div>
