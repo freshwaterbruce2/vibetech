@@ -42,11 +42,11 @@ const ToolCard = ({ title, description, icon, category, tools, variant = "blue" 
           </span>
         </div>
         
-        <h3 className="text-xl font-semibold mb-3 font-heading">
+        <h3 className="text-xl font-semibold mb-3 font-heading text-white">
           {title}
         </h3>
         
-        <p className="text-aura-textSecondary mb-6 flex-grow">
+        <p className="text-white mb-6 flex-grow">
           {description}
         </p>
         
@@ -61,7 +61,7 @@ const ToolCard = ({ title, description, icon, category, tools, variant = "blue" 
             {tools.map((tool, index) => (
               <motion.li 
                 key={index} 
-                className="text-sm text-aura-textSecondary flex items-center"
+                className="text-sm text-white flex items-center"
                 variants={item}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-aura-accent mr-2"></span>
