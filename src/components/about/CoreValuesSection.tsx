@@ -16,7 +16,7 @@ const CoreValuesSection = () => {
   }];
   return <section className="py-16 px-4 bg-aura-backgroundLight/30">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-12 text-center font-heading">Our Core Values</h2>
+        <h2 className="text-3xl font-bold mb-12 text-center font-heading text-fuchsia-500">Our Core Values</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {coreValues.map((value, index) => <div key={index} className="p-8 rounded-lg border border-aura-accent/20 bg-aura-background hover:shadow-neon transition-shadow">
               <div className="mb-5 flex items-center justify-center w-16 h-16 rounded-full bg-aura-accent/10 border border-aura-accent/20">
