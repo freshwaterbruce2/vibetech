@@ -20,11 +20,12 @@ const PricingHeader = ({ billingCycle, setBillingCycle }: PricingHeaderProps) =>
       <PageHeader
         title="Pricing Made Simple"
         subtitle="Professional web design services at competitive rates. Get more value than DIY platforms with the quality of agency work at a fraction of the price."
+        className="text-white"
       />
       
       {/* Value proposition */}
       <div className="flex justify-center mb-8">
-        <Badge variant="outline" className="px-4 py-2 bg-aura-accent/10 text-aura-accent border-aura-accent/30 text-sm">
+        <Badge variant="outline" className="px-4 py-2 bg-aura-accent/10 text-aura-accent border-aura-accent/30 text-sm text-white">
           Higher quality than DIY platforms, more affordable than agencies
         </Badge>
       </div>
@@ -48,7 +49,7 @@ const PricingHeader = ({ billingCycle, setBillingCycle }: PricingHeaderProps) =>
           </button>
           <span className={`ml-3 flex items-center ${billingCycle === "yearly" ? "text-white font-medium" : "text-white/70"}`}>
             Yearly 
-            <Badge className="ml-1 bg-aura-accent/10 text-aura-accent border-aura-accent/30">Save 20%</Badge>
+            <Badge className="ml-1 bg-aura-accent/10 text-aura-accent border-aura-accent/30 text-white">Save 20%</Badge>
           </span>
         </div>
         
