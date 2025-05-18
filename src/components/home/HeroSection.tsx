@@ -23,7 +23,7 @@ const HeroSection = () => {
               Your Partner in Next-Level Digital Experiences
             </h2>
           </div>
-          <p className="lead-text mb-8 max-w-2xl text-white">
+          <p className="lead-text mb-8 max-w-2xl text-white font-medium">
             Imagine a world where your website or app loads instantly, welcomes every user, and feels as intuitive as a conversation. That's the power of design and code working in perfect harmony.
           </p>
           
