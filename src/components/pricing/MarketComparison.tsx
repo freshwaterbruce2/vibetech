@@ -44,7 +44,7 @@ const MarketComparison = ({ marketComparisons }: MarketComparisonProps) => {
                 
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="font-medium text-white">Pricing:</div>
-                  <div className={comparison.highlighted ? "font-bold text-aura-accent" : "text-white"}>
+                  <div className={comparison.highlighted ? "font-bold text-white" : "text-white"}>
                     {comparison.pricing}
                   </div>
                   
@@ -104,7 +104,7 @@ const MarketComparison = ({ marketComparisons }: MarketComparisonProps) => {
                   : ""
               }`}
             >
-              <div className={`text-center ${comparison.highlighted ? "font-bold text-aura-accent" : "text-white"}`}>
+              <div className={`text-center ${comparison.highlighted ? "font-bold text-white" : "text-white"}`}>
                 {comparison.pricing}
               </div>
               
