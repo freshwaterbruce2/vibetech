@@ -20,9 +20,10 @@ interface DashboardTabsProps {
   leads: Lead[];
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onDeleteLead?: (id: number) => void;
 }
 
-const DashboardTabs = ({ leads, activeTab, setActiveTab }: DashboardTabsProps) => {
+const DashboardTabs = ({ leads, activeTab, setActiveTab, onDeleteLead }: DashboardTabsProps) => {
   return (
     <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="mb-10">
       <TabsList className="grid grid-cols-4 mb-8 bg-aura-darkBgLight border border-aura-neonBlue/20 relative overflow-hidden">
@@ -92,7 +93,7 @@ const DashboardTabs = ({ leads, activeTab, setActiveTab }: DashboardTabsProps) =
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <DashboardLeads leads={leads} />
+            <DashboardLeads leads={leads} onDeleteLead={onDeleteLead} />
           </motion.div>
         </TabsContent>
         

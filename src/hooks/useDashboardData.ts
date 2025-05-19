@@ -105,6 +105,47 @@ export const useDashboardData = () => {
     }
   }, [addNotification]);
   
+  // Delete lead function
+  const deleteLead = useCallback((leadId: number) => {
+    try {
+      // Filter out the lead with the given ID
+      const updatedLeads = leads.filter(lead => lead.id !== leadId);
+      setLeads(updatedLeads);
+      
+      // Update metrics
+      setMetrics(prev => ({
+        ...prev,
+        totalLeads: prev.totalLeads - 1
+      }));
+      
+      // Show success notification
+      toast({
+        title: "Lead deleted",
+        description: "The lead has been successfully removed.",
+        variant: "success"
+      });
+      
+      addNotification({
+        title: "Lead Deleted",
+        message: "Lead has been successfully removed from your dashboard.",
+        type: "info"
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("Failed to delete lead:", error);
+      
+      // Show error notification
+      toast({
+        variant: "destructive",
+        title: "Error deleting lead",
+        description: "Could not delete the lead. Please try again."
+      });
+      
+      return false;
+    }
+  }, [leads, addNotification]);
+  
   // Initial data load effect - only run once
   useEffect(() => {
     if (!dataLoadedRef.current) {
@@ -160,6 +201,7 @@ export const useDashboardData = () => {
     leads,
     metrics,
     loadDashboardData,
+    deleteLead,
     isPro,
   };
 };
