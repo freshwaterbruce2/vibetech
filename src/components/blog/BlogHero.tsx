@@ -9,6 +9,7 @@ const BlogHero = () => {
         <PageHeader 
           title="Our Blog"
           subtitle="Insights, tutorials, and updates from our team on web development, design, and technology."
+          className="text-white"
         />
       </div>
     </section>
