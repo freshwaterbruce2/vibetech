@@ -24,7 +24,7 @@ const ProjectFilters = ({ categories, activeFilter, onFilterChange }: ProjectFil
               className={`px-5 py-2 text-sm rounded-full transition-all duration-300 relative ${
                 activeFilter === category 
                   ? "text-white font-medium" 
-                  : "text-aura-textSecondary hover:text-white"
+                  : "text-white hover:text-white"
               }`}
             >
               {activeFilter === category && (
