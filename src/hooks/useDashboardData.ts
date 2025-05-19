@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNotifications } from "@/context/NotificationsContext";
 import { toast } from "@/hooks/use-toast";
@@ -145,6 +144,42 @@ export const useDashboardData = () => {
       return false;
     }
   }, [leads, addNotification]);
+
+  // Add lead function
+  const addLead = useCallback((leadData: { name: string; email: string; source: string; status: string; date: string }) => {
+    try {
+      // Generate a new ID (in a real app, this would be handled by the database)
+      const newId = Math.max(...leads.map(lead => lead.id), 0) + 1;
+      
+      // Create the new lead with the generated ID
+      const newLead = {
+        id: newId,
+        ...leadData
+      };
+      
+      // Add the new lead to the leads array
+      setLeads(prevLeads => [newLead, ...prevLeads]);
+      
+      // Update metrics
+      setMetrics(prev => ({
+        ...prev,
+        totalLeads: prev.totalLeads + 1,
+        newLeadsToday: prev.newLeadsToday + 1
+      }));
+      
+      // Add a notification
+      addNotification({
+        title: "New Lead Added",
+        message: `${leadData.name} has been added as a new lead.`,
+        type: "success"
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("Failed to add lead:", error);
+      return false;
+    }
+  }, [leads, addNotification]);
   
   // Initial data load effect - only run once
   useEffect(() => {
@@ -202,6 +237,7 @@ export const useDashboardData = () => {
     metrics,
     loadDashboardData,
     deleteLead,
+    addLead,
     isPro,
   };
 };
