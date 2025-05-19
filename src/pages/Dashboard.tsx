@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -18,6 +19,7 @@ const Dashboard = () => {
     metrics,
     loadDashboardData,
     deleteLead,
+    addLead,
     isPro,
   } = useDashboardData();
 
@@ -44,7 +46,11 @@ const Dashboard = () => {
         initial="hidden"
         animate={!isLoading ? "visible" : "hidden"}
       >
-        <DashboardTopbar onRefresh={loadDashboardData} isPro={isPro} />
+        <DashboardTopbar 
+          onRefresh={loadDashboardData} 
+          isPro={isPro} 
+          onAddLead={addLead}
+        />
         
         <div className="mb-6 text-sm text-white">
           Welcome back, Bruce Freshwater

@@ -1,38 +1,35 @@
 
-import { motion } from "framer-motion";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import DashboardRefreshButton from "@/components/dashboard/DashboardRefreshButton";
-import NotificationBadge from "@/components/dashboard/NotificationBadge";
+import React from "react";
+import DashboardHeader from "./DashboardHeader";
+import DashboardRefreshButton from "./DashboardRefreshButton";
+import NotificationBadge from "./NotificationBadge";
 
 interface DashboardTopbarProps {
   onRefresh: () => void;
-  isPro?: boolean; // New optional prop
+  isPro?: boolean;
+  onAddLead?: (lead: {
+    name: string;
+    email: string;
+    source: string;
+    status: string;
+    date: string;
+  }) => void;
 }
 
-const DashboardTopbar = ({ onRefresh, isPro = false }: DashboardTopbarProps) => {
+const DashboardTopbar = ({ onRefresh, isPro = false, onAddLead }: DashboardTopbarProps) => {
   return (
-    <motion.div variants={{
-      hidden: { opacity: 0, y: 20 },
-      visible: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.5 }
-      }
-    }} className="flex justify-between items-center">
-      <div className="flex items-center gap-2">
-        <DashboardHeader title="CRM Dashboard" />
-        {isPro && (
-          <span className="bg-gradient-to-r from-aura-neonBlue to-aura-neonPurple bg-clip-text text-transparent text-xs font-semibold">
-            PRO
-          </span>
-        )}
+    <div className="flex flex-col gap-6 mb-8">
+      <div className="flex justify-end">
+        <div className="flex items-center gap-4">
+          <NotificationBadge />
+          <DashboardRefreshButton onRefresh={onRefresh} />
+        </div>
       </div>
-      
-      <div className="flex items-center gap-4">
-        <NotificationBadge />
-        <DashboardRefreshButton onRefresh={onRefresh} />
-      </div>
-    </motion.div>
+      <DashboardHeader 
+        title={isPro ? "Pro Dashboard" : "Dashboard"} 
+        onAddLead={onAddLead}
+      />
+    </div>
   );
 };
 
