@@ -65,9 +65,12 @@ export default function AddLeadDialog({ isOpen, onClose, onAddLead }: AddLeadDia
       const today = new Date();
       const date = today.toISOString().split('T')[0];
       
-      // Create the new lead object
+      // Create the new lead object with all required fields
       const newLead = {
-        ...values,
+        name: values.name, 
+        email: values.email,
+        source: values.source,
+        status: values.status,
         date,
       };
       
