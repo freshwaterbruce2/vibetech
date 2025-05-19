@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -18,6 +17,7 @@ const Dashboard = () => {
     leads,
     metrics,
     loadDashboardData,
+    deleteLead,
     isPro,
   } = useDashboardData();
 
@@ -60,6 +60,7 @@ const Dashboard = () => {
             metrics={metrics} 
             activeTab={activeTab} 
             setActiveTab={setActiveTab}
+            onDeleteLead={deleteLead}
             isPro={isPro} 
           />
         )}

@@ -24,10 +24,18 @@ interface DashboardContentProps {
   };
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  isPro?: boolean; // New optional prop for Pro status
+  onDeleteLead?: (id: number) => void;
+  isPro?: boolean; // Optional prop for Pro status
 }
 
-const DashboardContent = ({ leads, metrics, activeTab, setActiveTab, isPro = false }: DashboardContentProps) => {
+const DashboardContent = ({ 
+  leads, 
+  metrics, 
+  activeTab, 
+  setActiveTab, 
+  onDeleteLead,
+  isPro = false 
+}: DashboardContentProps) => {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -66,7 +74,8 @@ const DashboardContent = ({ leads, metrics, activeTab, setActiveTab, isPro = fal
           <DashboardTabs 
             leads={leads} 
             activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
+            setActiveTab={setActiveTab}
+            onDeleteLead={onDeleteLead}
           />
           
           {/* Tech decorative corner effects */}
