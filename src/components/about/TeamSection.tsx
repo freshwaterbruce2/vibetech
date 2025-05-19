@@ -11,24 +11,24 @@ interface TeamMember {
 
 const teamMembers: TeamMember[] = [
   {
-    name: "John Doe",
-    role: "CEO",
-    imageUrl: "https://avatars.dicebear.com/api/male/JohnDoe.svg"
+    name: "Bruce Freshwater",
+    role: "CEO & Lead Developer",
+    imageUrl: "/lovable-uploads/08428935-73c2-4027-a962-e5ef443f73ce.png"
   }, 
   {
-    name: "Jane Smith",
-    role: "CTO",
-    imageUrl: "https://avatars.dicebear.com/api/female/JaneSmith.svg"
+    name: "Blake Freshwater",
+    role: "Gaming & Media Director",
+    imageUrl: "https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?q=80&w=600&auto=format"
   }, 
   {
     name: "Mike Johnson",
-    role: "Lead Developer",
-    imageUrl: "https://avatars.dicebear.com/api/male/MikeJohnson.svg"
+    role: "Lead Designer",
+    imageUrl: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?q=80&w=600&auto=format"
   }, 
   {
     name: "Emily Brown",
-    role: "UX Designer",
-    imageUrl: "https://avatars.dicebear.com/api/female/EmilyBrown.svg"
+    role: "UX Strategist",
+    imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&auto=format"
   }
 ];
 

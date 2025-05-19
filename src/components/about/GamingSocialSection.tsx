@@ -11,7 +11,11 @@ const GamingSocialSection = () => {
             <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-lg blur-xl"></div>
             <div className="relative tech-border rounded-lg overflow-hidden">
               <div className="aspect-w-16 aspect-h-9 bg-aura-backgroundLight/40">
-                <img src="/placeholder.svg" alt="Gaming and social media content" className="object-cover w-full h-full" />
+                <img 
+                  src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1800&auto=format" 
+                  alt="Gaming and social media content" 
+                  className="object-cover w-full h-full" 
+                />
               </div>
             </div>
           </div>

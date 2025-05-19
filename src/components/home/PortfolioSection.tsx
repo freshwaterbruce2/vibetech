@@ -6,23 +6,27 @@ interface Project {
   id: number;
   title: string;
   description: string;
+  image: string;
 }
 
 const projects: Project[] = [
   {
     id: 1,
     title: "Project Alpha",
-    description: "A React & Node.js platform that doubled engagement in 30 days."
+    description: "A React & Node.js platform that doubled engagement in 30 days.",
+    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1800&auto=format"
   },
   {
     id: 2,
     title: "Project Beta",
-    description: "An accessible e-commerce build driving 40% more sales."
+    description: "An accessible e-commerce build driving 40% more sales.",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1800&auto=format"
   },
   {
     id: 3,
     title: "Project Gamma",
-    description: "A Flutter app noted for its seamless offline experience."
+    description: "A Flutter app noted for its seamless offline experience.",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1800&auto=format"
   }
 ];
 
@@ -41,9 +45,10 @@ const PortfolioSection = () => {
               <div className="glass-card border border-[rgba(185,51,255,0.2)] hover:border-[rgba(185,51,255,0.4)] hover:shadow-neon-purple transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 h-full">
                 <div className="h-48 overflow-hidden">
                   <img 
-                    src={`/placeholder.svg`} 
-                    alt={`Project ${project.id}`} 
+                    src={project.image} 
+                    alt={project.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
                   />
                 </div>
                 <div className="p-4">
