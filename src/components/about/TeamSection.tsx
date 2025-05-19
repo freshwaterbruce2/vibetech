@@ -27,17 +27,7 @@ const familyMembers: FamilyMember[] = [
     imageUrl: "https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?q=80&w=600&auto=format"
   }, 
   {
-    name: "Emma Freshwater",
-    relation: "Daughter & Designer",
-    imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&auto=format"
-  }, 
-  {
     name: "Apollo Freshwater",
-    relation: "Son & Developer",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format"
-  },
-  {
-    name: "Max Freshwater",
     relation: "Family Dog",
     imageUrl: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format"
   }
