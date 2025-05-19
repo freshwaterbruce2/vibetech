@@ -37,48 +37,48 @@ const Contact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Contact Form */}
             <div className="p-8 rounded-lg border border-aura-accent/20 bg-aura-background shadow-neon">
-              <h2 className="text-2xl font-semibold mb-6 font-heading">Send Us a Message</h2>
+              <h2 className="text-2xl font-semibold mb-6 font-heading text-white">Send Us a Message</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-aura-textSecondary">Your Name</Label>
+                    <Label htmlFor="name" className="text-white">Your Name</Label>
                     <Input 
                       id="name" 
                       type="text" 
                       required 
-                      className="bg-aura-backgroundLight/20 border-aura-accent/20 focus-visible:ring-aura-accent/30 text-aura-textSecondary"
+                      className="bg-aura-backgroundLight/20 border-aura-accent/20 focus-visible:ring-aura-accent/30 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-aura-textSecondary">Email Address</Label>
+                    <Label htmlFor="email" className="text-white">Email Address</Label>
                     <Input 
                       id="email" 
                       type="email" 
                       required 
-                      className="bg-aura-backgroundLight/20 border-aura-accent/20 focus-visible:ring-aura-accent/30 text-aura-textSecondary"
+                      className="bg-aura-backgroundLight/20 border-aura-accent/20 focus-visible:ring-aura-accent/30 text-white"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="subject" className="text-aura-textSecondary">Subject</Label>
+                  <Label htmlFor="subject" className="text-white">Subject</Label>
                   <Input 
                     id="subject" 
                     type="text" 
-                    className="bg-aura-backgroundLight/20 border-aura-accent/20 focus-visible:ring-aura-accent/30 text-aura-textSecondary"
+                    className="bg-aura-backgroundLight/20 border-aura-accent/20 focus-visible:ring-aura-accent/30 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="message" className="text-aura-textSecondary">Message</Label>
+                  <Label htmlFor="message" className="text-white">Message</Label>
                   <Textarea 
                     id="message" 
                     required 
                     rows={5}
-                    className="bg-aura-backgroundLight/20 border-aura-accent/20 focus-visible:ring-aura-accent/30 text-aura-textSecondary resize-none"
+                    className="bg-aura-backgroundLight/20 border-aura-accent/20 focus-visible:ring-aura-accent/30 text-white resize-none"
                   />
                 </div>
                 <Button 
                   type="submit" 
-                  className="bg-aura-accent hover:bg-aura-accent/90 w-full sm:w-auto flex items-center gap-2"
+                  className="bg-aura-accent hover:bg-aura-accent/90 w-full sm:w-auto flex items-center gap-2 text-white"
                 >
                   Send Message
                   <Send className="h-4 w-4" />
@@ -89,8 +89,8 @@ const Contact = () => {
             {/* Contact Info */}
             <div className="flex flex-col justify-between">
               <div>
-                <h2 className="text-2xl font-semibold mb-6 font-heading">Contact Information</h2>
-                <p className="text-aura-textSecondary mb-8">
+                <h2 className="text-2xl font-semibold mb-6 font-heading text-white">Contact Information</h2>
+                <p className="text-white mb-8">
                   Bruce Freshwater would love to hear from you! Contact using the information below or fill out the form and we'll get back to you as soon as possible.
                 </p>
                 <div className="space-y-6">
@@ -99,8 +99,8 @@ const Contact = () => {
                       <Mail className="h-5 w-5 text-aura-accent" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium">Email</h3>
-                      <p className="text-aura-textSecondary">
+                      <h3 className="text-lg font-medium text-white">Email</h3>
+                      <p className="text-white">
                         <a href="mailto:freshwaterbruce@icloud.com" className="hover:text-aura-accent">
                           freshwaterbruce@icloud.com
                         </a>
@@ -112,8 +112,8 @@ const Contact = () => {
                       <Phone className="h-5 w-5 text-aura-accent" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium">Phone</h3>
-                      <p className="text-aura-textSecondary">
+                      <h3 className="text-lg font-medium text-white">Phone</h3>
+                      <p className="text-white">
                         <a href="tel:18038258860" className="hover:text-aura-accent">
                           1-803-825-8860
                         </a>
@@ -125,8 +125,8 @@ const Contact = () => {
                       <MapPin className="h-5 w-5 text-aura-accent" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium">Office</h3>
-                      <p className="text-aura-textSecondary">
+                      <h3 className="text-lg font-medium text-white">Office</h3>
+                      <p className="text-white">
                         Vibe Tech<br />
                         Bruce Freshwater<br />
                         Somerton, South Carolina<br />
@@ -140,7 +140,7 @@ const Contact = () => {
               {/* Google Map Placeholder */}
               <div className="mt-10 h-64 rounded-lg overflow-hidden tech-border">
                 <div className="w-full h-full bg-aura-backgroundLight/50 flex items-center justify-center">
-                  <p className="text-aura-textSecondary">Map Placeholder</p>
+                  <p className="text-white">Map Placeholder</p>
                 </div>
               </div>
             </div>
@@ -151,7 +151,7 @@ const Contact = () => {
       {/* FAQ Section */}
       <section className="py-16 px-4 bg-aura-backgroundLight/30">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-10 text-center font-heading">Frequently Asked Questions</h2>
+          <h2 className="text-3xl font-bold mb-10 text-center font-heading text-white">Frequently Asked Questions</h2>
           <div className="space-y-6">
             {[
               {
@@ -175,8 +175,8 @@ const Contact = () => {
                 key={index}
                 className="p-6 rounded-lg border border-aura-accent/20 bg-aura-background hover:shadow-neon transition-shadow"
               >
-                <h3 className="text-lg font-semibold mb-2 font-heading">{item.question}</h3>
-                <p className="text-aura-textSecondary">{item.answer}</p>
+                <h3 className="text-lg font-semibold mb-2 font-heading text-white">{item.question}</h3>
+                <p className="text-white">{item.answer}</p>
               </div>
             ))}
           </div>
