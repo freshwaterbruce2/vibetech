@@ -17,6 +17,11 @@ const familyMembers: FamilyMember[] = [
     imageUrl: "/lovable-uploads/08428935-73c2-4027-a962-e5ef443f73ce.png"
   }, 
   {
+    name: "Vanessa Freshwater",
+    relation: "Mother & Operations Director",
+    imageUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=600&auto=format"
+  },
+  {
     name: "Blake Freshwater",
     relation: "Son & Media Director",
     imageUrl: "https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?q=80&w=600&auto=format"
@@ -26,6 +31,11 @@ const familyMembers: FamilyMember[] = [
     relation: "Daughter & Designer",
     imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&auto=format"
   }, 
+  {
+    name: "Apollo Freshwater",
+    relation: "Son & Developer",
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format"
+  },
   {
     name: "Max Freshwater",
     relation: "Family Dog",
@@ -51,7 +61,7 @@ const TeamSection: React.FC = () => {
       <p className="text-center text-white/80 mb-10 max-w-xl mx-auto">
         At Vibe Tech, we're more than just a company - we're a family dedicated to creating incredible digital experiences together.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {familyMembers.map((member, index) => (
           <div 
             key={index} 
