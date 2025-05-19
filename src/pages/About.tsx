@@ -10,8 +10,8 @@ const About = () => {
   return (
     <PageLayout 
       title="About" 
-      description="Learn about Vibe Tech - our mission, vision, and the team behind our innovative digital solutions. Meet Bruce Freshwater and our talented professionals."
-      keywords="Vibe Tech team, Bruce Freshwater, tech company, software development team, digital agency"
+      description="Learn about Vibe Tech - our mission, vision, and the family behind our innovative digital solutions. Meet the Freshwater family and our talented members."
+      keywords="Vibe Tech family, Bruce Freshwater, family business, software development, digital agency"
     >
       {/* Hero Section */}
       <AboutHeroSection />
@@ -19,7 +19,7 @@ const About = () => {
       {/* Core Values */}
       <CoreValuesSection />
       
-      {/* Team Section */}
+      {/* Family Section */}
       <TeamSection />
       
       {/* Blake's Section */}
