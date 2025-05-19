@@ -35,7 +35,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-aura-darkBg circuit-bg pb-16 relative overflow-hidden">
-      {/* Background effects */}
+      {/* Background effects with reduced intensity */}
       <DashboardBackground />
       
       <NavBar />
