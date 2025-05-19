@@ -46,7 +46,7 @@ const Dashboard = () => {
       >
         <DashboardTopbar onRefresh={loadDashboardData} isPro={isPro} />
         
-        <div className="mb-6 text-sm text-aura-textSecondary">
+        <div className="mb-6 text-sm text-white">
           Welcome back, Bruce Freshwater
         </div>
         
