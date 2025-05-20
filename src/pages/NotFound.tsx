@@ -8,7 +8,7 @@ const NotFound = () => {
     <PageLayout 
       title="Page Not Found" 
       description="Sorry, the page you are looking for could not be found. Return to the Vibe Tech homepage or contact us for assistance."
-      keywords="404, page not found, error page"
+      keywords="404, page not found, error page, vibe tech"
     >
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 relative overflow-hidden">
         {/* Background grid effect */}

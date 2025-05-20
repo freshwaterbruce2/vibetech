@@ -13,6 +13,7 @@ import BlogPostPage from './pages/public/BlogPostPage';
 import Services from './pages/Services';
 import Tools from './pages/Tools';
 import About from './pages/About';
+import NotFound from './pages/NotFound';
 import { Toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
 
@@ -47,6 +48,7 @@ const App: React.FC = () => {
           <Route path="/services" element={<Services />} />
           <Route path="/tools" element={<Tools />} />
           <Route path="/about" element={<About />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
       </div>
