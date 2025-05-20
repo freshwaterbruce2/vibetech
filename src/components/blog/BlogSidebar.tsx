@@ -7,9 +7,10 @@ import BlogSubscribe from "./BlogSubscribe";
 interface BlogSidebarProps {
   blogPosts: BlogPost[];
   onTagClick: (tag: string) => void;
+  currentCategory?: string;
 }
 
-const BlogSidebar = ({ blogPosts, onTagClick }: BlogSidebarProps) => {
+const BlogSidebar = ({ blogPosts, onTagClick, currentCategory }: BlogSidebarProps) => {
   // Get all unique categories
   const categories = [...new Set(blogPosts.map(post => post.category))];
   
@@ -23,7 +24,7 @@ const BlogSidebar = ({ blogPosts, onTagClick }: BlogSidebarProps) => {
 
   return (
     <div className="lg:col-span-1">
-      <BlogCategories categories={categories} />
+      <BlogCategories categories={categories} currentCategory={currentCategory} />
       <BlogTags tagCounts={tagCounts} onTagClick={onTagClick} />
       <BlogSubscribe />
     </div>
