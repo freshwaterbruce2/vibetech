@@ -5,6 +5,7 @@ import { PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import PageHeader from "@/components/ui/page-header";
 import AddLeadDialog from "@/components/lead/AddLeadDialog";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface DashboardHeaderProps {
   title: string;
@@ -20,6 +21,17 @@ interface DashboardHeaderProps {
 
 const DashboardHeader = ({ title, className = "", onAddLead }: DashboardHeaderProps) => {
   const [isAddLeadDialogOpen, setIsAddLeadDialogOpen] = useState(false);
+  const { trackButtonClick, trackEvent } = useAnalytics();
+
+  const handleOpenAddLeadDialog = () => {
+    setIsAddLeadDialogOpen(true);
+    trackButtonClick('New Lead', 'Dashboard Header');
+    trackEvent('dashboard_action', {
+      category: 'Dashboard',
+      label: 'Open Add Lead Form',
+      customDimensions: { action_type: 'new_lead_form_open' }
+    });
+  };
 
   const handleAddLead = (leadData: {
     name: string;
@@ -51,7 +63,7 @@ const DashboardHeader = ({ title, className = "", onAddLead }: DashboardHeaderPr
       >
         <Button 
           className="bg-gradient-to-r from-[color:var(--c-cyan)] to-[color:var(--c-purple)] relative group hover:shadow-neon-blue transition-all duration-300 flex items-center gap-2 overflow-hidden"
-          onClick={() => setIsAddLeadDialogOpen(true)}
+          onClick={handleOpenAddLeadDialog}
         >
           <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[color:var(--c-cyan)/10] to-[color:var(--c-purple)/10] group-hover:opacity-80 transition-opacity"></span>
           <PlusCircle className="h-4 w-4 relative z-10 group-hover:rotate-90 transition-transform duration-300" />

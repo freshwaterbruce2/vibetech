@@ -1,11 +1,11 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Calendar, MessageSquare, Users } from "lucide-react";
 import DashboardOverview from "./DashboardOverview";
 import DashboardLeads from "./DashboardLeads";
 import DashboardEmptyState from "./DashboardEmptyState";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface Lead {
   id: number;
@@ -24,8 +24,16 @@ interface DashboardTabsProps {
 }
 
 const DashboardTabs = ({ leads, activeTab, setActiveTab, onDeleteLead }: DashboardTabsProps) => {
+  const { trackDashboardTabChange } = useAnalytics();
+  
+  // Track tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    trackDashboardTabChange(value);
+  };
+
   return (
-    <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="mb-10">
+    <Tabs defaultValue="overview" value={activeTab} onValueChange={handleTabChange} className="mb-10">
       <TabsList className="grid grid-cols-4 mb-8 bg-aura-darkBgLight border border-aura-neonBlue/20 relative overflow-hidden">
         <span className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-aura-neonBlue to-aura-neonPurple w-full"></span>
         
