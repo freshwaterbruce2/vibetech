@@ -14,8 +14,16 @@ declare global {
   }
 }
 
+type EventOptions = {
+  category: string;
+  label?: string;
+  value?: number;
+  nonInteraction?: boolean;
+  customDimensions?: Record<string, string | number | boolean>;
+}
+
 /**
- * Hook to track page views and send events to Google Analytics
+ * Enhanced hook to track page views and send events to Google Analytics
  */
 export const useAnalytics = () => {
   const location = useLocation();
@@ -26,24 +34,58 @@ export const useAnalytics = () => {
       window.gtag('config', 'G-TCZZ9JFEKN', {
         page_path: location.pathname + location.search
       });
+      console.log('📊 Analytics: Page view tracked', location.pathname);
     }
   }, [location]);
   
-  // Function to track custom events
+  // Function to track custom events with enhanced options
   const trackEvent = (
-    eventName: string,
-    category: string,
-    label?: string,
-    value?: number
+    eventName: string, 
+    options: EventOptions
   ) => {
     if (typeof window.gtag !== 'undefined') {
-      window.gtag('event', eventName, {
-        event_category: category,
-        event_label: label,
-        value: value,
-      });
+      const eventParams = {
+        event_category: options.category,
+        event_label: options.label,
+        value: options.value,
+        non_interaction: options.nonInteraction || false,
+        ...options.customDimensions
+      };
+      
+      window.gtag('event', eventName, eventParams);
+      console.log('📊 Analytics: Event tracked', eventName, eventParams);
     }
   };
   
-  return { trackEvent };
+  // Convenience functions for common events
+  const trackServiceView = (serviceId: string, serviceName: string) => {
+    trackEvent('service_view', {
+      category: 'Services',
+      label: serviceName,
+      customDimensions: { service_id: serviceId }
+    });
+  };
+  
+  const trackButtonClick = (buttonName: string, location: string) => {
+    trackEvent('button_click', {
+      category: 'Engagement',
+      label: buttonName,
+      customDimensions: { location: location }
+    });
+  };
+  
+  const trackFeatureInteraction = (featureName: string, action: string) => {
+    trackEvent('feature_interaction', {
+      category: 'Features',
+      label: featureName,
+      customDimensions: { action: action }
+    });
+  };
+  
+  return { 
+    trackEvent,
+    trackServiceView,
+    trackButtonClick,
+    trackFeatureInteraction
+  };
 };

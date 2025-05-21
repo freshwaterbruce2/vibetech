@@ -1,20 +1,36 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import ServicesHeader from "@/components/services/ServicesHeader";
 import OptimizedServiceTabs from "@/components/services/OptimizedServiceTabs";
 import { services } from "@/components/services/servicesData";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { useEffect } from "react";
 
 const Services = () => {
   const [activeTab, setActiveTab] = useState("all");
-  const { trackEvent } = useAnalytics();
+  const { trackEvent, trackServiceView } = useAnalytics();
   
   // Track page view with custom dimension
   useEffect(() => {
-    trackEvent('page_view', 'Services', 'Services Page Visit');
+    trackEvent('page_view', {
+      category: 'Page Visits',
+      label: 'Services Page',
+      customDimensions: {
+        page_section: 'services',
+        page_template: 'service_list'
+      }
+    });
   }, [trackEvent]);
+  
+  // Track when services are viewed
+  useEffect(() => {
+    if (activeTab !== 'all') {
+      const service = services.find(s => s.id === activeTab);
+      if (service) {
+        trackServiceView(service.id, service.name);
+      }
+    }
+  }, [activeTab, trackServiceView]);
 
   return (
     <PageLayout 
