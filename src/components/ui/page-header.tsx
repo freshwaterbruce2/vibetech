@@ -1,3 +1,4 @@
+
 import React from "react";
 import { motion } from "framer-motion";
 import AnimateOnScroll from "@/components/ui/animate-on-scroll";
@@ -71,7 +72,7 @@ const PageHeader = ({
       }} transition={{
         duration: 0.5,
         delay: 0.2
-      }} className="max-w-3xl mx-auto lead-text text-gray-50">
+      }} className="max-w-3xl mx-auto text-gray-300">
             {subtitle}
           </motion.p>}
       </div>
