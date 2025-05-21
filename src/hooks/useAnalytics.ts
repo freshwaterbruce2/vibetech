@@ -23,7 +23,7 @@ export const useAnalytics = () => {
   // Track page views
   useEffect(() => {
     if (typeof window.gtag !== 'undefined') {
-      window.gtag('config', 'G-XXXXXXXXXX', {
+      window.gtag('config', 'G-TCZZ9JFEKN', {
         page_path: location.pathname + location.search
       });
     }
