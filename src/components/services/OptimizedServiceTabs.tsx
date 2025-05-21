@@ -27,18 +27,28 @@ TabTrigger.displayName = 'TabTrigger';
 const MemoizedServiceCard = memo(ServiceCard);
 
 const OptimizedServiceTabs = ({ services, activeTab, setActiveTab }: ServiceTabsProps) => {
-  const { trackEvent } = useAnalytics();
+  const { trackEvent, trackButtonClick, trackFeatureInteraction } = useAnalytics();
   
-  // Track tab changes with analytics
+  // Track tab changes with enhanced analytics
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
-    trackEvent('service_tab_change', 'Services', `Tab: ${value}`);
-  }, [setActiveTab, trackEvent]);
+    trackFeatureInteraction('service_tab', `Changed to ${value}`);
+  }, [setActiveTab, trackFeatureInteraction]);
   
-  // Track consultation button clicks
+  // Track consultation button clicks with enhanced analytics
   const handleConsultationClick = useCallback(() => {
-    trackEvent('consultation_request', 'Services', `From: ${activeTab} tab`);
-  }, [activeTab, trackEvent]);
+    trackButtonClick('Get a Free Consultation', `Services tab: ${activeTab}`);
+    
+    // You could also track this as a conversion event
+    trackEvent('conversion_start', {
+      category: 'Lead Generation',
+      label: 'Consultation Request',
+      customDimensions: {
+        source_tab: activeTab,
+        conversion_type: 'consultation'
+      }
+    });
+  }, [activeTab, trackButtonClick, trackEvent]);
 
   return (
     <Tabs defaultValue="all" value={activeTab} onValueChange={handleTabChange} className="mb-10">
@@ -93,7 +103,7 @@ const OptimizedServiceTabs = ({ services, activeTab, setActiveTab }: ServiceTabs
           <div className="grid grid-cols-1 gap-6">
             <MemoizedServiceCard service={service} />
             
-            {/* Add contact CTA button for individual service pages with analytics tracking */}
+            {/* Add contact CTA button for individual service pages with enhanced analytics tracking */}
             <div className="mt-8 text-center">
               <NeonButton 
                 variant="gradient" 
