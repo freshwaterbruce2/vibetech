@@ -1,4 +1,3 @@
-
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -81,12 +80,10 @@ const AnalyticsTracker: React.FC = () => {
       });
     }
     
-    // Send the session ID with each page view
+    // Set the session ID as a user property using the correct syntax
     if (typeof window.gtag !== 'undefined') {
-      window.gtag('set', {
-        'user_properties': {
-          'session_id': sessionId
-        }
+      window.gtag('set', 'user_properties', {
+        'session_id': sessionId
       });
     }
   }, [trackEvent, location.pathname]);
