@@ -35,11 +35,11 @@
   }
 
   .lead-text {
-    @apply text-lg md:text-xl text-white;
+    @apply text-lg md:text-xl text-gray-300;
   }
 
   .subtle-text {
-    @apply text-sm text-white;
+    @apply text-sm text-gray-300;
   }
   
   ::selection {
