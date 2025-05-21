@@ -8,6 +8,8 @@ import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
 import DashboardErrorState from "@/components/dashboard/DashboardErrorState";
 import DashboardContent from "@/components/dashboard/DashboardContent";
 import { Toaster } from "@/components/ui/toaster";
+import { useEffect } from "react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Dashboard = () => {
   const {
@@ -22,6 +24,22 @@ const Dashboard = () => {
     addLead,
     isPro,
   } = useDashboardData();
+  
+  const { trackEvent } = useAnalytics();
+  
+  // Track dashboard page view with additional details
+  useEffect(() => {
+    trackEvent('dashboard_view', {
+      category: 'Dashboard',
+      label: isPro ? 'Pro Dashboard' : 'Standard Dashboard',
+      customDimensions: {
+        is_pro_user: isPro,
+        active_tab: activeTab,
+        lead_count: leads.length,
+        has_error: error !== null
+      }
+    });
+  }, [isPro, activeTab, leads.length, error, trackEvent]);
 
   const containerVariants = {
     hidden: { opacity: 0 },

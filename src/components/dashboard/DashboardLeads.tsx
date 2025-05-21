@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface Lead {
   id: number;
@@ -31,15 +32,28 @@ interface DashboardLeadsProps {
 const DashboardLeads = ({ leads, onDeleteLead }: DashboardLeadsProps) => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [leadToDelete, setLeadToDelete] = useState<number | null>(null);
-
+  const { trackLeadAction } = useAnalytics();
+  
   const handleDeleteClick = (leadId: number) => {
+    const lead = leads.find(l => l.id === leadId);
     setLeadToDelete(leadId);
     setDeleteConfirmOpen(true);
+    
+    // Track the delete attempt
+    if (lead) {
+      trackLeadAction('delete_attempt', { id: lead.id, name: lead.name });
+    }
   };
 
   const handleConfirmDelete = () => {
     if (leadToDelete !== null && onDeleteLead) {
+      const lead = leads.find(l => l.id === leadToDelete);
       onDeleteLead(leadToDelete);
+      
+      // Track the confirmed deletion
+      if (lead) {
+        trackLeadAction('delete_confirm', { id: lead.id, name: lead.name });
+      }
     }
     setDeleteConfirmOpen(false);
     setLeadToDelete(null);

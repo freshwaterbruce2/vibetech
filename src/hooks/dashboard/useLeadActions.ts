@@ -3,13 +3,18 @@ import { useState } from "react";
 import { Lead } from "./types";
 import { useNotifications } from "@/context/NotificationsContext";
 import { toast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.SetStateAction<Lead[]>>, setMetrics: React.Dispatch<React.SetStateAction<any>>) => {
   const { addNotification } = useNotifications();
+  const { trackLeadAction } = useAnalytics();
 
   // Delete lead function
   const deleteLead = (leadId: number) => {
     try {
+      // Find the lead to be deleted for analytics tracking
+      const leadToDelete = leads.find(lead => lead.id === leadId);
+      
       // Filter out the lead with the given ID
       const updatedLeads = leads.filter(lead => lead.id !== leadId);
       setLeads(updatedLeads);
@@ -19,6 +24,14 @@ export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.Set
         ...prev,
         totalLeads: prev.totalLeads - 1
       }));
+      
+      // Track lead deletion for analytics
+      if (leadToDelete) {
+        trackLeadAction('delete_success', { 
+          id: leadToDelete.id, 
+          name: leadToDelete.name 
+        });
+      }
       
       // Show success notification
       toast({
@@ -36,6 +49,9 @@ export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.Set
       return true;
     } catch (error) {
       console.error("Failed to delete lead:", error);
+      
+      // Track failed deletion for analytics
+      trackLeadAction('delete_error', { id: leadId });
       
       // Show error notification
       toast({
@@ -70,6 +86,12 @@ export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.Set
         newLeadsToday: prev.newLeadsToday + 1
       }));
       
+      // Track lead addition for analytics
+      trackLeadAction('add_success', { 
+        id: newId, 
+        name: leadData.name 
+      });
+      
       // Add a notification
       addNotification({
         title: "New Lead Added",
@@ -80,6 +102,10 @@ export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.Set
       return true;
     } catch (error) {
       console.error("Failed to add lead:", error);
+      
+      // Track failed addition for analytics
+      trackLeadAction('add_error');
+      
       return false;
     }
   };

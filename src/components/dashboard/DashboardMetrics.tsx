@@ -1,6 +1,8 @@
 
 import { Database, User, PieChart, Activity } from "lucide-react";
 import DashboardMetricCard from "./DashboardMetricCard";
+import { useEffect } from "react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface DashboardMetricsProps {
   metrics: {
@@ -12,6 +14,14 @@ interface DashboardMetricsProps {
 }
 
 const DashboardMetrics = ({ metrics }: DashboardMetricsProps) => {
+  const { trackDashboardMetricView } = useAnalytics();
+  
+  // Track metrics view when the component mounts
+  useEffect(() => {
+    // Track that these dashboard metrics were viewed
+    trackDashboardMetricView('dashboard_metrics_summary');
+  }, [trackDashboardMetricView]);
+
   return (
     <>
       <DashboardMetricCard 

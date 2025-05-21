@@ -82,10 +82,44 @@ export const useAnalytics = () => {
     });
   };
   
+  // Dashboard-specific tracking functions
+  const trackDashboardTabChange = (tabName: string) => {
+    trackEvent('dashboard_tab_change', {
+      category: 'Dashboard',
+      label: tabName,
+      customDimensions: { tab_name: tabName }
+    });
+  };
+  
+  const trackLeadAction = (action: string, leadData?: { id: number; name: string }) => {
+    trackEvent('lead_action', {
+      category: 'Dashboard',
+      label: action,
+      customDimensions: { 
+        action,
+        lead_id: leadData?.id,
+        lead_name: leadData?.name
+      }
+    });
+  };
+  
+  const trackDashboardMetricView = (metricName: string) => {
+    trackEvent('dashboard_metric_view', {
+      category: 'Dashboard',
+      label: metricName,
+      nonInteraction: true, // This is a passive/auto-triggered event
+      customDimensions: { metric_name: metricName }
+    });
+  };
+  
   return { 
     trackEvent,
     trackServiceView,
     trackButtonClick,
-    trackFeatureInteraction
+    trackFeatureInteraction,
+    // Dashboard-specific tracking
+    trackDashboardTabChange,
+    trackLeadAction,
+    trackDashboardMetricView
   };
 };
