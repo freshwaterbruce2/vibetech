@@ -50,8 +50,11 @@ export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.Set
     } catch (error) {
       console.error("Failed to delete lead:", error);
       
-      // Track failed deletion for analytics
-      trackLeadAction('delete_error', { id: leadId });
+      // Track failed deletion for analytics - Fix the type error by providing both id and name
+      trackLeadAction('delete_error', { 
+        id: leadId,
+        name: "Unknown" // Provide a default name since we don't have the actual name in error case
+      });
       
       // Show error notification
       toast({
@@ -103,8 +106,11 @@ export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.Set
     } catch (error) {
       console.error("Failed to add lead:", error);
       
-      // Track failed addition for analytics
-      trackLeadAction('add_error');
+      // Track failed addition for analytics - Make sure we follow the required type structure
+      trackLeadAction('add_error', { 
+        id: 0, // Provide a default ID since we don't have one in the error case
+        name: "Unknown" // Provide a default name for the error case
+      });
       
       return false;
     }
