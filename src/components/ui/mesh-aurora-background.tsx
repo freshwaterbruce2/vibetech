@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 interface MeshAuroraBackgroundProps {
   className?: string;
-  intensity?: 'low' | 'medium' | 'high';
+  intensity?: 'very-low' | 'low' | 'medium' | 'high';
 }
 
 const MeshAuroraBackground = ({ 
@@ -12,12 +12,13 @@ const MeshAuroraBackground = ({
   intensity = 'medium' 
 }: MeshAuroraBackgroundProps) => {
   const intensityValues = {
-    low: { opacity: 0.1, scale: 1.1 },
-    medium: { opacity: 0.15, scale: 1.2 },
-    high: { opacity: 0.2, scale: 1.3 },
+    'very-low': { opacity: 0.05, scale: 1.05 },
+    'low': { opacity: 0.1, scale: 1.1 },
+    'medium': { opacity: 0.15, scale: 1.2 },
+    'high': { opacity: 0.2, scale: 1.3 },
   };
 
-  const { opacity, scale } = intensityValues[intensity];
+  const { opacity, scale } = intensityValues[intensity] || intensityValues.medium;
 
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
