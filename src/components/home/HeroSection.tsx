@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { NeonButton } from "@/components/ui/neon-button";
 import SmartLeadForm from "@/components/lead/SmartLeadForm";
