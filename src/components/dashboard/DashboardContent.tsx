@@ -51,15 +51,6 @@ const DashboardContent = ({
           <NewLeadsMetric />
           <DashboardMetrics metrics={metrics} />
         </div>
-        
-        {/* Simplified Pro plan indicator */}
-        {isPro && (
-          <div className="mb-4 text-right">
-            <span className="bg-aura-neonBlue/5 text-aura-neonBlue text-xs px-2 py-1 rounded border border-aura-neonBlue/10">
-              Pro Plan
-            </span>
-          </div>
-        )}
       </motion.div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

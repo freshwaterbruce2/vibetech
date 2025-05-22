@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -70,10 +69,6 @@ const Dashboard = () => {
           isPro={isPro} 
           onAddLead={addLead}
         />
-        
-        <div className="mb-4 text-sm text-gray-300">
-          Welcome back, Bruce Freshwater
-        </div>
         
         {isLoading ? (
           <DashboardSkeleton />

@@ -26,9 +26,16 @@ const DashboardTopbar = ({ onRefresh, isPro = false, onAddLead }: DashboardTopba
         </div>
       </div>
       <DashboardHeader 
-        title={isPro ? "Pro Dashboard" : "Dashboard"} 
+        title="Bruce Freshwater's CRM" 
         onAddLead={onAddLead}
       />
+      {isPro && (
+        <div className="flex justify-end -mt-4">
+          <span className="bg-aura-neonBlue/5 text-aura-neonBlue text-xs px-2 py-1 rounded border border-aura-neonBlue/10">
+            Pro Plan
+          </span>
+        </div>
+      )}
     </div>
   );
 };

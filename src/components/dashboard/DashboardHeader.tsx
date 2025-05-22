@@ -51,9 +51,10 @@ const DashboardHeader = ({ title, className = "", onAddLead }: DashboardHeaderPr
         <PageHeader 
           title={title}
           align="left"
+          size="lg"
+          glowColor="gradient" 
           className="mb-0"
         />
-        <p className="text-sm text-aura-textSecondary mt-1">Bruce Freshwater's CRM</p>
       </div>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
