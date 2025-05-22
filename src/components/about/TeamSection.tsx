@@ -19,7 +19,7 @@ const familyMembers: FamilyMember[] = [
   {
     name: "Vanessa Freshwater",
     relation: "Mother & Operations Director",
-    imageUrl: "/lovable-uploads/fa340dff-4d98-44ec-9ace-b0982b9bba6a.png"
+    imageUrl: "/lovable-uploads/3031072f-c824-4168-bf06-ea8058ad2828.png"
   },
   {
     name: "Blake Freshwater",
