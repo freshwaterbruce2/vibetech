@@ -1,12 +1,12 @@
 
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-extrabold tracking-tight text-white;
+    @apply font-heading font-bold tracking-tight text-white;
     line-height: 1.2;
   }
   
   h1 {
-    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl;
+    @apply text-3xl md:text-4xl lg:text-5xl;
   }
   
   h2 {
@@ -39,10 +39,10 @@
   }
 
   .subtle-text {
-    @apply text-sm text-gray-300;
+    @apply text-sm text-gray-400;
   }
   
   ::selection {
-    @apply bg-[color:var(--c-cyan)/30] text-white;
+    @apply bg-[color:var(--c-cyan)/20] text-white;
   }
 }

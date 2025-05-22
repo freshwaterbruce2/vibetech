@@ -25,7 +25,7 @@ interface DashboardContentProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onDeleteLead?: (id: number) => void;
-  isPro?: boolean; // Optional prop for Pro status
+  isPro?: boolean;
 }
 
 const DashboardContent = ({ 
@@ -37,39 +37,35 @@ const DashboardContent = ({
   isPro = false 
 }: DashboardContentProps) => {
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
+      transition: { duration: 0.3 }
     }
   };
 
   return (
     <>
       <motion.div variants={itemVariants}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Include the new real-time leads metric */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <NewLeadsMetric />
-          
-          {/* Keep the other mock metrics */}
           <DashboardMetrics metrics={metrics} />
         </div>
         
-        {/* Pro plan indicator - subtle but visible */}
+        {/* Simplified Pro plan indicator */}
         {isPro && (
           <div className="mb-4 text-right">
-            <span className="bg-aura-neonBlue/10 text-aura-neonBlue text-xs px-2 py-1 rounded-full border border-aura-neonBlue/20">
-              Pro Plan Active
+            <span className="bg-aura-neonBlue/5 text-aura-neonBlue text-xs px-2 py-1 rounded border border-aura-neonBlue/10">
+              Pro Plan
             </span>
           </div>
         )}
       </motion.div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <motion.div 
           variants={itemVariants}
-          className="relative lg:col-span-2"
+          className="lg:col-span-2"
         >
           <DashboardTabs 
             leads={leads} 
@@ -77,12 +73,6 @@ const DashboardContent = ({
             setActiveTab={setActiveTab}
             onDeleteLead={onDeleteLead}
           />
-          
-          {/* Tech decorative corner effects */}
-          <div className="absolute -top-1 -left-1 w-5 h-5 border-t-2 border-l-2 border-aura-neonBlue/50"></div>
-          <div className="absolute -top-1 -right-1 w-5 h-5 border-t-2 border-r-2 border-aura-neonBlue/50"></div>
-          <div className="absolute -bottom-1 -left-1 w-5 h-5 border-b-2 border-l-2 border-aura-neonBlue/50"></div>
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 border-b-2 border-r-2 border-aura-neonBlue/50"></div>
         </motion.div>
         
         <motion.div variants={itemVariants}>
