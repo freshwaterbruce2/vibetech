@@ -24,7 +24,7 @@ const familyMembers: FamilyMember[] = [
   {
     name: "Blake Freshwater",
     relation: "Son & Media Director",
-    imageUrl: "https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?q=80&w=600&auto=format"
+    imageUrl: "/lovable-uploads/6f955020-190e-4a24-85ba-218f5e9a7701.png"
   }, 
   {
     name: "Apollo Freshwater",
