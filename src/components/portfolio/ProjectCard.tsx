@@ -18,7 +18,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
       whileHover={{ y: -5 }}
       className="glass-card p-6 border border-[color:var(--c-purple)/20] hover:border-[color:var(--c-purple)/40] hover:shadow-neon-purple transform transition-all duration-300 h-full group relative backdrop-blur-sm"
     >
-      <Link to={`/portfolio/${project.id}`} className="block">
+      <Link to={`/portfolio/project-${project.id}`} className="block">
         <div className="h-60 overflow-hidden relative -mx-6 -mt-6 mb-5 rounded-t-xl">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-aura-background/30 z-10"></div>
           <img 
