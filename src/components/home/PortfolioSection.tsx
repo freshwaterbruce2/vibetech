@@ -12,19 +12,19 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: "Project Alpha",
+    title: "Hotel Booking Platform",
+    description: "A modern booking platform with advanced search and real-time availability.",
+    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1800&auto=format"
+  },
+  {
+    id: 2,
+    title: "Neon Dashboard",
     description: "A React & Node.js platform that doubled engagement in 30 days.",
     image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1800&auto=format"
   },
   {
-    id: 2,
-    title: "Project Beta",
-    description: "An accessible e-commerce build driving 40% more sales.",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1800&auto=format"
-  },
-  {
     id: 3,
-    title: "Project Gamma",
+    title: "Quantum App",
     description: "A Flutter app noted for its seamless offline experience.",
     image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1800&auto=format"
   }
