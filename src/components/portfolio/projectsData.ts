@@ -4,7 +4,7 @@ import { Project } from "./types";
 export const projects: Project[] = [
   {
     id: 1,
-    title: "Hotel Booking Platform",
+    title: "Vibe-Booking",
     category: "Web App",
     description: "A modern hotel booking platform with advanced search capabilities, date selection, guest management, and environment preferences. Features a clean, intuitive interface with real-time availability and booking management.",
     image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1800&auto=format",
