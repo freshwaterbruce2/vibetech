@@ -12,7 +12,7 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: "Hotel Booking Platform",
+    title: "Vibe-Booking",
     description: "A modern booking platform with advanced search and real-time availability.",
     image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1800&auto=format"
   },
