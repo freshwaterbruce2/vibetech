@@ -18,15 +18,15 @@ const projects: Project[] = [
   },
   {
     id: 2,
-    title: "Neon Dashboard",
-    description: "A React & Node.js platform that doubled engagement in 30 days.",
-    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1800&auto=format"
+    title: "Vibe-Rentals",
+    description: "A rental property listing platform where landlords can list properties free of charge.",
+    image: "/lovable-uploads/0930ed3b-7a63-492d-87c3-9a547af4aa27.png"
   },
   {
     id: 3,
-    title: "Quantum App",
-    description: "A Flutter app noted for its seamless offline experience.",
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1800&auto=format"
+    title: "Neon Dashboard",
+    description: "A React & Node.js platform that doubled engagement in 30 days.",
+    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1800&auto=format"
   }
 ];
 
