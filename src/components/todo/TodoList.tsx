@@ -7,11 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import TodoForm from "./TodoForm";
-import TodoItem, { Todo } from "./TodoItem";
+import TodoItem from "./TodoItem";
+import { Todo, TodoPriority } from "./types";
 
 const TodoList = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState<string[]>(["general", "work", "personal", "shopping"]);
 
   // Fetch todos from Supabase
   const fetchTodos = async () => {
@@ -36,9 +38,15 @@ const TodoList = () => {
         text: todo.title,
         completed: todo.completed || false,
         dueDate: todo.due_date ? new Date(todo.due_date) : undefined,
+        category: todo.category || 'general',
+        priority: (todo.priority as TodoPriority) || 'medium',
       }));
 
       setTodos(formattedTodos);
+      
+      // Update categories from existing todos
+      const existingCategories = [...new Set(formattedTodos.map(todo => todo.category))];
+      setCategories(prev => [...new Set([...prev, ...existingCategories])]);
     } catch (error) {
       console.error('Error fetching todos:', error);
       toast({
@@ -51,12 +59,32 @@ const TodoList = () => {
     }
   };
 
-  // Load todos on component mount
+  // Set up real-time subscription
   useEffect(() => {
     fetchTodos();
+
+    const channel = supabase
+      .channel('todos-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'todos'
+        },
+        (payload) => {
+          console.log('Real-time update:', payload);
+          fetchTodos(); // Refetch todos when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const addTodo = async (text: string, dueDate?: Date) => {
+  const addTodo = async (text: string, dueDate?: Date, category?: string, priority?: TodoPriority) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -76,6 +104,8 @@ const TodoList = () => {
           user_id: user.id,
           due_date: dueDate?.toISOString().split('T')[0],
           completed: false,
+          category: category || 'general',
+          priority: priority || 'medium',
         })
         .select()
         .single();
@@ -90,14 +120,11 @@ const TodoList = () => {
         return;
       }
 
-      const newTodo: Todo = {
-        id: data.id,
-        text: data.title,
-        completed: data.completed || false,
-        dueDate: data.due_date ? new Date(data.due_date) : undefined,
-      };
+      // Add category to list if new
+      if (category && !categories.includes(category)) {
+        setCategories(prev => [...prev, category]);
+      }
 
-      setTodos([newTodo, ...todos]);
       toast({
         title: "Task added",
         description: `"${text}" has been added to your list`,
@@ -131,12 +158,6 @@ const TodoList = () => {
         });
         return;
       }
-
-      setTodos(
-        todos.map((todo) => 
-          todo.id === id ? { ...todo, completed: !todo.completed } : todo
-        )
-      );
     } catch (error) {
       console.error('Error updating todo:', error);
       toast({
@@ -165,8 +186,6 @@ const TodoList = () => {
         });
         return;
       }
-
-      setTodos(todos.filter((todo) => todo.id !== id));
       
       if (todoToDelete) {
         toast({
@@ -213,7 +232,6 @@ const TodoList = () => {
         return;
       }
 
-      setTodos([]);
       toast({
         title: "List cleared",
         description: "All tasks have been removed",
@@ -228,6 +246,15 @@ const TodoList = () => {
     }
   };
 
+  // Sort todos by priority and completion status
+  const sortedTodos = [...todos].sort((a, b) => {
+    if (a.completed !== b.completed) {
+      return a.completed ? 1 : -1;
+    }
+    const priorityOrder = { high: 3, medium: 2, low: 1 };
+    return priorityOrder[b.priority] - priorityOrder[a.priority];
+  });
+
   if (isLoading) {
     return (
       <Card className="w-full max-w-md mx-auto border-aura-accent/10 bg-aura-backgroundLight shadow-md">
@@ -241,7 +268,7 @@ const TodoList = () => {
         <CardContent>
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 bg-aura-accent/5 rounded animate-pulse" />
+              <div key={i} className="h-16 bg-aura-accent/5 rounded animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -259,16 +286,16 @@ const TodoList = () => {
         <CardDescription>Manage your daily tasks and projects</CardDescription>
       </CardHeader>
       <CardContent>
-        <TodoForm addTodo={addTodo} />
+        <TodoForm addTodo={addTodo} categories={categories} />
         
         <div className="space-y-2 max-h-[45vh] overflow-y-auto">
           <AnimatePresence>
-            {todos.length === 0 ? (
+            {sortedTodos.length === 0 ? (
               <div className="text-center py-4 text-aura-textSecondary">
                 No tasks yet. Add one to get started!
               </div>
             ) : (
-              todos.map((todo) => (
+              sortedTodos.map((todo) => (
                 <motion.div
                   key={todo.id}
                   initial={{ opacity: 0, height: 0 }}

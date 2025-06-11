@@ -3,21 +3,22 @@ import React from "react";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export type Todo = {
-  id: string;
-  text: string;
-  completed: boolean;
-  dueDate?: Date;
-};
+import { Todo } from "./types";
 
 interface TodoItemProps {
   todo: Todo;
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
 }
+
+const priorityColors = {
+  low: "bg-green-100 text-green-800 border-green-300",
+  medium: "bg-yellow-100 text-yellow-800 border-yellow-300", 
+  high: "bg-red-100 text-red-800 border-red-300"
+};
 
 const TodoItem = ({ todo, toggleTodo, deleteTodo }: TodoItemProps) => {
   const getTodoDueStatus = (dueDate?: Date) => {
@@ -54,15 +55,15 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo }: TodoItemProps) => {
   };
 
   return (
-    <div className="flex items-start justify-between py-2 border-b border-aura-accent/5">
-      <div className="flex items-start gap-3">
+    <div className="flex items-start justify-between py-3 border-b border-aura-accent/5">
+      <div className="flex items-start gap-3 flex-1">
         <Checkbox
           id={`todo-${todo.id}`}
           checked={todo.completed}
           onCheckedChange={() => toggleTodo(todo.id)}
           className="border-aura-accent/50 data-[state=checked]:bg-aura-accent mt-1"
         />
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-2 flex-1">
           <label
             htmlFor={`todo-${todo.id}`}
             className={`text-sm ${
@@ -73,14 +74,23 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo }: TodoItemProps) => {
           >
             {todo.text}
           </label>
-          {todo.dueDate && (
-            <div 
-              className={`text-xs mt-1 flex items-center ${getDueStatusClass(getTodoDueStatus(todo.dueDate))}`}
-            >
-              <Calendar className="h-3 w-3 mr-1 inline" />
-              {format(todo.dueDate, "MMM d, yyyy")}
-            </div>
-          )}
+          
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="outline" className="text-xs">
+              {todo.category}
+            </Badge>
+            <Badge className={`text-xs ${priorityColors[todo.priority]}`}>
+              {todo.priority}
+            </Badge>
+            {todo.dueDate && (
+              <div 
+                className={`text-xs flex items-center ${getDueStatusClass(getTodoDueStatus(todo.dueDate))}`}
+              >
+                <Calendar className="h-3 w-3 mr-1 inline" />
+                {format(todo.dueDate, "MMM d, yyyy")}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <Button
