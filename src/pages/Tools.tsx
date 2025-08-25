@@ -12,7 +12,11 @@ import {
   Mail,
   ChartBar,
   Users,
-  Paintbrush
+  Paintbrush,
+  Code,
+  Book,
+  Briefcase,
+  Monitor
 } from "lucide-react";
 
 const Tools = () => {
@@ -21,6 +25,9 @@ const Tools = () => {
     let iconComponent;
     
     switch (tool.icon) {
+      case "code":
+        iconComponent = <Code className="h-6 w-6 text-aura-accent" />;
+        break;
       case "linkIcon":
         iconComponent = <Link2 className="h-6 w-6 text-aura-accent" />;
         break;
@@ -38,6 +45,15 @@ const Tools = () => {
         break;
       case "paintbrush":
         iconComponent = <Paintbrush className="h-6 w-6 text-aura-accent" />;
+        break;
+      case "book":
+        iconComponent = <Book className="h-6 w-6 text-aura-accent" />;
+        break;
+      case "briefcase":
+        iconComponent = <Briefcase className="h-6 w-6 text-aura-accent" />;
+        break;
+      case "monitor":
+        iconComponent = <Monitor className="h-6 w-6 text-aura-accent" />;
         break;
       default:
         iconComponent = <Link2 className="h-6 w-6 text-aura-accent" />;

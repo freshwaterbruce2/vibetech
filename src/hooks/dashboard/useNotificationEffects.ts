@@ -13,10 +13,8 @@ export const useNotificationEffects = (
   useEffect(() => {
     if (!dataLoadedRef.current) {
       loadDashboardData();
+      dataLoadedRef.current = true;
     }
-    
-    // Setup simple logging for debugging
-    console.log("Setting up realtime listeners");
     
     // Welcome notification
     if (isInitialLoadRef.current) {
@@ -26,18 +24,14 @@ export const useNotificationEffects = (
           message: "You now have access to enhanced features and performance.",
           type: "info"
         });
+        isInitialLoadRef.current = false;
       }, 2000);
       
       return () => {
         clearTimeout(timeoutId);
-        console.log("Cleaning up realtime listeners");
       };
     }
-    
-    return () => {
-      console.log("Cleaning up realtime listeners");
-    };
-  }, [loadDashboardData, addNotification, isInitialLoadRef, dataLoadedRef]);
+  }, []); // Empty dependency array to run only once
   
   // Lead qualification notification effect 
   useEffect(() => {

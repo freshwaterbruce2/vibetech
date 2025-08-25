@@ -1,0 +1,161 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - banner [ref=e11]:
+      - generic [ref=e13]:
+        - link "Vibe Tech" [ref=e14]:
+          - /url: /
+          - generic [ref=e15]: Vibe Tech
+        - navigation [ref=e16]:
+          - link "Home" [ref=e17]:
+            - /url: /
+          - link "Services" [ref=e18]:
+            - /url: /services
+          - link "Pricing" [ref=e19]:
+            - /url: /pricing
+          - link "Tools" [ref=e20]:
+            - /url: /tools
+          - link "Resources" [ref=e21]:
+            - /url: /resources
+          - link "About" [ref=e22]:
+            - /url: /about
+          - link "Portfolio" [ref=e23]:
+            - /url: /portfolio
+          - link "Blog" [ref=e24]:
+            - /url: /blog
+          - link "Contact" [ref=e25]:
+            - /url: /contact
+          - link "Dashboard" [ref=e26]:
+            - /url: /dashboard
+        - button "Toggle theme" [ref=e28] [cursor=pointer]:
+          - img
+    - main [ref=e29]:
+      - generic [ref=e31]:
+        - img "Bruce Freshwater" [ref=e34]
+        - generic [ref=e35]:
+          - heading "Hello, I'm Bruce Freshwater" [level=1] [ref=e36]:
+            - text: Hello, I'm
+            - generic [ref=e37]: Bruce Freshwater
+          - heading "Your Partner in Next-Level Digital Experiences" [level=2] [ref=e39]
+          - paragraph [ref=e40]: Imagine a world where your website or app loads instantly, welcomes every user, and feels as intuitive as a conversation. That's the power of design and code working in perfect harmony.
+          - generic [ref=e41]:
+            - heading "Ready to Ignite Your Vision?" [level=3] [ref=e42]
+            - paragraph [ref=e43]: Tell me your goals, and together we'll craft a digital solution that dazzles and delivers.
+            - generic [ref=e44]:
+              - textbox "Your name" [ref=e47]
+              - textbox "Email address" [ref=e50]
+              - button "Contact Me" [ref=e51] [cursor=pointer]
+            - generic [ref=e55]: or
+          - link "View My Work" [ref=e58]:
+            - /url: /portfolio
+      - generic [ref=e60]:
+        - heading "What I Bring to the Table" [level=2] [ref=e61]
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]: 🌐
+            - heading "Web Development" [level=3] [ref=e65]
+            - paragraph [ref=e66]: Performance-driven, responsive websites built with cutting-edge technology.
+          - generic [ref=e67]:
+            - generic [ref=e68]: 🎨
+            - heading "UI/UX Design" [level=3] [ref=e69]
+            - paragraph [ref=e70]: Interfaces that feel natural, guide effortlessly, and leave a lasting impression.
+          - generic [ref=e71]:
+            - generic [ref=e72]: ⚙️
+            - heading "Custom Software" [level=3] [ref=e73]
+            - paragraph [ref=e74]: Tailor-made solutions that solve your unique business challenges.
+          - generic [ref=e75]:
+            - generic [ref=e76]: 📱
+            - heading "App Development" [level=3] [ref=e77]
+            - paragraph [ref=e78]: Native and cross-platform mobile apps that users love to engage with.
+      - generic [ref=e80]:
+        - heading "Spotlight on Recent Wins" [level=2] [ref=e81]
+        - generic [ref=e82]:
+          - link "Vibe-Booking Vibe-Booking A modern booking platform with advanced search and real-time availability." [ref=e83]:
+            - /url: /portfolio/project-1
+            - generic [ref=e84]:
+              - img "Vibe-Booking" [ref=e86]
+              - generic [ref=e87]:
+                - heading "Vibe-Booking" [level=3] [ref=e88]
+                - paragraph [ref=e89]: A modern booking platform with advanced search and real-time availability.
+          - link "Vibe-Rentals Vibe-Rentals A rental property listing platform where landlords can list properties free of charge." [ref=e90]:
+            - /url: /portfolio/project-2
+            - generic [ref=e91]:
+              - img "Vibe-Rentals" [ref=e93]
+              - generic [ref=e94]:
+                - heading "Vibe-Rentals" [level=3] [ref=e95]
+                - paragraph [ref=e96]: A rental property listing platform where landlords can list properties free of charge.
+          - link "Neon Dashboard Neon Dashboard A React & Node.js platform that doubled engagement in 30 days." [ref=e97]:
+            - /url: /portfolio/project-3
+            - generic [ref=e98]:
+              - img "Neon Dashboard" [ref=e100]
+              - generic [ref=e101]:
+                - heading "Neon Dashboard" [level=3] [ref=e102]
+                - paragraph [ref=e103]: A React & Node.js platform that doubled engagement in 30 days.
+        - link "View All Projects" [ref=e106]:
+          - /url: /portfolio
+      - generic [ref=e108]:
+        - heading "Insights & Inspiration" [level=2] [ref=e109]
+        - generic [ref=e110]:
+          - generic [ref=e113]:
+            - generic [ref=e114]: Aug 12, 2023 • Accessibility Isn't Optional
+            - heading "Accessibility Isn't Optional" [level=3] [ref=e115]
+            - paragraph [ref=e116]: How inclusive design expands your audience and your impact.
+            - link "Read More" [ref=e117]:
+              - /url: /blog/accessibility-isnt-optional
+          - generic [ref=e120]:
+            - generic [ref=e121]: Jul 28, 2023 • Speed Secrets
+            - heading "Speed Secrets" [level=3] [ref=e122]
+            - paragraph [ref=e123]: Three performance tweaks that halved load times—no hardware upgrades needed.
+            - link "Read More" [ref=e124]:
+              - /url: /blog/speed-secrets
+        - link "Read All Articles" [ref=e127]:
+          - /url: /blog
+      - generic [ref=e129]:
+        - heading "Let's Build Something Amazing" [level=2] [ref=e130]
+        - paragraph [ref=e131]: Whether you're launching a new product or refreshing your brand, I'm here to make it fast, fluent, and unforgettable.
+        - link "Contact Me" [ref=e133]:
+          - /url: /contact
+    - contentinfo [ref=e134]:
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - heading "Vibe Tech" [level=3] [ref=e138]
+            - paragraph [ref=e139]: Innovative digital solutions where bold design meets rock-solid functionality.
+            - generic [ref=e140]:
+              - paragraph [ref=e141]: Bruce Freshwater · freshwaterbruce@icloud.com
+              - paragraph [ref=e142]: (803) 825-8860
+          - generic [ref=e143]:
+            - heading "Quick Links" [level=4] [ref=e144]
+            - list [ref=e145]:
+              - listitem [ref=e146]:
+                - link "Home" [ref=e147]:
+                  - /url: /
+              - listitem [ref=e148]:
+                - link "Services" [ref=e149]:
+                  - /url: /services
+              - listitem [ref=e150]:
+                - link "Portfolio" [ref=e151]:
+                  - /url: /portfolio
+              - listitem [ref=e152]:
+                - link "Contact" [ref=e153]:
+                  - /url: /contact
+          - generic [ref=e156]:
+            - heading "Subscribe to our newsletter" [level=3] [ref=e157]
+            - paragraph [ref=e158]: Stay updated with our latest tech insights and service offerings.
+            - generic [ref=e159]:
+              - generic [ref=e160]:
+                - img [ref=e161]
+                - textbox "Enter your email" [ref=e164]
+              - button "Subscribe" [ref=e165] [cursor=pointer]
+        - generic [ref=e166]:
+          - paragraph [ref=e167]: © 2025 Vibe Tech. All rights reserved.
+          - generic [ref=e168]:
+            - link "Privacy Policy" [ref=e169]:
+              - /url: /privacy
+            - link "Terms of Service" [ref=e170]:
+              - /url: /terms
+  - region "Notifications (F8)":
+    - list
+```

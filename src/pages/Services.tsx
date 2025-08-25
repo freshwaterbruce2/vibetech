@@ -1,9 +1,11 @@
 
 import { useState, useEffect } from "react";
 import PageLayout from "@/components/layout/PageLayout";
-import ServicesHeader from "@/components/services/ServicesHeader";
-import OptimizedServiceTabs from "@/components/services/OptimizedServiceTabs";
-import { services } from "@/components/services/servicesData";
+import UniformServicesHero from "@/components/services/UniformServicesHero";
+import UniformServicesContent from "@/components/services/UniformServicesContent";
+import UniformServicesPricing from "@/components/services/UniformServicesPricing";
+import UniformServicesCtaSection from "@/components/services/UniformServicesCtaSection";
+import { personalizedServices } from "@/components/services/personalizedServicesData";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Services = () => {
@@ -25,7 +27,7 @@ const Services = () => {
   // Track when services are viewed
   useEffect(() => {
     if (activeTab !== 'all') {
-      const service = services.find(s => s.id === activeTab);
+      const service = personalizedServices.find(s => s.id === activeTab);
       if (service) {
         trackServiceView(service.id, service.name);
       }
@@ -34,18 +36,25 @@ const Services = () => {
 
   return (
     <PageLayout 
-      title="Services" 
-      description="Explore the full range of digital services offered by Vibe Tech - from web development to UI/UX design, custom software solutions, and mobile app development."
-      keywords="web development, UI/UX design, custom software, mobile app development, digital services"
+      title="Specialized Business Solutions" 
+      description="Revenue-driven technology solutions: Advanced trading systems, enterprise PWAs, AI content generation, booking platforms, and business process automation."
+      keywords="crypto trading systems, enterprise PWA, AI content generation, hotel booking platform, business automation, financial technology"
     >
-      <div className="max-w-7xl mx-auto px-4 pt-24 relative z-10">
-        <ServicesHeader />
-        <OptimizedServiceTabs 
-          services={services} 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-        />
-      </div>
+      {/* Hero Section - matches other pages */}
+      <UniformServicesHero />
+      
+      {/* Services Content */}
+      <UniformServicesContent 
+        services={personalizedServices} 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+      />
+      
+      {/* Pricing Section */}
+      <UniformServicesPricing />
+      
+      {/* CTA Section - matches other pages */}
+      <UniformServicesCtaSection />
     </PageLayout>
   );
 };

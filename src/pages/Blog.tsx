@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
-import { blogPosts } from "@/components/blog/blogData";
+import { blogPosts as staticBlogPosts } from "@/components/blog/blogData";
+import { BlogPost } from "@/components/blog/types";
 import BlogHero from "@/components/blog/BlogHero";
 import BlogSearch from "@/components/blog/BlogSearch";
 import BlogPostsList from "@/components/blog/BlogPostsList";
@@ -19,8 +20,37 @@ import { Home } from "lucide-react";
 
 const Blog = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
   const { categoryName, tagName } = useParams();
   const navigate = useNavigate();
+  
+  // Fetch published blog posts from the database
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        const response = await fetch('http://localhost:9001/api/blog?published_only=true');
+        if (response.ok) {
+          const dbPosts = await response.json();
+          // Combine database posts with static posts, giving priority to database posts
+          const allPosts = [...dbPosts, ...staticBlogPosts];
+          setBlogPosts(allPosts);
+        } else {
+          // Fallback to static posts if database is unavailable
+          console.warn('Unable to fetch posts from database, using static posts');
+          setBlogPosts(staticBlogPosts);
+        }
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+        // Fallback to static posts
+        setBlogPosts(staticBlogPosts);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogPosts();
+  }, []);
   
   // Reset search when navigating between categories/tags
   useEffect(() => {
@@ -111,15 +141,26 @@ const Blog = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content - Blog Posts */}
             <div className="lg:col-span-2">
-              {(categoryName || tagName) && (
-                <h2 className="text-2xl font-heading mb-6 text-white">
-                  {categoryName ? `Posts in ${categoryName}` : `Posts tagged with "${tagName}"`}
-                  <span className="text-sm ml-2 text-aura-textSecondary">
-                    ({filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'})
-                  </span>
-                </h2>
+              {loading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="h-8 w-8 rounded-full border-2 border-t-aura-accent border-r-transparent border-b-aura-accent border-l-transparent animate-spin"></div>
+                    <p className="text-aura-accent">Loading blog posts...</p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {(categoryName || tagName) && (
+                    <h2 className="text-2xl font-heading mb-6 text-white">
+                      {categoryName ? `Posts in ${categoryName}` : `Posts tagged with "${tagName}"`}
+                      <span className="text-sm ml-2 text-aura-textSecondary">
+                        ({filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'})
+                      </span>
+                    </h2>
+                  )}
+                  <BlogPostsList posts={filteredPosts} />
+                </>
               )}
-              <BlogPostsList posts={filteredPosts} />
             </div>
 
             {/* Sidebar */}

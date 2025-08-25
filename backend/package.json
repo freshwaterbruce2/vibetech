@@ -1,0 +1,31 @@
+{
+  "name": "vibe-tech-backend",
+  "version": "1.0.0",
+  "description": "Backend server for Vibe Tech with local SQLite database",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server-production.js",
+    "dev": "nodemon server.js", 
+    "dev:prod": "set NODE_ENV=production && nodemon server-production.js",
+    "dev:prod:unix": "NODE_ENV=production nodemon server-production.js",
+    "prod": "set NODE_ENV=production && node server-production.js",
+    "prod:unix": "NODE_ENV=production node server-production.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "health": "curl -f http://localhost:3000/health || exit 1"
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.0.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.1",
+    "sqlite3": "^5.1.7",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

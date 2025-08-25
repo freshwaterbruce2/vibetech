@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/services/database";
 import { toast } from "@/hooks/use-toast";
 import { enrichLeadWithClearbit } from "./SmartLeadEnricher";
 import {
@@ -55,24 +55,19 @@ export default function SmartLeadForm({
   async function onSubmit(values: LeadFormValues) {
     setIsLoading(true);
     try {
-      // Submit lead to Supabase
-      const { data, error } = await supabase
-        .from("leads")
-        .insert({
-          name: values.name,
-          email: values.email,
-          phone: values.phone || null,
-          service_interest: values.serviceInterest || null,
-        })
-        .select();
+      // Submit lead to local database
+      const lead = await db.createLead({
+        company_name: values.name, // Using name as company name for now
+        contact_name: values.name,
+        contact_email: values.email,
+        phone: values.phone || null,
+        notes: values.serviceInterest ? `Service Interest: ${values.serviceInterest}` : null,
+        status: 'new'
+      });
       
-      if (error) throw error;
-      
-      const leadId = data[0]?.id;
-      
-      if (leadId) {
+      if (lead?.id) {
         // Enrich the lead data using Clearbit (via our edge function)
-        enrichLeadWithClearbit(leadId).catch(err => {
+        enrichLeadWithClearbit(lead.id).catch(err => {
           console.error("Lead enrichment failed:", err);
           // Non-critical error, doesn't need to block the user
         });
