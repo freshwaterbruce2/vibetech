@@ -33,7 +33,7 @@ export const useAnalytics = () => {
       window.gtag('config', 'G-TCZZ9JFEKN', {
         page_path: location.pathname + location.search
       });
-      console.log('📊 Analytics: Page view tracked', location.pathname);
+      // Page view tracked
     }
   }, [location]);
   
@@ -52,7 +52,7 @@ export const useAnalytics = () => {
       };
       
       window.gtag('event', eventName, eventParams);
-      console.log('📊 Analytics: Event tracked', eventName, eventParams);
+      // Event tracked
     }
   };
   

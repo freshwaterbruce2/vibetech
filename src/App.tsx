@@ -19,8 +19,10 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const PalettePreview = lazy(() => import('./pages/PalettePreview'));
 const FuturisticDemo = lazy(() => import('./pages/FuturisticDemo'));
 const BlogPostPage = lazy(() => import('./pages/public/BlogPostPage'));
+const BlogEditor = lazy(() => import('./pages/BlogEditor'));
 const Services = lazy(() => import('./pages/Services'));
 const Tools = lazy(() => import('./pages/Tools'));
+const Resources = lazy(() => import('./pages/Resources'));
 const About = lazy(() => import('./pages/About'));
 
 // Loading component for suspense fallback
@@ -108,6 +110,7 @@ const App: React.FC = () => {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/category/:categoryName" element={<Blog />} />
             <Route path="/blog/tag/:tagName" element={<Blog />} />
+            <Route path="/blog/editor" element={<BlogEditor />} />
             <Route path="/blog/:postId" element={<BlogPostPage />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -115,6 +118,7 @@ const App: React.FC = () => {
             <Route path="/futuristic-demo" element={<FuturisticDemo />} />
             <Route path="/services" element={<Services />} />
             <Route path="/tools" element={<Tools />} />
+            <Route path="/resources" element={<Resources />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

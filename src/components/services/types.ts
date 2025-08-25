@@ -12,4 +12,7 @@ export interface ServiceType {
     }
   };
   features: string[];
+  technologies?: string[];
+  realProjects?: string[];
+  businessValue?: string;
 }

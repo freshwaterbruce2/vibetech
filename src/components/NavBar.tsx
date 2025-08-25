@@ -12,6 +12,7 @@ const navLinks: NavLink[] = [
   { path: "/services", label: "Services" },
   { path: "/pricing", label: "Pricing" },
   { path: "/tools", label: "Tools" },
+  { path: "/resources", label: "Resources" },
   { path: "/about", label: "About" },
   { path: "/portfolio", label: "Portfolio" },
   { path: "/blog", label: "Blog" },

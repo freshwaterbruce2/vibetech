@@ -20,50 +20,82 @@ export const projects: Project[] = [
   },
   {
     id: 3,
+    title: "AI SaaS Dashboard",
+    category: "Web App",
+    description: "Enterprise-grade SaaS platform with AI-powered analytics, machine learning insights, and predictive business intelligence. Features real-time data processing, custom reporting, and advanced user management with role-based access control.",
+    image: "/custom-images/ai-saas-dashboard.jpg", // Your custom image path
+    tags: ["React", "Python", "TensorFlow", "PostgreSQL", "Docker"]
+  },
+  {
+    id: 4,
+    title: "CryptoTrade Pro",
+    category: "Web App", 
+    description: "Professional cryptocurrency trading platform with real-time market data, advanced charting tools, automated trading bots, and portfolio management. Includes WebSocket integration for live price feeds and secure wallet management.",
+    image: "/custom-images/crypto-trading-platform.jpg", // Your custom image path
+    tags: ["React", "WebSocket", "Node.js", "Redis", "Blockchain API"]
+  },
+  {
+    id: 5,
+    title: "E-Commerce Marketplace",
+    category: "Web App",
+    description: "Multi-vendor e-commerce platform with advanced inventory management, payment processing, vendor dashboards, and customer analytics. Features include affiliate marketing integration, review systems, and mobile-responsive design.",
+    image: "/custom-images/ecommerce-marketplace.jpg", // Your custom image path
+    tags: ["Next.js", "Stripe", "MongoDB", "AWS", "Elasticsearch"]
+  },
+  {
+    id: 6,
+    title: "Social Media Manager",
+    category: "Web App",
+    description: "Comprehensive social media management tool for content scheduling, analytics tracking, audience engagement, and campaign optimization across multiple platforms. Includes AI-powered content suggestions and performance insights.",
+    image: "/custom-images/social-media-manager.jpg", // Your custom image path
+    tags: ["Vue.js", "Python", "API Integration", "Chart.js", "AWS Lambda"]
+  },
+  {
+    id: 7,
+    title: "PropTech Platform",
+    category: "Web App",
+    description: "Revolutionary real estate platform with virtual property tours, AR visualization, smart contracts integration, and IoT property monitoring. Features advanced search algorithms and predictive market analysis.",
+    image: "/custom-images/proptech-platform.jpg", // Your custom image path
+    tags: ["React", "Three.js", "Blockchain", "AR/VR", "Smart Contracts"]
+  },
+  {
+    id: 8,
+    title: "FoodTech Delivery",
+    category: "Mobile App",
+    description: "Next-generation food delivery app with AI-powered recommendations, real-time tracking, dynamic pricing, and integrated payment systems. Features include restaurant partner dashboards and customer loyalty programs.",
+    image: "/custom-images/foodtech-delivery.jpg", // Your custom image path
+    tags: ["React Native", "GraphQL", "Microservices", "Google Maps", "Push Notifications"]
+  },
+  {
+    id: 9,
+    title: "FitnessTech PWA",
+    category: "Mobile App",
+    description: "Progressive Web App for comprehensive fitness tracking with wearable integration, personalized workout plans, nutrition tracking, and social fitness challenges. Includes offline functionality and health data synchronization.",
+    image: "/custom-images/fitness-pwa.jpg", // Your custom image path
+    tags: ["PWA", "Web Bluetooth", "IndexedDB", "Service Workers", "Health APIs"]
+  },
+  {
+    id: 10,
+    title: "EduTech LMS",
+    category: "Web App",
+    description: "Advanced Learning Management System with interactive video streaming, virtual classrooms, AI-powered assessments, and progress analytics. Features include peer-to-peer learning, certification management, and mobile learning support.",
+    image: "/custom-images/edutech-lms.jpg", // Your custom image path
+    tags: ["React", "WebRTC", "Video Streaming", "AI/ML", "Microlearning"]
+  },
+  {
+    id: 11,
+    title: "Quantum Computing Simulator",
+    category: "Web App",
+    description: "Web-based quantum computing simulator with visual circuit design, algorithm testing, and educational resources. Features interactive quantum gate manipulation and real-time simulation results visualization.",
+    image: "/custom-images/quantum-simulator.jpg", // Your custom image path
+    tags: ["JavaScript", "WebGL", "Quantum.js", "Three.js", "Educational"]
+  },
+  {
+    id: 12,
     title: "Neon Dashboard",
     category: "Web App",
     description: "A modern analytics dashboard with real-time data visualization features, AI-powered insights, and customizable widgets for enterprise performance monitoring.",
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1800&auto=format",
     tags: ["React", "TypeScript", "Tailwind CSS", "Chart.js"]
-  },
-  {
-    id: 4,
-    title: "Quantum",
-    category: "Mobile App",
-    description: "A cross-platform mobile application for productivity tracking with habit formation analytics, goal setting capabilities, and smart notification systems.",
-    image: "https://images.unsplash.com/photo-1555774698-0b77e0d5fac6?q=80&w=1800&auto=format",
-    tags: ["React Native", "Firebase", "Redux", "Node.js"]
-  },
-  {
-    id: 5,
-    title: "Synthwave",
-    category: "Web App",
-    description: "An AI-powered music generation platform with collaborative features, allowing users to create, edit, and share unique musical compositions across multiple genres.",
-    image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1800&auto=format",
-    tags: ["Vue.js", "Web Audio API", "TensorFlow.js", "Express"]
-  },
-  {
-    id: 6,
-    title: "Orbit",
-    category: "Website",
-    description: "A space-themed educational platform for teaching astronomy concepts with interactive 3D models of celestial bodies, real-time space data integration, and virtual tours.",
-    image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1800&auto=format",
-    tags: ["HTML/CSS", "JavaScript", "Three.js", "WebGL"]
-  },
-  {
-    id: 7,
-    title: "Pulse",
-    category: "IoT",
-    description: "Smart home system with customizable automation and voice control capabilities, featuring energy optimization, security protocols, and seamless device integration.",
-    image: "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1800&auto=format",
-    tags: ["IoT", "Node.js", "MQTT", "Raspberry Pi"]
-  },
-  {
-    id: 8,
-    title: "Halo",
-    category: "Website",
-    description: "Corporate website with custom CMS and interactive elements, including animated data visualizations, seamless scrolling experiences, and integrated customer support.",
-    image: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?q=80&w=1800&auto=format",
-    tags: ["WordPress", "PHP", "GSAP", "MySQL"]
   }
 ];
