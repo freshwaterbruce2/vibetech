@@ -2,9 +2,25 @@
 
 ## Your Domain: vibe-tech.org ✅ (August 2025)
 - **Domain**: vibe-tech.org
-- **Registrar**: Cloudflare  
+- **Registrar**: IONOS (not Cloudflare)
 - **Cost**: $25 (August 2025 pricing)
-- **Status**: Payment processing...
+- **Status**: Active and configured
+
+## DEPLOYMENT STATUS ✅
+
+### Backend - Railway (LIVE)
+- **Service**: function-bun-production-2a68
+- **URL**: https://function-bun-production-2a68.up.railway.app
+- **Status**: ✅ Deployed and running
+- **Database**: ✅ Connected and initialized
+- **Environment Variables**: ✅ All 11 variables configured
+- **Custom Domain**: vibe-tech.org (configured, waiting for DNS)
+
+### Frontend - Vercel (DEPLOYING)
+- **Project**: vibe-tech
+- **Status**: 🔄 Currently deploying
+- **Repository**: freshwaterbruce2/vibetech
+- **Environment Variables**: ✅ Configured with Railway backend URL
 
 ---
 
