@@ -6,17 +6,11 @@
       "config": { "distDir": "dist" }
     }
   ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://function-bun-production-2a68.up.railway.app/api/$1"
+    },
     {
       "source": "/((?!api/.*).*)",
       "destination": "/index.html"
