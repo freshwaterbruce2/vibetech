@@ -9,7 +9,15 @@ export interface AffiliateLink {
   category: string;
 }
 
-export const toolsData: (ToolCardProps & { affiliateLinks?: AffiliateLink[] })[] = [
+export interface ToolPricing {
+  price: number;
+  originalPrice?: number;
+  features: string[];
+  isAdvanced: boolean;
+  accessUrl?: string;
+}
+
+export const toolsData: (ToolCardProps & { affiliateLinks?: AffiliateLink[], pricing?: ToolPricing })[] = [
   {
     title: "Development Tools",
     description: "Essential development tools and platforms for building modern web applications, with special discounts and affiliate partnerships for maximum value.",
@@ -32,7 +40,19 @@ export const toolsData: (ToolCardProps & { affiliateLinks?: AffiliateLink[] })[]
         commission: "Free trial available",
         category: "AI Tools"
       }
-    ]
+    ],
+    pricing: {
+      price: 29,
+      originalPrice: 49,
+      features: [
+        "Advanced AI code completion",
+        "Multi-language support",
+        "Priority support",
+        "Team collaboration tools"
+      ],
+      isAdvanced: true,
+      accessUrl: "https://github.com/features/copilot"
+    }
   },
   {
     title: "Design & UI Tools",
@@ -56,7 +76,19 @@ export const toolsData: (ToolCardProps & { affiliateLinks?: AffiliateLink[] })[]
         commission: "Free trial + student discounts",
         category: "Design"
       }
-    ]
+    ],
+    pricing: {
+      price: 39,
+      originalPrice: 59,
+      features: [
+        "Professional design templates",
+        "Advanced prototyping tools",
+        "Team collaboration features",
+        "Version history & branching"
+      ],
+      isAdvanced: true,
+      accessUrl: "https://figma.com/pricing"
+    }
   },
   {
     title: "Marketing & Analytics",
@@ -80,7 +112,19 @@ export const toolsData: (ToolCardProps & { affiliateLinks?: AffiliateLink[] })[]
         commission: "Free plan available",
         category: "Analytics"
       }
-    ]
+    ],
+    pricing: {
+      price: 19,
+      originalPrice: 35,
+      features: [
+        "Advanced analytics dashboard",
+        "Custom event tracking",
+        "A/B testing tools",
+        "Export & reporting features"
+      ],
+      isAdvanced: true,
+      accessUrl: "https://hotjar.com"
+    }
   },
   {
     title: "Learning & Education",
@@ -104,7 +148,18 @@ export const toolsData: (ToolCardProps & { affiliateLinks?: AffiliateLink[] })[]
         commission: "Free trial + group discounts",
         category: "Frontend"
       }
-    ]
+    ],
+    pricing: {
+      price: 0,
+      features: [
+        "Access to course catalog",
+        "Basic project templates",
+        "Community forum access",
+        "Free trial courses"
+      ],
+      isAdvanced: false,
+      accessUrl: "https://frontendmasters.com"
+    }
   },
   {
     title: "Productivity & Business",
@@ -128,7 +183,19 @@ export const toolsData: (ToolCardProps & { affiliateLinks?: AffiliateLink[] })[]
         commission: "14-day free trial",
         category: "Scheduling"
       }
-    ]
+    ],
+    pricing: {
+      price: 15,
+      originalPrice: 25,
+      features: [
+        "Advanced scheduling automation",
+        "Custom branding options",
+        "Payment integrations",
+        "Analytics & insights"
+      ],
+      isAdvanced: true,
+      accessUrl: "https://calendly.com/pricing"
+    }
   },
   {
     title: "Hardware & Gear",
@@ -152,6 +219,18 @@ export const toolsData: (ToolCardProps & { affiliateLinks?: AffiliateLink[] })[]
         commission: "Exclusive discount codes",
         category: "Keyboards"
       }
-    ]
+    ],
+    pricing: {
+      price: 25,
+      originalPrice: 40,
+      features: [
+        "Exclusive hardware discounts",
+        "Setup & configuration guides",
+        "Priority customer support",
+        "Extended warranty options"
+      ],
+      isAdvanced: true,
+      accessUrl: "https://keychron.com"
+    }
   }
 ];

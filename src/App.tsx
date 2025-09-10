@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import { Toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
 import { useAnalytics } from './hooks/useAnalytics';
+import { AdminProvider } from '@/contexts/AdminContext';
 
 // Eager load critical paths
 import Index from './pages/Index';
@@ -97,35 +98,37 @@ const AnalyticsTracker: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <ScrollToTop />
-      <AnalyticsTracker />
-      <div className="dashboard-bg min-h-screen">
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/portfolio/:projectId" element={<ProjectDetail />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/category/:categoryName" element={<Blog />} />
-            <Route path="/blog/tag/:tagName" element={<Blog />} />
-            <Route path="/blog/editor" element={<BlogEditor />} />
-            <Route path="/blog/:postId" element={<BlogPostPage />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/palette-preview" element={<PalettePreview />} />
-            <Route path="/futuristic-demo" element={<FuturisticDemo />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/tools" element={<Tools />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route path="/about" element={<About />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-        <Toaster />
-      </div>
-    </Router>
+    <AdminProvider>
+      <Router>
+        <ScrollToTop />
+        <AnalyticsTracker />
+        <div className="dashboard-bg min-h-screen">
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/portfolio/:projectId" element={<ProjectDetail />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/category/:categoryName" element={<Blog />} />
+              <Route path="/blog/tag/:tagName" element={<Blog />} />
+              <Route path="/blog/editor" element={<BlogEditor />} />
+              <Route path="/blog/:postId" element={<BlogPostPage />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/palette-preview" element={<PalettePreview />} />
+              <Route path="/futuristic-demo" element={<FuturisticDemo />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/tools" element={<Tools />} />
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/about" element={<About />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+          <Toaster />
+        </div>
+      </Router>
+    </AdminProvider>
   );
 }
 

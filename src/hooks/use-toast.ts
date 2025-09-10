@@ -144,7 +144,7 @@ function toast({ ...props }: Toast) {
   const id = genId()
 
   // Handle action type for success variant
-  let variant = props.variant || "default";
+  const variant = props.variant || "default";
   
   // Add toast with required fields
   const update = (props: Toast) => {
