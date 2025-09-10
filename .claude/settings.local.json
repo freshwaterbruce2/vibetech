@@ -12,7 +12,8 @@
       "Bash(rm:*)",
       "Bash(npm run test:*)",
       "Bash(node:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": [],
