@@ -8,7 +8,7 @@ const HeroSection = () => {
         {/* Left side - Avatar with neon border */}
         <div className="w-full md:w-1/3 mb-10 md:mb-0 spotlight">
           <div className="relative w-64 h-64 mx-auto overflow-hidden rounded-full border-4 border-[rgba(185,51,255,0.8)] shadow-[0_0_25px_rgba(185,51,255,0.6)]">
-            <img src="/profilephoto.png?t=1726771200" alt="Bruce Freshwater" className="w-full h-full object-cover" />
+            <img src="/profilephoto.png?t=1726771200" alt="Bruce Freshwater" className="w-full h-full object-contain object-center" />
           </div>
         </div>
         
