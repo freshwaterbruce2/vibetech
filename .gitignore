@@ -22,3 +22,55 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build directories
+build/
+.turbo/
+.next/
+out/
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.backup
+*.bak
+*~
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Project-specific (to review)
+DesktopCommanderMCP/
+Vibe-Tutor/
+opcode/
