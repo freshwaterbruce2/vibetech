@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-08-23T20:01:05.971Z",
+  "summary": {
+    "total": 5,
+    "passed": 4,
+    "failed": 0
+  },
+  "details": {
+    "memorySystem": {
+      "status": "passed",
+      "details": [
+        "✅ Memory manager initializes successfully",
+        "✅ Storage stats: 1 total files",
+        "✅ Data storage works correctly",
+        "✅ Data retrieval works correctly"
+      ]
+    },
+    "vscodeIntegration": {
+      "status": "pending",
+      "details": []
+    },
+    "mcpConnections": {
+      "status": "passed",
+      "details": [
+        "✅ MCP config has 8 servers configured",
+        "📋 Configured servers: filesystem, github, playwright, puppeteer, sequential-thinking, a11y, 21st-dev-magic, fetch",
+        "✅ Problematic memory-bank server removed"
+      ]
+    },
+    "taskSystem": {
+      "status": "passed",
+      "details": [
+        "✅ Command 'health' executed successfully",
+        "✅ Command 'stats' executed successfully",
+        "✅ Command 'list' executed successfully",
+        "❌ PowerShell wrapper failed: Command failed: powershell -Command \".\\memory.ps1 health\"\n'powershell' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n"
+      ]
+    },
+    "workspaceLoading": {
+      "status": "passed",
+      "details": [
+        "✅ Workspace JSON is valid",
+        "✅ Memory Bank folder configured in workspace",
+        "✅ Found 6 memory-related tasks",
+        "✅ Directory exists: C:\\dev\\projects\\memory-bank",
+        "✅ Directory exists: C:\\dev\\projects\\crypto-enhanced",
+        "✅ Directory exists: D:\\dev-memory\\claude-code"
+      ]
+    }
+  }
+}
