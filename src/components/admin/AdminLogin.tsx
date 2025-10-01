@@ -38,7 +38,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
           variant: "destructive"
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Login Error",
         description: "An error occurred during login.",

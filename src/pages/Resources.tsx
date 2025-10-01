@@ -15,12 +15,12 @@ const Resources = () => {
       <div className="container mx-auto px-4 py-16">
         {/* Header Section */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-aura-accent/10 border border-aura-accent/20 mb-6">
-            <Award className="h-4 w-4 text-aura-accent" />
-            <span className="text-sm font-medium text-aura-accent">Recommended Resources</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6">
+            <Award className="h-4 w-4 text-cyan-400" />
+            <span className="text-sm font-medium text-cyan-400">Recommended Resources</span>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             Developer Resources
           </h1>
           

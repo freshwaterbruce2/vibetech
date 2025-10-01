@@ -56,7 +56,7 @@ const UniformServicesHero = () => {
         <AnimateOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-14">
             <div>
-              <Badge className="bg-aura-accent/20 text-aura-accent border-aura-accent/30 mb-4">
+              <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 mb-4">
                 Technical Excellence
               </Badge>
               <h3 className="text-2xl font-bold mb-4 text-gray-50">Enterprise-Grade Technologies</h3>
@@ -69,7 +69,7 @@ const UniformServicesHero = () => {
             </div>
             
             <div>
-              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 mb-4">
+              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 mb-4">
                 Business Focus
               </Badge>
               <h3 className="text-2xl font-bold mb-4 text-gray-50">Business-First Development</h3>

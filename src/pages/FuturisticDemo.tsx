@@ -1,6 +1,5 @@
 
 import PageLayout from "@/components/layout/PageLayout";
-import FuturisticCard from "@/components/ui/futuristic-card";
 import { NeonButton } from "@/components/ui/neon-button";
 import { Link } from "react-router-dom";
 import { Terminal, Sparkles, Zap, Code, Cpu, Bot, FileCode, BarChart4 } from "lucide-react";

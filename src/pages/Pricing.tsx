@@ -47,7 +47,7 @@ const Pricing = () => {
         
         {/* Market Comparison Section */}
         <div className="my-20">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-[#c87eff] to-[#00f7ff] bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
             See How We Compare
           </h2>
           <MarketComparison marketComparisons={marketComparisons} />

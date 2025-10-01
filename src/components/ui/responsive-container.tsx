@@ -24,7 +24,7 @@ const ResponsiveContainer = React.forwardRef<HTMLDivElement, ResponsiveContainer
     ...props 
   }, ref) => {
     // Get current breakpoint
-    const { current, isMobile } = useBreakpoints();
+    const { current } = useBreakpoints();
     const { isTouchDevice } = useBrowserCapabilities();
     
     // Calculate appropriate padding based on screen size

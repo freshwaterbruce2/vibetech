@@ -42,7 +42,7 @@ const BlogEditor = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
 
   // Handle form updates
-  const updatePost = (field: keyof BlogPost, value: any) => {
+  const updatePost = (field: keyof BlogPost, value: unknown) => {
     setPost(prev => ({ ...prev, [field]: value }));
   };
 
