@@ -35,8 +35,8 @@ export function useBrowserCapabilities(): BrowserCapabilities {
     
     // Try to get battery info if available
     if ('getBattery' in navigator) {
-      // @ts-ignore - Navigator battery API
-      navigator.getBattery().then((battery: any) => {
+      // @ts-expect-error - Navigator battery API
+      navigator.getBattery().then((battery: unknown) => {
         isLowPowerMode = battery.charging === false && battery.level < 0.2;
         batteryLevel = battery.level;
         

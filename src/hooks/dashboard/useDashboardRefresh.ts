@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { mockLeads, mockMetrics } from "./mockData";
 import { useNotifications } from "@/context/NotificationsContext";
 import { toast } from "@/hooks/use-toast";

@@ -7,9 +7,9 @@ declare global {
     gtag: (
       command: 'event' | 'config' | 'set' | 'js',
       action: string,
-      params?: any
+      params?: Record<string, unknown>
     ) => void;
-    dataLayer: any[];
+    dataLayer: unknown[];
   }
 }
 

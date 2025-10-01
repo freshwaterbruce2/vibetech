@@ -8,11 +8,11 @@ export const featureExists = (featureName: string): boolean => {
   try {
     // Check for features in different potential locations
     return !!(
-      // @ts-ignore - Using dynamic access for feature detection
+      // @ts-expect-error - Using dynamic access for feature detection
       (window[featureName]) || 
-      // @ts-ignore - Using dynamic access for feature detection
+      // @ts-expect-error - Using dynamic access for feature detection
       (navigator[featureName]) ||
-      // @ts-ignore - Using dynamic access for feature detection
+      // @ts-expect-error - Using dynamic access for feature detection
       (document[featureName]) ||
       // For CSS features
       (CSS && CSS.supports && CSS.supports(featureName))
@@ -31,7 +31,7 @@ export const features = {
         const canvas = document.createElement('canvas');
         return !!(window.WebGLRenderingContext && 
           (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-      } catch (e) {
+      } catch (_e) {
         return false;
       }
     },
