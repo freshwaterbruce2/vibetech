@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    // Testing - Using Playwright instead of Jest
+    "ms-playwright.playwright",
+    
+    // Code Quality
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "charliermarsh.ruff",
+    
+    // Development
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss",
+    
+    // AI Assistance
+    "github.copilot",
+    "github.copilot-chat",
+    
+    // Version Control
+    "eamodio.gitlens"
+  ],
+  "unwantedRecommendations": [
+    // Not using Jest in this workspace
+    "Orta.vscode-jest",
+    "firsttris.vscode-jest-runner"
+  ]
+}
