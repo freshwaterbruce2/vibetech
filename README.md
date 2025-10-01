@@ -60,6 +60,52 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Monorepo Structure
+
+This is an optimized monorepo containing multiple projects:
+
+### 🌐 Root Project (Vite + React)
+- Main web application (port 5173)
+- TypeScript + React + shadcn/ui
+- Build tools: Vite, ESLint, Playwright
+
+### 🐍 Crypto Trading System
+- Location: `projects/crypto-enhanced/`
+- Live cryptocurrency trading with Kraken API
+- Python virtual environment managed
+
+### 🔧 Workspace Management
+
+**Quick Commands:**
+```bash
+# Workspace status and health
+npm run monorepo:health
+
+# Install all project dependencies
+npm run workspace:install
+
+# Clean workspace
+npm run workspace:clean
+
+# Crypto trading system
+npm run crypto:install     # Setup Python venv
+npm run crypto:test        # Run trading tests
+```
+
+**Advanced Management:**
+```powershell
+# Use workspace manager for detailed control
+.\scripts\workspace-manager.ps1 status
+.\scripts\workspace-manager.ps1 install -All
+.\scripts\workspace-manager.ps1 dev -Project root
+
+# Use optimization script for cleanup
+.\scripts\monorepo-optimize.ps1 -DryRun
+.\scripts\monorepo-optimize.ps1 -Deep -AnalyzeSize
+```
+
+See `tools/README.md` for complete management documentation.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/f4b2b360-7bb2-4ba9-9821-ad247856d019) and click on Share -> Publish.
