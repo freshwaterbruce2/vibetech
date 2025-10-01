@@ -1,4 +1,4 @@
-{
+﻿{
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
@@ -9,11 +9,18 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true
   }
 }

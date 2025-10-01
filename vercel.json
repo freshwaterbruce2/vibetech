@@ -1,4 +1,4 @@
-{
+﻿{
   "builds": [
     {
       "src": "package.json",
@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://function-bun-production-2a68.up.railway.app/api/$1"
+      "destination": "https://function-bun-production-2a68.up.railway.app/api/"
     },
     {
       "source": "/((?!api/.*).*)",
