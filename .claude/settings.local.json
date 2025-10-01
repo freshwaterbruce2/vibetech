@@ -1,67 +1,71 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build:*)",
-      "Bash(npm run health:*)",
-      "Bash(npm run dev:*)",
-      "Bash(git add:*)",
-      "Bash(cp:*)",
-      "Bash(git commit:*)",
-      "Bash(git remote add:*)",
-      "Bash(git push:*)",
-      "Bash(rm:*)",
-      "Bash(npm run test:*)",
-      "Bash(node:*)",
-      "Bash(mv:*)",
-      "Bash(copy:*)",
-      "Bash(powershell:*)",
-      "Bash(curl -I http://localhost:5555)",
-      "Bash(curl:*)",
-      "Bash(test:*)",
-      "Bash(pkill:*)",
-      "Bash(npm init:*)",
-      "Bash(npm install:*)",
-      "Bash(npm uninstall:*)",
-      "Read(//c/c/dev/projects/crypto-enhanced/**)",
-      "Bash(.venv/Scripts/python.exe:*)",
-      "Bash(.venv/Scripts/pip.exe install:*)",
-      "Bash(taskkill:*)",
-      "Bash(cat:*)",
+      "Bash(Select-Object Name)",
+      "Bash(powershell.exe:*)",
+      "Bash(python:*)",
       "Bash(sqlite3:*)",
+      "WebSearch",
+      "Bash(Select-Object -First 30)",
+      "Bash(xargs -I {} sh -c 'echo \"\"\"\"{}:$(wc -c < \"\"\"\"{}\"\"\"\")\"\"\"\"')",
+      "Bash(xargs:*)",
+      "Bash(uniq:*)",
+      "Bash(powershell:*)",
+      "Bash(find:*)",
+      "Bash(tasklist)",
+      "Bash(findstr:*)",
+      "Bash(dir:*)",
+      "Bash(rm:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run quality:*)",
+      "Bash(/dev/null)",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(for:*)",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(then echo \"$file exists\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "WebFetch(domain:docs.kraken.com)",
+      "Bash(npm run build:production:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(timeout:*)",
+      "Bash(bunx expo install:*)",
+      "Bash(bun run start:*)",
+      "Bash(bunx expo run:android:*)",
+      "Bash(taskkill:*)",
+      "WebFetch(domain:support.kraken.com)",
+      "Bash(grep:*)",
+      "Bash(bun run:*)",
+      "Bash(cmd /c:*)",
+      "Bash(git config:*)",
+      "Bash(PORT=8083 bun run server.ts)",
+      "Bash(npx expo:*)",
+      "Bash(bun update:*)",
+      "Bash(bun install:*)",
+      "Bash(bun i:*)",
+      "Bash(cat:*)",
+      "Bash(adb:*)",
+      "Read(//c/Users/fresh_zxae3v6/OneDrive/Pictures/Screenshots 1/**)",
+      "Bash(bunx expo start:*)",
+      "Bash(PORT=8084 bun run server.ts)",
+      "Bash(tasklist:*)",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(PORT=8087 bun run server.ts)",
+      "Bash(/bashes)",
+      "Bash(git add:*)",
+      "WebFetch(domain:agents.md)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
       "C:\\dev\\projects\\active\\web-apps\\vibe-tech-lovable\\backend",
-      "C:\\dev\\projects\\active\\web-apps"
-    ]
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -File C:\\dev\\.claude\\hooks\\session-start.ps1",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -File C:\\dev\\.claude\\hooks\\user-prompt-submit.ps1",
-            "timeout": 3
-          }
-        ]
-      }
+      "C:\\dev\\projects\\active\\web-apps",
+      "D:\\"
     ]
   }
 }

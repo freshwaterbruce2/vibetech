@@ -26,7 +26,7 @@ export const isTouchDevice = () => {
   
   return ('ontouchstart' in window) || 
     (navigator.maxTouchPoints > 0) || 
-    // @ts-ignore - some browsers support this
+    // @ts-expect-error - some browsers support this
     (navigator.msMaxTouchPoints > 0)
 }
 

@@ -13,7 +13,7 @@ export const useDashboardData = () => {
   const [error, setError] = useState<string | null>(null);
   const [leads, setLeads] = useState<Lead[]>(mockLeads);
   const [metrics, setMetrics] = useState<DashboardMetrics>(mockMetrics);
-  const [isPro, setIsPro] = useState(true);
+  const [isPro, _setIsPro] = useState(true);
   
   // Custom hooks for different features
   const { deleteLead, addLead } = useLeadActions(leads, setLeads, setMetrics);

@@ -45,7 +45,7 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
         const parsedNotifications = JSON.parse(storedNotifications);
         
         // Convert string dates back to Date objects
-        const formattedNotifications = parsedNotifications.map((notification: any) => ({
+        const formattedNotifications = parsedNotifications.map((notification: Notification) => ({
           ...notification,
           timestamp: new Date(notification.timestamp)
         }));

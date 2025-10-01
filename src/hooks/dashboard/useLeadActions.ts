@@ -1,11 +1,10 @@
 
-import { useState } from "react";
 import { Lead } from "./types";
 import { useNotifications } from "@/context/NotificationsContext";
 import { toast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
-export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.SetStateAction<Lead[]>>, setMetrics: React.Dispatch<React.SetStateAction<any>>) => {
+export const useLeadActions = (leads: Lead[], setLeads: React.Dispatch<React.SetStateAction<Lead[]>>, setMetrics: React.Dispatch<React.SetStateAction<Record<string, unknown>>>) => {
   const { addNotification } = useNotifications();
   const { trackLeadAction } = useAnalytics();
 
