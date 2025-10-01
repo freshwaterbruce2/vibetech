@@ -114,8 +114,8 @@ const Contact = () => {
                     <div>
                       <h3 className="text-lg font-medium text-white">Phone</h3>
                       <p className="text-white">
-                        <a href="tel:18038258860" className="hover:text-aura-accent">
-                          1-803-825-8860
+                        <a href="tel:18038252876" className="hover:text-aura-accent">
+                          (803) 825-2876
                         </a>
                       </p>
                     </div>
@@ -129,7 +129,7 @@ const Contact = () => {
                       <p className="text-white">
                         Vibe Tech<br />
                         Bruce Freshwater<br />
-                        Somerton, South Carolina<br />
+                        Summerton, South Carolina<br />
                         United States
                       </p>
                     </div>

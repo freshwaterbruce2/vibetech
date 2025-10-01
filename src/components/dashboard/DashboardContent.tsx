@@ -34,7 +34,7 @@ const DashboardContent = ({
   activeTab, 
   setActiveTab, 
   onDeleteLead,
-  isPro = false 
+  isPro: _isPro = false 
 }: DashboardContentProps) => {
   const itemVariants = {
     hidden: { opacity: 0 },

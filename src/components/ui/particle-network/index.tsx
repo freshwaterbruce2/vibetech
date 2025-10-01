@@ -21,7 +21,7 @@ const ParticleNetworkCanvas: React.FC<ParticleNetworkCanvasProps> = ({
       if (!gl) {
         setWebglSupported(false);
       }
-    } catch (e) {
+    } catch (_e) {
       setWebglSupported(false);
     }
   }, []);

@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SmartLeadForm from "@/components/lead/SmartLeadForm";
 import { motion } from "framer-motion";

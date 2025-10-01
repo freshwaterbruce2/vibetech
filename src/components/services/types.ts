@@ -1,12 +1,12 @@
 
-import { ReactNode } from "react";
+import { ComponentType } from "react";
 
 export interface ServiceType {
   id: string;
   name: string;
   description: string;
   icon: {
-    type: any;
+    type: ComponentType;
     props: {
       className: string;
     }

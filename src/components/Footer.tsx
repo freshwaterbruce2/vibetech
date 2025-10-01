@@ -16,7 +16,7 @@ const Footer = () => {
             </p>
             <div className="text-white">
               <p>Bruce Freshwater · freshwaterbruce@icloud.com</p>
-              <p>(803) 825-8860</p>
+              <p>(803) 825-2876</p>
             </div>
           </div>
           

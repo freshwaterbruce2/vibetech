@@ -1,5 +1,5 @@
 
-import { Database, User, PieChart, Activity } from "lucide-react";
+import { Database, PieChart, Activity } from "lucide-react";
 import DashboardMetricCard from "./DashboardMetricCard";
 import { useEffect } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";

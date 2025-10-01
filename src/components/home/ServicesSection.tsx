@@ -107,7 +107,7 @@ const ServicesSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-heading bg-gradient-to-r from-[#c87eff] via-[#8d4dff] to-[#00f7ff] text-transparent bg-clip-text">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-heading bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
             What I Bring to the Table
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">

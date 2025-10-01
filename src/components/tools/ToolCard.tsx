@@ -2,8 +2,6 @@
 import React from "react";
 import FuturisticCard from "@/components/ui/futuristic-card";
 import { motion } from "framer-motion";
-import { GradientFeatherIcon } from "@/components/ui/gradient-feather-icon";
-import { LucideIcon } from "lucide-react";
 
 export interface ToolCardProps {
   title: string;

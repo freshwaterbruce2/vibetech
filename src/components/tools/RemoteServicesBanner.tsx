@@ -28,12 +28,12 @@ const RemoteServicesBanner = () => {
   return (
     <section className="py-20 px-4 bg-aura-backgroundLight/30">
       <div className="max-w-6xl mx-auto">
-        <SectionHeading align="center" size="lg">
+        <SectionHeading align="center" size="lg" className="text-white">
           Remote Integration Services
         </SectionHeading>
-        
+
         <div className="max-w-3xl mx-auto text-center mb-12">
-          <p className="text-lg text-aura-textSecondary">
+          <p className="text-lg text-gray-300">
             Don't have time to implement these tools yourself? Our team provides remote integration services to set up and optimize these tools for your specific needs.
           </p>
         </div>

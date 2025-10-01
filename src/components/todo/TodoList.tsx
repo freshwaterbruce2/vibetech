@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListTodo } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import TodoForm from "./TodoForm";
 import TodoItem from "./TodoItem";
-import { Todo, TodoPriority } from "./types";
+import { Todo } from "./types";
 
 const TodoList = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [categories, setCategories] = useState<string[]>(["general", "work", "personal", "shopping"]);
+  const [categories] = useState<string[]>(["general", "work", "personal", "shopping"]);
 
   // Load todos from localStorage
   useEffect(() => {

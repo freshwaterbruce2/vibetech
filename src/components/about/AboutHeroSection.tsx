@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import PageHeader from "@/components/ui/page-header";
 const AboutHeroSection = () => {
   return <section className="pt-28 pb-16 px-4">
