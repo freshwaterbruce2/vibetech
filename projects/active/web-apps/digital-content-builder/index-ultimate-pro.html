@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Content Studio Pro - AI-Powered Content Creation Suite</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/lucide-static/font/lucide.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="content-generator.js"></script>
+    <style>
+        :root {
+            /* VibeTech Neon Color System */
+            --vibe-cyan: #00FFFF;
+            --vibe-purple: #B933FF;
+            --vibe-pink: #FF00AA;
+            --vibe-teal: #00FFCC;
+            --vibe-bg-dark: #05050E;
+            --vibe-bg-mid: #0A0A18;
+            --vibe-bg-light: #0F0F22;
+
+            /* Primary color mappings */
+            --primary: #00FFFF;
+            --primary-dark: #00E6E6;
+            --secondary: #B933FF;
+            --accent: #FF00AA;
+            --success: #00FF94;
+            --warning: #FFD700;
+            --danger: #FF0055;
+
+            /* Background and text */
+            --dark: #05050E;
+            --light: #0F0F22;
+            --gray: #9BA1CC;
+            --text-primary: #FFFFFF;
+            --text-secondary: #9BA1CC;
+
+            /* Borders and effects */
+            --border: rgba(0, 255, 255, 0.2);
+            --border-secondary: rgba(185, 51, 255, 0.2);
+            --shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            --shadow-lg: 0 0 30px rgba(0, 255, 255, 0.5);
+            --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.6);
+            --glow-purple: 0 0 20px rgba(185, 51, 255, 0.6);
+            --glow-pink: 0 0 20px rgba(255, 0, 170, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--vibe-bg-dark) 0%, var(--vibe-bg-mid) 50%, var(--vibe-bg-light) 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Typography Enhancement */
+        h1, h2, h3 {
+            font-family: 'Orbitron', 'Inter', sans-serif;
+            background: linear-gradient(45deg, var(--vibe-cyan), var(--vibe-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-shadow: 0 0 40px var(--vibe-cyan);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            background: rgba(10, 10, 24, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 30px rgba(0, 255, 255, 0.1);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            font-family: 'Orbitron', 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            box-shadow: var(--glow-cyan);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ai-model-selector {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(10, 10, 24, 0.6);
+            backdrop-filter: blur(8px);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ai-model-selector:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Split Screen Editor */
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+
+        .editor-panel {
+            background: rgba(10, 10, 24, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 15, 34, 0.5);
+            backdrop-filter: blur(8px);
+        }
+
+        .panel-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            padding: 0.5rem;
+            background: rgba(10, 10, 24, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .icon-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        /* Editor Styles */
+        .content-editor {
+            width: 100%;
+            min-height: 400px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            transition: border-color 0.2s;
+        }
+
+        .content-editor:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Form Builder */
+        .form-builder {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 0.625rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            transition: all 0.3s;
+            background: rgba(5, 5, 14, 0.6);
+            color: var(--text-primary);
+            backdrop-filter: blur(4px);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+            background: rgba(5, 5, 14, 0.8);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        /* Preview Panel */
+        .preview-content {
+            padding: 2rem;
+            background: rgba(10, 10, 24, 0.7);
+            backdrop-filter: blur(8px);
+            min-height: 400px;
+        }
+
+        .preview-content h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .preview-content h2 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--text-secondary);
+        }
+
+        .preview-content h3 {
+            font-size: 1.25rem;
+            margin: 1rem 0 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .preview-content p {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .preview-content ul,
+        .preview-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        .preview-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-content code {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.875rem;
+            color: var(--primary);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .preview-content pre {
+            background: rgba(5, 5, 14, 0.8);
+            color: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        /* Brand Voice Panel */
+        .brand-panel {
+            background: rgba(10, 10, 24, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .brand-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .brand-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .brand-option {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* SEO Analyzer */
+        .seo-panel {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .seo-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .score-excellent {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .score-good {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .score-fair {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .score-poor {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .seo-suggestions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(10, 10, 24, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+        }
+
+        .suggestion-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .suggestion-icon.check {
+            color: var(--success);
+        }
+
+        .suggestion-icon.warning {
+            color: var(--warning);
+        }
+
+        .suggestion-icon.error {
+            color: var(--danger);
+        }
+
+        /* Floating Action Buttons */
+        .fab-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 50;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .fab.secondary {
+            background: rgba(10, 10, 24, 0.7);
+            backdrop-filter: blur(8px);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        /* Device Preview */
+        .device-preview {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .device-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(10, 10, 24, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .device-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .preview-frame {
+            width: 100%;
+            background: rgba(10, 10, 24, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .preview-frame.mobile {
+            max-width: 375px;
+            margin: 0 auto;
+        }
+
+        .preview-frame.tablet {
+            max-width: 768px;
+            margin: 0 auto;
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .tab-nav {
+                overflow-x: auto;
+            }
+
+            .brand-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Keyframe Animations */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 255, 255, 0.9), 0 0 60px rgba(0, 255, 255, 0.4);
+            }
+        }
+
+        @keyframes neon-flicker {
+            0%, 100% {
+                opacity: 1;
+            }
+            33% {
+                opacity: 0.8;
+            }
+            66% {
+                opacity: 0.9;
+            }
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes typewriter {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        /* Apply animations */
+        .editor-panel {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .brand-panel {
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .tab-btn i {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        /* Better icon alignment */
+        button i[data-lucide] {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        /* Glowing border effect */
+        .glow-border {
+            position: relative;
+            background: linear-gradient(90deg, var(--vibe-cyan), var(--vibe-purple), var(--vibe-pink));
+            background-size: 200% 200%;
+            animation: gradient-shift 3s ease infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <div class="logo-icon"><i data-lucide="sparkles"></i></div>
+                <span>Content Studio Pro</span>
+            </div>
+            <div class="nav-actions">
+                <select class="ai-model-selector" id="aiModel">
+                    <option value="auto">🤖 Auto (Best for task)</option>
+                    <option value="gpt4">GPT-4 (Advanced)</option>
+                    <option value="claude">Claude 3.5 (Contextual)</option>
+                    <option value="gemini">Gemini (Creative)</option>
+                    <option value="llama">Llama 3 (Fast)</option>
+                </select>
+                <button class="btn-primary" onclick="toggleVoiceInput()">
+                    🎤 Voice Input
+                </button>
+                <button class="btn-primary" onclick="saveProject()">
+                    <i data-lucide="save" style="width: 16px; height: 16px;"></i> Save Project
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Brand Voice Settings -->
+        <div class="brand-panel">
+            <div class="brand-header">
+                <h2 class="brand-title"><i data-lucide="target" style="width: 20px; height: 20px;"></i> Brand Voice & Style</h2>
+                <button class="icon-btn" onclick="analyzeBrandVoice()">
+                    <i data-lucide="bar-chart-3" style="width: 16px; height: 16px;"></i> Analyze Existing Content
+                </button>
+            </div>
+            <div class="brand-options">
+                <div class="brand-option">
+                    <label class="form-label">Tone</label>
+                    <select class="form-select" id="brandTone">
+                        <option value="professional">Professional</option>
+                        <option value="friendly">Friendly & Casual</option>
+                        <option value="authoritative">Authoritative</option>
+                        <option value="playful">Playful & Fun</option>
+                        <option value="inspirational">Inspirational</option>
+                    </select>
+                </div>
+                <div class="brand-option">
+                    <label class="form-label">Industry</label>
+                    <select class="form-select" id="brandIndustry">
+                        <option value="technology">Technology</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="finance">Finance</option>
+                        <option value="education">Education</option>
+                        <option value="retail">Retail</option>
+                        <option value="creative">Creative/Design</option>
+                    </select>
+                </div>
+                <div class="brand-option">
+                    <label class="form-label">Target Audience</label>
+                    <select class="form-select" id="brandAudience">
+                        <option value="b2b">Business (B2B)</option>
+                        <option value="b2c">Consumers (B2C)</option>
+                        <option value="technical">Technical/Developers</option>
+                        <option value="general">General Public</option>
+                        <option value="young">Young Adults (18-35)</option>
+                    </select>
+                </div>
+                <div class="brand-option">
+                    <label class="form-label">Brand Keywords</label>
+                    <input type="text" class="form-input" id="brandKeywords"
+                           placeholder="Innovation, Quality, Trust...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('blog')"><i data-lucide="file-text" style="width: 18px; height: 18px;"></i> Blog/Article</button>
+            <button class="tab-btn" onclick="switchTab('landing')"><i data-lucide="globe" style="width: 18px; height: 18px;"></i> Landing Page</button>
+            <button class="tab-btn" onclick="switchTab('email')"><i data-lucide="mail" style="width: 18px; height: 18px;"></i> Email Campaign</button>
+            <button class="tab-btn" onclick="switchTab('social')"><i data-lucide="smartphone" style="width: 18px; height: 18px;"></i> Social Media</button>
+            <button class="tab-btn" onclick="switchTab('ebook')"><i data-lucide="book" style="width: 18px; height: 18px;"></i> Ebook</button>
+            <button class="tab-btn" onclick="switchTab('course')"><i data-lucide="graduation-cap" style="width: 18px; height: 18px;"></i> Course</button>
+            <button class="tab-btn" onclick="switchTab('video')">🎬 Video Script</button>
+            <button class="tab-btn" onclick="switchTab('podcast')">🎙️ Podcast</button>
+            <button class="tab-btn" onclick="switchTab('newsletter')">📰 Newsletter</button>
+        </div>
+
+        <!-- Split Screen Editor -->
+        <div class="editor-container">
+            <!-- Input/Editor Panel -->
+            <div class="editor-panel">
+                <div class="panel-header">
+                    <span class="panel-title">✍️ Content Editor</span>
+                    <div class="panel-actions">
+                        <button class="icon-btn" onclick="toggleAIAssist()" title="AI Assistant">
+                            🤖
+                        </button>
+                        <button class="icon-btn" onclick="insertTemplate()" title="Templates">
+                            📋
+                        </button>
+                        <button class="icon-btn" onclick="toggleFullscreen('editor')" title="Fullscreen">
+                            🔳
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="form-builder" id="contentForm">
+                        <div class="form-group">
+                            <label class="form-label">Content Title/Topic</label>
+                            <input type="text" class="form-input" id="contentTitle"
+                                   placeholder="e.g., 10 Best Marketing Strategies for 2025"
+                                   oninput="updatePreview()"
+                                   autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Content Type Settings</label>
+                            <div id="typeSpecificOptions">
+                                <!-- Dynamic options based on selected tab -->
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Main Content</label>
+                            <textarea class="content-editor" id="mainContent"
+                                      placeholder="Start writing or click Generate AI Content..."
+                                      oninput="updatePreview()"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn-primary" style="width: 100%;" onclick="generateAIContent()">
+                                <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i> Generate AI Content
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SEO Analyzer -->
+                    <div class="seo-panel" id="seoPanel">
+                        <div class="seo-score">
+                            <div class="score-circle score-good" id="seoScore">
+                                85
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">SEO Score</div>
+                                <div style="color: var(--gray); font-size: 0.875rem;">Good - Room for improvement</div>
+                            </div>
+                        </div>
+                        <div class="seo-suggestions">
+                            <div class="suggestion-item">
+                                <span class="suggestion-icon check">✓</span>
+                                <span>Title length is optimal (55 characters)</span>
+                            </div>
+                            <div class="suggestion-item">
+                                <span class="suggestion-icon warning">⚠</span>
+                                <span>Add more internal links (currently 2, recommend 5+)</span>
+                            </div>
+                            <div class="suggestion-item">
+                                <span class="suggestion-icon check">✓</span>
+                                <span>Keyword density is good (2.3%)</span>
+                            </div>
+                            <div class="suggestion-item">
+                                <span class="suggestion-icon warning">⚠</span>
+                                <span>Meta description could be longer (currently 120 chars)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="editor-panel">
+                <div class="panel-header">
+                    <span class="panel-title">👁️ Live Preview</span>
+                    <div class="panel-actions">
+                        <button class="icon-btn" onclick="toggleDarkMode()" title="Dark Mode">
+                            🌙
+                        </button>
+                        <button class="icon-btn" onclick="refreshPreview()" title="Refresh">
+                            🔄
+                        </button>
+                        <button class="icon-btn" onclick="toggleFullscreen('preview')" title="Fullscreen">
+                            🔳
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <!-- Device Preview Selector -->
+                    <div class="device-preview">
+                        <button class="device-btn active" onclick="setPreviewDevice('desktop')">
+                            💻 Desktop
+                        </button>
+                        <button class="device-btn" onclick="setPreviewDevice('tablet')">
+                            <i data-lucide="tablet" style="width: 16px; height: 16px;"></i> Tablet
+                        </button>
+                        <button class="device-btn" onclick="setPreviewDevice('mobile')">
+                            <i data-lucide="smartphone" style="width: 16px; height: 16px;"></i> Mobile
+                        </button>
+                    </div>
+                    <div class="preview-frame" id="previewFrame">
+                        <div class="preview-content" id="previewContent">
+                            <h1>Your content will appear here...</h1>
+                            <p>Start typing in the editor to see real-time preview of your content.
+                               The preview updates automatically as you type.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button class="fab secondary" onclick="exportContent()" title="Export">
+            📥
+        </button>
+        <button class="fab" onclick="publishContent()" title="Publish">
+            <i data-lucide="rocket" style="width: 24px; height: 24px;"></i>
+        </button>
+    </div>
+
+    <script>
+        // Global State
+        let currentTab = 'blog';
+        let currentDevice = 'desktop';
+        let darkMode = false;
+        let brandProfile = {};
+        let generatedContent = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBrandProfile();
+            updateTypeOptions();
+            updatePreview();
+            startAutoSave();
+        });
+
+        // Tab Switching
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateTypeOptions();
+            updatePreview();
+        }
+
+        // Update form options based on content type
+        function updateTypeOptions() {
+            const optionsContainer = document.getElementById('typeSpecificOptions');
+            let optionsHTML = '';
+
+            switch(currentTab) {
+                case 'blog':
+                    optionsHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label class="form-label">Word Count</label>
+                                <select class="form-select" id="wordCount">
+                                    <option value="500">Short (500 words)</option>
+                                    <option value="1000">Medium (1000 words)</option>
+                                    <option value="2000" selected>Long (2000 words)</option>
+                                    <option value="3000">In-depth (3000+ words)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Blog Style</label>
+                                <select class="form-select" id="blogStyle">
+                                    <option value="howto">How-to Guide</option>
+                                    <option value="listicle">Listicle</option>
+                                    <option value="opinion">Opinion Piece</option>
+                                    <option value="news">News Article</option>
+                                    <option value="case-study">Case Study</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Target Keywords</label>
+                            <input type="text" class="form-input" id="keywords"
+                                   placeholder="Enter keywords separated by commas">
+                        </div>
+                    `;
+                    break;
+
+                case 'landing':
+                    optionsHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label class="form-label">Page Goal</label>
+                                <select class="form-select" id="pageGoal">
+                                    <option value="lead">Lead Generation</option>
+                                    <option value="sales">Direct Sales</option>
+                                    <option value="signup">Newsletter Signup</option>
+                                    <option value="download">App Download</option>
+                                    <option value="webinar">Webinar Registration</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Call-to-Action</label>
+                                <input type="text" class="form-input" id="ctaText"
+                                       placeholder="e.g., Start Free Trial">
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'email':
+                    optionsHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label class="form-label">Email Type</label>
+                                <select class="form-select" id="emailType">
+                                    <option value="welcome">Welcome Email</option>
+                                    <option value="newsletter">Newsletter</option>
+                                    <option value="promotional">Promotional</option>
+                                    <option value="abandoned">Abandoned Cart</option>
+                                    <option value="nurture">Nurture Sequence</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Subject Line</label>
+                                <input type="text" class="form-input" id="subjectLine"
+                                       placeholder="Compelling subject line...">
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'social':
+                    optionsHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label class="form-label">Platform</label>
+                                <select class="form-select" id="socialPlatform">
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="twitter">Twitter/X</option>
+                                    <option value="facebook">Facebook</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="tiktok">TikTok</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Post Type</label>
+                                <select class="form-select" id="postType">
+                                    <option value="single">Single Post</option>
+                                    <option value="thread">Thread/Carousel</option>
+                                    <option value="story">Story</option>
+                                    <option value="reel">Reel/Short</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                default:
+                    optionsHTML = '<p style="color: var(--gray);">Options for this content type coming soon...</p>';
+            }
+
+            optionsContainer.innerHTML = optionsHTML;
+        }
+
+        // Real-time Preview Update
+        function updatePreview() {
+            const title = document.getElementById('contentTitle').value || 'Untitled';
+            const content = document.getElementById('mainContent').value || '';
+            const previewContent = document.getElementById('previewContent');
+
+            let html = '';
+
+            switch(currentTab) {
+                case 'blog':
+                    html = `
+                        <article>
+                            <h1>${title}</h1>
+                            <div style="color: var(--gray); font-size: 0.875rem; margin-bottom: 2rem;">
+                                Published on ${new Date().toLocaleDateString()} • 5 min read
+                            </div>
+                            ${marked.parse(content)}
+                        </article>
+                    `;
+                    break;
+
+                case 'landing':
+                    const ctaText = document.getElementById('ctaText')?.value || 'Get Started';
+                    html = `
+                        <div style="text-align: center; padding: 3rem 1rem;">
+                            <h1 style="font-size: 3rem; margin-bottom: 1rem;">${title}</h1>
+                            ${marked.parse(content)}
+                            <button style="background: var(--primary); color: white; padding: 1rem 2rem;
+                                         border: none; border-radius: 8px; font-size: 1.125rem;
+                                         margin-top: 2rem; cursor: pointer;">
+                                ${ctaText}
+                            </button>
+                        </div>
+                    `;
+                    break;
+
+                case 'email':
+                    const subjectLine = document.getElementById('subjectLine')?.value || 'Your Subject Line';
+                    html = `
+                        <div style="max-width: 600px; margin: 0 auto; border: 1px solid var(--border);
+                                  border-radius: 8px; overflow: hidden;">
+                            <div style="background: linear-gradient(135deg, var(--primary), var(--secondary));
+                                      color: white; padding: 2rem; text-align: center;">
+                                <h2>${title}</h2>
+                            </div>
+                            <div style="padding: 2rem;">
+                                <div style="background: rgba(0, 255, 255, 0.1); padding: 0.5rem; margin-bottom: 1rem;
+                                          border-radius: 4px; font-size: 0.875rem; border: 1px solid var(--border);">
+                                    <strong>Subject:</strong> ${subjectLine}
+                                </div>
+                                ${marked.parse(content)}
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                default:
+                    html = `
+                        <div>
+                            <h1>${title}</h1>
+                            ${marked.parse(content)}
+                        </div>
+                    `;
+            }
+
+            previewContent.innerHTML = html;
+            updateSEOScore();
+        }
+
+        // SEO Score Calculation
+        function updateSEOScore() {
+            const title = document.getElementById('contentTitle').value;
+            const content = document.getElementById('mainContent').value;
+            const keywords = document.getElementById('keywords')?.value || '';
+
+            let score = 50; // Base score
+            const suggestions = [];
+
+            // Title analysis
+            if (title.length > 30 && title.length < 60) {
+                score += 15;
+                suggestions.push({ type: 'check', text: `Title length is optimal (${title.length} characters)` });
+            } else {
+                suggestions.push({ type: 'warning', text: `Title should be 30-60 characters (currently ${title.length})` });
+            }
+
+            // Content length
+            const wordCount = content.split(' ').filter(word => word.length > 0).length;
+            if (wordCount > 300) {
+                score += 20;
+                suggestions.push({ type: 'check', text: `Good content length (${wordCount} words)` });
+            } else {
+                suggestions.push({ type: 'warning', text: `Add more content (currently ${wordCount} words, recommend 300+)` });
+            }
+
+            // Keyword usage
+            if (keywords) {
+                const keywordList = keywords.split(',').map(k => k.trim());
+                let keywordFound = false;
+                keywordList.forEach(keyword => {
+                    if (content.toLowerCase().includes(keyword.toLowerCase())) {
+                        keywordFound = true;
+                    }
+                });
+                if (keywordFound) {
+                    score += 15;
+                    suggestions.push({ type: 'check', text: 'Target keywords found in content' });
+                } else {
+                    suggestions.push({ type: 'warning', text: 'Include target keywords in content' });
+                }
+            }
+
+            // Update UI
+            const scoreElement = document.getElementById('seoScore');
+            scoreElement.textContent = score;
+
+            // Update score color
+            scoreElement.className = 'score-circle';
+            if (score >= 80) {
+                scoreElement.classList.add('score-excellent');
+            } else if (score >= 60) {
+                scoreElement.classList.add('score-good');
+            } else if (score >= 40) {
+                scoreElement.classList.add('score-fair');
+            } else {
+                scoreElement.classList.add('score-poor');
+            }
+        }
+
+        // Generate AI Content
+        async function generateAIContent() {
+            const title = document.getElementById('contentTitle').value;
+            const aiModel = document.getElementById('aiModel').value;
+            const brandTone = document.getElementById('brandTone').value;
+            const brandIndustry = document.getElementById('brandIndustry').value;
+
+            if (!title) {
+                alert('Please enter a title or topic first');
+                return;
+            }
+
+            // Show loading
+            const mainContent = document.getElementById('mainContent');
+            mainContent.value = 'Generating content with ' + aiModel + ' AI...';
+
+            // Simulate AI generation
+            setTimeout(() => {
+                let generatedText = '';
+
+                switch(currentTab) {
+                    case 'blog':
+                        generatedText = generateBlogContent(title, brandTone, brandIndustry);
+                        break;
+                    case 'landing':
+                        generatedText = generateLandingContent(title, brandTone, brandIndustry);
+                        break;
+                    case 'email':
+                        generatedText = generateEmailContent(title, brandTone, brandIndustry);
+                        break;
+                    default:
+                        generatedText = `# ${title}\n\nAI-generated content based on your brand voice and preferences...`;
+                }
+
+                mainContent.value = generatedText;
+                updatePreview();
+            }, 2000);
+        }
+
+        // Content Generation Functions
+        function generateBlogContent(title, tone, industry) {
+            const templates = {
+                professional: `# ${title}
+
+## Executive Summary
+
+In today's rapidly evolving ${industry} landscape, understanding ${title.toLowerCase()} has become crucial for organizational success. This comprehensive guide explores the key strategies, best practices, and actionable insights that industry leaders are implementing to stay ahead.
+
+## The Current State of ${industry}
+
+The ${industry} sector has witnessed unprecedented transformation over the past decade. Recent studies indicate that companies investing in ${title.toLowerCase()} see an average ROI improvement of 45% within the first year of implementation.
+
+### Key Market Drivers
+
+1. **Digital Transformation**: Organizations are accelerating their digital initiatives
+2. **Customer Expectations**: Evolving demands for personalized experiences
+3. **Competitive Pressure**: Need to differentiate in saturated markets
+4. **Regulatory Compliance**: Adapting to changing regulations
+
+## Strategic Implementation Framework
+
+### Phase 1: Assessment and Planning
+
+Before implementing any ${title.toLowerCase()} strategy, organizations must:
+- Conduct thorough market analysis
+- Evaluate current capabilities
+- Define clear objectives and KPIs
+- Allocate appropriate resources
+
+### Phase 2: Execution
+
+The execution phase requires:
+- Cross-functional collaboration
+- Agile methodology adoption
+- Continuous monitoring and adjustment
+- Stakeholder engagement
+
+## Best Practices from Industry Leaders
+
+Leading organizations in the ${industry} sector have demonstrated that success requires:
+
+**1. Data-Driven Decision Making**
+Leverage analytics to inform strategic choices and measure impact.
+
+**2. Customer-Centric Approach**
+Place customer needs at the center of all initiatives.
+
+**3. Continuous Innovation**
+Foster a culture of experimentation and learning.
+
+## Measuring Success
+
+Key performance indicators to track include:
+- Revenue growth rate
+- Customer satisfaction scores
+- Operational efficiency metrics
+- Market share expansion
+
+## Conclusion
+
+${title} represents a critical opportunity for ${industry} organizations to drive growth, enhance efficiency, and deliver superior value to stakeholders. By following the strategies outlined in this guide and adapting them to your specific context, you can position your organization for long-term success.
+
+## Next Steps
+
+1. Assess your current state against industry benchmarks
+2. Develop a customized implementation roadmap
+3. Engage key stakeholders and build consensus
+4. Begin with pilot initiatives to demonstrate value
+5. Scale successful approaches across the organization`,
+
+                friendly: `# ${title}
+
+Hey there! 👋 Let's dive into something really exciting - ${title.toLowerCase()}. If you're in the ${industry} space, you're going to love what we've discovered.
+
+## Why This Matters Now
+
+You know that feeling when you discover something that just *clicks*? That's what ${title.toLowerCase()} can do for your business. We've talked to dozens of companies in ${industry}, and the results are pretty amazing.
+
+## The Real Deal: What Actually Works
+
+### 🎯 Start with the Basics
+
+First things first - you don't need to overcomplicate this. Here's what successful teams are doing:
+
+- **Keep it simple**: Start small and scale what works
+- **Test everything**: Don't assume, validate
+- **Listen to feedback**: Your customers know best
+
+### 💡 The Game-Changing Strategies
+
+Here's where it gets interesting. The top performers in ${industry} are doing these things differently:
+
+1. **They're obsessed with their customers** - Like, really obsessed
+2. **They fail fast and learn faster** - No shame in pivoting
+3. **They collaborate like crazy** - Silos are so last decade
+
+## Real Stories from Real People
+
+*"We implemented ${title.toLowerCase()} last quarter, and honestly, it transformed how we work. Our team is more engaged, our customers are happier, and our numbers are up 30%."* - Sarah, ${industry} Leader
+
+## Your Action Plan
+
+Ready to get started? Here's your roadmap:
+
+📌 **This Week**: Gather your team and discuss the opportunity
+📌 **Next Week**: Run a small experiment
+📌 **Month 1**: Measure results and iterate
+📌 **Month 2**: Scale what's working
+📌 **Month 3**: Celebrate your wins!
+
+## The Bottom Line
+
+${title} isn't just another trend - it's a real opportunity to make a difference in your ${industry} business. The best part? You can start today with just one small step.
+
+What are you waiting for? Let's make it happen! 🚀`
+            };
+
+            return templates[tone] || templates.professional;
+        }
+
+        function generateLandingContent(title, tone, industry) {
+            return `# ${title}
+
+## Transform Your ${industry} Business Today
+
+Discover the power of ${title.toLowerCase()} and join thousands of companies already seeing incredible results.
+
+### Why Choose Us?
+
+✅ **Proven Results**: 95% customer satisfaction rate
+✅ **Industry Expertise**: 10+ years in ${industry}
+✅ **24/7 Support**: Always here when you need us
+✅ **Risk-Free Trial**: 30-day money-back guarantee
+
+### Features That Matter
+
+- **Advanced Analytics**: Make data-driven decisions
+- **Seamless Integration**: Works with your existing tools
+- **Scalable Solution**: Grows with your business
+- **Security First**: Enterprise-grade protection
+
+### Ready to Get Started?
+
+Join the leaders in ${industry} who are already transforming their operations with our solution.
+
+**Start Your Free Trial Today** - No credit card required`;
+        }
+
+        function generateEmailContent(title, tone, industry) {
+            return `Subject: ${title}
+
+Hi [First Name],
+
+I wanted to reach out because I've been following the amazing work you're doing in ${industry}, and I think you'll find this interesting.
+
+${title} is something that's been transforming businesses like yours, and the results speak for themselves:
+
+• 45% increase in efficiency
+• 30% reduction in costs
+• 2x improvement in customer satisfaction
+
+I'd love to show you how this could work specifically for your organization.
+
+Would you be open to a brief 15-minute call next week to discuss?
+
+Best regards,
+[Your Name]
+
+P.S. I'm also sending along a case study from a similar ${industry} company that saw remarkable results. Let me know if you'd like to see it!`;
+        }
+
+        // Device Preview
+        function setPreviewDevice(device) {
+            currentDevice = device;
+            const frame = document.getElementById('previewFrame');
+
+            // Update button states
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update frame class
+            frame.className = 'preview-frame';
+            if (device === 'mobile') {
+                frame.classList.add('mobile');
+            } else if (device === 'tablet') {
+                frame.classList.add('tablet');
+            }
+        }
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            const previewContent = document.getElementById('previewContent');
+
+            if (darkMode) {
+                previewContent.style.background = '#1f2937';
+                previewContent.style.color = '#f9fafb';
+            } else {
+                previewContent.style.background = 'white';
+                previewContent.style.color = '#1f2937';
+            }
+        }
+
+        // Export Content
+        function exportContent() {
+            const title = document.getElementById('contentTitle').value || 'untitled';
+            const content = document.getElementById('mainContent').value;
+
+            // Create download based on content type
+            let filename = `${title.replace(/\s+/g, '-').toLowerCase()}-${currentTab}`;
+            let blob;
+
+            switch(currentTab) {
+                case 'blog':
+                    blob = new Blob([content], { type: 'text/markdown' });
+                    filename += '.md';
+                    break;
+                case 'landing':
+                case 'email':
+                    const html = document.getElementById('previewContent').innerHTML;
+                    blob = new Blob([html], { type: 'text/html' });
+                    filename += '.html';
+                    break;
+                default:
+                    blob = new Blob([content], { type: 'text/plain' });
+                    filename += '.txt';
+            }
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+        }
+
+        // Publish Content
+        function publishContent() {
+            alert('Publishing integrations coming soon! Will support WordPress, Medium, LinkedIn, and more.');
+        }
+
+        // Brand Voice Functions
+        function loadBrandProfile() {
+            // Load from localStorage
+            const saved = localStorage.getItem('brandProfile');
+            if (saved) {
+                brandProfile = JSON.parse(saved);
+                // Apply to form
+                if (brandProfile.tone) document.getElementById('brandTone').value = brandProfile.tone;
+                if (brandProfile.industry) document.getElementById('brandIndustry').value = brandProfile.industry;
+                if (brandProfile.audience) document.getElementById('brandAudience').value = brandProfile.audience;
+                if (brandProfile.keywords) document.getElementById('brandKeywords').value = brandProfile.keywords;
+            }
+        }
+
+        function saveBrandProfile() {
+            brandProfile = {
+                tone: document.getElementById('brandTone').value,
+                industry: document.getElementById('brandIndustry').value,
+                audience: document.getElementById('brandAudience').value,
+                keywords: document.getElementById('brandKeywords').value
+            };
+            localStorage.setItem('brandProfile', JSON.stringify(brandProfile));
+        }
+
+        // Auto-save brand settings
+        document.getElementById('brandTone')?.addEventListener('change', saveBrandProfile);
+        document.getElementById('brandIndustry')?.addEventListener('change', saveBrandProfile);
+        document.getElementById('brandAudience')?.addEventListener('change', saveBrandProfile);
+        document.getElementById('brandKeywords')?.addEventListener('input', saveBrandProfile);
+
+        // Auto-save content
+        function startAutoSave() {
+            setInterval(() => {
+                const content = {
+                    title: document.getElementById('contentTitle').value,
+                    main: document.getElementById('mainContent').value,
+                    type: currentTab,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('autoSave_' + currentTab, JSON.stringify(content));
+            }, 30000); // Every 30 seconds
+        }
+
+        // Voice Input (placeholder)
+        function toggleVoiceInput() {
+            alert('Voice input feature coming soon! Will use Web Speech API for dictation.');
+        }
+
+        // Fullscreen toggle
+        function toggleFullscreen(panel) {
+            alert(`Fullscreen mode for ${panel} panel coming soon!`);
+        }
+
+        // Refresh preview
+        function refreshPreview() {
+            updatePreview();
+        }
+
+        // Save project
+        function saveProject() {
+            const project = {
+                title: document.getElementById('contentTitle').value,
+                content: document.getElementById('mainContent').value,
+                type: currentTab,
+                brand: brandProfile,
+                saved: new Date().toISOString()
+            };
+
+            localStorage.setItem('project_' + Date.now(), JSON.stringify(project));
+            alert('Project saved successfully!');
+        }
+
+        // AI Assistant toggle
+        function toggleAIAssist() {
+            alert('AI Assistant panel coming soon! Will provide real-time suggestions as you type.');
+        }
+
+        // Insert template
+        function insertTemplate() {
+            alert('Template library coming soon! Choose from 100+ professional templates.');
+        }
+
+        // Brand voice analyzer
+        function analyzeBrandVoice() {
+            alert('Brand voice analyzer coming soon! Upload existing content to extract your unique voice.');
+        }
+
+        // Initialize Lucide icons when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // Re-initialize icons after any dynamic content changes
+        function refreshIcons() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+    </script>
+</body>
+</html>

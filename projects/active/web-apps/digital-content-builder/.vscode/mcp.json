@@ -1,0 +1,61 @@
+{
+  "mcp": {
+    "servers": {
+      "figma-context": {
+        "name": "Figma Context MCP",
+        "description": "Brings Figma design context into development workflow",
+        "command": "node",
+        "args": ["./mcp-servers/figma/index.js"],
+        "config": {
+          "apiKey": "${env:FIGMA_API_KEY}",
+          "fileId": "${env:FIGMA_FILE_ID}",
+          "enableDevMode": true,
+          "syncInterval": 5000
+        }
+      },
+      "memory-bank": {
+        "name": "Memory Bank MCP",
+        "description": "Persistent memory for design decisions and UI patterns",
+        "command": "python",
+        "args": ["../../memory-bank/memory_system_cli.py", "--mode", "mcp"],
+        "config": {
+          "storageType": "sqlite",
+          "dbPath": "./design-memory.db",
+          "categories": [
+            "design-patterns",
+            "color-schemes",
+            "component-usage",
+            "ui-decisions"
+          ]
+        }
+      },
+      "playwright-testing": {
+        "name": "Playwright Visual Testing",
+        "description": "Automated visual regression testing",
+        "command": "npx",
+        "args": ["playwright", "test", "--reporter=json"],
+        "config": {
+          "baseUrl": "http://localhost:5563",
+          "screenshotPath": "./tests/visual/screenshots",
+          "diffPath": "./tests/visual/diffs",
+          "updateSnapshots": false
+        }
+      },
+      "sequential-thinking": {
+        "name": "Sequential Thinking MCP",
+        "description": "Breaks complex UI tasks into logical steps",
+        "command": "node",
+        "args": ["./mcp-servers/sequential/index.js"],
+        "config": {
+          "maxSteps": 10,
+          "planningMode": "ui-design",
+          "outputFormat": "structured"
+        }
+      }
+    },
+    "discovery": {
+      "enabled": true,
+      "sources": ["claude-desktop", "cursor"]
+    }
+  }
+}

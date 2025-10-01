@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Studio Pro - AI-Powered Content Creation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 2025 Friendly & Welcoming Color Scheme */
+            --primary-coral: #ff7f7f;
+            --secondary-peach: #ffb299;
+            --accent-mint: #7dd3fc;
+            --light-bg: #fef7ff;
+            --warm-cream: #fdfbf7;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --input-bg: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --text-light: #a0aec0;
+            --border-color: rgba(255, 183, 153, 0.3);
+            --success: #68d391;
+            --warning: #fbd38d;
+            --error: #fc8181;
+            --gradient-primary: linear-gradient(135deg, #ff7f7f 0%, #ffb299 100%);
+            --gradient-accent: linear-gradient(135deg, #7dd3fc 0%, #93c5fd 100%);
+            --gradient-soft: linear-gradient(135deg, #fef7ff 0%, #fdfbf7 100%);
+            --glass-effect: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 183, 153, 0.2);
+            --shadow-soft: 0 10px 25px rgba(255, 127, 127, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gradient-soft);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 127, 127, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 178, 153, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(125, 211, 252, 0.06) 0%, transparent 50%);
+        }
+
+        /* Friendly Soft Card Base */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow:
+                var(--shadow-soft),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 15px 35px rgba(255, 127, 127, 0.2),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+        }
+
+        /* Header Section */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'SF Pro Display', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--gradient-primary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-secondary {
+            padding: 8px 16px;
+            background: var(--glass-effect);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Content Type Selection */
+        .content-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .content-type-btn {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 1.8rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .content-type-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 2px;
+            background: var(--gradient-primary);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .content-type-btn:hover::before {
+            opacity: 1;
+        }
+
+        .content-type-btn.active {
+            border-color: var(--primary-coral);
+            background: rgba(255, 127, 127, 0.15);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(255, 127, 127, 0.25);
+        }
+
+        .content-type-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 20px 40px rgba(255, 127, 127, 0.2);
+        }
+
+        .content-type-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-coral);
+            background: rgba(255, 127, 127, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .content-type-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .content-type-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            font-weight: 400;
+        }
+
+        /* Form Section */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            resize: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 127, 127, 0.08);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-coral);
+            box-shadow: 0 0 0 4px rgba(255, 127, 127, 0.15), 0 4px 12px rgba(255, 127, 127, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        /* Generate Button */
+        .generate-btn {
+            width: 100%;
+            padding: 18px 24px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(255, 127, 127, 0.4);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-btn .loading {
+            display: none;
+        }
+
+        .generate-btn.loading .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        .generate-btn.loading .text {
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Output Section */
+        .output-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .output-title {
+            font-family: 'SF Pro Display', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .view-toggles {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 4px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .view-toggle {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .view-toggle.active {
+            background: var(--gradient-primary);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 127, 127, 0.3);
+        }
+
+        .output-container {
+            flex: 1;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .output-content {
+            height: 100%;
+            overflow: auto;
+            padding: 1.5rem;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .code-view {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #f8f8f2;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        /* Export Actions */
+        .export-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .export-btn {
+            padding: 10px 16px;
+            background: var(--glass-effect);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                padding: 1rem;
+            }
+
+            .content-types {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .content-type-btn {
+                padding: 1rem 0.5rem;
+            }
+        }
+
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 16px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .notification.success {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* Lucide Icons (Inline SVG) */
+        .lucide {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .lucide-sm {
+            width: 16px;
+            height: 16px;
+        }
+
+        .lucide-lg {
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                Content Studio Pro
+            </div>
+            <div class="header-actions">
+                <a href="/api/health" class="btn-secondary">
+                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                    Status
+                </a>
+                <a href="/api-docs" class="btn-secondary">
+                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 1 4 4.5v15z"/>
+                    </svg>
+                    API Docs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Panel: Input Section -->
+        <div class="input-panel">
+            <!-- Content Type Selection -->
+            <div class="content-types">
+                <button class="content-type-btn" data-type="blog" onclick="selectContentType('blog')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z"/>
+                            <path d="M8 7h8"/>
+                            <path d="M8 11h8"/>
+                            <path d="M8 15h5"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Blog</div>
+                    <div class="content-type-desc">Articles & Posts</div>
+                </button>
+
+                <button class="content-type-btn" data-type="landing" onclick="selectContentType('landing')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="3" ry="3"/>
+                            <path d="m8 21 8 0"/>
+                            <path d="m12 17 0 4"/>
+                            <circle cx="7" cy="8" r="1"/>
+                            <circle cx="12" cy="8" r="1"/>
+                            <circle cx="17" cy="8" r="1"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Landing</div>
+                    <div class="content-type-desc">Pages & Sites</div>
+                </button>
+
+                <button class="content-type-btn" data-type="email" onclick="selectContentType('email')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z"/>
+                            <path d="m2 7 10 6 10-6"/>
+                            <circle cx="18" cy="12" r="2" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Email</div>
+                    <div class="content-type-desc">Templates</div>
+                </button>
+
+                <button class="content-type-btn" data-type="social" onclick="selectContentType('social')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="6"/>
+                            <path d="M15 14c.5-1 1.26-2 2-2 2.5 0 4.5 2 4.5 4.5S19.5 21 17 21s-4.5-2-4.5-4.5"/>
+                            <path d="M9 14c-.5-1-1.26-2-2-2-2.5 0-4.5 2-4.5 4.5S4.5 21 7 21s4.5-2 4.5-4.5"/>
+                            <circle cx="8" cy="6" r="1" fill="currentColor"/>
+                            <circle cx="16" cy="6" r="1" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Social</div>
+                    <div class="content-type-desc">Media Posts</div>
+                </button>
+
+                <button class="content-type-btn" data-type="ebook" onclick="selectContentType('ebook')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 1 4 4.5v15z"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Ebook</div>
+                    <div class="content-type-desc">Digital Books</div>
+                </button>
+
+                <button class="content-type-btn" data-type="course" onclick="selectContentType('course')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Course</div>
+                    <div class="content-type-desc">Learning Content</div>
+                </button>
+
+                <button class="content-type-btn" data-type="code" onclick="selectContentType('code')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <polyline points="16,18 22,12 16,6"/>
+                            <polyline points="8,6 2,12 8,18"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Code</div>
+                    <div class="content-type-desc">Documentation</div>
+                </button>
+
+                <button class="content-type-btn" data-type="video" onclick="selectContentType('video')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <polygon points="23,7 16,12 23,17"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Video</div>
+                    <div class="content-type-desc">Scripts</div>
+                </button>
+
+                <button class="content-type-btn" data-type="podcast" onclick="selectContentType('podcast')">
+                    <div class="content-type-icon">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="1"/>
+                            <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                    </div>
+                    <div class="content-type-title">Podcast</div>
+                    <div class="content-type-desc">Scripts</div>
+                </button>
+            </div>
+
+            <!-- Form Section -->
+            <div class="form-section glass-card" style="padding: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" for="prompt">Content Brief</label>
+                    <textarea
+                        class="form-input form-textarea"
+                        id="prompt"
+                        placeholder="Describe what you want to create. Be specific about your target audience, key points, and desired outcome..."
+                        maxlength="5000"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="model">AI Model</label>
+                    <select class="form-input" id="model">
+                        <option value="deepseek-chat">DeepSeek Chat (General)</option>
+                        <option value="deepseek-coder">DeepSeek Coder (Technical)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label class="form-label" for="temperature">Creativity</label>
+                        <select class="form-input" id="temperature">
+                            <option value="0.3">Conservative (0.3)</option>
+                            <option value="0.7" selected>Balanced (0.7)</option>
+                            <option value="1.0">Creative (1.0)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" for="maxTokens">Length</label>
+                        <select class="form-input" id="maxTokens">
+                            <option value="1000">Short (1K)</option>
+                            <option value="3000" selected>Medium (3K)</option>
+                            <option value="6000">Long (6K)</option>
+                            <option value="8000">Extended (8K)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="generate-btn" onclick="generateContent()">
+                    <span class="loading">
+                        <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                        </svg>
+                    </span>
+                    <span class="text">Generate Content</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel: Output Section -->
+        <div class="output-section">
+            <div class="output-header">
+                <h2 class="output-title">Generated Content</h2>
+                <div class="view-toggles">
+                    <button class="view-toggle active" data-view="preview" onclick="switchView('preview')">Preview</button>
+                    <button class="view-toggle" data-view="code" onclick="switchView('code')">Code</button>
+                    <button class="view-toggle" data-view="split" onclick="switchView('split')">Split</button>
+                </div>
+            </div>
+
+            <div class="output-container">
+                <div class="output-content" id="output-content">
+                    <div class="empty-state">
+                        <svg class="empty-icon lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                        </svg>
+                        <h3>Ready to Create</h3>
+                        <p>Select a content type and enter your brief to get started.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="export-actions" id="export-actions" style="display: none;">
+                <a href="#" class="export-btn" id="export-html">
+                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    HTML
+                </a>
+                <a href="#" class="export-btn" id="export-markdown">
+                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Markdown
+                </a>
+                <a href="#" class="export-btn" id="export-json">
+                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    JSON
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Global state
+        let currentContentType = 'blog';
+        let currentView = 'preview';
+        let generatedContent = null;
+
+        // Content type selection
+        function selectContentType(type) {
+            currentContentType = type;
+
+            // Update active state
+            document.querySelectorAll('.content-type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
+
+            // Update placeholder text based on content type
+            const placeholders = {
+                blog: "Write a comprehensive blog post about sustainable living practices. Target audience: environmentally conscious millennials. Include practical tips, statistics, and a compelling call-to-action.",
+                landing: "Create a high-converting landing page for a SaaS productivity tool. Include hero section, benefits, testimonials, pricing, and strong CTAs.",
+                email: "Design a welcome email sequence for new subscribers to a fitness app. Include onboarding steps, motivation, and feature highlights.",
+                social: "Create engaging social media posts for a tech startup launching a new AI tool. Include hooks, hashtags, and call-to-actions for LinkedIn and Twitter.",
+                ebook: "Outline and create content for an ebook about digital marketing strategies for small businesses. Include chapters, actionable insights, and case studies.",
+                course: "Develop a comprehensive online course curriculum about Python programming for beginners. Include modules, lessons, exercises, and assessments.",
+                code: "Create technical documentation for a React component library. Include API references, usage examples, and best practices.",
+                video: "Write a script for a 10-minute YouTube video about cryptocurrency investing basics. Include intro, main points, examples, and outro.",
+                podcast: "Create a podcast script about the future of remote work. Include interview questions, talking points, and segment transitions."
+            };
+
+            document.getElementById('prompt').placeholder = placeholders[type] || "Describe what you want to create...";
+        }
+
+        // View switching
+        function switchView(view) {
+            currentView = view;
+
+            // Update active state
+            document.querySelectorAll('.view-toggle').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+
+            // Update content display
+            updateContentDisplay();
+        }
+
+        // Content generation
+        async function generateContent() {
+            const prompt = document.getElementById('prompt').value.trim();
+            if (!prompt) {
+                showNotification('Please enter a content brief', 'error');
+                return;
+            }
+
+            const generateBtn = document.querySelector('.generate-btn');
+            generateBtn.classList.add('loading');
+            generateBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/deepseek/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        contentType: currentContentType,
+                        model: document.getElementById('model').value,
+                        temperature: parseFloat(document.getElementById('temperature').value),
+                        maxTokens: parseInt(document.getElementById('maxTokens').value)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                generatedContent = data;
+
+                updateContentDisplay();
+                document.getElementById('export-actions').style.display = 'flex';
+                showNotification('Content generated successfully!', 'success');
+
+            } catch (error) {
+                console.error('Generation error:', error);
+                showNotification(`Failed to generate content: ${error.message}`, 'error');
+            } finally {
+                generateBtn.classList.remove('loading');
+                generateBtn.disabled = false;
+            }
+        }
+
+        // Update content display
+        function updateContentDisplay() {
+            const outputContent = document.getElementById('output-content');
+
+            if (!generatedContent) {
+                outputContent.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-icon lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                        </svg>
+                        <h3>Ready to Create</h3>
+                        <p>Select a content type and enter your brief to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            switch (currentView) {
+                case 'preview':
+                    if (generatedContent.content && generatedContent.content.includes('<html')) {
+                        outputContent.innerHTML = `<iframe class="preview-iframe" srcdoc="${escapeHtml(generatedContent.content)}"></iframe>`;
+                    } else {
+                        outputContent.innerHTML = `<div style="padding: 1.5rem; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;">${generatedContent.rawContent || generatedContent.content}</div>`;
+                    }
+                    break;
+                case 'code':
+                    outputContent.innerHTML = `<pre class="code-view">${escapeHtml(generatedContent.content || generatedContent.rawContent || 'No content available')}</pre>`;
+                    break;
+                case 'split':
+                    outputContent.innerHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; height: 100%; border-radius: 8px; overflow: hidden;">
+                            <div style="border-right: 1px solid var(--border-color);">
+                                ${generatedContent.content && generatedContent.content.includes('<html') ?
+                                    `<iframe class="preview-iframe" srcdoc="${escapeHtml(generatedContent.content)}"></iframe>` :
+                                    `<div style="padding: 1.5rem; color: var(--text-primary); line-height: 1.6; overflow: auto; height: 100%; white-space: pre-wrap;">${generatedContent.rawContent || generatedContent.content}</div>`
+                                }
+                            </div>
+                            <pre class="code-view" style="margin: 0; border-radius: 0; height: 100%; overflow: auto;">${escapeHtml(generatedContent.content || generatedContent.rawContent || 'No content available')}</pre>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        // Export functionality
+        function setupExportButtons() {
+            document.getElementById('export-html').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (generatedContent) {
+                    downloadFile(generatedContent.content || generatedContent.rawContent, `${currentContentType}-content.html`, 'text/html');
+                }
+            });
+
+            document.getElementById('export-markdown').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (generatedContent) {
+                    const markdown = htmlToMarkdown(generatedContent.content || generatedContent.rawContent);
+                    downloadFile(markdown, `${currentContentType}-content.md`, 'text/markdown');
+                }
+            });
+
+            document.getElementById('export-json').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (generatedContent) {
+                    downloadFile(JSON.stringify(generatedContent, null, 2), `${currentContentType}-content.json`, 'application/json');
+                }
+            });
+        }
+
+        // Utility functions
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function htmlToMarkdown(html) {
+            // Simple HTML to Markdown conversion
+            return html
+                .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n')
+                .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n')
+                .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n')
+                .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
+                .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
+                .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
+                .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
+                .replace(/<[^>]*>/g, '')
+                .replace(/\n\s*\n\s*\n/g, '\n\n');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification(`Downloaded ${filename}`, 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            selectContentType('blog');
+            setupExportButtons();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        generateContent();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        switchView('preview');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        switchView('code');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        switchView('split');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "sessionId": "session_1757267447019_ojh1yqboh",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hello",
+      "timestamp": "2025-09-07T17:54:04.366Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! How can I help you today?",
+      "timestamp": "2025-09-07T17:54:06.025Z"
+    }
+  ],
+  "createdAt": "2025-09-07T17:50:47.020Z",
+  "updatedAt": "2025-09-07T17:54:06.025Z",
+  "model": "claude-sonnet-4-20250514"
+}
