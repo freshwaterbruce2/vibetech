@@ -1,0 +1,15 @@
+{
+  "name": "memory-bank",
+  "version": "1.0.0",
+  "description": "Memory management system for Claude Code",
+  "type": "commonjs",
+  "main": "memory_manager.js",
+  "scripts": {
+    "test": "node test_vscode_memory_integration.js",
+    "init": "node memory_cli.js init",
+    "stats": "node memory_cli.js stats",
+    "health": "node memory_cli.js health"
+  },
+  "author": "",
+  "license": "MIT"
+}

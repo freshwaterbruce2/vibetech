@@ -1,0 +1,13 @@
+{
+    "projects":  [
+                     "crypto",
+                     "monitoring"
+                 ],
+    "group":  "trading",
+    "timestamp":  "2025-09-29 10:47:54",
+    "options":  {
+                    "dashboard":  false,
+                    "autoQuality":  false,
+                    "watch":  false
+                }
+}

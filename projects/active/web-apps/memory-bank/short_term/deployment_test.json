@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-09-28T07:41:56.103913",
+  "memory_type": "short_term",
+  "key": "deployment_test",
+  "data": {
+    "deployment_test": true,
+    "timestamp": "2025-09-28"
+  },
+  "metadata": {
+    "deployment": true
+  },
+  "size_bytes": 52,
+  "checksum": "5e86c68fcefe0b613c18975af39db65b6f85ba2a2a7127a4fb2807ac5a33f49f",
+  "compression": null,
+  "restoration_info": null
+}
