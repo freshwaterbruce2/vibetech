@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  pipeline:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: data-pipeline
+    environment:
+      - PIPELINE_ENV=production
+      - LOG_LEVEL=INFO
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=pipeline_db
+      - DB_USER=pipeline_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ../data:/app/data
+      - ../logs:/app/logs
+      - ../output:/app/output
+      - ./config:/app/config
+    networks:
+      - pipeline-network
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: pipeline-postgres
+    environment:
+      - POSTGRES_DB=pipeline_db
+      - POSTGRES_USER=pipeline_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - pipeline-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: pipeline-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - pipeline-network
+    restart: unless-stopped
+
+  scheduler:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: pipeline-scheduler
+    command: ["python", "scripts/scheduler.py"]
+    environment:
+      - PIPELINE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./config:/app/config
+      - ../logs:/app/logs
+    networks:
+      - pipeline-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  monitoring:
+    image: grafana/grafana:latest
+    container_name: pipeline-monitoring
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=redis-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - pipeline-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:
+  grafana-data:
+
+networks:
+  pipeline-network:
+    driver: bridge

@@ -1,0 +1,233 @@
+# Production Configuration for Data Pipeline
+
+pipeline:
+  name: "Production Data Pipeline"
+  version: "1.0.0"
+  environment: "production"
+
+  # Processing settings
+  processing:
+    chunk_size: 50000
+    max_workers: 4
+    memory_limit_mb: 2048
+    timeout_seconds: 3600
+    retry_attempts: 3
+    retry_delay_seconds: 60
+
+  # Data sources
+  sources:
+    - name: "primary_database"
+      type: "postgresql"
+      config:
+        host: "${DB_HOST}"
+        port: 5432
+        database: "${DB_NAME}"
+        username: "${DB_USER}"
+        password: "${DB_PASSWORD}"
+        pool_size: 10
+        query_timeout: 300
+
+    - name: "file_storage"
+      type: "s3"
+      config:
+        bucket: "${S3_BUCKET}"
+        region: "${AWS_REGION}"
+        prefix: "raw-data/"
+
+    - name: "api_source"
+      type: "rest_api"
+      config:
+        base_url: "${API_BASE_URL}"
+        rate_limit: 100
+        timeout: 30
+        retry_count: 3
+
+  # Output destinations
+  outputs:
+    - name: "processed_database"
+      type: "postgresql"
+      config:
+        host: "${DB_HOST}"
+        port: 5432
+        database: "${DB_NAME}"
+        schema: "processed"
+        batch_size: 1000
+
+    - name: "data_warehouse"
+      type: "snowflake"
+      config:
+        account: "${SNOWFLAKE_ACCOUNT}"
+        warehouse: "${SNOWFLAKE_WAREHOUSE}"
+        database: "${SNOWFLAKE_DATABASE}"
+        schema: "public"
+
+    - name: "archive"
+      type: "s3"
+      config:
+        bucket: "${S3_BUCKET}"
+        prefix: "processed/"
+        format: "parquet"
+        compression: "snappy"
+
+# Validation rules
+validation:
+  enable_schema_check: true
+  enable_quality_check: true
+
+  quality_thresholds:
+    missing_ratio: 0.10      # Max 10% missing values
+    duplicate_ratio: 0.05    # Max 5% duplicates
+    outlier_ratio: 0.15      # Max 15% outliers
+
+  required_columns:
+    - name: "id"
+      type: "string"
+      nullable: false
+    - name: "timestamp"
+      type: "datetime"
+      nullable: false
+    - name: "value"
+      type: "numeric"
+      nullable: true
+
+  data_rules:
+    - column: "value"
+      min: 0
+      max: 1000000
+    - column: "timestamp"
+      after: "2020-01-01"
+      before: "2030-01-01"
+
+# Transformation settings
+transformation:
+  handle_missing: "median"
+  remove_outliers: true
+  outlier_method: "IQR"
+  outlier_threshold: 1.5
+
+  scaling:
+    enabled: true
+    method: "standard"
+    columns: ["auto"]  # Auto-detect numeric columns
+
+  encoding:
+    enabled: true
+    method: "one-hot"
+    max_categories: 50
+
+  feature_engineering:
+    create_interactions: true
+    create_polynomials: true
+    polynomial_degree: 2
+    create_time_features: true
+    create_text_features: true
+
+# Monitoring and alerting
+monitoring:
+  enable_profiling: true
+  enable_lineage: true
+  log_level: "INFO"
+
+  metrics:
+    track_memory: true
+    track_cpu: true
+    track_duration: true
+    track_row_counts: true
+    track_error_rates: true
+
+  alerting:
+    enabled: true
+    channels:
+      - type: "email"
+        recipients: ["data-team@company.com"]
+        on_failure: true
+        on_warning: true
+      - type: "slack"
+        webhook: "${SLACK_WEBHOOK}"
+        channel: "#data-pipeline"
+        on_failure: true
+      - type: "pagerduty"
+        api_key: "${PAGERDUTY_KEY}"
+        service_id: "${PAGERDUTY_SERVICE}"
+        on_critical: true
+
+  thresholds:
+    error_rate: 0.05         # Alert if >5% errors
+    processing_time: 3600    # Alert if >1 hour
+    memory_usage_mb: 1800    # Alert if >1.8GB
+
+# Scheduling
+scheduling:
+  enabled: true
+  timezone: "UTC"
+
+  jobs:
+    - name: "daily_processing"
+      cron: "0 2 * * *"  # 2 AM daily
+      pipeline: "main"
+      timeout: 7200
+      retry_on_failure: true
+
+    - name: "hourly_incremental"
+      cron: "0 * * * *"  # Every hour
+      pipeline: "incremental"
+      timeout: 1800
+
+    - name: "weekly_full_refresh"
+      cron: "0 3 * * 0"  # Sunday 3 AM
+      pipeline: "full_refresh"
+      timeout: 14400
+
+# Security
+security:
+  encryption:
+    at_rest: true
+    in_transit: true
+    algorithm: "AES-256"
+
+  authentication:
+    method: "oauth2"
+    provider: "${AUTH_PROVIDER}"
+    client_id: "${AUTH_CLIENT_ID}"
+    client_secret: "${AUTH_CLIENT_SECRET}"
+
+  audit:
+    enabled: true
+    log_all_access: true
+    log_all_changes: true
+    retention_days: 90
+
+# Performance optimization
+optimization:
+  cache:
+    enabled: true
+    provider: "redis"
+    ttl_seconds: 3600
+    max_size_mb: 512
+
+  parallel_processing:
+    enabled: true
+    max_workers: 4
+    chunk_size: 10000
+
+  query_optimization:
+    use_indexes: true
+    partition_by: ["date", "category"]
+    cluster_by: ["id"]
+
+# Backup and recovery
+backup:
+  enabled: true
+  retention_days: 30
+
+  schedule:
+    full: "0 1 * * 0"     # Weekly full backup
+    incremental: "0 1 * * *"  # Daily incremental
+
+  destinations:
+    - type: "s3"
+      bucket: "${BACKUP_BUCKET}"
+      prefix: "backups/"
+    - type: "glacier"
+      vault: "${GLACIER_VAULT}"
+      transition_days: 7

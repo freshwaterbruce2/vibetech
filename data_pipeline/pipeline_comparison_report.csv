@@ -1,0 +1,5 @@
+Dataset,Original Rows,Original Columns,Final Rows,Final Columns,Execution Time (s),Rows Removed,Features Added
+ecommerce,2000,12,1283,52,0.112,717,40
+customers,500,9,444,43,0.042,56,34
+products,200,8,200,32,0.033,0,24
+sales,1000,8,942,48,0.057,58,40
