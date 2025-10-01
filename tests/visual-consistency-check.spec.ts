@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test.describe('Visual Consistency Analysis', () => {
   test('Compare Services page design with other pages', async ({ page }) => {
@@ -109,7 +109,7 @@ test.describe('Visual Consistency Analysis', () => {
       return paddingStyles;
     });
 
-    console.log('Section padding styles:', paddingStyles);
+    console.log('Section padding styles:', sectionPadding);
 
     // Check container width consistency
     const containerWidths = await page.evaluate(() => {
