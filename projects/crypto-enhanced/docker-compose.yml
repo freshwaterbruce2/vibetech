@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  crypto-trader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vibe-crypto-trader
+    restart: unless-stopped
+
+    environment:
+      - KRAKEN_API_KEY=${KRAKEN_API_KEY}
+      - KRAKEN_SECRET_KEY=${KRAKEN_SECRET_KEY}
+      - TRADING_ENV=production
+      - PYTHONUNBUFFERED=1
+      - MAX_POSITION_SIZE=10
+      - MAX_TOTAL_EXPOSURE=10
+      - TRADING_PAIR=XLM/USD
+
+    volumes:
+      # Persist database
+      - ./trading.db:/app/trading.db
+      # Persist logs
+      - ./logs:/app/logs
+      # Optional: mount config for hot reloading (development only)
+      # - ./config.py:/app/config.py:ro
+
+    ports:
+      # Optional: expose health check port if you add one
+      - "8080:8080"
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.path.append('/app'); from kraken_client import KrakenClient; client = KrakenClient(); client.get_server_time(); print('OK')"]
+      interval: 60s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+    # Resource limits for safety
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: vibe-crypto-network
