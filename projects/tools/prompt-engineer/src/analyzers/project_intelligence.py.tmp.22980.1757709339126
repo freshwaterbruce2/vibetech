@@ -1,0 +1,673 @@
+#!/usr/bin/env python3
+"""
+Project Intelligence Analyzer
+
+Performs deep analysis of projects to identify actual issues, missing features,
+and improvement opportunities. Generates specific, actionable recommendations.
+"""
+
+import os
+import re
+import json
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Any
+from dataclasses import dataclass, asdict
+from datetime import datetime
+
+@dataclass
+class ProjectIssue:
+    """Represents a specific issue found in the project."""
+    type: str  # 'todo', 'empty_file', 'test_failure', 'missing_feature', etc.
+    severity: str  # 'critical', 'high', 'medium', 'low'
+    title: str
+    description: str
+    file_path: Optional[str] = None
+    line_number: Optional[int] = None
+    suggested_action: Optional[str] = None
+    context: Optional[Dict[str, Any]] = None
+
+@dataclass
+class ProjectAnalysisResult:
+    """Results of the intelligent project analysis."""
+    project_path: str
+    analysis_timestamp: str
+    project_type: str  # 'react', 'python', 'mixed', etc.
+    health_score: int  # 0-100
+    critical_issues: List[ProjectIssue]
+    high_priority_issues: List[ProjectIssue]
+    medium_priority_issues: List[ProjectIssue]
+    low_priority_issues: List[ProjectIssue]
+    suggestions: List[str]
+    tech_stack: List[str]
+    missing_features: List[str]
+    code_quality_metrics: Dict[str, Any]
+
+class ProjectIntelligenceAnalyzer:
+    """
+    Intelligent project analyzer that identifies real issues and opportunities.
+    """
+    
+    def __init__(self):
+        self.todo_patterns = [
+            r'(?i)#\s*(TODO|FIXME|HACK|XXX|BUG|NOTE)[:;\s](.+)',
+            r'(?i)//\s*(TODO|FIXME|HACK|XXX|BUG|NOTE)[:;\s](.+)',
+            r'(?i)/\*\s*(TODO|FIXME|HACK|XXX|BUG|NOTE)[:;\s](.+)\*/',
+        ]
+        
+        self.empty_file_patterns = {
+            '.tsx': ['export default', 'interface', 'const', 'function'],
+            '.ts': ['export', 'interface', 'const', 'function', 'class'],
+            '.py': ['def ', 'class ', 'import ', 'from '],
+            '.js': ['export', 'const', 'function', 'class'],
+            '.jsx': ['export default', 'const', 'function']
+        }
+        
+        # Common missing features by project type
+        self.feature_patterns = {
+            'react': [
+                {'name': 'Error Boundaries', 'indicators': ['ErrorBoundary', 'componentDidCatch'], 'files': ['**/*.tsx', '**/*.jsx']},
+                {'name': 'Loading States', 'indicators': ['loading', 'isLoading', 'pending'], 'files': ['**/*.tsx', '**/*.jsx']},
+                {'name': 'Input Validation', 'indicators': ['validate', 'schema', 'yup', 'zod'], 'files': ['**/*.ts', '**/*.tsx']},
+                {'name': 'Authentication', 'indicators': ['auth', 'login', 'token', 'session'], 'files': ['**/*.ts', '**/*.tsx']},
+                {'name': 'Testing', 'indicators': ['test', 'spec'], 'files': ['**/*.test.*', '**/*.spec.*']},
+            ],
+            'python': [
+                {'name': 'Error Handling', 'indicators': ['try:', 'except:', 'raise'], 'files': ['**/*.py']},
+                {'name': 'Logging', 'indicators': ['logging', 'logger', 'log'], 'files': ['**/*.py']},
+                {'name': 'Type Hints', 'indicators': ['typing', '-> ', ': str', ': int'], 'files': ['**/*.py']},
+                {'name': 'Testing', 'indicators': ['test_', 'pytest', 'unittest'], 'files': ['**/test_*.py', '**/*_test.py']},
+                {'name': 'Documentation', 'indicators': ['"""', "'''", 'docstring'], 'files': ['**/*.py']},
+            ],
+            'web': [
+                {'name': 'Security Headers', 'indicators': ['helmet', 'cors', 'csp'], 'files': ['**/server.*', '**/app.*']},
+                {'name': 'Rate Limiting', 'indicators': ['rateLimit', 'throttle'], 'files': ['**/server.*', '**/app.*']},
+                {'name': 'API Validation', 'indicators': ['validate', 'joi', 'ajv'], 'files': ['**/api/**', '**/routes/**']},
+            ]
+        }
+
+    def analyze_project(self, project_path: str, max_files: int = 1000) -> ProjectAnalysisResult:
+        """
+        Perform comprehensive analysis of the project.
+        """
+        project_path_obj = Path(project_path).resolve()
+        
+        if not project_path_obj.exists():
+            raise ValueError(f"Project path does not exist: {project_path}")
+        
+        # Initialize analysis result
+        result = ProjectAnalysisResult(
+            project_path=str(project_path_obj),
+            analysis_timestamp=datetime.now().isoformat(),
+            project_type=self._detect_project_type(project_path_obj),
+            health_score=0,
+            critical_issues=[],
+            high_priority_issues=[],
+            medium_priority_issues=[],
+            low_priority_issues=[],
+            suggestions=[],
+            tech_stack=self._analyze_tech_stack(project_path_obj),
+            missing_features=[],
+            code_quality_metrics={}
+        )
+        
+        # Perform various analyses
+        issues = []
+        issues.extend(self._scan_todo_comments(project_path_obj, max_files))
+        issues.extend(self._detect_empty_files(project_path_obj, max_files))
+        issues.extend(self._analyze_test_health(project_path_obj))
+        issues.extend(self._detect_missing_features(project_path_obj, result.project_type))
+        issues.extend(self._scan_security_issues(project_path_obj, max_files))
+        
+        # Apply priority refinement before categorization
+        refined_issues = self._refine_issue_priorities(issues)
+        
+        # Categorize issues by refined severity
+        for issue in refined_issues:
+            if issue.severity == 'critical':
+                result.critical_issues.append(issue)
+            elif issue.severity == 'high':
+                result.high_priority_issues.append(issue)
+            elif issue.severity == 'medium':
+                result.medium_priority_issues.append(issue)
+            else:
+                result.low_priority_issues.append(issue)
+        
+        # Calculate health score
+        result.health_score = self._calculate_health_score(result)
+        
+        # Generate suggestions
+        result.suggestions = self._generate_suggestions(result)
+        
+        return result
+
+    def _detect_project_type(self, project_path: Path) -> str:
+        """Detect the primary project type."""
+        indicators = {
+            'react': ['package.json', 'src/App.tsx', 'src/App.jsx', 'public/index.html'],
+            'python': ['requirements.txt', 'setup.py', 'pyproject.toml', 'main.py'],
+            'node': ['package.json', 'server.js', 'app.js'],
+            'java': ['pom.xml', 'build.gradle', 'src/main/java'],
+            'go': ['go.mod', 'main.go'],
+            'rust': ['Cargo.toml', 'src/main.rs']
+        }
+        
+        scores = {}
+        for project_type, files in indicators.items():
+            score = 0
+            for file in files:
+                if (project_path / file).exists():
+                    score += 1
+            if score > 0:
+                scores[project_type] = score
+        
+        if scores:
+            return max(scores, key=scores.get)
+        return 'mixed'
+
+    def _analyze_tech_stack(self, project_path: Path) -> List[str]:
+        """Analyze the technology stack used in the project."""
+        tech_stack = []
+        
+        # Check package.json for Node.js dependencies
+        package_json = project_path / 'package.json'
+        if package_json.exists():
+            try:
+                with open(package_json, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    deps = {**data.get('dependencies', {}), **data.get('devDependencies', {})}
+                    
+                    # React ecosystem
+                    if 'react' in deps:
+                        tech_stack.append('React')
+                    if 'typescript' in deps or any('typescript' in k for k in deps):
+                        tech_stack.append('TypeScript')
+                    if 'vite' in deps:
+                        tech_stack.append('Vite')
+                    if 'express' in deps:
+                        tech_stack.append('Express.js')
+                    if 'next' in deps:
+                        tech_stack.append('Next.js')
+                    if any('test' in k for k in deps):
+                        tech_stack.append('Testing Framework')
+            except (json.JSONDecodeError, FileNotFoundError):
+                pass
+        
+        # Check for Python
+        if (project_path / 'requirements.txt').exists() or (project_path / 'pyproject.toml').exists():
+            tech_stack.append('Python')
+        
+        # Check for other languages
+        if any(project_path.glob('*.go')):
+            tech_stack.append('Go')
+        if any(project_path.glob('*.rs')):
+            tech_stack.append('Rust')
+        if any(project_path.glob('*.java')):
+            tech_stack.append('Java')
+        
+        return tech_stack
+
+    def _scan_todo_comments(self, project_path: Path, max_files: int) -> List[ProjectIssue]:
+        """Scan for TODO, FIXME, HACK, and other comment markers."""
+        issues = []
+        file_count = 0
+        
+        for file_path in self._get_code_files(project_path):
+            if file_count >= max_files:
+                break
+            file_count += 1
+            
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    for line_num, line in enumerate(f, 1):
+                        for pattern in self.todo_patterns:
+                            match = re.search(pattern, line)
+                            if match:
+                                comment_type = match.group(1).upper()
+                                comment_text = match.group(2).strip()
+                                
+                                severity = 'critical' if comment_type in ['FIXME', 'BUG'] else 'medium'
+                                
+                                issues.append(ProjectIssue(
+                                    type='todo',
+                                    severity=severity,
+                                    title=f"{comment_type} comment found",
+                                    description=comment_text,
+                                    file_path=str(file_path.relative_to(project_path)),
+                                    line_number=line_num,
+                                    suggested_action=f"Review and address the {comment_type.lower()} comment"
+                                ))
+            except Exception:
+                continue
+        
+        return issues
+
+    def _detect_empty_files(self, project_path: Path, max_files: int) -> List[ProjectIssue]:
+        """Detect empty or stub files that need implementation."""
+        issues = []
+        file_count = 0
+        
+        for file_path in self._get_code_files(project_path):
+            if file_count >= max_files:
+                break
+            file_count += 1
+            
+            try:
+                file_size = file_path.stat().st_size
+                
+                # Check for very small files (likely empty or stubs)
+                if file_size < 100:  # Less than 100 bytes
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read().strip()
+                    
+                    # Check if file has meaningful content based on extension
+                    extension = file_path.suffix
+                    if extension in self.empty_file_patterns:
+                        has_meaningful_content = any(
+                            pattern in content for pattern in self.empty_file_patterns[extension]
+                        )
+                        
+                        if not has_meaningful_content:
+                            issues.append(ProjectIssue(
+                                type='empty_file',
+                                severity='high',
+                                title=f"Empty or stub file: {file_path.name}",
+                                description=f"File is only {file_size} bytes and appears to be empty or a stub",
+                                file_path=str(file_path.relative_to(project_path)),
+                                suggested_action=f"Implement the {file_path.stem} component/module",
+                                context={'file_size': file_size, 'content_preview': content[:200]}
+                            ))
+            except Exception:
+                continue
+        
+        return issues
+
+    def _analyze_test_health(self, project_path: Path) -> List[ProjectIssue]:
+        """Analyze test files and detect testing issues."""
+        issues = []
+        
+        # Look for test files
+        test_files = []
+        test_patterns = ['**/*test*', '**/*spec*', '**/test/**', '**/tests/**']
+        
+        for pattern in test_patterns:
+            test_files.extend(project_path.glob(pattern))
+        
+        # Check for projects with no tests
+        if not test_files:
+            # Look for source files that should have tests
+            source_files = list(self._get_code_files(project_path))
+            if len(source_files) > 5:  # Only flag if it's a substantial project
+                issues.append(ProjectIssue(
+                    type='missing_tests',
+                    severity='high',
+                    title="No test files found",
+                    description=f"Project has {len(source_files)} source files but no apparent test files",
+                    suggested_action="Add a testing framework and write unit tests for core functionality"
+                ))
+        
+        # TODO: Add actual test execution and failure detection
+        # This would require running test commands like `npm test` or `pytest`
+        # For now, we'll look for test-related error patterns in files
+        
+        return issues
+
+    def _detect_missing_features(self, project_path: Path, project_type: str) -> List[ProjectIssue]:
+        """Detect commonly missing features based on project type."""
+        issues = []
+        
+        if project_type in self.feature_patterns:
+            for feature in self.feature_patterns[project_type]:
+                feature_found = False
+                
+                # Search for indicators of this feature
+                for file_pattern in feature['files']:
+                    files = list(project_path.glob(file_pattern))
+                    for file_path in files:
+                        try:
+                            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                                content = f.read().lower()
+                                if any(indicator.lower() in content for indicator in feature['indicators']):
+                                    feature_found = True
+                                    break
+                        except Exception:
+                            continue
+                        if feature_found:
+                            break
+                    if feature_found:
+                        break
+                
+                if not feature_found:
+                    issues.append(ProjectIssue(
+                        type='missing_feature',
+                        severity='medium',
+                        title=f"Missing {feature['name']}",
+                        description=f"No evidence of {feature['name']} implementation found",
+                        suggested_action=f"Consider adding {feature['name']} to improve code quality and user experience"
+                    ))
+        
+        return issues
+
+    def _scan_security_issues(self, project_path: Path, max_files: int) -> List[ProjectIssue]:
+        """Scan for basic security issues with context awareness."""
+        issues = []
+        file_count = 0
+        
+        for file_path in self._get_code_files(project_path):
+            if file_count >= max_files:
+                break
+            file_count += 1
+            
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                    lines = content.split('\n')
+                    
+                    is_test_file = self._is_test_file(file_path)
+                    
+                    # Scan for hardcoded secrets (context-aware)
+                    secret_issues = self._detect_hardcoded_secrets(content, lines, file_path, project_path, is_test_file)
+                    issues.extend(secret_issues)
+                    
+                    # Scan for eval() usage (context-aware) 
+                    eval_issues = self._detect_eval_usage(content, lines, file_path, project_path, is_test_file)
+                    issues.extend(eval_issues)
+                    
+                    # Scan for innerHTML (context-aware)
+                    xss_issues = self._detect_innerHTML_usage(content, lines, file_path, project_path)
+                    issues.extend(xss_issues)
+                    
+                    # Scan for password logging
+                    logging_issues = self._detect_password_logging(content, lines, file_path, project_path, is_test_file)
+                    issues.extend(logging_issues)
+                    
+            except Exception:
+                continue
+        
+        return issues
+    
+    def _is_test_file(self, file_path: Path) -> bool:
+        """Check if a file is a test file."""
+        test_indicators = [
+            'test', 'spec', '__test__', '__tests__', 'tests/',
+            '.test.', '.spec.', 'test_', '_test.py', 'conftest'
+        ]
+        file_str = str(file_path).lower()
+        return any(indicator in file_str for indicator in test_indicators)
+    
+    def _detect_hardcoded_secrets(self, content: str, lines: List[str], file_path: Path, project_path: Path, is_test_file: bool) -> List[ProjectIssue]:
+        """Detect hardcoded secrets with context awareness."""
+        issues = []
+        
+        # More precise secret detection patterns
+        secret_patterns = [
+            (r'(?i)(api[_-]?key|secret_key|private_key|access_token)\s*[:=]\s*["\']([^"\']{20,})["\']', 'Potential API key or secret'),
+            (r'(?i)(password|passwd)\s*[:=]\s*["\']([^"\']{8,})["\']', 'Potential hardcoded password'),
+            (r'(?i)(client_secret|app_secret)\s*[:=]\s*["\']([^"\']{16,})["\']', 'Potential client secret')
+        ]
+        
+        for i, line in enumerate(lines, 1):
+            line_lower = line.lower()
+            
+            # Skip obviously safe contexts
+            if any(skip in line_lower for skip in [
+                'foreground:', 'background:', 'color:', '#', 'rgb', 'rgba',
+                'mock', 'example', 'placeholder', 'test_', 'dummy',
+                'console.log', 'console.debug'  # Debug output
+            ]):
+                continue
+            
+            # Skip test files with mock/example data
+            if is_test_file and any(test_safe in line_lower for test_safe in [
+                'mock', 'fake', 'test', 'example', 'stub', 'dummy'
+            ]):
+                continue
+                
+            for pattern, description in secret_patterns:
+                match = re.search(pattern, line)
+                if match:
+                    secret_value = match.group(2)
+                    
+                    # Skip if it looks like a color code, UUID format, or other safe patterns
+                    if self._is_safe_string_value(secret_value):
+                        continue
+                        
+                    severity = 'medium' if is_test_file else 'critical'
+                    
+                    issues.append(ProjectIssue(
+                        type='security',
+                        severity=severity,
+                        title="Potential hardcoded secret",
+                        description=f"{description} in {file_path.name}",
+                        file_path=str(file_path.relative_to(project_path)),
+                        line_number=i,
+                        suggested_action="Move secret to environment variables or secure key management"
+                    ))
+        
+        return issues
+    
+    def _detect_eval_usage(self, content: str, lines: List[str], file_path: Path, project_path: Path, is_test_file: bool) -> List[ProjectIssue]:
+        """Detect eval() usage with context awareness."""
+        issues = []
+        
+        eval_pattern = r'(?i)\beval\s*\('
+        
+        for i, line in enumerate(lines, 1):
+            if re.search(eval_pattern, line):
+                # More lenient for test files
+                severity = 'low' if is_test_file else 'high'
+                description = 'eval() usage in test code' if is_test_file else 'eval() function usage (security risk)'
+                
+                issues.append(ProjectIssue(
+                    type='security',
+                    severity=severity,
+                    title="eval() function detected",
+                    description=description,
+                    file_path=str(file_path.relative_to(project_path)),
+                    line_number=i,
+                    suggested_action="Consider safer alternatives to eval() for dynamic code execution"
+                ))
+        
+        return issues
+    
+    def _detect_innerHTML_usage(self, content: str, lines: List[str], file_path: Path, project_path: Path) -> List[ProjectIssue]:
+        """Detect innerHTML usage that could lead to XSS."""
+        issues = []
+        
+        innerHTML_pattern = r'(?i)innerHTML\s*='
+        
+        for i, line in enumerate(lines, 1):
+            if re.search(innerHTML_pattern, line):
+                # Check if it's obviously safe (static content)
+                if any(safe in line.lower() for safe in ['innerHTML = ""', "innerHTML = ''", 'innerHTML = `']):
+                    continue
+                    
+                issues.append(ProjectIssue(
+                    type='security',
+                    severity='medium',
+                    title="innerHTML usage detected",
+                    description="Potential XSS vulnerability with innerHTML",
+                    file_path=str(file_path.relative_to(project_path)),
+                    line_number=i,
+                    suggested_action="Use textContent or DOM manipulation methods instead of innerHTML for user data"
+                ))
+        
+        return issues
+    
+    def _detect_password_logging(self, content: str, lines: List[str], file_path: Path, project_path: Path, is_test_file: bool) -> List[ProjectIssue]:
+        """Detect password logging with context awareness."""
+        issues = []
+        
+        logging_pattern = r'(?i)(console\.log|print|logger?\.(?:info|debug|warn|error))\s*\([^)]*(?:password|passwd|secret)[^)]*\)'
+        
+        for i, line in enumerate(lines, 1):
+            if re.search(logging_pattern, line):
+                # Skip if it's obviously safe (contains "password" but safe usage)
+                if any(safe in line.lower() for safe in [
+                    'contains "password" but safe usage',  # Our own analysis comments
+                    'password validation', 'password strength', 'password field',
+                    'password input', 'no password', 'password required'
+                ]):
+                    # Convert to informational note instead of security issue
+                    issues.append(ProjectIssue(
+                        type='note',
+                        severity='low',
+                        title='NOTE comment found',
+                        description='contains "password" but safe usage',
+                        file_path=str(file_path.relative_to(project_path)),
+                        line_number=i,
+                        suggested_action="Review and address the note comment"
+                    ))
+                    continue
+                    
+                severity = 'low' if is_test_file else 'medium'
+                
+                issues.append(ProjectIssue(
+                    type='security',
+                    severity=severity,
+                    title="Password logging detected",
+                    description="Password or secret may be logged",
+                    file_path=str(file_path.relative_to(project_path)),
+                    line_number=i,
+                    suggested_action="Remove password/secret from logging statements"
+                ))
+        
+        return issues
+    
+    def _is_safe_string_value(self, value: str) -> bool:
+        """Check if a string value is likely safe (not a real secret)."""
+        # Color codes (hex colors)
+        if re.match(r'^#[0-9A-Fa-f]{6}$', value):
+            return True
+            
+        # Short values unlikely to be real secrets
+        if len(value) < 8:
+            return True
+            
+        # Common safe patterns
+        safe_patterns = [
+            r'^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$',  # UUID
+            r'^rgb\(.*\)$',  # RGB colors  
+            r'^rgba\(.*\)$',  # RGBA colors
+            r'^#[0-9A-Fa-f]+$',  # Hex colors
+            r'^[a-zA-Z0-9+/=]+$',  # Base64-like but too pattern-y to be real
+        ]
+        
+        return any(re.match(pattern, value) for pattern in safe_patterns)
+
+    def _get_code_files(self, project_path: Path) -> List[Path]:
+        """Get all code files in the project, excluding common ignore patterns."""
+        code_files = []
+        ignore_patterns = {
+            'node_modules', '.git', 'dist', 'build', '.next', 'coverage',
+            '__pycache__', '.pytest_cache', 'venv', '.venv'
+        }
+        
+        code_extensions = {
+            '.py', '.js', '.jsx', '.ts', '.tsx', '.go', '.rs', '.java',
+            '.c', '.cpp', '.h', '.hpp', '.cs', '.php', '.rb', '.swift', '.kt'
+        }
+        
+        for file_path in project_path.rglob('*'):
+            # Skip if file is in ignored directory
+            if any(part in ignore_patterns for part in file_path.parts):
+                continue
+            
+            # Skip if not a code file
+            if not file_path.is_file() or file_path.suffix not in code_extensions:
+                continue
+            
+            code_files.append(file_path)
+        
+        return code_files
+
+    def _calculate_health_score(self, result: ProjectAnalysisResult) -> int:
+        """Calculate a balanced health score for the project (0-100)."""
+        # Count different issue types
+        critical_count = len(result.critical_issues)
+        high_count = len(result.high_priority_issues)
+        medium_count = len(result.medium_priority_issues)
+        low_count = len(result.low_priority_issues)
+        
+        # Start with a base score of 100
+        base_score = 100
+        
+        # More balanced deduction system
+        score = base_score
+        
+        # Critical issues: Heavy penalty (each critical issue = -15 points)
+        if critical_count > 0:
+            score -= min(critical_count * 15, 45)  # Cap at 45 points max
+            
+        # High priority: Moderate penalty with diminishing returns
+        if high_count > 0:
+            # First 5 high issues = -3 each, next 10 = -2 each, rest = -1 each
+            high_penalty = (
+                min(high_count, 5) * 3 +
+                min(max(high_count - 5, 0), 10) * 2 +
+                max(high_count - 15, 0) * 1
+            )
+            score -= min(high_penalty, 30)  # Cap high priority penalty at 30 points
+            
+        # Medium priority: Light penalty with diminishing returns  
+        if medium_count > 0:
+            # First 10 medium issues = -1 each, rest = -0.5 each
+            medium_penalty = (
+                min(medium_count, 10) * 1 +
+                max(medium_count - 10, 0) * 0.5
+            )
+            score -= min(medium_penalty, 15)  # Cap medium priority penalty at 15 points
+            
+        # Low priority: Very light penalty
+        if low_count > 0:
+            score -= min(low_count * 0.5, 10)  # Cap low priority penalty at 10 points
+        
+        # Apply project type bonus (working projects get baseline credit)
+        if result.project_type != 'unknown':
+            score += 5  # Bonus for being an actual project
+            
+        # Tech stack bonus (modern stack gets points)
+        modern_tech_bonus = 0
+        modern_techs = ['React', 'TypeScript', 'Vite', 'Next.js', 'Vue', 'Angular']
+        if any(tech in result.tech_stack for tech in modern_techs):
+            modern_tech_bonus = 10
+        score += modern_tech_bonus
+        
+        # Ensure score stays in valid range
+        health_score = max(15, min(100, int(score)))  # Minimum 15, maximum 100
+        
+        return health_score
+
+    def _generate_suggestions(self, result: ProjectAnalysisResult) -> List[str]:
+        """Generate high-level suggestions based on the analysis."""
+        suggestions = []
+        
+        critical_count = len(result.critical_issues)
+        high_count = len(result.high_priority_issues)
+        
+        if critical_count > 0:
+            suggestions.append(f"🚨 Address {critical_count} critical issue(s) immediately")
+        
+        if high_count > 0:
+            suggestions.append(f"⚠️ Fix {high_count} high-priority issue(s)")
+        
+        if result.health_score < 50:
+            suggestions.append("💡 Consider major refactoring - health score is below 50%")
+        elif result.health_score < 75:
+            suggestions.append("🔧 Focus on code quality improvements")
+        else:
+            suggestions.append("✅ Project is in good health - focus on new features")
+        
+        # Specific suggestions based on issue types
+        todo_issues = [i for i in result.critical_issues + result.high_priority_issues if i.type == 'todo']
+        if len(todo_issues) > 5:
+            suggestions.append("📝 High number of TODO comments - consider sprint to address them")
+        
+        empty_files = [i for i in result.critical_issues + result.high_priority_issues if i.type == 'empty_file']
+        if empty_files:
+            suggestions.append("🔨 Complete stub implementations for better code coverage")
+        
+        return suggestions
+
+    def to_dict(self, result: ProjectAnalysisResult) -> Dict[str, Any]:
+        """Convert analysis result to dictionary for JSON serialization."""
+        return asdict(result)
