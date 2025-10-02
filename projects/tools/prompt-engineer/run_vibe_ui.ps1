@@ -26,7 +26,7 @@ $streamlitCheck = python -c "import streamlit" 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Host "⚠️  Streamlit not found. Installing dependencies..." -ForegroundColor Yellow
     python -m pip install -r requirements.txt
-    
+
     if ($LASTEXITCODE -ne 0) {
         Write-Host "❌ Failed to install dependencies." -ForegroundColor Red
         exit 1

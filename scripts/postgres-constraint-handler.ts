@@ -3,6 +3,15 @@
  * Handles error: duplicate key value violates unique constraint "IDX_1b101e71abe9ce72d910e95b9f"
  */
 
+import type {
+  BatchInsertOptions,
+  ConstraintMetadata,
+  DatabaseClient,
+  DatabaseRecord,
+  ExpressErrorHandler,
+  PostgresError
+} from './postgres-types';
+
 // Error codes for PostgreSQL
 const PG_ERROR_CODES = {
   UNIQUE_VIOLATION: '23505',
@@ -28,11 +37,23 @@ export class DatabaseConstraintError extends Error {
 }
 
 /**
+ * Type guard to check if error is a PostgresError
+ */
+function isPostgresError(error: unknown): error is PostgresError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    'constraint' in error
+  );
+}
+
+/**
  * Parse PostgreSQL error to extract constraint details
  */
-export function parsePostgresError(error: any): DatabaseConstraintError | null {
-  // Check if it's a PostgreSQL error
-  if (!error.code || !error.constraint) {
+export function parsePostgresError(error: unknown): DatabaseConstraintError | null {
+  // Type guard to check if error is a PostgresError
+  if (!isPostgresError(error)) {
     return null;
   }
 
@@ -81,16 +102,16 @@ export async function retryWithBackoff<T>(
   maxRetries: number = 3,
   initialDelay: number = 1000
 ): Promise<T> {
-  let lastError: any;
+  let lastError: Error = new Error('Max retries exceeded');
 
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await operation();
-    } catch (error: any) {
-      lastError = error;
+    } catch (error: unknown) {
+      lastError = error instanceof Error ? error : new Error(String(error));
 
       // Don't retry on constraint violations
-      if (error.code === PG_ERROR_CODES.UNIQUE_VIOLATION) {
+      if (isPostgresError(error) && error.code === PG_ERROR_CODES.UNIQUE_VIOLATION) {
         throw error;
       }
 
@@ -108,7 +129,7 @@ export async function retryWithBackoff<T>(
  */
 export class PostgresUpsertHandler {
   constructor(
-    private db: any, // Your database connection/client
+    private db: DatabaseClient,
     private tableName: string
   ) {}
 
@@ -116,10 +137,10 @@ export class PostgresUpsertHandler {
    * Insert with conflict resolution
    */
   async upsert(
-    data: Record<string, any>,
+    data: DatabaseRecord,
     conflictColumns: string[],
     updateColumns?: string[]
-  ): Promise<any> {
+  ): Promise<DatabaseRecord | null> {
     const columns = Object.keys(data);
     const values = Object.values(data);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
@@ -150,14 +171,14 @@ export class PostgresUpsertHandler {
     query += ' RETURNING *';
 
     try {
-      const result = await this.db.query(query, values);
-      return result.rows[0];
-    } catch (error: any) {
+      const result = await this.db.query<DatabaseRecord>(query, values);
+      return result.rows[0] || null;
+    } catch (error: unknown) {
       const constraintError = parsePostgresError(error);
       if (constraintError) {
         throw constraintError;
       }
-      throw error;
+      throw error instanceof Error ? error : new Error(String(error));
     }
   }
 
@@ -165,15 +186,12 @@ export class PostgresUpsertHandler {
    * Batch insert with duplicate handling
    */
   async batchInsert(
-    records: Record<string, any>[],
+    records: DatabaseRecord[],
     conflictColumns: string[],
-    options: {
-      chunkSize?: number;
-      onConflict?: 'skip' | 'update' | 'error';
-    } = {}
-  ): Promise<any[]> {
+    options: BatchInsertOptions = {}
+  ): Promise<DatabaseRecord[]> {
     const { chunkSize = 100, onConflict = 'skip' } = options;
-    const results: any[] = [];
+    const results: DatabaseRecord[] = [];
 
     // Process in chunks
     for (let i = 0; i < records.length; i += chunkSize) {
@@ -202,12 +220,14 @@ export class PostgresUpsertHandler {
               RETURNING *
             `;
 
-            const result = await this.db.query(query, values);
-            results.push(result.rows[0]);
+            const result = await this.db.query<DatabaseRecord>(query, values);
+            if (result.rows[0]) {
+              results.push(result.rows[0]);
+            }
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (onConflict === 'error') {
-            throw error;
+            throw error instanceof Error ? error : new Error(String(error));
           }
           // Log and continue for skip mode
           console.error(`Failed to insert record:`, error);
@@ -222,38 +242,39 @@ export class PostgresUpsertHandler {
 /**
  * Middleware for Express to handle constraint errors
  */
-export function constraintErrorHandler(
-  err: any,
-  req: any,
-  res: any,
-  next: any
-) {
+export const constraintErrorHandler: ExpressErrorHandler = (
+  err,
+  _req,
+  res,
+  next
+) => {
   const constraintError = parsePostgresError(err);
 
   if (constraintError) {
-    return res.status(409).json({
+    res.status(409).json({
       error: 'Constraint Violation',
       message: constraintError.message,
       code: constraintError.code,
       constraint: constraintError.constraint,
       detail: constraintError.detail
     });
+    return;
   }
 
   // Pass to next error handler
   next(err);
-}
+};
 
 /**
  * Helper to handle specific constraint "IDX_1b101e71abe9ce72d910e95b9f"
  */
 export async function handleSpecificConstraintViolation(
-  db: any,
-  error: any,
-  retryOperation?: () => Promise<any>
-): Promise<any> {
-  if (error.constraint !== 'IDX_1b101e71abe9ce72d910e95b9f') {
-    throw error;
+  db: DatabaseClient,
+  error: unknown,
+  retryOperation?: () => Promise<DatabaseRecord | null>
+): Promise<DatabaseRecord | null> {
+  if (!isPostgresError(error) || error.constraint !== 'IDX_1b101e71abe9ce72d910e95b9f') {
+    throw error instanceof Error ? error : new Error(String(error));
   }
 
   // First, identify what this constraint is
@@ -272,12 +293,12 @@ export async function handleSpecificConstraintViolation(
   `;
 
   try {
-    const result = await db.query(constraintQuery, ['IDX_1b101e71abe9ce72d910e95b9f']);
+    const result = await db.query<ConstraintMetadata>(constraintQuery, ['IDX_1b101e71abe9ce72d910e95b9f']);
 
     if (result.rows.length > 0) {
       const { table_name, column_name } = result.rows[0];
 
-      console.log(`Constraint violation on table: ${table_name}, column: ${column_name}`);
+      console.warn(`Constraint violation on table: ${table_name}, column: ${column_name}`);
 
       // Option 1: Try to update instead of insert
       if (retryOperation) {
@@ -304,7 +325,7 @@ export async function handleSpecificConstraintViolation(
 /**
  * Example usage in your application
  */
-export async function exampleUsage(db: any) {
+export async function exampleUsage(db: DatabaseClient): Promise<void> {
   const handler = new PostgresUpsertHandler(db, 'your_table');
 
   try {
@@ -319,15 +340,17 @@ export async function exampleUsage(db: any) {
       ['name', 'updated_at'] // Update these fields on conflict
     );
 
-    console.log('Upsert successful:', result);
-  } catch (error: any) {
+    if (result) {
+      console.warn('Upsert successful:', result);
+    }
+  } catch (error: unknown) {
     if (error instanceof DatabaseConstraintError) {
       console.error('Constraint violation:', error.message);
       // Handle specific constraint violation
       // Maybe update existing record or notify user
     } else {
       // Handle other errors
-      throw error;
+      throw error instanceof Error ? error : new Error(String(error));
     }
   }
 }

@@ -17,6 +17,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Blog = lazy(() => import('./pages/Blog'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Analytics = lazy(() => import('./components/dashboard/Dashboard'));
 const PalettePreview = lazy(() => import('./pages/PalettePreview'));
 const FuturisticDemo = lazy(() => import('./pages/FuturisticDemo'));
 const BlogPostPage = lazy(() => import('./pages/public/BlogPostPage'));
@@ -140,6 +141,7 @@ const App: React.FC = () => {
                   <Route path="/blog/:postId" element={<BlogPostPage />} />
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/analytics" element={<Analytics />} />
                   <Route path="/palette-preview" element={<PalettePreview />} />
                   <Route path="/futuristic-demo" element={<FuturisticDemo />} />
                   <Route path="/services" element={<Services />} />

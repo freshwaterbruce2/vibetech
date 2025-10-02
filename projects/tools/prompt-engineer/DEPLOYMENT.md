@@ -1,6 +1,6 @@
 # Prompt Engineer - Deployment Guide
-**Version**: 1.0.0  
-**Date**: October 1, 2025  
+**Version**: 1.0.0
+**Date**: October 1, 2025
 **Status**: Production Ready ✅
 
 ## 🚀 Quick Deployment
@@ -239,13 +239,13 @@ class RateLimiter:
     def __init__(self, max_scans_per_hour=10):
         self.max_scans = max_scans_per_hour
         self.scans = []
-    
+
     def can_scan(self):
         now = datetime.now()
         cutoff = now - timedelta(hours=1)
         self.scans = [s for s in self.scans if s > cutoff]
         return len(self.scans) < self.max_scans
-    
+
     def record_scan(self):
         self.scans.append(datetime.now())
 ```
@@ -480,6 +480,6 @@ Sign-off: _____________ Date: _______
 
 ---
 
-**Deployment Status**: Ready ✅  
-**Next Review**: 48 hours post-deployment  
+**Deployment Status**: Ready ✅
+**Next Review**: 48 hours post-deployment
 **Support Contact**: [Your contact information]

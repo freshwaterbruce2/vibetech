@@ -37,4 +37,5 @@ const DashboardMetricCard = ({ title, value, description, icon: Icon, trend }: M
   );
 };
 
+export { DashboardMetricCard };
 export default DashboardMetricCard;

@@ -26,7 +26,7 @@
 
 .EXAMPLE
     .\deploy.ps1 -Environment production
-    
+
 .EXAMPLE
     .\deploy.ps1 -Environment staging -SkipTests
 #>
@@ -35,10 +35,10 @@ param(
     [Parameter()]
     [ValidateSet('dev', 'staging', 'production')]
     [string]$Environment = 'dev',
-    
+
     [Parameter()]
     [switch]$SkipTests,
-    
+
     [Parameter()]
     [string]$RollbackVersion
 )
@@ -62,7 +62,7 @@ function Write-Step {
 
 function Test-Prerequisites {
     Write-Step "Checking prerequisites..." "Info"
-    
+
     # Check Python version
     try {
         $pythonVersion = python --version 2>&1
@@ -77,7 +77,7 @@ function Test-Prerequisites {
         Write-Step "❌ Python not found or version check failed" "Error"
         throw
     }
-    
+
     # Check pip
     try {
         $pipVersion = pip --version 2>&1
@@ -86,7 +86,7 @@ function Test-Prerequisites {
         Write-Step "❌ pip not found" "Error"
         throw
     }
-    
+
     # Check Git (optional but recommended)
     try {
         $gitVersion = git --version 2>&1
@@ -98,14 +98,14 @@ function Test-Prerequisites {
 
 function Install-Dependencies {
     Write-Step "Installing dependencies..." "Info"
-    
+
     try {
         # Upgrade pip first
         python -m pip install --upgrade pip --quiet
-        
+
         # Install requirements
         pip install -r requirements.txt --quiet
-        
+
         Write-Step "✅ Dependencies installed successfully" "Success"
     } catch {
         Write-Step "❌ Failed to install dependencies" "Error"
@@ -115,7 +115,7 @@ function Install-Dependencies {
 
 function Test-Installation {
     Write-Step "Running smoke tests..." "Info"
-    
+
     # Test 1: Import check
     try {
         $importTest = python -c "from src.collectors import CodeScanner, GitAnalyzer, InteractiveContextCollector; print('OK')" 2>&1
@@ -128,7 +128,7 @@ function Test-Installation {
         Write-Step "❌ Import test failed: $_" "Error"
         throw
     }
-    
+
     # Test 2: Scanner functionality
     try {
         $scanTest = python -c "from src.collectors import CodeScanner; s = CodeScanner(); r = s.scan_directory('.', recursive=False, max_files=1); print('OK')" 2>&1
@@ -141,7 +141,7 @@ function Test-Installation {
         Write-Step "❌ Scanner test failed: $_" "Error"
         throw
     }
-    
+
     # Test 3: Simple example
     try {
         $exampleOutput = python simple_example.py 2>&1
@@ -158,13 +158,13 @@ function Test-Installation {
 
 function Test-FullSuite {
     Write-Step "Running full test suite..." "Info"
-    
+
     try {
         $testResult = python -m pytest tests/ --tb=no -q 2>&1
         if ($testResult -match "(\d+) passed") {
             $passedTests = $Matches[1]
             Write-Step "✅ Test suite completed: $passedTests tests passed" "Success"
-            
+
             if ($testResult -match "(\d+) failed") {
                 $failedTests = $Matches[1]
                 Write-Step "⚠️  $failedTests tests failed (known test infrastructure issues)" "Warning"
@@ -177,16 +177,16 @@ function Test-FullSuite {
 
 function New-Backup {
     param([string]$BackupPath)
-    
+
     Write-Step "Creating backup..." "Info"
-    
+
     try {
         $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
         $backupFile = Join-Path $BackupPath "prompt-engineer-$timestamp.zip"
-        
+
         # Create backup directory if it doesn't exist
         New-Item -ItemType Directory -Path $BackupPath -Force | Out-Null
-        
+
         # Compress current state
         Compress-Archive -Path @(
             "src",
@@ -195,7 +195,7 @@ function New-Backup {
             "README.md",
             "simple_example.py"
         ) -DestinationPath $backupFile -Force
-        
+
         Write-Step "✅ Backup created: $backupFile" "Success"
         return $backupFile
     } catch {
@@ -206,9 +206,9 @@ function New-Backup {
 
 function Set-Configuration {
     param([string]$Env)
-    
+
     Write-Step "Configuring for $Env environment..." "Info"
-    
+
     switch ($Env) {
         'dev' {
             $env:PROMPT_ENGINEER_DEBUG = "true"
@@ -223,7 +223,7 @@ function Set-Configuration {
             $env:PROMPT_ENGINEER_MAX_FILES = "1000"
         }
     }
-    
+
     Write-Step "✅ Environment configured for $Env" "Success"
 }
 
@@ -232,13 +232,13 @@ function Write-DeploymentLog {
         [string]$Status,
         [string[]]$Issues = @()
     )
-    
+
     $logPath = "logs"
     New-Item -ItemType Directory -Path $logPath -Force | Out-Null
-    
+
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logFile = Join-Path $logPath "deployment-$(Get-Date -Format 'yyyyMMdd').log"
-    
+
     $logEntry = @"
 
 ========================================
@@ -255,7 +255,7 @@ Issues:
 $($Issues -join "`n")
 
 "@
-    
+
     Add-Content -Path $logFile -Value $logEntry
     Write-Step "✅ Deployment log written to $logFile" "Success"
 }
@@ -278,7 +278,7 @@ try {
     # Step 1: Pre-deployment checks
     Write-Host "`n=== Phase 1: Pre-Deployment Validation ===" -ForegroundColor Yellow
     Test-Prerequisites
-    
+
     # Step 2: Backup (for production only)
     if ($Environment -eq 'production') {
         Write-Host "`n=== Phase 2: Backup ===" -ForegroundColor Yellow
@@ -287,20 +287,20 @@ try {
             $deploymentIssues += "Backup creation failed (non-critical)"
         }
     }
-    
+
     # Step 3: Install dependencies
     Write-Host "`n=== Phase 3: Dependency Installation ===" -ForegroundColor Yellow
     Install-Dependencies
-    
+
     # Step 4: Configuration
     Write-Host "`n=== Phase 4: Environment Configuration ===" -ForegroundColor Yellow
     Set-Configuration -Env $Environment
-    
+
     # Step 5: Smoke tests
     if (-not $SkipTests) {
         Write-Host "`n=== Phase 5: Smoke Tests ===" -ForegroundColor Yellow
         Test-Installation
-        
+
         # Full test suite (optional)
         if ($Environment -eq 'production') {
             Test-FullSuite
@@ -308,12 +308,12 @@ try {
     } else {
         Write-Step "⚠️  Skipping tests (not recommended for production)" "Warning"
     }
-    
+
     # Step 6: Final validation
     Write-Host "`n=== Phase 6: Final Validation ===" -ForegroundColor Yellow
     Write-Step "Running health check..." "Info"
-    
-    $healthCheck = python -c @"
+
+    $pythonScript = @"
 from src.collectors import CodeScanner
 import json
 try:
@@ -322,22 +322,24 @@ try:
     print(json.dumps({'status': 'healthy', 'files': result['summary']['total_files']}))
 except Exception as e:
     print(json.dumps({'status': 'unhealthy', 'error': str(e)}))
-"@ 2>&1
-    
+"@
+
+    $healthCheck = python -c $pythonScript 2>&1
+
     $health = $healthCheck | ConvertFrom-Json
     if ($health.status -eq 'healthy') {
-        Write-Step "✅ Health check passed" "Success"
+        Write-Step "Health check passed" "Success"
     } else {
         throw "Health check failed: $($health.error)"
     }
-    
+
     $deploymentSuccess = $true
-    
+
 } catch {
     $deploymentSuccess = $false
     $deploymentIssues += "Deployment failed: $_"
     Write-Step "❌ Deployment failed: $_" "Error"
-    
+
     # Rollback if we have a backup
     if ($backupFile -and (Test-Path $backupFile)) {
         Write-Host "`n=== ROLLING BACK ===" -ForegroundColor Red
@@ -366,7 +368,7 @@ if ($deploymentSuccess) {
     Write-Host "  2. Run manual smoke test: python simple_example.py"
     Write-Host "  3. Test interactive mode: python -m src.collectors.interactive_collector"
     Write-Host "  4. Review deployment log: logs\deployment-$(Get-Date -Format 'yyyyMMdd').log"
-    
+
     if ($Environment -eq 'production') {
         Write-Host "`n⚠️  PRODUCTION DEPLOYMENT - Monitor closely for 48 hours" -ForegroundColor Yellow
     }

@@ -502,11 +502,12 @@ try {
         Write-EnhancedLog "Task detected - Analyzing for agent routing" "INFO"
 
         try {
-            # Route task through Claude Code Bridge
+            # Route task through Claude Code Bridge with working directory context
             $OriginalLocation = Get-Location
+            $WorkingDirectory = $OriginalLocation.Path
             Set-Location "C:\dev\projects\active\agents"
 
-            $AgentRouting = python claude_code_bridge.py --analyze "$UserPrompt" 2>&1
+            $AgentRouting = python claude_code_bridge.py --analyze "$UserPrompt" --working-directory "$WorkingDirectory" 2>&1
 
             if ($LASTEXITCODE -eq 0) {
                 Write-EnhancedLog "Agent routing analysis complete: $AgentRouting" "INFO"
