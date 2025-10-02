@@ -10,7 +10,7 @@
 - **Issue**: Purple (#B933FF) has contrast ratio of **2.68:1** against dark background (#080810)
 - **WCAG Requirement**: 4.5:1 minimum (AA standard)
 - **Impact**: Low - Purple is used sparingly for accents, not body text
-- **Recommendation**: 
+- **Recommendation**:
   - Consider lightening purple to #C855FF (3.5:1) or #D777FF (4.5:1)
   - Or restrict purple use to large text only (3:1 requirement)
   - Or use purple with background overlays for better contrast
