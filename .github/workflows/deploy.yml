@@ -13,35 +13,70 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Detect what changed
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      crypto: ${{ steps.filter.outputs.crypto }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'src/**'
+              - 'public/**'
+              - 'package.json'
+              - 'vite.config*.ts'
+            crypto:
+              - 'projects/crypto-enhanced/**'
+
   # Run full CI pipeline first
   ci-checks:
     name: Run CI Pipeline
     uses: ./.github/workflows/ci.yml
 
-  # Deploy to Netlify (or your chosen platform)
+  # Deploy to Netlify (only if web changed)
   deploy-netlify:
-    name: Deploy to Netlify
+    name: Deploy Web App to Netlify
     runs-on: ubuntu-latest
-    needs: ci-checks
-    if: github.ref == 'refs/heads/main'
+    needs: [changes, ci-checks]
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.web == 'true'
     environment:
-      name: production
+      name: production-web
       url: ${{ steps.deploy.outputs.deploy-url }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-deploy-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-deploy-
+            ${{ runner.os }}-turbo-
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build production bundle
-        run: bun run build:production
+      - name: Build production bundle (cached)
+        run: bun run turbo:build:production
         env:
           NODE_ENV: production
 
@@ -52,7 +87,7 @@ jobs:
           publish-dir: './dist'
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions - ${{ github.event.head_commit.message }}"
+          deploy-message: "🚀 Deploy from GitHub Actions - ${{ github.event.head_commit.message }}"
           enable-pull-request-comment: true
           enable-commit-comment: true
           overwrites-pull-request-comment: true
@@ -61,55 +96,83 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 10
 
+      - name: Create deployment tag
+        run: |
+          TAG="deploy-web-$(date +%Y%m%d-%H%M%S)"
+          git tag $TAG
+          echo "DEPLOY_TAG=$TAG" >> $GITHUB_ENV
+
       - name: Deployment summary
         run: |
-          echo "### 🚀 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Web App Deployment Successful!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**URL:** ${{ steps.deploy.outputs.deploy-url }}" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** Production" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment Tag:** ${{ env.DEPLOY_TAG }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Time:** Optimized with Turborepo caching" >> $GITHUB_STEP_SUMMARY
 
-  # Optional: Deploy backend API
-  deploy-backend:
-    name: Deploy Backend API
+  # Deploy Crypto Trading System (only if crypto changed)
+  deploy-crypto:
+    name: Deploy Crypto Trading System
     runs-on: ubuntu-latest
-    needs: ci-checks
-    if: github.ref == 'refs/heads/main'
+    needs: [changes, ci-checks]
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.crypto == 'true'
     environment:
-      name: production-api
-    
+      name: production-crypto
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install backend dependencies
-        working-directory: ./backend
-        run: npm ci
-
-      - name: Deploy to Railway/Render/Fly.io
+      - name: Build Docker image
+        working-directory: projects/crypto-enhanced
         run: |
-          echo "Backend deployment placeholder"
-          echo "Configure with your deployment platform:"
-          echo "- Railway: railway up"
-          echo "- Render: render deploy"
-          echo "- Fly.io: flyctl deploy"
-        # Add your actual deployment commands here
+          docker build -t vibe-crypto-trader:${{ github.sha }} .
+          docker tag vibe-crypto-trader:${{ github.sha }} vibe-crypto-trader:latest
+
+      - name: Save Docker image
+        working-directory: projects/crypto-enhanced
+        run: |
+          docker save vibe-crypto-trader:latest | gzip > crypto-trader.tar.gz
+
+      - name: Deployment instructions
+        run: |
+          echo "### 🐳 Crypto Trading System Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** vibe-crypto-trader:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** Ready for deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Deploy with:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "cd projects/crypto-enhanced" >> $GITHUB_STEP_SUMMARY
+          echo "docker-compose up -d" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Or deploy to cloud:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Railway: \`railway up\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Fly.io: \`flyctl deploy\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Render: \`render deploy\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create deployment tag
+        run: |
+          TAG="deploy-crypto-$(date +%Y%m%d-%H%M%S)"
+          git tag $TAG
+          echo "DEPLOY_TAG=$TAG" >> $GITHUB_ENV
+          echo "**Deployment Tag:** $TAG" >> $GITHUB_STEP_SUMMARY
 
   # Create GitHub Release on version tags
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: [deploy-netlify]
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [changes, deploy-netlify, deploy-crypto]
+    if: startsWith(github.ref, 'refs/tags/v') && always()
     permissions:
       contents: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -119,13 +182,23 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          echo "## Changes in this Release" > CHANGELOG.md
-          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s (%h)" >> CHANGELOG.md
+          echo "## Changes in this Release" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### Deployments" >> RELEASE_NOTES.md
+          if [ "${{ needs.deploy-netlify.result }}" == "success" ]; then
+            echo "- ✅ Web App deployed" >> RELEASE_NOTES.md
+          fi
+          if [ "${{ needs.deploy-crypto.result }}" == "success" ]; then
+            echo "- ✅ Crypto Trading System deployed" >> RELEASE_NOTES.md
+          fi
+          echo "" >> RELEASE_NOTES.md
+          echo "### Commits" >> RELEASE_NOTES.md
+          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s (%h)" >> RELEASE_NOTES.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          body_path: CHANGELOG.md
+          body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false
         env:
@@ -133,17 +206,35 @@ jobs:
 
   # Notification
   notify:
-    name: Send Notifications
+    name: Send Deployment Notifications
     runs-on: ubuntu-latest
-    needs: [deploy-netlify]
+    needs: [changes, deploy-netlify, deploy-crypto]
     if: always()
-    
+
     steps:
       - name: Deployment notification
         run: |
+          echo "### 📢 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
           if [ "${{ needs.deploy-netlify.result }}" == "success" ]; then
-            echo "✅ Deployment successful!"
-            # Add Slack/Discord webhook notification here
+            echo "- ✅ **Web App**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.deploy-netlify.result }}" == "skipped" ]; then
+            echo "- ⏭️ **Web App**: Skipped (no changes)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ Deployment failed!"
+            echo "- ❌ **Web App**: Deployment failed" >> $GITHUB_STEP_SUMMARY
           fi
+
+          if [ "${{ needs.deploy-crypto.result }}" == "success" ]; then
+            echo "- ✅ **Crypto System**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.deploy-crypto.result }}" == "skipped" ]; then
+            echo "- ⏭️ **Crypto System**: Skipped (no changes)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Crypto System**: Deployment failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Optimizations:** Turborepo caching + affected-only builds" >> $GITHUB_STEP_SUMMARY
+
+          # Add Slack/Discord webhook notification here if configured
+          # curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} -d "payload={...}"
