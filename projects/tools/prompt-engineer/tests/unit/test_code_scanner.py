@@ -196,7 +196,7 @@ async function asyncFunction() {
         
         # Should only find the .py file, not .pyc or __pycache__
         assert len(result['files']) == 1
-        assert result['files'][0]['path'].endswith('test.py')
+        assert result['files'][0].path.endswith('test.py')
     
     def test_analyze_file_syntax_error(self, temp_dir, scanner):
         """Test handling of files with syntax errors."""

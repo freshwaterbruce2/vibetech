@@ -108,13 +108,13 @@ Run the main script to start the application.
         assert 'javascript' in languages
         
         # Verify Python file analysis
-        python_files = [f for f in result['files'] if f['language'] == 'python']
+        python_files = [f for f in result['files'] if f.language == 'python']
         assert len(python_files) >= 1
         
         python_file = python_files[0]
-        assert len(python_file['classes']) >= 1
-        assert len(python_file['functions']) >= 1
-        assert 'ProjectManager' in [cls['name'] for cls in python_file['classes']]
+        assert len(python_file.classes) >= 1
+        assert len(python_file.functions) >= 1
+        assert 'ProjectManager' in [cls['name'] for cls in python_file.classes]
     
     @pytest.mark.skipif(not INTERACTIVE_AVAILABLE, reason="Interactive collector not available")
     def test_interactive_collector_programmatic(self, temp_project):

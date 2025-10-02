@@ -484,16 +484,17 @@ class MockDataGenerator:
         # Calculate total size
         total_size = sum(f['size'] for f in files) / (1024 * 1024)  # MB
         
+        # Ensure we don't sample more than available
+        available_imports = self.LANGUAGE_TEMPLATES[language]['common_imports']
+        sample_size = min(len(available_imports), random.randint(3, 8))
+        
         return MockProject(
             name=self.generate_project_name(),
             description=f"Mock {project_type} project for testing",
             language=language,
             framework=random.choice(self.LANGUAGE_TEMPLATES[language]['frameworks']),
             files=files,
-            dependencies=random.sample(
-                self.LANGUAGE_TEMPLATES[language]['common_imports'],
-                random.randint(3, 8)
-            ),
+            dependencies=random.sample(available_imports, sample_size),
             size_mb=total_size,
             created_date=datetime.now() - timedelta(days=random.randint(30, 365)),
             last_modified=datetime.now() - timedelta(days=random.randint(0, 30))
