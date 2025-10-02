@@ -384,7 +384,7 @@ class TestEndToEndWorkflow:
         self, integration_workspace, mock_data_generator
     ):
         """Test system performance with larger datasets."""
-        from fixtures.mock_data_generator import PerformanceDataGenerator
+        from tests.fixtures.mock_data_generator import PerformanceDataGenerator
 
         perf_generator = PerformanceDataGenerator(seed=42)
 
