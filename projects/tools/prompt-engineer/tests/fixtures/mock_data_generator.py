@@ -381,11 +381,10 @@ class MockDataGenerator:
         file_type = random.choice(['module', 'test', 'config', 'util'])
         content = self.generate_file_content(language, file_type)
         
-        # Generate metadata
-        imports = random.sample(
-            self.LANGUAGE_TEMPLATES[language]['common_imports'],
-            random.randint(1, 4)
-        )
+        # Generate metadata - ensure we don't sample more than available
+        available_imports = self.LANGUAGE_TEMPLATES[language]['common_imports']
+        sample_size = min(len(available_imports), random.randint(1, 4))
+        imports = random.sample(available_imports, sample_size)
         
         functions = []
         for _ in range(random.randint(2, 8)):

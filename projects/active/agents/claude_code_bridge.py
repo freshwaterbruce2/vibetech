@@ -20,7 +20,14 @@ sys.path.append(r'D:\learning-system')
 from agent_orchestrator import AgentOrchestrator
 from learning_adapter import LearningAdapter
 
-logging.basicConfig(level=logging.INFO)
+import sys
+
+# Configure logging to stderr to avoid interfering with JSON output
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s:%(name)s:%(message)s',
+    stream=sys.stderr
+)
 logger = logging.getLogger(__name__)
 
 
@@ -35,6 +42,7 @@ class ClaudeCodeBridge:
         self.learning_adapter = LearningAdapter()
         self.enhanced_definitions = self.load_enhanced_definitions()
         self.task_patterns = self.load_task_patterns()
+        self.agents_md_cache = {}  # Cache for AGENTS.md content
 
     def load_enhanced_definitions(self) -> Dict:
         """Load enhanced agent definitions with modern prompts"""
@@ -89,11 +97,199 @@ class ClaudeCodeBridge:
             ]
         }
 
+    def find_agents_md(self, working_directory: str = None) -> Optional[str]:
+        """
+        Find the nearest AGENTS.md file by traversing up the directory tree
+        Returns the content of the nearest AGENTS.md file or None if not found
+        """
+        if working_directory is None:
+            # Default to current working directory or common monorepo root
+            working_directory = Path.cwd()
+        else:
+            working_directory = Path(working_directory)
+
+        # Check cache first
+        cache_key = str(working_directory.resolve())
+        if cache_key in self.agents_md_cache:
+            return self.agents_md_cache[cache_key]
+
+        # Traverse up the directory tree looking for AGENTS.md
+        current_path = working_directory
+        agents_md_content = None
+
+        for _ in range(10):  # Limit traversal depth
+            agents_md_path = current_path / "AGENTS.md"
+            if agents_md_path.exists():
+                try:
+                    with open(agents_md_path, 'r', encoding='utf-8') as f:
+                        agents_md_content = f.read()
+                    logger.info(f"Found AGENTS.md at: {agents_md_path}")
+                    break
+                except Exception as e:
+                    logger.warning(f"Failed to read AGENTS.md at {agents_md_path}: {e}")
+
+            # Move up one directory
+            parent = current_path.parent
+            if parent == current_path:  # Reached root
+                break
+            current_path = parent
+
+        # Cache the result (even if None)
+        self.agents_md_cache[cache_key] = agents_md_content
+        return agents_md_content
+
+    def extract_agents_md_context(self, agents_md_content: str) -> Dict[str, Any]:
+        """
+        Extract relevant context from AGENTS.md content for agent enhancement
+        """
+        if not agents_md_content:
+            return {}
+
+        context = {
+            'project_type': 'general',
+            'technology_stack': [],
+            'quality_standards': [],
+            'performance_requirements': [],
+            'security_guidelines': [],
+            'testing_requirements': [],
+            'specific_patterns': []
+        }
+
+        content_lower = agents_md_content.lower()
+
+        # Detect project type - check more specific patterns first
+        # Check for monorepo root indicator
+        if 'monorepo' in content_lower and 'sophisticated multi-project' in content_lower:
+            context['project_type'] = 'monorepo-root'
+        # Crypto trading - check first before memory patterns
+        elif ('crypto enhanced trading' in content_lower or
+              'cryptocurrency trading' in content_lower or
+              'production trading system' in content_lower or
+              'kraken api integration' in content_lower or
+              ('trading system' in content_lower and 'real money' in content_lower) or
+              ('crypto' in content_lower and 'trading' in content_lower) or
+              'kraken' in content_lower):
+            context['project_type'] = 'crypto-trading'
+        # Memory system - more specific patterns only
+        elif ('enhanced memory system' in content_lower or
+              ('memory bank' in content_lower and 'claude code' in content_lower)):
+            context['project_type'] = 'memory-system'
+        elif 'hotel booking' in content_lower or 'booking platform' in content_lower:
+            context['project_type'] = 'booking-platform'
+        elif 'desktop application' in content_lower or 'tauri' in content_lower:
+            context['project_type'] = 'desktop-app'
+        elif 'claude commands' in content_lower or 'command system' in content_lower:
+            context['project_type'] = 'command-system'
+        elif 'web application' in content_lower and 'react' in content_lower:
+            context['project_type'] = 'web-application'
+        elif 'memory' in content_lower and 'learning' in content_lower:
+            context['project_type'] = 'memory-system'
+        elif 'command' in content_lower or 'hook' in content_lower:
+            context['project_type'] = 'command-system'
+
+        # Extract technology stack
+        tech_indicators = {
+            'react': r'\breact\b',
+            'typescript': r'\btypescript\b',
+            'vite': r'\bvite\b',
+            'tauri': r'\btauri\b',
+            'python': r'\bpython\b',
+            'sqlite': r'\bsqlite\b',
+            'shadcn': r'\bshadcn\b',
+            'tailwind': r'\btailwind\b',
+            'playwright': r'\bplaywright\b',
+            'vitest': r'\bvitest\b'
+        }
+
+        for tech, pattern in tech_indicators.items():
+            if re.search(pattern, content_lower):
+                context['technology_stack'].append(tech)
+
+        # Extract performance requirements
+        perf_patterns = [
+            r'<(\d+)ms',  # Performance targets like <500ms
+            r'lighthouse.*score.*>(\d+)',  # Lighthouse scores
+            r'bundle.*size.*<(\d+)',  # Bundle size limits
+            r'memory.*<(\d+)',  # Memory limits
+        ]
+
+        for pattern in perf_patterns:
+            matches = re.findall(pattern, content_lower)
+            if matches:
+                context['performance_requirements'].extend(matches)
+
+        # Extract specific patterns and requirements
+        if 'production-ready' in content_lower:
+            context['specific_patterns'].append('production-ready-focus')
+        if 'no mvp' in content_lower or 'not mvp' in content_lower:
+            context['specific_patterns'].append('no-mvp-policy')
+        if 'security' in content_lower:
+            context['specific_patterns'].append('security-focused')
+        if 'real money' in content_lower or 'live trading' in content_lower:
+            context['specific_patterns'].append('high-stakes-system')
+
+        return context
+
+    def format_agents_md_context(self, agents_md_context: Dict[str, Any]) -> str:
+        """
+        Format AGENTS.md context into a readable summary for agent prompts
+        """
+        if not agents_md_context:
+            return "No project-specific AGENTS.md guidance found."
+
+        context_summary = []
+
+        # Project type and focus
+        project_type = agents_md_context.get('project_type', 'general')
+        context_summary.append(f"📋 **Project Type**: {project_type.replace('-', ' ').title()}")
+
+        # Technology stack
+        tech_stack = agents_md_context.get('technology_stack', [])
+        if tech_stack:
+            context_summary.append(f"🛠️ **Technology Stack**: {', '.join(tech_stack)}")
+
+        # Special patterns and requirements
+        patterns = agents_md_context.get('specific_patterns', [])
+        if patterns:
+            pattern_descriptions = {
+                'production-ready-focus': "🎯 **PRODUCTION-READY FOCUS**: Build complete, deployable solutions - NO MVPs",
+                'no-mvp-policy': "⛔ **NO MVP POLICY**: Always implement full, production-grade features",
+                'security-focused': "🔒 **SECURITY FOCUSED**: Implement comprehensive security measures",
+                'high-stakes-system': "⚠️ **HIGH-STAKES SYSTEM**: Handle with extreme care - real money/data involved"
+            }
+
+            # Add monorepo-specific guidance
+            if agents_md_context.get('project_type') == 'monorepo-root':
+                context_summary.append("🏭 **MONOREPO ROOT**: Follow cross-project integration patterns and maintain consistency")
+
+            for pattern in patterns:
+                if pattern in pattern_descriptions:
+                    context_summary.append(pattern_descriptions[pattern])
+
+        # Performance requirements
+        perf_reqs = agents_md_context.get('performance_requirements', [])
+        if perf_reqs:
+            context_summary.append(f"⚡ **Performance Requirements**: {', '.join(perf_reqs)}")
+
+        # Combine all context
+        if context_summary:
+            return "\n".join(context_summary) + "\n\n**🔥 CRITICAL**: Follow project-specific AGENTS.md patterns exactly. This guidance overrides generic approaches."
+        else:
+            return "General project - follow standard development best practices."
+
     def analyze_task(self, user_prompt: str, context: Dict = None) -> Dict[str, Any]:
         """
         Analyze user prompt to determine required agents and task complexity
+        Enhanced with AGENTS.md context for project-specific guidance
         """
         prompt_lower = user_prompt.lower()
+
+        # Read AGENTS.md context for project-specific guidance
+        working_directory = context.get('working_directory') if context else None
+        agents_md_content = self.find_agents_md(working_directory)
+        agents_md_context = self.extract_agents_md_context(agents_md_content)
+
+        logger.info(f"AGENTS.md context: {agents_md_context['project_type']} project with {len(agents_md_context['technology_stack'])} technologies")
 
         # Calculate task complexity
         complexity_indicators = [
@@ -188,7 +384,9 @@ class ClaudeCodeBridge:
             'complexity_score': complexity_score,
             'parallel_execution': parallel_beneficial,
             'task_type': self.determine_task_type(prompt_lower),
-            'estimated_duration': self.estimate_duration(complexity_score, len(required_agents))
+            'estimated_duration': self.estimate_duration(complexity_score, len(required_agents)),
+            'agents_md_context': agents_md_context,
+            'agents_md_content': agents_md_content[:500] + "..." if agents_md_content and len(agents_md_content) > 500 else agents_md_content
         }
 
     def determine_task_type(self, prompt_lower: str) -> str:
@@ -239,7 +437,10 @@ class ClaudeCodeBridge:
             agent_config = agents_config.get(agent_name, {})
             system_prompt = agent_config.get('system_prompt', '')
 
-            # Build enhanced prompt using the system prompt template
+            # Build enhanced prompt using the system prompt template with AGENTS.md context
+            agents_md_context = analysis.get('agents_md_context', {})
+            agents_md_summary = self.format_agents_md_context(agents_md_context)
+
             enhanced_prompt = f"""{system_prompt}
 
 <current_task>
@@ -252,6 +453,10 @@ Context Information:
 - Estimated Duration: {analysis['estimated_duration']} seconds
 - Task Type: {analysis['task_type']}
 </current_task>
+
+<project_context>
+{agents_md_summary}
+</project_context>
 
 <execution_instructions>
 You are operating in PRODUCTION MODE with the following requirements:
@@ -277,13 +482,19 @@ Begin by thinking step by step about this {analysis['task_type']} task..."""
         return agent_tasks
 
     def enhance_general_prompt(self, user_prompt: str, analysis: Dict) -> str:
-        """Enhance prompt for general-purpose agent with task analysis"""
+        """Enhance prompt for general-purpose agent with task analysis and AGENTS.md context"""
+        agents_md_context = analysis.get('agents_md_context', {})
+        agents_md_summary = self.format_agents_md_context(agents_md_context)
+
         return f"""You are a general-purpose development agent handling a {analysis['task_type']} task.
 
 Task Analysis:
 - Complexity Score: {analysis['complexity_score']:.2f}/1.0
 - Estimated Duration: {analysis['estimated_duration']} seconds
 - Task Type: {analysis['task_type']}
+
+Project Context:
+{agents_md_summary}
 
 User Request: {user_prompt}
 
@@ -292,6 +503,8 @@ Please use the following workflow:
 2. SEARCH: Use WebSearch to find current 2025 best practices and solutions
 3. APPLY: Implement the solution using modern patterns and tools
 4. TEST: Verify the implementation works correctly
+
+Remember: Follow the project-specific AGENTS.md guidance above. This overrides generic development approaches.
 5. ITERATE: Refine based on testing results
 
 Focus on production-ready code with proper error handling, type safety, and documentation."""
@@ -393,6 +606,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Claude Code Bridge - Agent Routing')
     parser.add_argument('--analyze', type=str, help='Analyze task and provide routing recommendations')
+    parser.add_argument('--working-directory', type=str, help='Working directory for AGENTS.md context discovery')
     parser.add_argument('--test', action='store_true', help='Run test scenarios')
 
     args = parser.parse_args()
@@ -402,7 +616,12 @@ if __name__ == "__main__":
     if args.analyze:
         # Analyze single task for PowerShell hook
         try:
-            execution_plan = bridge.route_task(args.analyze)
+            # Prepare context with working directory for AGENTS.md discovery
+            context = {}
+            if args.working_directory:
+                context['working_directory'] = args.working_directory
+
+            execution_plan = bridge.route_task(args.analyze, context)
 
             # Output concise routing info for PowerShell
             routing_info = {

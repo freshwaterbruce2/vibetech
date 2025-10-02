@@ -74,3 +74,33 @@ desktop.ini
 DesktopCommanderMCP/
 Vibe-Tutor/
 opcode/
+
+# Sensitive files - API keys and credentials
+MY-API-KEYS.txt
+COPY-PASTE-VARIABLES.txt
+*.secret
+*.key
+*-KEYS.txt
+NETLIFY-ADD-VARIABLES.txt
+
+# Status reports and temporary documentation
+*-REPORT.md
+*-SUMMARY.md
+CLEANUP_REPORT.md
+LAUNCH-SUCCESS.md
+LAUNCH-SUMMARY.md
+AGENTS_VALIDATION_REPORT.md
+AGENT_CLI_SUCCESS_REPORT.md
+AGENTS_MD_INTEGRATION_REPORT.md
+
+# Log files
+*.log
+trading_new.log
+nx-init.log
+
+# State files
+nonce_state.json
+
+# Test artifacts
+playwright-report/
+test-results/

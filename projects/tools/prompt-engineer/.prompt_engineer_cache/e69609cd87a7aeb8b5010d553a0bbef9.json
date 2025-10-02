@@ -1,0 +1,176 @@
+{
+  "project_path": "C:\\dev\\projects\\tools\\prompt-engineer",
+  "analysis_timestamp": "2025-10-01T20:31:27.196195",
+  "project_type": "python",
+  "health_score": 97,
+  "critical_issues": [],
+  "high_priority_issues": [],
+  "medium_priority_issues": [],
+  "low_priority_issues": [
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Define props based on requirements",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 710,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement component functionality */}}",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 718,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement based on requirements",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 747,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement based on requirements\\npass\\n'",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 759,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement based on requirements\\n\"",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 761,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement based on requirements\\n\"",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 765,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement test for requirement: {requirement}",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 781,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement edge case tests",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 786,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Set up integration test environment",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 804,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement integration test for: {criterion}",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 809,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Clean up test environment",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 814,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Set up full system for E2E testing",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 830,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Implement full user journey test",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 835,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "low",
+      "title": "TODO comment",
+      "description": "Clean up full system",
+      "file_path": "C:\\dev\\projects\\tools\\prompt-engineer\\src\\engines\\spec_engine.py",
+      "line_number": 840,
+      "suggested_action": "Address the TODO item",
+      "context": null
+    }
+  ],
+  "suggestions": [
+    "Consider addressing 14 TODO items to improve code completion"
+  ],
+  "tech_stack": [
+    "Python",
+    "CSS",
+    "HTML"
+  ],
+  "missing_features": [],
+  "code_quality_metrics": {
+    "total_files": 138,
+    "total_lines": 33413,
+    "total_size": 1729250,
+    "file_types": {
+      ".md": 13,
+      ".py": 79,
+      ".json": 39,
+      ".yml": 1,
+      ".txt": 2,
+      ".yaml": 2,
+      ".html": 1,
+      ".css": 1
+    },
+    "issue_density": 0.10144927536231885
+  }
+}

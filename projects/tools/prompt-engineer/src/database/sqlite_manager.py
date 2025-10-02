@@ -68,8 +68,20 @@ class SQLiteContextManager:
                 timeout=self.connection_timeout
             )
             
-            # Enable row factory for dict-like access
-            self.conn.row_factory = sqlite3.Row
+            # Enable row factory for dict-like access with boolean conversion
+            def dict_factory(cursor, row):
+                """Convert row to dict with proper boolean handling."""
+                d = {}
+                for idx, col in enumerate(cursor.description):
+                    val = row[idx]
+                    # Convert SQLite integers to Python booleans for boolean fields
+                    if col[0] in ('is_active', 'is_dirty', 'has_untracked_files') and isinstance(val, int):
+                        d[col[0]] = bool(val)
+                    else:
+                        d[col[0]] = val
+                return d
+            
+            self.conn.row_factory = dict_factory
             
             # Apply Windows-specific optimizations
             self.optimization_settings = optimize_for_windows(self.conn)
@@ -99,6 +111,9 @@ class SQLiteContextManager:
     
     def _create_tables(self) -> None:
         """Create database tables."""
+        if self.conn is None:
+            raise sqlite3.Error("Database connection not established")
+            
         cursor = self.conn.cursor()
         
         # Projects table
@@ -479,6 +494,13 @@ class SQLiteContextManager:
     
     # Search Methods
     
+    def _sanitize_fts_query(self, query: str) -> str:
+        """Escape special characters in FTS5 query to prevent syntax errors."""
+        # Escape backslashes and quotes for FTS5
+        query = query.replace('\\', '\\\\').replace('"', '""')
+        # Remove or escape other FTS5 special characters if needed
+        return query
+    
     def search_context(self, query: str, profile_id: int = None, content_type: str = None, limit: int = 20) -> List[Dict]:
         """
         Search context using full-text search.
@@ -494,8 +516,11 @@ class SQLiteContextManager:
         """
         cursor = self.conn.cursor()
         try:
+            # Sanitize query for FTS5
+            safe_query = self._sanitize_fts_query(query)
+            
             where_clauses = ['context_search MATCH ?']
-            params = [query]
+            params = [safe_query]
             
             if profile_id:
                 where_clauses.append('profile_id = ?')
