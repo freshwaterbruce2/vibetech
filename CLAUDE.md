@@ -235,6 +235,63 @@ The trading system has been successfully restored to full functionality:
 - Support: `config.py`, `errors_simple.py`, `timestamp_utils.py`, `nonce_manager.py`, `instance_lock.py`
 - Entry: `start_live_trading.py`, `check_orders.py`, `run_tests.py`
 
+## MCP Server Configuration & Troubleshooting
+
+### Desktop Commander Enhanced Setup
+
+The monorepo uses Desktop Commander Enhanced for advanced file operations:
+
+**Configuration Location:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+**Recommended Configuration (Windows):**
+```json
+{
+  "mcpServers": {
+    "desktop-commander-enhanced": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": ["C:\\dev\\DesktopCommanderMCP\\dist\\desktop-commander-with-path.js"]
+    }
+  }
+}
+```
+
+**For npm package (alternative):**
+```json
+{
+  "mcpServers": {
+    "desktop-commander": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": ["-y", "@wonderwhy-er/desktop-commander@latest"]
+    }
+  }
+}
+```
+
+### Common MCP Issues
+
+1. **Version Mismatch** - Server shows different version than package.json
+   - Run `npm run sync-version` in MCP server directory
+   - Rebuild with `npm run build`
+   - Restart Claude Desktop completely
+
+2. **Connection Failures** - MCP tools not appearing
+   - Use full path to `npx.cmd` on Windows
+   - Validate JSON syntax in config file
+   - Check Node.js version compatibility
+
+3. **Timeout Errors** - Operations fail after 60 seconds
+   - Claude Desktop has hard 60s timeout (not configurable)
+   - Use streaming/progressive results for large operations
+   - Consider background processes for long-running tasks
+
+4. **Restart Protocol**
+   - Windows: Right-click system tray → Quit (NOT window close)
+   - Wait 10 seconds for complete shutdown
+   - Verify: `Get-Process | Where {$_.Name -like "*Claude*"}`
+   - Relaunch Claude Desktop
+
+**Full Troubleshooting Guide:** [docs/troubleshooting/MCP_SERVER_ISSUES.md](docs/troubleshooting/MCP_SERVER_ISSUES.md)
+
 ## Important Notes
 
 - Live trading requires explicit YES confirmation for safety
