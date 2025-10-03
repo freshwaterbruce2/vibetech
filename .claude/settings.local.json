@@ -60,7 +60,40 @@
       "WebFetch(domain:agents.md)",
       "Bash(git commit:*)",
       "Bash(npx eslint:*)",
-      "Read(//c/c/dev/**)"
+      "Read(//c/c/dev/**)",
+      "Bash(.scriptsagent.ps1 \"Create a comprehensive crypto trading dashboard component that displays real-time positions, P&L, and risk metrics with proper TypeScript types and responsive design\")",
+      "Bash(git log:*)",
+      "Bash(bun add:*)",
+      "Bash(test:*)",
+      "Bash(lsof:*)",
+      "Bash(ss:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run turbo:typecheck:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx update-browserslist-db:*)",
+      "Bash(node:*)",
+      "Bash(npm --version)",
+      "Bash(npx cap sync:*)",
+      "Bash(./gradlew:*)",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run:*)",
+      "Bash(.gradlew assembleDebug)",
+      "Bash(gradlew.bat assembleDebug:*)",
+      "Bash(./gradlew.bat:*)",
+      "WebFetch(domain:capacitorjs.com)",
+      "WebFetch(domain:v2.tauri.app)",
+      "Bash(git tag:*)",
+      "Bash(./nova-agent.exe --version)",
+      "Bash(start src-tauri/target/release/nova-agent.exe)",
+      "Read(//c/Users/**)",
+      "Bash(cargo build:*)",
+      "Bash(Select-Object -First 50)"
     ],
     "deny": [],
     "ask": [],
@@ -68,6 +101,30 @@
       "C:\\dev\\projects\\active\\web-apps\\vibe-tech-lovable\\backend",
       "C:\\dev\\projects\\active\\web-apps",
       "D:\\"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -NoProfile -File C:\\dev\\.claude\\hooks\\pre-tool-use.ps1 -ToolName {{toolName}}"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -NoProfile -File C:\\dev\\.claude\\hooks\\post-tool-use.ps1 -ToolName {{toolName}} -Success {{success}}"
+          }
+        ]
+      }
     ]
   }
 }
