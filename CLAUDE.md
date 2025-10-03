@@ -4,9 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-This is a multi-project monorepo with two primary focus areas:
+This is a multi-project monorepo with three primary focus areas:
 1. **React/TypeScript Web Application** (root level) - A Vite-based web app using shadcn/ui components
 2. **Python Trading System** (projects/crypto-enhanced) - Live cryptocurrency trading with Kraken API
+3. **Capacitor Mobile Apps** (various projects/) - Native Android/iOS apps from web code
+
+### Capacitor Projects in Monorepo
+
+**Vibe-Tutor** (`C:\dev\Vibe-Tutor`) - AI-powered homework manager for students
+- **Type**: PWA + Capacitor Android app
+- **Tech Stack**: React 19 + TypeScript + Vite + Capacitor 7
+- **Status**: Production ready (v1.0.5)
+- **Documentation**: See `Vibe-Tutor/CLAUDE.md` for mobile-specific guidance
+- **Key Learning**: Always use Tailwind v3 (not CDN) and explicit CapacitorHttp for Android
+
+**Important Notes for Capacitor Development**:
+- ⚠️ Never use Tailwind CSS from CDN - Android WebView incompatible with v4
+- ⚠️ Never rely on automatic fetch() patching - Use `CapacitorHttp.request()` explicitly
+- ⚠️ Always increment `versionCode` on each Android build to force cache clear
+- ⚠️ Test on real devices, not just emulators or browsers
 
 ## Key Commands
 
