@@ -194,6 +194,52 @@ python -m pytest tests/ # Alternative test runner
 - API rate limiting: Implement proper backoff and circuit breakers
 - Memory leaks: Regular profiling and monitoring
 
+#### MCP Server Troubleshooting
+**Desktop Commander & Other MCP Servers**
+
+Common issues when working with MCP servers in Claude Desktop/Code:
+
+1. **Version Mismatch**
+   - **Symptom**: Server reports different version than package.json
+   - **Cause**: Version hardcoded in src/version.ts not synced
+   - **Fix**: Run `npm run sync-version` then rebuild
+   - **Verification**: Check logs for correct version
+
+2. **Connection Failures**
+   - **Symptom**: "Cannot connect to MCP server" errors
+   - **Cause**: Windows npx path issues or config errors
+   - **Fix**: Use full path `C:\\Program Files\\nodejs\\npx.cmd` in config
+   - **Verification**: Check `claude_desktop_config.json` syntax
+
+3. **Timeout Errors (Error -32001)**
+   - **Symptom**: Operations fail after 60 seconds
+   - **Cause**: Claude Desktop has hard 60s timeout limit
+   - **Workaround**: Use streaming/progressive results or background processes
+   - **Note**: Not configurable as of October 2025
+
+4. **Changes Don't Apply After Restart**
+   - **Symptom**: Rebuilt server shows old behavior
+   - **Cause**: Incomplete Claude Desktop quit
+   - **Fix**: Complete quit (system tray → Quit), wait 10s, relaunch
+   - **Verification**: Check process list for lingering Claude processes
+
+**Quick Diagnostic Steps:**
+```bash
+# 1. Check MCP server logs
+Get-Content "$env:APPDATA\Claude\logs\mcp-server-[name].log" -Tail 50
+
+# 2. Verify configuration
+Get-Content "$env:APPDATA\Claude\claude_desktop_config.json" | ConvertFrom-Json
+
+# 3. Check if Claude is running
+Get-Process | Where-Object {$_.Name -like "*Claude*"}
+
+# 4. Validate version sync
+cat dist/version.js && cat package.json | grep version
+```
+
+**Documentation**: See [MCP Server Troubleshooting Guide](docs/troubleshooting/MCP_SERVER_ISSUES.md)
+
 #### Debug Information Collection
 - Comprehensive logging at error points
 - Stack trace capture and analysis
