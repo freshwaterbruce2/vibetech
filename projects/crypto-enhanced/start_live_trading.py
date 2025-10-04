@@ -56,13 +56,17 @@ async def start_live_trading():
         print("Live trading cancelled.")
         return
 
-    # Check instance lock - temporarily skip for testing
+    # Check instance lock with proper error handling
     lock = InstanceLock()
-    # Force acquire for now to bypass stale lock issue
-    lock.release()  # Clear any stale locks
     if not lock.acquire():
-        print("[WARNING] Lock check failed, proceeding anyway...")
-        # Continue anyway for testing
+        logger.error("Another instance is already running!")
+        logger.error("If you're sure no other instance is running:")
+        logger.error("  1. Check for zombie processes: Get-Process python | Where-Object {$_.CommandLine -like '*start_live_trading*'}")
+        logger.error("  2. Remove stale lock: Remove-Item trading_instance.lock")
+        print("\n[ERROR] Cannot start - another instance detected")
+        return
+
+    logger.info("Instance lock acquired successfully")
 
     try:
         # Initialize components

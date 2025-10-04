@@ -45,33 +45,45 @@ class WebSocketManager:
         self.last_heartbeat = None
 
     async def start(self):
-        """Start WebSocket connections using TaskGroup (2025 pattern)"""
+        """Start WebSocket connections with independent error handling"""
         self.running = True
         logger.info("Starting WebSocket connections...")
 
-        # TaskGroup provides structured concurrency with automatic cleanup
-        try:
-            async with asyncio.TaskGroup() as tg:
-                tg.create_task(self._connect_public())
-                tg.create_task(self._connect_private())
-        except* Exception as eg:
-            # Handle exception group from TaskGroup
-            for exc in eg.exceptions:
-                log_error(exc, "websocket_start")
-                logger.error(f"WebSocket connection error: {exc}")
+        # Start tasks independently so one failure doesn't stop the other
+        # Each connection has its own reconnection logic
+        self._public_task = asyncio.create_task(self._connect_public())
+        self._private_task = asyncio.create_task(self._connect_private())
+        
+        logger.info("WebSocket connection tasks started")
 
     async def stop(self):
-        """Stop WebSocket connections"""
+        """Stop WebSocket connections with proper cleanup"""
         self.running = False
         logger.info("Stopping WebSocket connections...")
 
-        # Cancel background tasks
-        if self.heartbeat_task:
-            self.heartbeat_task.cancel()
-
-        if self.token_refresh_task:
-            self.token_refresh_task.cancel()
-            logger.info("Token refresh monitor stopped")
+        # Cancel and await all background tasks
+        tasks_to_cancel = []
+        
+        if hasattr(self, '_public_task') and not self._public_task.done():
+            tasks_to_cancel.append(self._public_task)
+        
+        if hasattr(self, '_private_task') and not self._private_task.done():
+            tasks_to_cancel.append(self._private_task)
+        
+        if self.heartbeat_task and not self.heartbeat_task.done():
+            tasks_to_cancel.append(self.heartbeat_task)
+        
+        if self.token_refresh_task and not self.token_refresh_task.done():
+            tasks_to_cancel.append(self.token_refresh_task)
+        
+        # Cancel all tasks
+        for task in tasks_to_cancel:
+            task.cancel()
+        
+        # Wait for cancellation to complete
+        if tasks_to_cancel:
+            await asyncio.gather(*tasks_to_cancel, return_exceptions=True)
+            logger.info(f"Cancelled {len(tasks_to_cancel)} background tasks")
 
         # Close WebSocket connections
         if self.public_ws:
@@ -255,11 +267,10 @@ class WebSocketManager:
                 if not self.ws_token_timestamp:
                     continue
 
-                # Parse RFC3339 timestamp to datetime
+                # Parse RFC3339 timestamp using TimestampUtils
                 try:
-                    token_created = datetime.fromisoformat(
-                        self.ws_token_timestamp.replace('Z', '+00:00')
-                    )
+                    from datetime import timezone
+                    token_created = TimestampUtils.parse_rfc3339(self.ws_token_timestamp)
                     now = datetime.now(timezone.utc)
                     token_age_minutes = (now - token_created).total_seconds() / 60
                 except (ValueError, AttributeError) as e:
@@ -734,20 +745,24 @@ class WebSocketManager:
 
     async def _monitor_heartbeat(self):
         """Monitor heartbeat at 1Hz frequency as per V2 spec"""
+        last_ping_time = time.time()
+        
         while self.running and (self.public_ws or self.private_ws):
             try:
-                self.last_heartbeat = time.time()
-                # V2 expects heartbeat every second
                 await asyncio.sleep(self.heartbeat_interval)
-
-                # Check if we've missed heartbeats (> 5 seconds)
-                if self.last_heartbeat and time.time() - self.last_heartbeat > 5:
-                    logger.warning("Heartbeat timeout detected, connection may be stale")
+                
+                current_time = time.time()
+                # Check if we've missed heartbeats from server (> 5 seconds since last received)
+                if self.last_heartbeat and current_time - self.last_heartbeat > 5:
+                    logger.warning(f"Heartbeat timeout: {current_time - self.last_heartbeat:.1f}s since last message")
                     # Trigger reconnection
                     if self.public_ws:
                         await self.public_ws.close()
                     if self.private_ws:
                         await self.private_ws.close()
+                    break
+                
+                last_ping_time = current_time
 
             except asyncio.CancelledError:
                 break

@@ -256,7 +256,8 @@ class TestKrakenClient:
     async def test_rate_limiting(self, client):
         """Test rate limiting functionality"""
         await client.connect()  # Connect first
-        start_time = asyncio.get_event_loop().time()
+        loop = asyncio.get_running_loop()
+        start_time = loop.time()
 
         # Make multiple rapid requests
         with patch.object(client.session, 'request') as mock_request:
@@ -267,7 +268,7 @@ class TestKrakenClient:
             tasks = [client._request('public/Time') for _ in range(5)]
             await asyncio.gather(*tasks)
 
-        end_time = asyncio.get_event_loop().time()
+        end_time = loop.time()
         elapsed = end_time - start_time
 
         # With rate limiting (3 calls per 3 seconds), 5 calls should take > 3 seconds
