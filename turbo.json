@@ -3,53 +3,60 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"],
-      "inputs": ["src/**", "index.html", "vite.config.ts", "public/**"],
+      "outputs": ["dist/**", "build/**", ".next/**"],
+      "inputs": ["src/**", "index.html", "vite.config.ts", "public/**", "package.json", "tsconfig.json"],
       "cache": true
     },
     "build:production": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"],
-      "inputs": ["src/**", "index.html", "vite.config.production.ts", "public/**"],
+      "outputs": ["dist/**", "build/**"],
+      "inputs": ["src/**", "index.html", "vite.config.production.ts", "public/**", "package.json", "tsconfig.json"],
       "env": ["NODE_ENV"],
       "cache": true
     },
     "build:dev": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"],
-      "inputs": ["src/**", "index.html", "vite.config.ts", "public/**"],
+      "outputs": ["dist/**", "build/**"],
+      "inputs": ["src/**", "index.html", "vite.config.ts", "public/**", "package.json", "tsconfig.json"],
       "cache": true
     },
     "test": {
       "dependsOn": ["^build"],
-      "outputs": ["playwright-report/**", "test-results/**"],
-      "inputs": ["tests/**", "playwright.config.ts", "src/**"],
+      "outputs": ["playwright-report/**", "test-results/**", "coverage/**"],
+      "inputs": ["tests/**", "src/**", "playwright.config.ts", "package.json"],
       "cache": true
     },
     "test:unit": {
       "outputs": ["coverage/**"],
-      "inputs": ["src/**/*.test.tsx", "src/**/*.test.ts", "vitest.config.ts", "src/test/setup.ts"],
+      "inputs": ["src/**/*.test.tsx", "src/**/*.test.ts", "vitest.config.ts", "src/test/setup.ts", "package.json"],
       "cache": true
     },
     "test:unit:coverage": {
       "outputs": ["coverage/**"],
-      "inputs": ["src/**/*.test.tsx", "src/**/*.test.ts", "vitest.config.ts", "src/test/setup.ts"],
+      "inputs": ["src/**/*.test.tsx", "src/**/*.test.ts", "vitest.config.ts", "src/test/setup.ts", "package.json"],
       "cache": true
+    },
+    "test:ui": {
+      "dependsOn": ["build"],
+      "outputs": ["playwright-report/**", "test-results/**"],
+      "inputs": ["tests/**", "src/**", "playwright.config.ts"],
+      "cache": false,
+      "persistent": true
     },
     "lint": {
       "outputs": [],
-      "inputs": ["src/**/*.ts", "src/**/*.tsx", "eslint.config.js"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx", "eslint.config.js", ".eslintrc.*", "package.json"],
       "cache": true
     },
     "lint:fix": {
       "outputs": [],
-      "inputs": ["src/**/*.ts", "src/**/*.tsx", "eslint.config.js"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx", "eslint.config.js", ".eslintrc.*"],
       "cache": false
     },
     "typecheck": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "outputs": [],
-      "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsconfig.json"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsconfig.json", "tsconfig.*.json", "package.json"],
       "cache": true
     },
     "quality": {
@@ -62,11 +69,24 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["NODE_ENV", "PORT"]
+    },
+    "start": {
+      "cache": false,
+      "persistent": true,
+      "env": ["NODE_ENV", "PORT"]
     },
     "preview": {
+      "dependsOn": ["build"],
       "cache": false,
       "persistent": true
+    },
+    "install": {
+      "cache": false
+    },
+    "clean": {
+      "cache": false
     },
     "crypto:test": {
       "cache": true,
@@ -79,13 +99,19 @@
   "globalDependencies": [
     "package.json",
     "tsconfig.json",
+    "tsconfig.*.json",
     "vite.config.ts",
     "vite.config.production.ts",
     "vitest.config.ts",
     "playwright.config.ts",
-    "eslint.config.js"
+    "eslint.config.js",
+    ".eslintrc.*",
+    "tailwind.config.ts",
+    "postcss.config.js"
   ],
   "globalEnv": [
-    "NODE_ENV"
+    "NODE_ENV",
+    "CI",
+    "VERCEL_ENV"
   ]
 }

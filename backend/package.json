@@ -5,12 +5,15 @@
   "main": "server.js",
   "scripts": {
     "start": "node server-production.js",
-    "dev": "nodemon server.js", 
+    "dev": "nodemon server.js",
     "dev:prod": "set NODE_ENV=production && nodemon server-production.js",
     "dev:prod:unix": "NODE_ENV=production nodemon server-production.js",
+    "build": "echo \"No build step required for Node.js backend\"",
     "prod": "set NODE_ENV=production && node server-production.js",
     "prod:unix": "NODE_ENV=production node server-production.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "echo \"No linting configured for backend\"",
+    "typecheck": "echo \"No TypeScript in backend\"",
     "health": "curl -f http://localhost:3000/health || exit 1"
   },
   "dependencies": {
