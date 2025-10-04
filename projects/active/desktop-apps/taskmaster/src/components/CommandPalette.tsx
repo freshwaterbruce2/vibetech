@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react';
 import { Command } from 'cmdk';
-import { useNavigate } from 'react-router-dom';
-import { useHotkeys } from 'react-hotkeys-hook';
 import {
-  Calendar,
-  Timer,
-  BarChart3,
-  Settings,
-  Plus,
-  Search,
-  CheckCircle2,
-  Home,
-  Moon,
-  Sun,
-  Inbox,
+    BarChart3,
+    Calendar,
+    CheckCircle2,
+    Home,
+    Inbox,
+    Moon,
+    Plus,
+    Search,
+    Settings,
+    Timer,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useNavigate } from 'react-router-dom';
 
 interface CommandItem {
   id: string;

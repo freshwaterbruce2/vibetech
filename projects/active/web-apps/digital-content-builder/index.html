@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Content Studio Pro - AI-Powered Content Creation</title>
+    <title>Vibe Content AI - Next-Gen AI Content Creation</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,59 +16,110 @@
         }
 
         :root {
-            /* 2025 Friendly & Welcoming Color Scheme */
-            --primary-coral: #ff7f7f;
-            --secondary-peach: #ffb299;
-            --accent-mint: #7dd3fc;
-            --light-bg: #fef7ff;
-            --warm-cream: #fdfbf7;
-            --card-bg: rgba(255, 255, 255, 0.85);
+            /* 2025 Vibe-Tech Light Purple Theme - Modern & Sophisticated */
+            --vibe-purple-50: #faf5ff;
+            --vibe-purple-100: #f3e8ff;
+            --vibe-purple-200: #e9d5ff;
+            --vibe-purple-300: #d8b4fe;
+            --vibe-purple-400: #c084fc;
+            --vibe-purple-500: #a855f7;
+            --vibe-purple-600: #9333ea;
+            --vibe-purple-700: #7c3aed;
+            --vibe-cyan: #06FFF0;
+            --vibe-neon: #B933FF;
+
+            /* Primary Colors - Very Light Purple Aesthetic */
+            --primary-light: var(--vibe-purple-100);
+            --primary-medium: var(--vibe-purple-200);
+            --primary-accent: var(--vibe-purple-300);
+            --accent-cyan: #e0fffe;
+            --accent-electric: var(--vibe-cyan);
+
+            /* Background System */
+            --light-bg: #fcfaff;
+            --warm-base: #fefcff;
+            --card-bg: rgba(255, 255, 255, 0.90);
+            --glass-bg: rgba(248, 245, 255, 0.85);
             --input-bg: #ffffff;
-            --text-primary: #2d3748;
-            --text-secondary: #718096;
-            --text-light: #a0aec0;
-            --border-color: rgba(255, 183, 153, 0.3);
-            --success: #68d391;
-            --warning: #fbd38d;
-            --error: #fc8181;
-            --gradient-primary: linear-gradient(135deg, #ff7f7f 0%, #ffb299 100%);
-            --gradient-accent: linear-gradient(135deg, #7dd3fc 0%, #93c5fd 100%);
-            --gradient-soft: linear-gradient(135deg, #fef7ff 0%, #fdfbf7 100%);
-            --glass-effect: rgba(255, 255, 255, 0.2);
-            --glass-border: rgba(255, 183, 153, 0.2);
-            --shadow-soft: 0 10px 25px rgba(255, 127, 127, 0.15);
+
+            /* Text Hierarchy */
+            --text-primary: #1a1625;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --text-accent: var(--vibe-purple-700);
+
+            /* Modern Borders & Effects */
+            --border-color: rgba(216, 180, 254, 0.25);
+            --border-hover: rgba(216, 180, 254, 0.4);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+
+            /* 2025 Gradient System */
+            --gradient-primary: linear-gradient(135deg, var(--vibe-purple-100) 0%, var(--vibe-purple-200) 100%);
+            --gradient-accent: linear-gradient(135deg, #e0fffe 0%, var(--vibe-purple-100) 100%);
+            --gradient-hero: linear-gradient(135deg, var(--vibe-purple-50) 0%, #e0fffe 50%, var(--vibe-purple-100) 100%);
+            --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 245, 255, 0.8) 100%);
+
+            /* Glass & Effects */
+            --glass-effect: rgba(248, 245, 255, 0.3);
+            --glass-border: rgba(216, 180, 254, 0.2);
+            --shadow-soft: 0 10px 25px rgba(168, 85, 247, 0.08);
+            --shadow-glow: 0 0 20px rgba(185, 51, 255, 0.15);
+            --neon-glow: 0 0 30px rgba(6, 255, 240, 0.3);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--gradient-soft);
+            background: var(--gradient-hero);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
             background-image:
-                radial-gradient(circle at 20% 80%, rgba(255, 127, 127, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 178, 153, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(125, 211, 252, 0.06) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 255, 240, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(216, 180, 254, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 60% 60%, rgba(185, 51, 255, 0.02) 0%, transparent 50%);
         }
 
-        /* Friendly Soft Card Base */
+        /* 2025 Vibe-Tech Glass Card System */
         .glass-card {
-            background: var(--card-bg);
+            background: var(--gradient-card);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
+            border-radius: 20px;
             box-shadow:
                 var(--shadow-soft),
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--vibe-purple-300), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
 
         .glass-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            border-color: var(--border-hover);
             box-shadow:
-                0 15px 35px rgba(255, 127, 127, 0.2),
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+                0 20px 40px rgba(168, 85, 247, 0.12),
+                var(--shadow-glow),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
         }
 
         /* Header Section */
@@ -92,13 +144,33 @@
 
         .logo {
             font-family: 'SF Pro Display', sans-serif;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            background: var(--gradient-primary);
+            background: linear-gradient(135deg, var(--vibe-purple-600) 0%, var(--accent-electric) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--vibe-purple-400), var(--accent-electric));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover::after {
+            transform: scaleX(1);
             align-items: center;
             gap: 8px;
         }
@@ -195,29 +267,52 @@
         }
 
         .content-type-btn.active {
-            border-color: var(--primary-coral);
-            background: rgba(255, 127, 127, 0.15);
+            border-color: var(--vibe-purple-400);
+            background: linear-gradient(135deg, var(--vibe-purple-100) 0%, var(--accent-cyan) 100%);
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(255, 127, 127, 0.25);
+            box-shadow: 0 15px 35px rgba(168, 85, 247, 0.2), var(--shadow-glow);
         }
 
         .content-type-btn:hover {
             transform: translateY(-4px) scale(1.05);
             background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 20px 40px rgba(255, 127, 127, 0.2);
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.15), var(--shadow-glow);
+            border-color: var(--border-hover);
+        }
+
+        .content-type-btn:hover .content-type-icon {
+            transform: scale(1.1);
+            box-shadow: var(--neon-glow);
         }
 
         .content-type-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             margin: 0 auto 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary-coral);
-            background: rgba(255, 127, 127, 0.1);
+            color: var(--vibe-purple-600);
+            background: linear-gradient(135deg, var(--vibe-purple-100) 0%, rgba(6, 255, 240, 0.1) 100%);
+            border: 1px solid var(--border-color);
             border-radius: 50%;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-type-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-electric) 0%, var(--vibe-neon) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .content-type-btn:hover .content-type-icon::before {
+            opacity: 0.1;
         }
 
         .content-type-title {
@@ -255,22 +350,24 @@
 
         .form-input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 18px 22px;
             background: var(--input-bg);
             border: 2px solid var(--border-color);
             border-radius: 16px;
             color: var(--text-primary);
             font-size: 14px;
             resize: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(255, 127, 127, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 12px rgba(168, 85, 247, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: var(--primary-coral);
-            box-shadow: 0 0 0 4px rgba(255, 127, 127, 0.15), 0 4px 12px rgba(255, 127, 127, 0.1);
+            border-color: var(--vibe-purple-400);
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1), 0 4px 16px rgba(168, 85, 247, 0.08);
             transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.98);
         }
 
         .form-input::placeholder {
@@ -282,30 +379,51 @@
             font-family: inherit;
         }
 
-        /* Generate Button */
+        /* Generate Button - 2025 Vibe-Tech Style */
         .generate-btn {
             width: 100%;
-            padding: 18px 24px;
-            background: var(--gradient-primary);
-            border: none;
+            padding: 20px 28px;
+            background: linear-gradient(135deg, var(--vibe-purple-500) 0%, var(--vibe-purple-600) 50%, var(--accent-electric) 100%);
+            border: 1px solid var(--vibe-purple-400);
             border-radius: 16px;
             color: white;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: var(--shadow-soft);
+            gap: 12px;
+            box-shadow: var(--shadow-soft), 0 0 20px rgba(185, 51, 255, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
 
         .generate-btn:hover {
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(255, 127, 127, 0.4);
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.3), var(--neon-glow);
+            border-color: var(--accent-electric);
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px) scale(0.98);
         }
 
         .generate-btn:disabled {
@@ -330,6 +448,117 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        .loading-icon {
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            fill: currentColor;
+        }
+
+        /* Content Analytics Styles */
+        .content-analytics {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-analytics .stat:hover {
+            transform: scale(1.05);
+            transition: transform 0.2s ease;
+        }
+
+        /* Enhanced notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 350px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, var(--vibe-purple-500), var(--vibe-purple-600));
+        }
+
+        /* Copy button hover effect */
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        /* Social sharing styles */
+        .social-actions {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+        }
+
+        .twitter-btn {
+            background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+        }
+
+        .linkedin-btn {
+            background: linear-gradient(135deg, #0077b5, #005885);
+        }
+
+        .email-btn {
+            background: linear-gradient(135deg, #ea4335, #d33b2c);
+        }
+
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .social-btn svg {
+            fill: currentColor;
         }
 
         /* Output Section */
@@ -375,10 +604,10 @@
         }
 
         .view-toggle.active {
-            background: var(--gradient-primary);
+            background: linear-gradient(135deg, var(--vibe-purple-400) 0%, var(--vibe-purple-500) 100%);
             color: white;
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(255, 127, 127, 0.3);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3), 0 0 12px rgba(185, 51, 255, 0.2);
         }
 
         .output-container {
@@ -552,11 +781,13 @@
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">
-                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="m2 17 10 5 10-5"/>
+                        <path d="m2 12 10 5 10-5"/>
                     </svg>
                 </div>
-                Content Studio Pro
+                Vibe Content AI
             </div>
             <div class="header-actions">
                 <a href="/api/health" class="btn-secondary">
@@ -581,7 +812,7 @@
         <div class="input-panel">
             <!-- Content Type Selection -->
             <div class="content-types">
-                <button class="content-type-btn" data-type="blog" onclick="selectContentType('blog')">
+                <button class="content-type-btn" data-type="blog">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z"/>
@@ -594,7 +825,7 @@
                     <div class="content-type-desc">Articles & Posts</div>
                 </button>
 
-                <button class="content-type-btn" data-type="landing" onclick="selectContentType('landing')">
+                <button class="content-type-btn" data-type="landing">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="2" y="3" width="20" height="14" rx="3" ry="3"/>
@@ -609,7 +840,7 @@
                     <div class="content-type-desc">Pages & Sites</div>
                 </button>
 
-                <button class="content-type-btn" data-type="email" onclick="selectContentType('email')">
+                <button class="content-type-btn" data-type="email">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M4 4h16a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z"/>
@@ -621,7 +852,7 @@
                     <div class="content-type-desc">Templates</div>
                 </button>
 
-                <button class="content-type-btn" data-type="social" onclick="selectContentType('social')">
+                <button class="content-type-btn" data-type="social">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="8" r="6"/>
@@ -635,7 +866,7 @@
                     <div class="content-type-desc">Media Posts</div>
                 </button>
 
-                <button class="content-type-btn" data-type="ebook" onclick="selectContentType('ebook')">
+                <button class="content-type-btn" data-type="ebook">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 1 4 4.5v15z"/>
@@ -645,7 +876,7 @@
                     <div class="content-type-desc">Digital Books</div>
                 </button>
 
-                <button class="content-type-btn" data-type="course" onclick="selectContentType('course')">
+                <button class="content-type-btn" data-type="course">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -656,7 +887,7 @@
                     <div class="content-type-desc">Learning Content</div>
                 </button>
 
-                <button class="content-type-btn" data-type="code" onclick="selectContentType('code')">
+                <button class="content-type-btn" data-type="code">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <polyline points="16,18 22,12 16,6"/>
@@ -667,29 +898,28 @@
                     <div class="content-type-desc">Documentation</div>
                 </button>
 
-                <button class="content-type-btn" data-type="video" onclick="selectContentType('video')">
+                <button class="content-type-btn" data-type="article">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <polygon points="23,7 16,12 23,17"/>
-                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
                         </svg>
                     </div>
-                    <div class="content-type-title">Video</div>
-                    <div class="content-type-desc">Scripts</div>
+                    <div class="content-type-title">Article</div>
+                    <div class="content-type-desc">Long-form content</div>
                 </button>
 
-                <button class="content-type-btn" data-type="podcast" onclick="selectContentType('podcast')">
+                <button class="content-type-btn" data-type="general">
                     <div class="content-type-icon">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="1"/>
-                            <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
+                            <path d="M20 6L9 17l-5-5"/>
                         </svg>
                     </div>
-                    <div class="content-type-title">Podcast</div>
-                    <div class="content-type-desc">Scripts</div>
+                    <div class="content-type-title">General</div>
+                    <div class="content-type-desc">Any Content</div>
                 </button>
             </div>
 
@@ -733,7 +963,7 @@
                     </div>
                 </div>
 
-                <button class="generate-btn" onclick="generateContent()">
+                <button class="generate-btn">
                     <span class="loading">
                         <svg class="lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M21 12a9 9 0 11-6.219-8.56"/>
@@ -749,9 +979,9 @@
             <div class="output-header">
                 <h2 class="output-title">Generated Content</h2>
                 <div class="view-toggles">
-                    <button class="view-toggle active" data-view="preview" onclick="switchView('preview')">Preview</button>
-                    <button class="view-toggle" data-view="code" onclick="switchView('code')">Code</button>
-                    <button class="view-toggle" data-view="split" onclick="switchView('split')">Split</button>
+                    <button class="view-toggle active" data-view="preview">Preview</button>
+                    <button class="view-toggle" data-view="code">Code</button>
+                    <button class="view-toggle" data-view="split">Split</button>
                 </div>
             </div>
 
@@ -796,6 +1026,43 @@
                     </svg>
                     JSON
                 </a>
+                <a href="#" class="export-btn" id="export-pdf">
+                    <svg class="lucide lucide-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    PDF
+                </a>
+            </div>
+
+            <!-- Social Sharing Section -->
+            <div class="social-actions" id="social-actions" style="display: none;">
+                <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 16px;">Share Your Content</h4>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button class="social-btn twitter-btn" data-platform="twitter">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                        </svg>
+                        Twitter
+                    </button>
+                    <button class="social-btn linkedin-btn" data-platform="linkedin">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+                            <circle cx="4" cy="4" r="2"/>
+                        </svg>
+                        LinkedIn
+                    </button>
+                    <button class="social-btn email-btn" data-platform="email">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        Email
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -847,17 +1114,33 @@
             updateContentDisplay();
         }
 
-        // Content generation
+        // Content generation (enhanced with validation and debounced updates)
         async function generateContent() {
             const prompt = document.getElementById('prompt').value.trim();
-            if (!prompt) {
-                showNotification('Please enter a content brief', 'error');
+
+            // Enhanced validation
+            const promptErrors = validatePrompt(prompt);
+            const settingsErrors = validateModelSettings();
+            const allErrors = [...promptErrors, ...settingsErrors];
+
+            if (allErrors.length > 0) {
+                showNotification(allErrors[0], 'error');
                 return;
             }
 
             const generateBtn = document.querySelector('.generate-btn');
+            const originalText = generateBtn.innerHTML;
             generateBtn.classList.add('loading');
             generateBtn.disabled = true;
+            generateBtn.innerHTML = `
+                <svg class="loading-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Generating...
+            `;
+
+            // Clear any existing update timeout
+            clearTimeout(window.displayUpdateTimeout);
 
             try {
                 const response = await fetch('/api/deepseek/generate', {
@@ -870,7 +1153,8 @@
                         contentType: currentContentType,
                         model: document.getElementById('model').value,
                         temperature: parseFloat(document.getElementById('temperature').value),
-                        maxTokens: parseInt(document.getElementById('maxTokens').value)
+                        maxTokens: parseInt(document.getElementById('maxTokens').value),
+                        stream: false
                     })
                 });
 
@@ -881,9 +1165,16 @@
                 const data = await response.json();
                 generatedContent = data;
 
-                updateContentDisplay();
-                document.getElementById('export-actions').style.display = 'flex';
-                showNotification('Content generated successfully!', 'success');
+                // Debounced display update to prevent flickering
+                clearTimeout(window.displayUpdateTimeout);
+                window.displayUpdateTimeout = setTimeout(() => {
+                    updateContentDisplay();
+                    updateContentAnalytics();
+                    document.getElementById('export-actions').style.display = 'flex';
+                    document.getElementById('social-actions').style.display = 'block';
+                    showNotification('Content generated successfully!', 'success');
+                    autoSaveContent();
+                }, 100);
 
             } catch (error) {
                 console.error('Generation error:', error);
@@ -891,10 +1182,11 @@
             } finally {
                 generateBtn.classList.remove('loading');
                 generateBtn.disabled = false;
+                generateBtn.innerHTML = originalText;
             }
         }
 
-        // Update content display
+        // Update content display with loading state handling
         function updateContentDisplay() {
             const outputContent = document.getElementById('output-content');
 
@@ -915,27 +1207,56 @@
                 return;
             }
 
+            // Show loading state if content is still being generated
+            if (document.querySelector('.generate-btn.loading')) {
+                outputContent.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-icon lucide loading-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <h3>Generating Content</h3>
+                        <p>Creating your ${currentContentType} content using AI...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ensure we have content to display
+            const content = generatedContent.content || generatedContent.rawContent;
+            if (!content || content.trim().length === 0) {
+                outputContent.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-icon lucide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                        </svg>
+                        <h3>Generation Error</h3>
+                        <p>No content was generated. Please try again.</p>
+                    </div>
+                `;
+                return;
+            }
+
             switch (currentView) {
                 case 'preview':
-                    if (generatedContent.content && generatedContent.content.includes('<html')) {
-                        outputContent.innerHTML = `<iframe class="preview-iframe" srcdoc="${escapeHtml(generatedContent.content)}"></iframe>`;
+                    if (content.includes('<html')) {
+                        outputContent.innerHTML = `<iframe class="preview-iframe" srcdoc="${escapeHtml(content)}"></iframe>`;
                     } else {
-                        outputContent.innerHTML = `<div style="padding: 1.5rem; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;">${generatedContent.rawContent || generatedContent.content}</div>`;
+                        outputContent.innerHTML = `<div style="padding: 1.5rem; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;">${content}</div>`;
                     }
                     break;
                 case 'code':
-                    outputContent.innerHTML = `<pre class="code-view">${escapeHtml(generatedContent.content || generatedContent.rawContent || 'No content available')}</pre>`;
+                    outputContent.innerHTML = `<pre class="code-view">${escapeHtml(content)}</pre>`;
                     break;
                 case 'split':
                     outputContent.innerHTML = `
                         <div style="display: grid; grid-template-columns: 1fr 1fr; height: 100%; border-radius: 8px; overflow: hidden;">
                             <div style="border-right: 1px solid var(--border-color);">
-                                ${generatedContent.content && generatedContent.content.includes('<html') ?
-                                    `<iframe class="preview-iframe" srcdoc="${escapeHtml(generatedContent.content)}"></iframe>` :
-                                    `<div style="padding: 1.5rem; color: var(--text-primary); line-height: 1.6; overflow: auto; height: 100%; white-space: pre-wrap;">${generatedContent.rawContent || generatedContent.content}</div>`
+                                ${content.includes('<html') ?
+                                    `<iframe class="preview-iframe" srcdoc="${escapeHtml(content)}"></iframe>` :
+                                    `<div style="padding: 1.5rem; color: var(--text-primary); line-height: 1.6; overflow: auto; height: 100%; white-space: pre-wrap;">${content}</div>`
                                 }
                             </div>
-                            <pre class="code-view" style="margin: 0; border-radius: 0; height: 100%; overflow: auto;">${escapeHtml(generatedContent.content || generatedContent.rawContent || 'No content available')}</pre>
+                            <pre class="code-view" style="margin: 0; border-radius: 0; height: 100%; overflow: auto;">${escapeHtml(content)}</pre>
                         </div>
                     `;
                     break;
@@ -977,6 +1298,277 @@
                 .replace(/'/g, "&#039;");
         }
 
+        // Advanced form validation functions
+        function validatePrompt(prompt) {
+            const errors = [];
+
+            if (!prompt || prompt.trim().length === 0) {
+                errors.push('Content brief is required');
+            } else if (prompt.trim().length < 10) {
+                errors.push('Content brief must be at least 10 characters');
+            } else if (prompt.length > 5000) {
+                errors.push('Content brief must be less than 5000 characters');
+            }
+
+            // Check for potentially harmful content
+            const harmfulPatterns = [
+                /script[^>]*>/i,
+                /javascript:/i,
+                /data:text\/html/i,
+                /vbscript:/i
+            ];
+
+            for (const pattern of harmfulPatterns) {
+                if (pattern.test(prompt)) {
+                    errors.push('Invalid characters detected in prompt');
+                    break;
+                }
+            }
+
+            return errors;
+        }
+
+        function validateModelSettings() {
+            const errors = [];
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const maxTokens = parseInt(document.getElementById('maxTokens').value);
+
+            if (isNaN(temperature) || temperature < 0 || temperature > 2) {
+                errors.push('Temperature must be between 0 and 2');
+            }
+
+            if (isNaN(maxTokens) || maxTokens < 50 || maxTokens > 4000) {
+                errors.push('Max tokens must be between 50 and 4000');
+            }
+
+            return errors;
+        }
+
+        // Copy to clipboard function
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showNotification('Content copied to clipboard!', 'success');
+                return true;
+            } catch (err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+
+                try {
+                    document.execCommand('copy');
+                    showNotification('Content copied to clipboard!', 'success');
+                    return true;
+                } catch (fallbackErr) {
+                    showNotification('Failed to copy content', 'error');
+                    return false;
+                } finally {
+                    document.body.removeChild(textArea);
+                }
+            }
+        }
+
+        // Content sharing functions
+        function shareContent(platform) {
+            if (!generatedContent) {
+                showNotification('No content to share', 'error');
+                return;
+            }
+
+            const content = generatedContent.rawContent || generatedContent.content;
+            const title = `AI Generated ${currentContentType.charAt(0).toUpperCase() + currentContentType.slice(1)} Content`;
+
+            const urls = {
+                twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(content.substring(0, 240) + '...')}`,
+                linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
+                facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
+                email: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(content.substring(0, 1000))}`
+            };
+
+            if (urls[platform]) {
+                window.open(urls[platform], '_blank', 'width=600,height=400');
+            }
+        }
+
+        // Word count and content analytics
+        function analyzeContent(content) {
+            if (!content) return null;
+
+            const text = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            const words = text.split(' ').filter(word => word.length > 0);
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+
+            return {
+                characters: text.length,
+                words: words.length,
+                sentences: sentences.length,
+                paragraphs: paragraphs.length,
+                readingTime: Math.ceil(words.length / 200) // Average reading speed
+            };
+        }
+
+        // Auto-save functionality
+        function autoSaveContent() {
+            if (generatedContent) {
+                const saveData = {
+                    content: generatedContent,
+                    contentType: currentContentType,
+                    timestamp: new Date().toISOString(),
+                    prompt: document.getElementById('prompt').value
+                };
+
+                localStorage.setItem('vibe_content_autosave', JSON.stringify(saveData));
+                showNotification('Content auto-saved', 'info');
+            }
+        }
+
+        function loadAutoSavedContent() {
+            const saved = localStorage.getItem('vibe_content_autosave');
+            if (saved) {
+                try {
+                    const saveData = JSON.parse(saved);
+                    const timeDiff = new Date() - new Date(saveData.timestamp);
+
+                    // Only load if less than 24 hours old
+                    if (timeDiff < 24 * 60 * 60 * 1000) {
+                        const shouldLoad = confirm('Found auto-saved content from ' +
+                            new Date(saveData.timestamp).toLocaleString() +
+                            '. Would you like to restore it?');
+
+                        if (shouldLoad) {
+                            generatedContent = saveData.content;
+                            selectContentType(saveData.contentType);
+                            document.getElementById('prompt').value = saveData.prompt;
+                            updateContentDisplay();
+                            document.getElementById('export-actions').style.display = 'flex';
+                            showNotification('Auto-saved content restored', 'success');
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to load auto-saved content:', e);
+                }
+            }
+        }
+
+        // Streaming content generation
+        async function generateContentStreaming() {
+            const prompt = document.getElementById('prompt').value.trim();
+
+            // Validate inputs
+            const promptErrors = validatePrompt(prompt);
+            const settingsErrors = validateModelSettings();
+            const allErrors = [...promptErrors, ...settingsErrors];
+
+            if (allErrors.length > 0) {
+                showNotification(allErrors[0], 'error');
+                return;
+            }
+
+            const generateBtn = document.querySelector('.generate-btn');
+            const originalText = generateBtn.textContent;
+            generateBtn.classList.add('loading');
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            try {
+                const response = await fetch('/api/deepseek/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        contentType: currentContentType,
+                        model: document.getElementById('model').value,
+                        temperature: parseFloat(document.getElementById('temperature').value),
+                        maxTokens: parseInt(document.getElementById('maxTokens').value),
+                        stream: true
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                // Handle streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                generatedContent = { content: '', rawContent: '' };
+
+                while (true) {
+                    const { done, value } = await reader.read();
+
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    // Process complete lines
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep incomplete line in buffer
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6).trim();
+
+                            if (data === '[DONE]') {
+                                // Final content processing and display update
+                                updateContentDisplay();
+                                return;
+                            }
+
+                            try {
+                                const parsed = JSON.parse(data);
+                                if (parsed.type === 'content' && parsed.content) {
+                                    generatedContent.content += parsed.content;
+                                    generatedContent.rawContent += parsed.content;
+                                    // Only update display every 500ms to prevent flickering
+                                    clearTimeout(window.displayUpdateTimeout);
+                                    window.displayUpdateTimeout = setTimeout(() => {
+                                        updateContentDisplay();
+                                    }, 500);
+                                } else if (parsed.type === 'content_processed') {
+                                    // Final processed content
+                                    generatedContent.content = parsed.content;
+                                    generatedContent.rawContent = parsed.content;
+                                    updateContentDisplay();
+                                } else if (parsed.content) {
+                                    // Fallback for old format
+                                    generatedContent.content += parsed.content;
+                                    generatedContent.rawContent += parsed.content;
+                                    clearTimeout(window.displayUpdateTimeout);
+                                    window.displayUpdateTimeout = setTimeout(() => {
+                                        updateContentDisplay();
+                                    }, 500);
+                                }
+                            } catch (e) {
+                                console.warn('Failed to parse streaming data:', e);
+                            }
+                        }
+                    }
+                }
+
+                document.getElementById('export-actions').style.display = 'flex';
+                document.getElementById('social-actions').style.display = 'block';
+                showNotification('Content generated successfully!', 'success');
+                autoSaveContent();
+
+            } catch (error) {
+                console.error('Generation error:', error);
+                showNotification(`Failed to generate content: ${error.message}`, 'error');
+            } finally {
+                generateBtn.classList.remove('loading');
+                generateBtn.disabled = false;
+                generateBtn.textContent = originalText;
+            }
+        }
+
         function htmlToMarkdown(html) {
             // Simple HTML to Markdown conversion
             return html
@@ -1004,6 +1596,96 @@
             showNotification(`Downloaded ${filename}`, 'success');
         }
 
+        // PDF Export functionality
+        async function exportToPDF() {
+            try {
+                showNotification('Generating PDF...', 'info');
+
+                const content = generatedContent.rawContent || generatedContent.content;
+                const analytics = analyzeContent(content);
+
+                // Create PDF-friendly HTML
+                const pdfHtml = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <title>${currentContentType.charAt(0).toUpperCase() + currentContentType.slice(1)} Content</title>
+                        <style>
+                            body {
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                line-height: 1.6;
+                                color: #333;
+                                max-width: 800px;
+                                margin: 0 auto;
+                                padding: 40px 20px;
+                            }
+                            h1, h2, h3 { color: #663399; margin-top: 2rem; }
+                            .header {
+                                text-align: center;
+                                border-bottom: 2px solid #663399;
+                                padding-bottom: 20px;
+                                margin-bottom: 30px;
+                            }
+                            .analytics {
+                                background: #f8f9fa;
+                                padding: 15px;
+                                border-radius: 8px;
+                                margin: 20px 0;
+                                border-left: 4px solid #663399;
+                            }
+                            .footer {
+                                text-align: center;
+                                margin-top: 40px;
+                                padding-top: 20px;
+                                border-top: 1px solid #eee;
+                                color: #666;
+                                font-size: 12px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>Vibe Content AI</h1>
+                            <h2>${currentContentType.charAt(0).toUpperCase() + currentContentType.slice(1)} Content</h2>
+                        </div>
+
+                        ${analytics ? `
+                        <div class="analytics">
+                            <strong>Content Analytics:</strong>
+                            ${analytics.words} words • ${analytics.characters} characters •
+                            ${analytics.readingTime} min read • ${analytics.paragraphs} paragraphs
+                        </div>
+                        ` : ''}
+
+                        <div class="content">
+                            ${content.replace(/<script[^>]*>.*?<\/script>/gi, '')}
+                        </div>
+
+                        <div class="footer">
+                            Generated by Vibe Content AI • ${new Date().toLocaleString()}
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                // Use browser's print functionality for PDF export
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(pdfHtml);
+                printWindow.document.close();
+
+                // Wait for content to load
+                setTimeout(() => {
+                    printWindow.print();
+                    showNotification('PDF export dialog opened', 'success');
+                }, 500);
+
+            } catch (error) {
+                console.error('PDF export error:', error);
+                showNotification('Failed to export PDF', 'error');
+            }
+        }
+
         function showNotification(message, type = 'info') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
@@ -1015,18 +1697,185 @@
             }, 4000);
         }
 
-        // Initialize
+        // Content analytics update
+        function updateContentAnalytics() {
+            if (!generatedContent) return;
+
+            const content = generatedContent.rawContent || generatedContent.content;
+            const analytics = analyzeContent(content);
+
+            if (analytics) {
+                const analyticsHtml = `
+                    <div class="content-analytics" style="
+                        display: flex;
+                        gap: 1rem;
+                        padding: 1rem;
+                        background: rgba(168, 85, 247, 0.05);
+                        border-radius: 12px;
+                        margin: 1rem 0;
+                        border: 1px solid rgba(168, 85, 247, 0.1);
+                    ">
+                        <div class="stat" style="text-align: center;">
+                            <div style="font-size: 1.2em; font-weight: 600; color: var(--vibe-purple-600);">${analytics.words}</div>
+                            <div style="font-size: 0.8em; color: var(--text-secondary);">Words</div>
+                        </div>
+                        <div class="stat" style="text-align: center;">
+                            <div style="font-size: 1.2em; font-weight: 600; color: var(--vibe-purple-600);">${analytics.characters}</div>
+                            <div style="font-size: 0.8em; color: var(--text-secondary);">Characters</div>
+                        </div>
+                        <div class="stat" style="text-align: center;">
+                            <div style="font-size: 1.2em; font-weight: 600; color: var(--vibe-purple-600);">${analytics.readingTime} min</div>
+                            <div style="font-size: 0.8em; color: var(--text-secondary);">Read Time</div>
+                        </div>
+                        <div class="stat" style="text-align: center;">
+                            <div style="font-size: 1.2em; font-weight: 600; color: var(--vibe-purple-600);">${analytics.paragraphs}</div>
+                            <div style="font-size: 0.8em; color: var(--text-secondary);">Paragraphs</div>
+                        </div>
+                    </div>
+                `;
+
+                // Insert analytics after the view toggles
+                const outputContent = document.getElementById('output-content');
+                const viewToggles = document.querySelector('.view-toggles');
+                if (viewToggles && outputContent.parentNode) {
+                    let analyticsDiv = document.querySelector('.content-analytics');
+                    if (analyticsDiv) {
+                        analyticsDiv.remove();
+                    }
+                    viewToggles.insertAdjacentHTML('afterend', analyticsHtml);
+                }
+            }
+        }
+
+        // Enhanced setup export buttons with copy functionality
+        function setupExportButtons() {
+            document.getElementById('export-html').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (generatedContent) {
+                    downloadFile(generatedContent.content || generatedContent.rawContent, `${currentContentType}-content.html`, 'text/html');
+                }
+            });
+
+            document.getElementById('export-markdown').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (generatedContent) {
+                    const markdown = htmlToMarkdown(generatedContent.content || generatedContent.rawContent);
+                    downloadFile(markdown, `${currentContentType}-content.md`, 'text/markdown');
+                }
+            });
+
+            document.getElementById('export-json').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (generatedContent) {
+                    downloadFile(JSON.stringify(generatedContent, null, 2), `${currentContentType}-content.json`, 'application/json');
+                }
+            });
+
+            document.getElementById('export-pdf').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (generatedContent) {
+                    exportToPDF();
+                }
+            });
+
+            // Add copy button functionality
+            const copyBtn = document.createElement('button');
+            copyBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                Copy
+            `;
+            copyBtn.className = 'export-btn copy-btn';
+            copyBtn.style.cssText = `
+                background: linear-gradient(135deg, var(--vibe-purple-500), var(--accent-electric));
+                border: none;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 8px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            `;
+
+            copyBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (generatedContent) {
+                    copyToClipboard(generatedContent.rawContent || generatedContent.content);
+                }
+            });
+
+            // Insert copy button into export actions
+            const exportActions = document.getElementById('export-actions');
+            if (exportActions && !exportActions.querySelector('.copy-btn')) {
+                exportActions.insertBefore(copyBtn, exportActions.firstChild);
+            }
+        }
+
+        // Initialize with enhanced functionality
         document.addEventListener('DOMContentLoaded', () => {
             selectContentType('blog');
             setupExportButtons();
+            loadAutoSavedContent();
+            setupGenerateButton();
+            setupEventListeners();
+
+            // Auto-save every 30 seconds
+            setInterval(() => {
+                if (generatedContent) {
+                    autoSaveContent();
+                }
+            }, 30000);
+
+            // Add keyboard shortcut hints
+            const shortcutsHint = document.createElement('div');
+            shortcutsHint.className = 'shortcuts-hint';
+            shortcutsHint.innerHTML = `
+                <div style="
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: rgba(168, 85, 247, 0.9);
+                    color: white;
+                    padding: 12px 16px;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    backdrop-filter: blur(10px);
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                    z-index: 1000;
+                " id="shortcutsTooltip">
+                    <div><strong>Keyboard Shortcuts:</strong></div>
+                    <div>Ctrl+Enter: Generate | Ctrl+Shift+Enter: Stream</div>
+                    <div>Ctrl+C: Copy | Ctrl+S: Save | Ctrl+1/2/3: Switch View</div>
+                </div>
+            `;
+            document.body.appendChild(shortcutsHint);
+
+            // Show shortcuts on first visit
+            if (!localStorage.getItem('vibe_shortcuts_shown')) {
+                setTimeout(() => {
+                    const tooltip = document.getElementById('shortcutsTooltip');
+                    tooltip.style.opacity = '1';
+                    setTimeout(() => {
+                        tooltip.style.opacity = '0';
+                    }, 5000);
+                    localStorage.setItem('vibe_shortcuts_shown', 'true');
+                }, 2000);
+            }
         });
 
-        // Keyboard shortcuts
+        // Enhanced keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 switch (e.key) {
                     case 'Enter':
                         e.preventDefault();
+                        // Always use stable generation
                         generateContent();
                         break;
                     case '1':
@@ -1041,9 +1890,83 @@
                         e.preventDefault();
                         switchView('split');
                         break;
+                    case 's':
+                        e.preventDefault();
+                        if (generatedContent) {
+                            autoSaveContent();
+                        }
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        if (generatedContent) {
+                            copyToClipboard(generatedContent.rawContent || generatedContent.content);
+                        }
+                        break;
                 }
             }
         });
+
+        // Simple generate button setup without streaming toggle
+        function setupGenerateButton() {
+            const generateBtn = document.querySelector('.generate-btn');
+            // Always use non-streaming mode for stable operation
+            generateBtn.addEventListener('click', generateContent);
+        }
+
+        // Setup all event listeners (October 2025 CSP-compliant approach)
+        function setupEventListeners() {
+            // Content type selection buttons - use event delegation
+            document.addEventListener('click', (e) => {
+                // Content type buttons
+                if (e.target.closest('.content-type-btn')) {
+                    const btn = e.target.closest('.content-type-btn');
+                    const type = btn.dataset.type;
+                    if (type) {
+                        selectContentType(type);
+                    }
+                }
+
+                // View toggle buttons
+                if (e.target.closest('.view-toggle')) {
+                    const btn = e.target.closest('.view-toggle');
+                    const view = btn.dataset.view;
+                    if (view) {
+                        switchView(view);
+                    }
+                }
+
+                // Social share buttons
+                if (e.target.closest('.social-btn')) {
+                    const btn = e.target.closest('.social-btn');
+                    const platform = btn.dataset.platform;
+                    if (platform) {
+                        shareContent(platform);
+                    }
+                }
+
+                // Generate button (backup - already handled in setupGenerateButton)
+                if (e.target.closest('.generate-btn')) {
+                    e.preventDefault();
+                    generateContent();
+                }
+            });
+        }
+
+        // Advanced content templates
+        function insertTemplate(templateType) {
+            const templates = {
+                blogIntro: "Write a compelling introduction for a blog post about [TOPIC]. Include a hook, problem statement, and preview of what readers will learn.",
+                emailSequence: "Create a 3-email welcome sequence for new subscribers to [BUSINESS/SERVICE]. Include welcome, value delivery, and call-to-action emails.",
+                landingHero: "Write a high-converting hero section for a landing page selling [PRODUCT/SERVICE]. Include headline, subheadline, benefits, and strong CTA.",
+                socialCampaign: "Create a 7-day social media campaign for [BRAND/PRODUCT]. Include posts for different platforms with hashtags and engagement strategies.",
+                productDescription: "Write a compelling product description for [PRODUCT] that highlights benefits, addresses objections, and drives conversions."
+            };
+
+            const prompt = document.getElementById('prompt');
+            prompt.value = templates[templateType] || '';
+            prompt.focus();
+            showNotification(`Template inserted: ${templateType}`, 'info');
+        }
     </script>
 </body>
 </html>

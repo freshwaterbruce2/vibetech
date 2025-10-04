@@ -38,14 +38,20 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "build": "echo \"No build step required for Node.js project\"",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:visual": "playwright test",
     "test:visual:update": "playwright test --update-snapshots",
     "test:visual:report": "playwright show-report tests/visual/reports",
     "test:puppeteer": "node tests/visual/puppeteer-automation.js",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "echo \"No TypeScript in project\"",
+    "quality": "npm run lint && npm run test:unit",
     "security-check": "npm audit --audit-level=moderate",
     "production-check": "NODE_ENV=production node server.js",
+    "clean": "rm -rf node_modules package-lock.json",
     "clean-install": "rm -rf node_modules package-lock.json && npm install"
   },
   "keywords": [

@@ -239,7 +239,7 @@ export const cache = {
 };
 
 // Middleware for API response caching
-export const cacheMiddleware = (type, options = {}) => {
+export const cacheMiddleware = (type, _options = {}) => {
     return async (req, res, next) => {
         // Skip caching for certain conditions
         if (req.method !== 'GET' && req.method !== 'POST') {
@@ -293,7 +293,7 @@ export const cacheMiddleware = (type, options = {}) => {
 
             // Cache miss - proceed with request but intercept response
             const originalSend = res.json;
-            const originalEnd = res.end;
+            const _originalEnd = res.end;
             let responseData = null;
 
             res.json = function(data) {
