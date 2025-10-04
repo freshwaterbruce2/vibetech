@@ -1,34 +1,34 @@
-# Core dependencies
-aiohttp>=3.9.1
-websockets>=12.0
+# Crypto Trading Bot Dependencies - Updated October 3, 2025
+# Python 3.11+ recommended
+
+# Core Async I/O
+aiohttp>=3.12.15
+websockets>=15.0.1
 aiosqlite>=0.19.0
 python-dotenv>=1.0.0
 
-# Configuration Management (2025 Best Practice)
-pydantic>=2.11.0
-pydantic-settings>=2.11.0
+# Configuration & Validation
+pydantic>=2.11.9
+pydantic-settings>=2.6.1
 
-# Kraken API support
-urllib3>=2.1.0
+# HTTP & API
+urllib3>=2.2.3
 
-# Data processing
-# numpy already installed separately
-pandas>=2.0.3
+# Data Processing
+pandas>=2.2.3
 
 # Utilities
-colorlog==6.7.0
-pyyaml==6.0.1
+colorlog>=6.8.2
+pyyaml>=6.0.2
 psutil>=5.9.0
-
-# CRITICAL FIX: Modern file locking (Aug 2025)
-filelock>=3.15.4
+filelock>=3.16.1
 
 # Testing
-pytest==7.4.3
-pytest-asyncio==0.21.1
-pytest-cov==4.1.0
+pytest>=8.3.3
+pytest-asyncio>=1.2.0
+pytest-cov>=6.0.0
 
 # Development
-black==23.12.0
-pylint==3.0.3
-mypy==1.7.1
+black>=24.10.0
+pylint>=3.3.1
+mypy>=1.13.0

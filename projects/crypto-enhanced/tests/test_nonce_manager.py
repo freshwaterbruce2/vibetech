@@ -127,8 +127,9 @@ class TestNonceManager:
 
         async def generate_nonces_async(count):
             nonces = []
+            loop = asyncio.get_running_loop()
             for _ in range(count):
-                nonce = await asyncio.get_event_loop().run_in_executor(
+                nonce = await loop.run_in_executor(
                     None, manager.get_nonce
                 )
                 nonces.append(nonce)
