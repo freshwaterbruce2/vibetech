@@ -93,7 +93,25 @@
       "Bash(start src-tauri/target/release/nova-agent.exe)",
       "Read(//c/Users/**)",
       "Bash(cargo build:*)",
-      "Bash(Select-Object -First 50)"
+      "Bash(Select-Object -First 50)",
+      "Bash(ls:*)",
+      "Bash(Get-Content \"$env:APPDATA\\Claude\\logs\\mcp-server-desktop-commander.log\" -Tail 50 -ErrorAction SilentlyContinue)",
+      "Bash(do if [ -f \"$dirpackage.json\" ])",
+      "Bash(then echo \"$dir\")",
+      "Bash(do echo \"=== $dir ===\")",
+      "Bash([ -f \"$dir/vite.config.ts\" ])",
+      "Bash(wc:*)",
+      "Bash(do echo \"=== $project UI components ===\")",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(cargo check:*)",
+      "Bash(bun pm ls:*)",
+      "Bash(npx turbo run build:*)",
+      "Bash(awk:*)",
+      "Bash(npx turbo:*)",
+      "Bash(where bash.exe)",
+      "Bash(echo $CLAUDE_CODE_GIT_BASH_PATH)"
     ],
     "deny": [],
     "ask": [],
@@ -110,7 +128,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -NoProfile -File C:\\dev\\.claude\\hooks\\pre-tool-use.ps1 -ToolName {{toolName}}"
+            "command": "powershell -ExecutionPolicy Bypass -NoProfile -File C:\\dev\\.claude\\hooks\\pre-tool-use-stdin.ps1",
+            "timeout": 5
           }
         ]
       }
@@ -121,7 +140,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -NoProfile -File C:\\dev\\.claude\\hooks\\post-tool-use.ps1 -ToolName {{toolName}} -Success {{success}}"
+            "command": "powershell -ExecutionPolicy Bypass -NoProfile -File C:\\dev\\.claude\\hooks\\post-tool-use-stdin.ps1",
+            "timeout": 5
           }
         ]
       }

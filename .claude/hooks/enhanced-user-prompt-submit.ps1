@@ -540,6 +540,33 @@ try {
         Write-EnhancedLog "High-value interaction detected - Enhanced tracking active" "INFO"
     }
 
+    # LEARNING SYSTEM INTEGRATION - Write to unified learning database
+    try {
+        $LearningDB = "D:\learning-system\agent_learning.db"
+        if (Test-Path $LearningDB) {
+            $SafePrompt = $UserPrompt -replace "'", "''"
+            $SafeTimestamp = (Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff") -replace "'", "''"
+            $ComplexityLevel = if ($PromptAnalysis.complexity_score -ge 5) { "high" } elseif ($PromptAnalysis.complexity_score -ge 3) { "medium" } else { "low" }
+
+            # Log significant task requests as knowledge
+            if ($PromptAnalysis.is_task_request -and $PromptAnalysis.complexity_score -ge 3) {
+                $KnowledgeQuery = @"
+INSERT INTO agent_knowledge (
+    knowledge_type, title, content, tags, confidence_level
+) VALUES (
+    'context_pattern', 'User Request: Task Pattern',
+    'User requested: $SafePrompt (Complexity: $ComplexityLevel)',
+    'user_prompt,task_request,claude_code', 0.7
+);
+"@
+                sqlite3 "$LearningDB" "$KnowledgeQuery" 2>$null
+                Write-EnhancedLog "Logged task request to learning database" "DEBUG"
+            }
+        }
+    } catch {
+        Write-EnhancedLog "Learning DB write failed (non-critical): $_" "DEBUG"
+    }
+
 } catch {
     Write-EnhancedLog "Critical error in enhanced prompt submit hook: $($_.Exception.Message)" "ERROR"
 }
