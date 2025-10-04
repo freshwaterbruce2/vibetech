@@ -42,8 +42,10 @@ env/
 # Build directories
 build/
 .turbo/
+.nx/
 .next/
 out/
+*.tsbuildinfo
 
 # Test coverage
 coverage/
@@ -86,12 +88,16 @@ NETLIFY-ADD-VARIABLES.txt
 # Status reports and temporary documentation
 *-REPORT.md
 *-SUMMARY.md
+*_REPORT.md
+*_PLAN.md
+*_STATUS.md
 CLEANUP_REPORT.md
 LAUNCH-SUCCESS.md
 LAUNCH-SUMMARY.md
 AGENTS_VALIDATION_REPORT.md
 AGENT_CLI_SUCCESS_REPORT.md
 AGENTS_MD_INTEGRATION_REPORT.md
+docs/reports/archive/
 
 # Log files
 *.log
