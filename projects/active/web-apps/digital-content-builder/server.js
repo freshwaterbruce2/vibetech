@@ -9,22 +9,20 @@
  * @license MIT
  */
 
-import express from 'express';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import { body, validationResult } from 'express-validator';
-import cors from 'cors';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import { createReadStream, existsSync } from 'fs';
-import { promisify } from 'util';
 import axios from 'axios';
-import { JSDOM } from 'jsdom';
+import cors from 'cors';
 import createDOMPurify from 'dompurify';
 import dotenv from 'dotenv';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import { body, validationResult } from 'express-validator';
+import helmet from 'helmet';
+import { JSDOM } from 'jsdom';
+import { dirname } from 'path';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { cacheMiddleware, warmCache, getCacheHealth, cacheStats } from './cache.js';
+import { fileURLToPath } from 'url';
+import { cacheMiddleware, cacheStats, getCacheHealth, warmCache } from './cache.js';
 
 // ES Module compatibility
 const __filename = fileURLToPath(import.meta.url);
@@ -48,7 +46,7 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 const isTestEnv = nodeEnv === 'test';
 
 const config = {
-    port: parseInt(process.env.PORT) || 5556,
+    port: parseInt(process.env.PORT) || 3005,
     nodeEnv: nodeEnv,
     deepseekApiKey: process.env.DEEPSEEK_API_KEY,
     deepseekBaseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
@@ -245,7 +243,8 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"], // Removed 'unsafe-inline' for October 2025 security
+            scriptSrcAttr: ["'none'"], // Explicitly block inline event handlers
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
@@ -362,138 +361,105 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
-// HTML content sanitization and validation
-const sanitizeAndValidateHTML = (content, contentType) => {
+// Content processing based on content type - 2025 optimized
+const processContentByType = (content, contentType) => {
     try {
-        // Enhanced sanitization configuration for complete HTML documents
-        const cleanHTML = DOMPurify.sanitize(content, {
-            // Preserve complete HTML document structure
-            WHOLE_DOCUMENT: true,
+        // Content types that should remain as plain text/structured content
+        const textOnlyTypes = ['social', 'video', 'podcast'];
 
-            // Allow all standard HTML5 tags for production-ready content
-            ALLOWED_TAGS: [
-                // Document structure
-                'html', 'head', 'body', 'title', 'meta', 'link', 'style', 'script', 'base',
+        if (textOnlyTypes.includes(contentType)) {
+            // For text-based content, just clean and structure
+            return {
+                content: content.trim(),
+                isHTML: false,
+                needsWrapper: true
+            };
+        }
 
-                // Content sectioning
-                'div', 'span', 'section', 'article', 'aside', 'header', 'footer', 'nav', 'main',
-                'address', 'hgroup',
+        // HTML content types - sanitize but preserve structure
+        const htmlTypes = ['blog', 'landing', 'email', 'ebook', 'course', 'code'];
 
-                // Text content
-                'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'hr',
-                'ol', 'ul', 'li', 'dl', 'dt', 'dd', 'figure', 'figcaption',
+        if (htmlTypes.includes(contentType)) {
+            // Sanitize HTML content with appropriate settings
+            const cleanHTML = DOMPurify.sanitize(content, {
+                WHOLE_DOCUMENT: true,
+                ALLOWED_TAGS: [
+                    'html', 'head', 'body', 'title', 'meta', 'link', 'style',
+                    'div', 'span', 'section', 'article', 'header', 'footer', 'nav', 'main',
+                    'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'hr',
+                    'ol', 'ul', 'li', 'dl', 'dt', 'dd', 'figure', 'figcaption',
+                    'a', 'abbr', 'b', 'br', 'cite', 'code', 'em', 'i', 'kbd', 'mark',
+                    'q', 's', 'small', 'strong', 'sub', 'sup', 'time', 'u', 'var',
+                    'img', 'picture', 'source', 'svg', 'path', 'g', 'circle', 'rect',
+                    'table', 'caption', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+                    'form', 'fieldset', 'legend', 'label', 'input', 'button', 'select',
+                    'option', 'textarea'
+                ],
+                ALLOWED_ATTR: [
+                    'id', 'class', 'style', 'title', 'lang', 'dir', 'role',
+                    'href', 'target', 'rel', 'src', 'alt', 'width', 'height',
+                    'name', 'value', 'placeholder', 'type', 'for', 'colspan', 'rowspan',
+                    'charset', 'content', 'http-equiv', 'property', 'viewBox', 'fill', 'stroke'
+                ],
+                KEEP_CONTENT: true,
+                SANITIZE_DOM: true
+            });
 
-                // Inline text semantics
-                'a', 'abbr', 'b', 'bdi', 'bdo', 'br', 'cite', 'code', 'data', 'dfn',
-                'em', 'i', 'kbd', 'mark', 'q', 's', 'samp', 'small', 'span', 'strong',
-                'sub', 'sup', 'time', 'u', 'var', 'wbr',
-
-                // Image and multimedia
-                'img', 'picture', 'source', 'video', 'audio', 'track', 'canvas', 'svg',
-                'path', 'g', 'circle', 'rect', 'line', 'polygon', 'polyline',
-
-                // Embedded content
-                'iframe', 'embed', 'object', 'param',
-
-                // Tabular data
-                'table', 'caption', 'colgroup', 'col', 'thead', 'tbody', 'tfoot',
-                'tr', 'th', 'td',
-
-                // Forms
-                'form', 'fieldset', 'legend', 'label', 'input', 'button', 'select',
-                'datalist', 'optgroup', 'option', 'textarea', 'keygen', 'output',
-                'progress', 'meter',
-
-                // Interactive elements
-                'details', 'summary', 'dialog', 'menu', 'menuitem'
-            ],
-
-            // Comprehensive attribute allowlist for production HTML
-            ALLOWED_ATTR: [
-                // Global attributes
-                'id', 'class', 'style', 'title', 'lang', 'dir', 'tabindex',
-                'accesskey', 'contenteditable', 'draggable', 'dropzone',
-                'hidden', 'spellcheck', 'translate',
-
-                // Data attributes for interactivity
-                'data-*',
-
-                // ARIA attributes for accessibility
-                'role', 'aria-*',
-
-                // Event handlers (for production HTML)
-                'onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover',
-                'onmousemove', 'onmouseout', 'onkeypress', 'onkeydown', 'onkeyup',
-                'onload', 'onunload', 'onfocus', 'onblur', 'onchange', 'onsubmit',
-                'onreset', 'onselect', 'onresize', 'onscroll',
-
-                // Link attributes
-                'href', 'target', 'download', 'rel', 'hreflang', 'type',
-
-                // Media attributes
-                'src', 'alt', 'width', 'height', 'sizes', 'srcset', 'poster',
-                'preload', 'autoplay', 'controls', 'loop', 'muted',
-
-                // Form attributes
-                'name', 'value', 'placeholder', 'required', 'disabled', 'readonly',
-                'multiple', 'checked', 'selected', 'for', 'form', 'formaction',
-                'formenctype', 'formmethod', 'formnovalidate', 'formtarget',
-                'min', 'max', 'step', 'pattern', 'maxlength', 'minlength',
-                'autocomplete', 'autofocus',
-
-                // Table attributes
-                'colspan', 'rowspan', 'headers', 'scope',
-
-                // Meta attributes
-                'charset', 'content', 'http-equiv', 'property',
-
-                // Media queries and responsive design
-                'media', 'sizes',
-
-                // Iframe attributes
-                'allowfullscreen', 'sandbox', 'srcdoc', 'loading',
-
-                // SVG attributes
-                'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'd', 'cx', 'cy', 'r',
-                'x', 'y', 'x1', 'y1', 'x2', 'y2', 'points'
-            ],
-
-            // Additional security options
-            FORBID_TAGS: [],
-            FORBID_ATTR: [],
-            ALLOW_UNKNOWN_PROTOCOLS: false,
-            SANITIZE_DOM: true,
-            KEEP_CONTENT: true,
-            IN_PLACE: false,
-            RETURN_DOM: false,
-            RETURN_DOM_FRAGMENT: false,
-            RETURN_TRUSTED_TYPE: false
-        });
-
-        // Ensure complete HTML structure for web content types
-        if (['landing', 'blog', 'article', 'email'].includes(contentType)) {
-            // Add DOCTYPE if missing (DOMPurify strips it)
-            if (!cleanHTML.toLowerCase().includes('<!doctype html>')) {
-                return `<!DOCTYPE html>\n${cleanHTML}`;
+            // Add DOCTYPE if missing for complete HTML documents
+            if (cleanHTML.toLowerCase().includes('<html') &&
+                !cleanHTML.toLowerCase().includes('<!doctype html>')) {
+                return {
+                    content: `<!DOCTYPE html>\n${cleanHTML}`,
+                    isHTML: true,
+                    needsWrapper: false
+                };
             }
+
+            return {
+                content: cleanHTML,
+                isHTML: true,
+                needsWrapper: !cleanHTML.toLowerCase().includes('<html')
+            };
         }
 
-        // For other content types, also ensure DOCTYPE for complete HTML documents
-        if (cleanHTML.toLowerCase().includes('<html') && !cleanHTML.toLowerCase().includes('<!doctype html>')) {
-            return `<!DOCTYPE html>\n${cleanHTML}`;
-        }
+        // Default processing for unknown types
+        return {
+            content: content.trim(),
+            isHTML: false,
+            needsWrapper: true
+        };
 
-        return cleanHTML;
     } catch (error) {
-        console.error('HTML sanitization error:', error);
-        throw new Error('Content sanitization failed');
+        console.error('Content processing error:', error);
+        throw new Error('Content processing failed');
     }
 };
 
-// Create complete HTML document
+// Create complete HTML document with content-type specific styling
 const createCompleteHTML = (content, contentType) => {
-    const title = extractTitle(content) || `Generated ${contentType} Content`;
-    const description = extractDescription(content) || `Professional ${contentType} generated with AI`;
+    const title = extractTitle(content) || `Generated ${contentType.charAt(0).toUpperCase() + contentType.slice(1)} Content`;
+    const description = extractDescription(content) || `Professional ${contentType} content generated with AI`;
+
+    // Content type specific styling
+    const contentStyles = {
+        social: `
+            .social-post { margin: 2rem 0; padding: 1.5rem; border-left: 4px solid #1da1f2; background: #f8f9fa; }
+            .platform { font-weight: bold; color: #1da1f2; margin-bottom: 0.5rem; }
+            .hashtags { color: #1da1f2; font-weight: 500; }
+        `,
+        video: `
+            .script-section { margin: 2rem 0; }
+            .timestamp { background: #ff6b6b; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85em; }
+            .visual-cue { background: #51cf66; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-style: italic; }
+        `,
+        podcast: `
+            .episode-section { margin: 2rem 0; padding: 1rem; border: 1px solid #e9ecef; border-radius: 8px; }
+            .show-notes { background: #f8f9fa; padding: 1rem; border-radius: 6px; }
+        `,
+        default: ''
+    };
+
+    const typeStyle = contentStyles[contentType] || contentStyles.default;
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -527,6 +493,8 @@ const createCompleteHTML = (content, contentType) => {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            color: #333;
+            background: #fff;
         }
         img, picture, video, canvas, svg { display: block; max-width: 100%; }
         input, button, textarea, select { font: inherit; }
@@ -539,6 +507,15 @@ const createCompleteHTML = (content, contentType) => {
             padding: 2rem;
         }
 
+        /* Typography */
+        h1 { color: #2c3e50; margin-bottom: 1rem; }
+        h2 { color: #34495e; margin-top: 2rem; margin-bottom: 1rem; }
+        h3 { color: #34495e; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1rem; }
+
+        /* Content type specific styles */
+        ${typeStyle}
+
         /* Responsive design */
         @media (max-width: 768px) {
             .content-container { padding: 1rem; }
@@ -547,23 +524,101 @@ const createCompleteHTML = (content, contentType) => {
 </head>
 <body>
     <div class="content-container">
-        ${content}
+        ${formatContentForHTML(content, contentType)}
     </div>
 
-    <!-- Performance and analytics placeholder -->
+    <!-- Performance monitoring -->
     <script>
-        // Performance monitoring
         if ('performance' in window) {
             window.addEventListener('load', () => {
-                console.log('Page loaded in:', performance.now(), 'ms');
+                console.log('Content loaded in:', Math.round(performance.now()), 'ms');
             });
         }
-
-        // Add your analytics code here
-        console.log('Content generated by DigitalContentBuilder v2.0.0');
+        console.log('Generated by DigitalContentBuilder v2.0.0');
     </script>
 </body>
 </html>`;
+};
+
+// Format content for HTML display based on content type
+const formatContentForHTML = (content, contentType) => {
+    // If content is already HTML, return as-is
+    if (content.includes('<html>') || content.includes('<body>')) {
+        return content;
+    }
+
+    // Format plain text content for different types
+    switch (contentType) {
+        case 'social':
+            return formatSocialContent(content);
+        case 'video':
+            return formatVideoScript(content);
+        case 'podcast':
+            return formatPodcastContent(content);
+        default:
+            return `<div class="content">${content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</div>`;
+    }
+};
+
+// Format social media content
+const formatSocialContent = (content) => {
+    const lines = content.split('\n').filter(line => line.trim());
+    let formatted = '<div class="social-content">';
+
+    let currentPlatform = '';
+    for (const line of lines) {
+        if (line.match(/^(Twitter|Facebook|Instagram|LinkedIn|TikTok):/i)) {
+            if (currentPlatform) formatted += '</div>';
+            currentPlatform = line.split(':')[0];
+            formatted += `<div class="social-post"><div class="platform">${currentPlatform}:</div>`;
+        } else if (line.includes('#')) {
+            formatted += `<p class="hashtags">${line}</p>`;
+        } else if (line.trim()) {
+            formatted += `<p>${line}</p>`;
+        }
+    }
+
+    if (currentPlatform) formatted += '</div>';
+    formatted += '</div>';
+    return formatted;
+};
+
+// Format video script content
+const formatVideoScript = (content) => {
+    let formatted = '<div class="video-script">';
+    const lines = content.split('\n').filter(line => line.trim());
+
+    for (const line of lines) {
+        if (line.match(/^\d+:\d+/)) {
+            formatted += `<p><span class="timestamp">${line.split(' ')[0]}</span> ${line.substring(line.indexOf(' ') + 1)}</p>`;
+        } else if (line.match(/\[.*\]/)) {
+            formatted += `<p><span class="visual-cue">${line}</span></p>`;
+        } else if (line.trim()) {
+            formatted += `<p>${line}</p>`;
+        }
+    }
+
+    formatted += '</div>';
+    return formatted;
+};
+
+// Format podcast content
+const formatPodcastContent = (content) => {
+    const sections = content.split('\n\n');
+    let formatted = '<div class="podcast-content">';
+
+    for (const section of sections) {
+        if (section.trim()) {
+            if (section.includes('Show Notes') || section.includes('Episode')) {
+                formatted += `<div class="episode-section">${section.replace(/\n/g, '<br>')}</div>`;
+            } else {
+                formatted += `<div class="show-notes">${section.replace(/\n/g, '<br>')}</div>`;
+            }
+        }
+    }
+
+    formatted += '</div>';
+    return formatted;
 };
 
 // Utility functions
@@ -577,34 +632,28 @@ const extractDescription = (html) => {
     return pMatch ? pMatch[1].replace(/<[^>]*>/g, '').substring(0, 160).trim() : null;
 };
 
-// System prompts for content generation
+// System prompts for content generation - Optimized for 2025 standards
 const getSystemPrompt = (contentType) => {
     const prompts = {
-        'landing': 'You are a senior web developer creating production-ready landing page HTML documents. Generate complete, deployable HTML5 landing pages with embedded CSS and JavaScript. INCLUDE: Full HTML5 structure with DOCTYPE, responsive design (mobile/tablet/desktop), embedded <style> tags with modern CSS, embedded <script> tags for interactions, SEO meta tags, Open Graph metadata, hero section, features section, testimonials, contact form, conversion tracking. Output ONLY the complete HTML document ready for immediate deployment.',
+        'blog': 'You are a professional content writer. Create a complete, production-ready blog post with proper HTML structure. Generate clean HTML with embedded CSS styling. Include: DOCTYPE, responsive design, SEO meta tags, structured headings (h1, h2, h3), engaging introduction, well-organized body content, conclusion with call-to-action. Focus on readability and engagement. Output complete HTML document.',
 
-        'blog': 'You are a professional content writer creating production-ready blog post HTML documents. Generate complete, deployable HTML5 blog posts with embedded CSS. INCLUDE: Full HTML5 structure with DOCTYPE, responsive typography, embedded <style> tags with modern CSS, SEO-optimized meta tags, article schema markup, author information, publication date, related posts section, social sharing buttons. Output ONLY the complete HTML document ready for immediate deployment.',
+        'landing': 'You are a conversion-focused web developer. Create a high-converting landing page with clean HTML and embedded CSS. Include: Hero section with compelling headline, value proposition, key benefits (3-5 points), social proof/testimonials, clear call-to-action buttons, contact form, responsive design. Use modern CSS with gradients and professional styling. Output complete HTML document.',
 
-        'article': 'You are a technical writer creating production-ready article HTML documents. Generate complete, deployable HTML5 articles with embedded CSS. INCLUDE: Full HTML5 structure with DOCTYPE, professional typography, embedded <style> tags, structured content with headings, code syntax highlighting if needed, references section, table of contents. Output ONLY the complete HTML document ready for immediate deployment.',
+        'email': 'You are an email marketing specialist. Create email-optimized HTML with inline CSS for maximum compatibility. Include: Email-safe HTML structure, inline CSS styles, compelling subject line, engaging header, clear value proposition, scannable content, prominent call-to-action button, footer with unsubscribe link. Use table-based layout for email clients. Output complete HTML email template.',
 
-        'email': 'You are an email template developer creating production-ready HTML email templates. Generate complete, deployable HTML email templates with inline CSS. INCLUDE: Full HTML structure optimized for email clients, inline CSS styles, responsive design for mobile, email-safe fonts and colors, clear call-to-action buttons, proper alt text for images. Output ONLY the complete HTML email template ready for immediate use.',
+        'social': 'You are a social media strategist. Create engaging social media content optimized for multiple platforms. Generate: Compelling hook/opening line, engaging body text, relevant hashtags (#), clear call-to-action, platform variations (Twitter: 280 chars, LinkedIn: professional tone, Instagram: visual-focused, Facebook: community-oriented). Format as clean HTML with platform sections.',
 
-        'course': 'You are an instructional designer creating production-ready course module HTML documents. Generate complete, deployable HTML5 course content with embedded CSS and JavaScript. INCLUDE: Full HTML5 structure, interactive elements, embedded <style> tags, progress tracking, navigation between sections, multimedia support, quiz elements, completion tracking. Output ONLY the complete HTML document ready for immediate deployment.',
+        'ebook': 'You are a digital publishing expert. Create professional eBook content with proper structure and styling. Include: Title page, table of contents, chapter headings, well-formatted paragraphs, quotes/callouts, author bio, professional typography with embedded CSS. Focus on readability and print-friendly design. Output complete HTML document.',
 
-        'ebook': 'You are a digital publisher creating production-ready eBook chapter HTML documents. Generate complete, deployable HTML5 eBook content with embedded CSS. INCLUDE: Full HTML5 structure, book-style typography, embedded <style> tags, chapter navigation, table of contents, reading progress, print styles, proper heading hierarchy. Output ONLY the complete HTML document ready for immediate deployment.',
+        'course': 'You are an instructional designer. Create structured course content with clear learning objectives. Include: Course overview, learning objectives, module breakdown, lesson content with headers, key takeaways, practice exercises, progress indicators, next steps. Use educational formatting with embedded CSS. Output complete HTML document.',
 
-        'code': 'You are a senior software engineer creating production-ready code documentation HTML. Generate complete, deployable HTML5 documentation with embedded CSS and JavaScript. INCLUDE: Full HTML5 structure, syntax highlighting, embedded <style> tags, interactive code examples, API documentation, code execution examples where appropriate. Output ONLY the complete HTML document ready for immediate deployment.',
+        'code': 'You are a technical documentation expert. Create comprehensive code documentation with syntax highlighting. Include: Clear overview, code examples with proper formatting, API references, usage instructions, best practices, troubleshooting section. Use code-friendly CSS with syntax highlighting styles. Output complete HTML document.',
 
-        'social': 'You are a social media content creator generating engaging social media posts. Create compelling, platform-optimized content with proper hashtags, engaging copy, and call-to-action elements. Focus on viral potential, audience engagement, and brand voice consistency. Generate multiple post variations for different platforms (Facebook, Instagram, Twitter, LinkedIn, TikTok) with optimal character counts and platform-specific best practices.',
+        'video': 'You are a video script writer. Create a professional video script with clear structure and timing. Include: Hook/intro (0-15s), main content outline, key talking points, visual cues [in brackets], call-to-action, outro. Format as clean HTML with timestamp markers and visual direction notes.',
 
-        'socialMedia': 'You are a social media content creator generating engaging social media posts. Create compelling, platform-optimized content with proper hashtags, engaging copy, and call-to-action elements. Focus on viral potential, audience engagement, and brand voice consistency. Generate multiple post variations for different platforms (Facebook, Instagram, Twitter, LinkedIn, TikTok) with optimal character counts and platform-specific best practices.',
+        'podcast': 'You are a podcast content creator. Create comprehensive podcast episode materials. Include: Episode title, description, show notes outline, key topics with timestamps, guest introduction (if applicable), sponsor mentions, call-to-action, social media promotion text. Format as structured HTML content.',
 
-        'newsletter': 'You are an email newsletter designer creating production-ready newsletter HTML documents. Generate complete, deployable HTML5 newsletters with embedded CSS. INCLUDE: Full HTML structure optimized for email clients, responsive design, engaging header with branding, content sections with clear hierarchy, call-to-action buttons, footer with unsubscribe links, social media links. Output ONLY the complete HTML newsletter ready for immediate distribution.',
-
-        'podcast': 'You are a podcast content creator generating comprehensive podcast episode materials. Create detailed show notes, episode transcripts, engaging episode descriptions, key takeaways, guest information, timestamps for important segments, social media promotion content, and SEO-optimized descriptions. Focus on audience engagement and discoverability.',
-
-        'video': 'You are a video script writer creating professional video scripts. Generate complete video scripts with scene descriptions, dialogue, visual cues, timing notes, call-to-action elements, and production notes. Include engaging hooks, clear value propositions, and strong endings that drive viewer action.',
-
-        'general': 'You are a professional content creator generating high-quality, engaging content. Create well-structured, informative content that is clear, concise, and valuable to the target audience. Focus on providing practical value and maintaining professional standards.'
+        'general': 'You are a professional content creator. Generate high-quality, well-structured content that is clear, engaging, and valuable. Focus on proper formatting, logical flow, and actionable insights. Use appropriate HTML structure with clean styling.'
     };
 
     return prompts[contentType] || prompts.general;
@@ -908,15 +957,22 @@ app.post('/api/deepseek/generate',
                                 if (data === '[DONE]') {
                                     // Process and sanitize final content
                                     try {
-                                        const sanitizedContent = sanitizeAndValidateHTML(fullContent, contentType);
+                                        const processed = processContentByType(fullContent, contentType);
+                                        let finalContent = processed.content;
+                                        if (processed.needsWrapper) {
+                                            finalContent = createCompleteHTML(processed.content, contentType);
+                                        }
+
                                         res.write(`data: ${JSON.stringify({
                                             type: 'content_processed',
-                                            content: sanitizedContent,
+                                            content: finalContent,
                                             metadata: {
                                                 contentType,
                                                 model,
                                                 tokens: fullContent.length,
-                                                processingTime: Date.now() - startTime
+                                                processingTime: Date.now() - startTime,
+                                                isHTML: processed.isHTML,
+                                                hasWrapper: processed.needsWrapper
                                             }
                                         })}\n\n`);
                                     } catch (error) {
@@ -950,7 +1006,7 @@ app.post('/api/deepseek/generate',
                                             content: content
                                         })}\n\n`);
                                     }
-                                } catch (e) {
+                                } catch {
                                     // Skip malformed JSON
                                 }
                             }
@@ -982,7 +1038,15 @@ app.post('/api/deepseek/generate',
                 const response = await deepseekClient.post('/chat/completions', requestData);
 
                 const rawContent = response.data.choices[0].message.content;
-                const sanitizedContent = sanitizeAndValidateHTML(rawContent, contentType);
+
+                // Process content based on type
+                const processed = processContentByType(rawContent, contentType);
+
+                // Create final content based on processing result
+                let finalContent = processed.content;
+                if (processed.needsWrapper) {
+                    finalContent = createCompleteHTML(processed.content, contentType);
+                }
 
                 // Update stats
                 serverStats.totalRequests++;
@@ -992,9 +1056,9 @@ app.post('/api/deepseek/generate',
                     (serverStats.averageResponseTime + responseTime) / 2;
 
                 res.json({
-                    content: sanitizedContent,
+                    content: finalContent,
                     rawContent: rawContent,
-                    sanitizedContent: sanitizedContent,
+                    sanitizedContent: processed.content,
                     metadata: {
                         contentType,
                         model,
@@ -1003,9 +1067,10 @@ app.post('/api/deepseek/generate',
                         tokens: response.data.usage?.total_tokens || rawContent.length,
                         tokensUsed: response.data.usage?.total_tokens || rawContent.length,
                         processingTime: responseTime,
-                        isComplete: !rawContent.toLowerCase().includes('<!doctype html>') ? false : true,
-                        hasHTML: rawContent.includes('<html>') || rawContent.includes('<HTML>'),
-                        contentLength: rawContent.length
+                        isHTML: processed.isHTML,
+                        hasWrapper: processed.needsWrapper,
+                        contentLength: rawContent.length,
+                        processingType: processed.isHTML ? 'html' : 'text'
                     },
                     timestamp: new Date().toISOString()
                 });
@@ -1050,7 +1115,7 @@ app.use((req, res) => {
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
     console.error('Global error handler:', err);
 
     serverStats.errors++;
