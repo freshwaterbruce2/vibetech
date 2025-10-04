@@ -9,6 +9,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 // Eager load critical paths
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
+import TradingTest from './pages/TradingTest';
 
 // Lazy load other routes
 const Portfolio = lazy(() => import('./pages/Portfolio'));
@@ -18,6 +19,7 @@ const Blog = lazy(() => import('./pages/Blog'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Analytics = lazy(() => import('./components/dashboard/Dashboard'));
+const CryptoTradingDashboard = lazy(() => import('./components/crypto/CryptoTradingDashboard'));
 const PalettePreview = lazy(() => import('./pages/PalettePreview'));
 const FuturisticDemo = lazy(() => import('./pages/FuturisticDemo'));
 const BlogPostPage = lazy(() => import('./pages/public/BlogPostPage'));
@@ -148,6 +150,8 @@ const App: React.FC = () => {
                   <Route path="/tools" element={<Tools />} />
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/about" element={<About />} />
+                  <Route path="/trading-test" element={<TradingTest />} />
+                  <Route path="/trading" element={<CryptoTradingDashboard />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>

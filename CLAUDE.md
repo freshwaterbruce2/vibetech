@@ -24,6 +24,22 @@ This is a multi-project monorepo with three primary focus areas:
 - ⚠️ Always increment `versionCode` on each Android build to force cache clear
 - ⚠️ Test on real devices, not just emulators or browsers
 
+### Workspace Web Applications
+
+**business-booking-platform** (`projects/active/web-apps/business-booking-platform`) - Production Hotel Booking Platform
+- **Type**: React 18 + TypeScript + Vite web application
+- **Version**: 2.0.0 (Production-ready)
+- **Features**: AI-powered search, Square payment integration, passion-based hotel matching
+- **Tech Stack**: React Query, React Router, shadcn/ui, Tailwind CSS
+- **Documentation**: See `projects/active/web-apps/business-booking-platform/CLAUDE.md`
+- **Status**: ✅ Production-ready with comprehensive features and testing
+
+**Other Active Web Apps**:
+- `shipping-pwa` - PWA for Walmart DC shipping management with offline support
+- `vibe-tech-lovable` - Portfolio website with 3D graphics and React Three Fiber
+- `digital-content-builder` - AI-powered content generation with DeepSeek integration
+- `memory-bank` - Memory management system for Claude Code
+
 ## Key Commands
 
 ### Web Application (Root Directory)
