@@ -8,11 +8,27 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 from statistics import mean
 import math
 
 logger = logging.getLogger(__name__)
+
+
+def round_price(price: float, decimals: int = 6) -> str:
+    """
+    Round price to Kraken's required decimal precision
+
+    Args:
+        price: The price to round
+        decimals: Number of decimal places (default 6 for XLM/USD)
+
+    Returns:
+        String representation of rounded price
+    """
+    decimal_price = Decimal(str(price))
+    quantizer = Decimal('0.' + '0' * (decimals - 1) + '1')
+    return str(decimal_price.quantize(quantizer, rounding=ROUND_DOWN))
 
 
 class Strategy(ABC):
@@ -157,7 +173,7 @@ class Strategy(ABC):
                 side=order_side,
                 order_type=order_type_enum,
                 volume=str(xlm_volume),
-                price=str(price) if price else None
+                price=round_price(price, 6) if price else None
             )
 
             if 'error' not in result:
@@ -377,7 +393,7 @@ class MicroScalpingStrategy(Strategy):
         super().__init__(engine, config, "MicroScalping")
         self.target_profit_percent = 0.008  # 0.8% target profit
         self.max_loss_percent = 0.004  # 0.4% max loss
-        self.position_size_usd = 7.5  # Smaller for scalping
+        self.position_size_usd = 8.5  # Ensures minimum 20 XLM at current prices
         self.min_spread_percent = 0.001  # Minimum 0.1% spread to trade
         self.max_trades_per_hour = 3  # Conservative rate
         self.last_hour_trades = []
@@ -462,14 +478,23 @@ class StrategyManager:
                 RangeTradingStrategy(self.engine, self.config),
             ]
 
-            # Only add scalping if we have enough balance (with fallback)
-            balance = self.engine.market_data.get('balance', {})
-            usd_balance = float(balance.get('ZUSD', balance.get('USD', 0)))
+            # CRITICAL: Use real-time WebSocket V2 balance (not estimated)
+            # Priority: 1. usd_balance (extracted) 2. balance dict 3. fallback
+            usd_balance = self.engine.market_data.get('usd_balance')
+
+            if usd_balance is None:
+                # Fallback: try to extract from balance dict (WebSocket V2 format)
+                balance = self.engine.market_data.get('balance', {})
+                usd_balance = balance.get('USD', 0)
+
+            usd_balance = float(usd_balance) if usd_balance else 0
 
             # If balance not available yet, use config value or conservative default
             if usd_balance == 0:
                 usd_balance = getattr(self.config, 'estimated_balance', 98.0)
-                logger.info(f"Using estimated balance ${usd_balance:.2f} for strategy initialization")
+                logger.warning(f"WebSocket balance not available - using estimated ${usd_balance:.2f}")
+            else:
+                logger.info(f"Using real-time WebSocket balance: ${usd_balance:.2f}")
 
             if usd_balance > 50:  # Only scalp with larger balance
                 strategies.append(MicroScalpingStrategy(self.engine, self.config))
