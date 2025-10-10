@@ -226,21 +226,55 @@ class Database:
 
     # Order methods
     async def log_order(self, order_data: Dict):
-        """Log order to database"""
+        """Log order to database - supports both WebSocket V2 and REST API formats"""
         if not await self.is_connected():
             await self.initialize()
         try:
+            # Handle both WebSocket V2 format and REST API format
+            # WebSocket V2: {symbol, side, order_type, volume, price, order_id, ...}
+            # REST API: {txid, descr: {pair, type, ordertype}, vol, price, ...}
+
+            # Extract order_id
+            order_id = order_data.get('order_id')  # WebSocket
+            if not order_id:
+                txid = order_data.get('txid')
+                order_id = txid[0] if isinstance(txid, list) else txid  # REST
+
+            # Extract pair/symbol
+            pair = order_data.get('symbol') or order_data.get('pair')  # WebSocket
+            if not pair:
+                pair = order_data.get('descr', {}).get('pair')  # REST
+
+            # Extract side
+            side = order_data.get('side')  # WebSocket
+            if not side:
+                side = order_data.get('descr', {}).get('type')  # REST
+
+            # Extract order_type
+            order_type = order_data.get('order_type')  # WebSocket
+            if not order_type:
+                order_type = order_data.get('descr', {}).get('ordertype')  # REST
+
+            # Extract volume
+            volume = order_data.get('volume') or order_data.get('vol')
+
+            # Extract price
+            price = order_data.get('price')
+
+            # Extract status
+            status = order_data.get('status') or 'new'
+
             await self.conn.execute("""
                 INSERT INTO orders (order_id, pair, side, order_type, volume, price, status, metadata)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                order_data.get('txid', [None])[0],
-                order_data.get('descr', {}).get('pair'),
-                order_data.get('descr', {}).get('type'),
-                order_data.get('descr', {}).get('ordertype'),
-                order_data.get('vol'),
-                order_data.get('price'),
-                order_data.get('status'),
+                order_id,
+                pair,
+                side,
+                order_type,
+                volume,
+                price,
+                status,
                 json.dumps(order_data)
             ))
             await self.conn.commit()
