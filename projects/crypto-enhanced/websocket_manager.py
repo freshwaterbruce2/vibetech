@@ -13,6 +13,16 @@ from datetime import datetime
 from timestamp_utils import TimestampUtils, normalize as normalize_timestamp
 from errors_simple import WebSocketError, log_error
 
+# Import learning system integration for error prevention
+try:
+    from learning_integration import (
+        CryptoConnectionValidator,
+        PREVENTION_AVAILABLE
+    )
+except ImportError:
+    PREVENTION_AVAILABLE = False
+    logger.warning("Learning system not available - validation disabled")
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +52,41 @@ class WebSocketManager:
         self.connection_attempts = []  # Track connection attempts for rate limiting
         self.max_attempts_per_10min = 150  # Kraken limit
         self.heartbeat_interval = 1  # 1Hz frequency
+        self.heartbeat_timeout = 30  # Timeout in seconds for missing heartbeats
         self.last_heartbeat = None
+
+    def _validate_websocket(self, ws_obj, operation: str = "operation") -> bool:
+        """
+        Validate WebSocket object before use
+        Prevents: 'KrakenWebSocketUnified' object has no attribute 'subscribe_to_ticker'
+        (Learned from 15 occurrences in system data)
+        """
+        # Simple validation: check if websocket connection exists
+        # The raw websocket from websockets.connect() doesn't have manager methods
+        # so we just verify it's not None and is a valid connection object
+        if ws_obj is None:
+            logger.error(f"WebSocket validation failed for {operation}: Connection is None")
+            return False
+
+        # Check if websocket is open (has send/recv capabilities)
+        if not hasattr(ws_obj, 'send') or not hasattr(ws_obj, 'recv'):
+            logger.error(f"WebSocket validation failed for {operation}: Invalid websocket object")
+            return False
+
+        return True
+
+    def _parse_timestamp(self, timestamp_str: str) -> float:
+        """Parse RFC3339 timestamp to Unix timestamp"""
+        try:
+            # Handle both with and without microseconds
+            if '.' in timestamp_str:
+                dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+            else:
+                dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+            return dt.timestamp()
+        except Exception as e:
+            logger.error(f"Failed to parse timestamp {timestamp_str}: {e}")
+            return time.time()  # Fallback to current time
 
     async def start(self):
         """Start WebSocket connections with independent error handling"""
@@ -55,6 +99,13 @@ class WebSocketManager:
         self._private_task = asyncio.create_task(self._connect_private())
         
         logger.info("WebSocket connection tasks started")
+        
+        # Wait for both tasks to complete (they run indefinitely until self.running = False)
+        try:
+            await asyncio.gather(self._public_task, self._private_task)
+        except asyncio.CancelledError:
+            logger.info("WebSocket manager cancelled")
+            raise
 
     async def stop(self):
         """Stop WebSocket connections with proper cleanup"""
@@ -82,7 +133,7 @@ class WebSocketManager:
         
         # Wait for cancellation to complete
         if tasks_to_cancel:
-            await asyncio.gather(*tasks_to_cancel, return_exceptions=True)
+            await asyncio.wait(tasks_to_cancel, timeout=5.0)
             logger.info(f"Cancelled {len(tasks_to_cancel)} background tasks")
 
         # Close WebSocket connections
@@ -113,24 +164,49 @@ class WebSocketManager:
                 logger.info("Connecting to public WebSocket V2...")
                 self._record_connection_attempt()
 
-                # 2025 best practice: use asyncio.timeout() instead of wait_for
-                async with asyncio.timeout(30):
-                    async with websockets.connect(self.WS_URL) as websocket:
+                # Timeout only applies to connection + subscription phase
+                try:
+                    async with asyncio.timeout(30):
+                        # PHASE 1: Connect (should be fast, ~2-5s)
+                        websocket = await websockets.connect(self.WS_URL)
                         self.public_ws = websocket
-                        # Reset delay on successful connection
-                        reconnect_delay = self.reconnect_delay
-
-                        # Subscribe to channels
+                        logger.info("Public WebSocket connected successfully")
+                        
+                        # PHASE 2: Subscribe to channels (should be fast, ~1-3s)
                         await self._subscribe_public_channels()
+                        logger.info("Public WebSocket subscriptions sent")
+                        
+                        # PHASE 3: Wait for first message to confirm connection
+                        first_message = await asyncio.wait_for(
+                            self.public_ws.recv(), 
+                            timeout=10.0
+                        )
+                        data = json.loads(first_message)
+                        await self._process_message(data, is_private=False)
+                        logger.info(f"Public WebSocket confirmed (received: {data.get('channel', data.get('method'))})")
+                    
+                    # Connection confirmed - reset delay
+                    reconnect_delay = self.reconnect_delay
 
-                        # Start heartbeat monitoring as background task
-                        if not self.heartbeat_task or self.heartbeat_task.done():
-                            self.heartbeat_task = asyncio.create_task(
-                                self._monitor_heartbeat()
-                            )
+                    # Start heartbeat monitoring
+                    if not self.heartbeat_task or self.heartbeat_task.done():
+                        self.heartbeat_task = asyncio.create_task(
+                            self._monitor_heartbeat()
+                        )
 
-                        # Handle messages
-                        await self._handle_public_messages()
+                    # PHASE 4: Handle messages indefinitely (NO TIMEOUT)
+                    await self._handle_public_messages()
+                    
+                except asyncio.TimeoutError:
+                    logger.error("Public WebSocket setup timeout (connection or subscription failed)")
+                    if self.public_ws:
+                        try:
+                            await self.public_ws.close()
+                        except:
+                            pass
+                        self.public_ws = None
+                    await asyncio.sleep(reconnect_delay)
+                    reconnect_delay = min(reconnect_delay * 2, self.max_reconnect_delay)
 
             except websockets.exceptions.WebSocketException as e:
                 ws_error = WebSocketError(
@@ -140,15 +216,12 @@ class WebSocketManager:
                 logger.exception(
                     f"Public WebSocket exception: {ws_error.message}"
                 )
-                await asyncio.sleep(reconnect_delay)
-                reconnect_delay = min(
-                    reconnect_delay * 2,
-                    self.max_reconnect_delay
-                )
-            except asyncio.TimeoutError:
-                logger.error(
-                    "Public WebSocket connection timeout after 30s"
-                )
+                if self.public_ws:
+                    try:
+                        await self.public_ws.close()
+                    except:
+                        pass
+                    self.public_ws = None
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(
                     reconnect_delay * 2,
@@ -159,6 +232,12 @@ class WebSocketManager:
                     f"Unexpected error in public WebSocket: {type(e).__name__}: {e}",
                     exc_info=True
                 )
+                if self.public_ws:
+                    try:
+                        await self.public_ws.close()
+                    except:
+                        pass
+                    self.public_ws = None
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(
                     reconnect_delay * 2,
@@ -176,22 +255,48 @@ class WebSocketManager:
         while self.running:
             try:
                 logger.info("Connecting to private WebSocket...")
-                # 2025 best practice: use asyncio.timeout() for operations
-                async with asyncio.timeout(30):
-                    async with websockets.connect(
-                        self.WS_AUTH_URL
-                    ) as websocket:
+                
+                # Timeout only applies to connection + authentication + subscription phase
+                try:
+                    async with asyncio.timeout(30):
+                        # PHASE 1: Connect (should be fast, ~2-5s)
+                        websocket = await websockets.connect(self.WS_AUTH_URL)
                         self.private_ws = websocket
-                        reconnect_delay = self.reconnect_delay
-
-                        # Authenticate
+                        logger.info("Private WebSocket connected successfully")
+                        
+                        # PHASE 2: Authenticate (should be fast, ~1-2s)
                         await self._authenticate()
-
-                        # Subscribe to private channels
+                        logger.info("Private WebSocket authenticated")
+                        
+                        # PHASE 3: Subscribe to channels (should be fast, ~1-3s)
                         await self._subscribe_private_channels()
+                        logger.info("Private WebSocket subscriptions sent")
+                        
+                        # PHASE 4: Wait for first message to confirm connection
+                        first_message = await asyncio.wait_for(
+                            self.private_ws.recv(),
+                            timeout=10.0
+                        )
+                        data = json.loads(first_message)
+                        await self._process_message(data, is_private=True)
+                        logger.info(f"Private WebSocket confirmed (received: {data.get('channel', data.get('method'))})")
+                    
+                    # Connection confirmed - reset delay
+                    reconnect_delay = self.reconnect_delay
 
-                        # Handle messages
-                        await self._handle_private_messages()
+                    # PHASE 5: Handle messages indefinitely (NO TIMEOUT)
+                    await self._handle_private_messages()
+                    
+                except asyncio.TimeoutError:
+                    logger.error("Private WebSocket setup timeout (connection, auth, or subscription failed)")
+                    if self.private_ws:
+                        try:
+                            await self.private_ws.close()
+                        except:
+                            pass
+                        self.private_ws = None
+                    await asyncio.sleep(reconnect_delay)
+                    reconnect_delay = min(reconnect_delay * 2, self.max_reconnect_delay)
 
             except websockets.exceptions.WebSocketException as e:
                 ws_error = WebSocketError(
@@ -199,13 +304,12 @@ class WebSocketManager:
                     channel="private"
                 )
                 logger.exception(f"Private WebSocket exception: {ws_error.message}")
-                await asyncio.sleep(reconnect_delay)
-                reconnect_delay = min(
-                    reconnect_delay * 2, 
-                    self.max_reconnect_delay
-                )
-            except asyncio.TimeoutError:
-                logger.error("Private WebSocket connection timeout after 30s")
+                if self.private_ws:
+                    try:
+                        await self.private_ws.close()
+                    except:
+                        pass
+                    self.private_ws = None
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(
                     reconnect_delay * 2, 
@@ -216,6 +320,12 @@ class WebSocketManager:
                     f"Unexpected error in private WebSocket: {type(e).__name__}: {e}",
                     exc_info=True
                 )
+                if self.private_ws:
+                    try:
+                        await self.private_ws.close()
+                    except:
+                        pass
+                    self.private_ws = None
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(
                     reconnect_delay * 2,
@@ -316,13 +426,23 @@ class WebSocketManager:
             # Don't clear the current token if refresh fails - keep the connection alive
 
     async def _subscribe_public_channels(self):
-        """Subscribe to public channels"""
-        # Subscribe to ticker
+        """Subscribe to public channels with detailed logging"""
+        logger.info(f"Subscribing to public channels for pairs: {self.config.trading_pairs}")
+        
         for pair in self.config.trading_pairs:
+            logger.debug(f"Subscribing to ticker for {pair}...")
             await self.subscribe_ticker(pair)
+            
+            logger.debug(f"Subscribing to OHLC for {pair}...")
             await self.subscribe_ohlc(pair)
+            
+            logger.debug(f"Subscribing to book for {pair}...")
             await self.subscribe_book(pair)
+            
+            logger.debug(f"Subscribing to trade for {pair}...")
             await self.subscribe_trade(pair)
+            
+        logger.info("All public subscription messages sent successfully")
 
     async def _subscribe_private_channels(self):
         """Subscribe to private channels for real-time updates"""
@@ -448,7 +568,11 @@ class WebSocketManager:
 
     # Subscription methods
     async def subscribe_ticker(self, pair: str):
-        """Subscribe to ticker channel"""
+        """Subscribe to ticker channel with validation"""
+        if not self._validate_websocket(self.public_ws, "subscribe_ticker"):
+            logger.error("Cannot subscribe to ticker - WebSocket not ready")
+            return
+
         msg = {
             "method": "subscribe",
             "params": {
@@ -459,11 +583,16 @@ class WebSocketManager:
         if self.public_ws:
             try:
                 await self.public_ws.send(json.dumps(msg))
+                logger.info(f"Subscribed to ticker channel for {pair}")
             except Exception as e:
-                logger.error(f"Failed to send message: {e}")
+                logger.error(f"Failed to send ticker subscription: {e}")
 
     async def subscribe_ohlc(self, pair: str, interval: int = 60):
-        """Subscribe to OHLC channel"""
+        """Subscribe to OHLC channel with validation"""
+        if not self._validate_websocket(self.public_ws, "subscribe_ohlc"):
+            logger.error("Cannot subscribe to OHLC - WebSocket not ready")
+            return
+
         msg = {
             "method": "subscribe",
             "params": {
@@ -479,7 +608,11 @@ class WebSocketManager:
                 logger.error(f"Failed to send message: {e}")
 
     async def subscribe_book(self, pair: str, depth: int = 10):
-        """Subscribe to order book channel"""
+        """Subscribe to order book channel with validation"""
+        if not self._validate_websocket(self.public_ws, "subscribe_book"):
+            logger.error("Cannot subscribe to order book - WebSocket not ready")
+            return
+
         msg = {
             "method": "subscribe",
             "params": {
@@ -495,7 +628,11 @@ class WebSocketManager:
                 logger.error(f"Failed to send message: {e}")
 
     async def subscribe_trade(self, pair: str):
-        """Subscribe to trade channel"""
+        """Subscribe to trade channel with validation"""
+        if not self._validate_websocket(self.public_ws, "subscribe_trade"):
+            logger.error("Cannot subscribe to trades - WebSocket not ready")
+            return
+
         msg = {
             "method": "subscribe",
             "params": {
@@ -506,8 +643,9 @@ class WebSocketManager:
         if self.public_ws:
             try:
                 await self.public_ws.send(json.dumps(msg))
+                logger.info(f"Subscribed to trade channel for {pair}")
             except Exception as e:
-                logger.error(f"Failed to send message: {e}")
+                logger.error(f"Failed to send trade subscription: {e}")
 
     def register_callback(self, channel: str, callback: Callable):
         """Register callback for channel"""
@@ -543,6 +681,10 @@ class WebSocketManager:
             reduce_only: True to reduce margin position only
             client_order_id: Optional client-assigned order ID
         """
+        # Validate WebSocket before placing order (critical operation)
+        if not self._validate_websocket(self.private_ws, "add_order"):
+            raise Exception("Private WebSocket validation failed - cannot place order")
+
         if not self.private_ws or not self.ws_token:
             raise Exception("Private WebSocket not connected or no token available")
 
@@ -752,9 +894,10 @@ class WebSocketManager:
                 await asyncio.sleep(self.heartbeat_interval)
                 
                 current_time = time.time()
-                # Check if we've missed heartbeats from server (> 5 seconds since last received)
-                if self.last_heartbeat and current_time - self.last_heartbeat > 5:
-                    logger.warning(f"Heartbeat timeout: {current_time - self.last_heartbeat:.1f}s since last message")
+                # Check if we've missed heartbeats from server
+                time_since_last = current_time - self.last_heartbeat if self.last_heartbeat else 0
+                if time_since_last > self.heartbeat_timeout:
+                    logger.warning(f"Heartbeat timeout: {time_since_last:.1f}s since last message")
                     # Trigger reconnection
                     if self.public_ws:
                         await self.public_ws.close()

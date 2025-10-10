@@ -12,8 +12,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from trading_engine import (
-    TradingEngine, RiskManager, MomentumStrategy, MeanReversionStrategy,
-    OrderType, OrderSide
+    TradingEngine, RiskManager, OrderType, OrderSide
+)
+from strategies import (
+    Strategy, RSIMeanReversionStrategy, RangeTradingStrategy,
+    MicroScalpingStrategy, StrategyManager
 )
 from config import Config
 from timestamp_utils import TimestampUtils
@@ -201,7 +204,7 @@ class TestTradingEngine:
         """Test strategy initialization"""
         await engine._initialize_strategies()
 
-        assert len(engine.strategies) == 2  # Momentum + Mean Reversion
+        assert len(engine.strategies) == 3  # RSI Mean Reversion + Range Trading + Micro Scalping
 
     @pytest.mark.asyncio
     async def test_calculate_order_cost_market_order(self, engine):

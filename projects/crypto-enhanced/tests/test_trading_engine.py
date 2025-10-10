@@ -15,8 +15,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from trading_engine import (
-    TradingEngine, OrderType, OrderSide, RiskManager,
-    MomentumStrategy, MeanReversionStrategy, ArbitrageStrategy
+    TradingEngine, OrderType, OrderSide, RiskManager
+)
+from strategies import (
+    Strategy, RSIMeanReversionStrategy, RangeTradingStrategy,
+    MicroScalpingStrategy, StrategyManager
 )
 from config import Config
 from kraken_client import KrakenClient
@@ -67,6 +70,8 @@ class TestTradingEngine:
         ws = Mock(spec=WebSocketManager)
         ws.register_callback = Mock()
         ws.is_connected = Mock(return_value=True)
+        ws.private_ws = Mock()  # Add private_ws attribute for place_order check
+        ws.public_ws = Mock()   # Add public_ws attribute
         return ws
 
     @pytest.fixture
@@ -118,94 +123,106 @@ class TestTradingEngine:
     @pytest.mark.asyncio
     async def test_place_order(self, trading_engine):
         """Test order placement"""
+        # Mock WebSocket add_order to return success
+        trading_engine.websocket.add_order = AsyncMock(return_value={'order_id': 'WS-ORDER-123'})
+
+        # Use small values that pass risk checks (max position: $30, max exposure: $90)
         result = await trading_engine.place_order(
             pair='XBT/USD',
             side=OrderSide.BUY,
             order_type=OrderType.LIMIT,
             volume='0.01',
-            price='45000'
+            price='1500'  # 0.01 * 1500 = $15 (under $30 limit)
         )
 
-        assert result['txid'] == ['TEST-ORDER-123']
-        trading_engine.kraken.place_order.assert_called_once()
+        # WebSocket V2 returns {'order_id': '...'}, not {'txid': [...]}
+        assert 'order_id' in result
+        assert result['order_id'] == 'WS-ORDER-123'
+        trading_engine.websocket.add_order.assert_called_once()
         trading_engine.db.log_order.assert_called_once()
 
-    @pytest.mark.asyncio
-    async def test_cancel_order(self, trading_engine):
-        """Test order cancellation"""
-        order_id = 'TEST-ORDER-123'
-        trading_engine.pending_orders[order_id] = {
-            'pair': 'XBT/USD',
-            'side': 'buy',
-            'volume': '0.01'
-        }
-
-        result = await trading_engine.cancel_order(order_id)
-
-        assert result['count'] == 1
-        assert order_id not in trading_engine.pending_orders
-        trading_engine.kraken.cancel_order.assert_called_once_with(order_id)
+    # REMOVED: cancel_order() method doesn't exist - only cancel_all_orders()
 
     @pytest.mark.asyncio
     async def test_cancel_all_orders(self, trading_engine):
         """Test cancelling all orders"""
-        trading_engine.pending_orders = {
-            'ORDER1': {'pair': 'XBT/USD'},
-            'ORDER2': {'pair': 'ETH/USD'}
-        }
+        # Mock WebSocket cancel_all_orders to return success
+        trading_engine.websocket.cancel_all_orders = AsyncMock(return_value={'count': 2})
 
-        await trading_engine.cancel_all_orders()
+        result = await trading_engine.cancel_all_orders()
 
-        assert len(trading_engine.pending_orders) == 0
-        assert trading_engine.kraken.cancel_order.call_count == 2
+        # Verify WebSocket method was called
+        trading_engine.websocket.cancel_all_orders.assert_called_once()
+        # Verify result contains count
+        assert result['count'] == 2
 
     @pytest.mark.asyncio
     async def test_close_position(self, trading_engine):
         """Test closing a position"""
         position_id = 'POS-123'
+        # Use small values that pass risk checks
         trading_engine.positions[position_id] = {
             'id': position_id,
             'pair': 'XBT/USD',
-            'side': 'long',
-            'volume': Decimal('0.01'),
-            'entry_price': Decimal('45000'),
-            'current_price': Decimal('50000')
+            'side': 'buy',
+            'volume': '0.01',  # Use string format like actual implementation
+            'entry_price': 1500,  # 0.01 * 1500 = $15 (under $30 limit)
+            'current_price': 1600
         }
+
+        # Mock place_order to return success
+        trading_engine.websocket.add_order = AsyncMock(return_value={'order_id': 'CLOSE-ORDER-123'})
 
         await trading_engine.close_position(position_id, reason='Take profit')
 
-        assert position_id not in trading_engine.positions
-        trading_engine.kraken.place_order.assert_called_once()
-        # Should place a sell order to close the long position
-        call_args = trading_engine.kraken.place_order.call_args[1]
-        assert call_args['type'] == 'sell'
+        # close_position calls place_order with opposite side (SELL for buy position)
+        trading_engine.websocket.add_order.assert_called_once()
+        call_args = trading_engine.websocket.add_order.call_args[1]
+        assert call_args['side'] == OrderSide.SELL.value
 
     @pytest.mark.asyncio
     async def test_risk_management(self, trading_engine):
         """Test risk management checks"""
-        # Add some positions
+        # Add some positions (total $60)
         trading_engine.positions = {
-            'POS1': {'exposure': Decimal('2000')},
-            'POS2': {'exposure': Decimal('2000')}
+            'POS1': {'volume': '0.01', 'entry_price': 3000},  # $30
+            'POS2': {'volume': '0.01', 'entry_price': 3000}   # $30
         }
 
-        # Risk check should pass (total exposure 4000 < max 5000)
-        can_trade = await trading_engine.risk_manager.can_open_position(Decimal('500'))
+        # Risk check should pass (total exposure $60 + $10 = $70 < $90 max)
+        can_trade = await trading_engine.risk_manager.approve_order(
+            pair='XBT/USD',
+            volume='0.01',
+            positions=trading_engine.positions,
+            price=1000  # $10
+        )
         assert can_trade
 
-        # Risk check should fail (would exceed max exposure)
-        can_trade = await trading_engine.risk_manager.can_open_position(Decimal('2000'))
+        # Risk check should fail (would exceed max exposure: $60 + $40 = $100 > $90)
+        can_trade = await trading_engine.risk_manager.approve_order(
+            pair='XBT/USD',
+            volume='0.01',
+            positions=trading_engine.positions,
+            price=4000  # $40
+        )
         assert not can_trade
 
     @pytest.mark.asyncio
     async def test_get_metrics(self, trading_engine):
         """Test getting trading metrics"""
+        # Add some test data
+        trading_engine.positions = {'pos1': {}, 'pos2': {}}
+        trading_engine.pending_orders = {'order1': {}}
+        trading_engine.strategies = [Mock(), Mock()]
+
         metrics = await trading_engine.get_metrics()
 
-        assert metrics['total_trades'] == 10
-        assert metrics['win_rate'] == 0.6
-        assert metrics['total_pnl'] == 500
-        trading_engine.db.get_metrics.assert_called_once()
+        # get_metrics returns engine state, not database metrics
+        assert metrics['positions'] == 2
+        assert metrics['pending_orders'] == 1
+        assert metrics['strategies'] == 2
+        assert 'timestamp' in metrics
+        assert 'risk_metrics' in metrics
 
     @pytest.mark.asyncio
     async def test_ticker_callback(self, trading_engine):
@@ -225,18 +242,29 @@ class TestTradingEngine:
     @pytest.mark.asyncio
     async def test_execution_callback(self, trading_engine):
         """Test order execution callback"""
+        # V2 execution format with order update
         execution_data = {
-            'order_id': 'ORDER-123',
-            'exec_id': 'EXEC-456',
-            'symbol': 'BTC/USD',
-            'side': 'buy',
-            'last_qty': 0.01,
-            'last_price': 50000,
-            'exec_type': 'trade'
+            'channel': 'executions',
+            'type': 'update',
+            'data': [{
+                'order_id': 'ORDER-123',
+                'exec_id': 'EXEC-456',
+                'symbol': 'BTC/USD',
+                'side': 'buy',
+                'last_qty': 0.01,
+                'last_price': 50000,
+                'exec_type': 'trade'
+            }],
+            'order': {
+                'order_id': 'ORDER-123',
+                'status': 'filled',
+                'pair': 'BTC/USD'
+            }
         }
 
         # Add pending order
         trading_engine.pending_orders['ORDER-123'] = {
+            'order_id': 'ORDER-123',
             'pair': 'BTC/USD',
             'side': 'buy',
             'volume': 0.01
@@ -244,224 +272,30 @@ class TestTradingEngine:
 
         await trading_engine._on_execution_update(execution_data)
 
-        # Order should be moved from pending to positions
+        # Order should be removed from pending (status: filled)
         assert 'ORDER-123' not in trading_engine.pending_orders
-        # Should have created a position
-        assert len(trading_engine.positions) > 0
+        # Should have market data with trade
+        assert 'BTC/USD_trades' in trading_engine.market_data
 
     @pytest.mark.asyncio
     async def test_balance_update_callback(self, trading_engine):
         """Test balance update callback"""
+        # V2 balance format
         balance_data = {
-            'asset': 'USD',
-            'balance': 10000,
-            'available': 9500
+            'channel': 'balances',
+            'type': 'snapshot',
+            'data': [
+                {'asset': 'USD', 'balance': 10000, 'available': 9500},
+                {'asset': 'BTC', 'balance': 0.5, 'available': 0.5}
+            ]
         }
 
         await trading_engine._on_balance_update(balance_data)
 
         assert 'balance' in trading_engine.market_data
         assert trading_engine.market_data['balance']['USD'] == 10000
-
-
-class TestMomentumStrategy:
-    """Test suite for MomentumStrategy"""
-
-    @pytest.fixture
-    def mock_engine(self):
-        """Create mock trading engine"""
-        engine = Mock()
-        engine.config = Mock()
-        engine.config.trading_pairs = ['XBT/USD', 'ETH/USD']
-        engine.config.max_position_size = 1000
-        engine.market_data = {}
-        engine.positions = {}
-        engine.place_order = AsyncMock()
-        engine.close_position = AsyncMock()
-        engine.kraken = Mock()
-        engine.kraken.get_ticker = AsyncMock(return_value={
-            'XXBTZUSD': {'c': ['50000', '0.01']}
-        })
-        return engine
-
-    @pytest.fixture
-    def momentum_strategy(self, mock_engine):
-        """Create MomentumStrategy instance"""
-        return MomentumStrategy(mock_engine)
-
-    @pytest.mark.asyncio
-    async def test_momentum_calculation_buy_signal(self, momentum_strategy):
-        """Test momentum calculation generating buy signal"""
-        trades = [
-            {'price': '49000'} for _ in range(5)  # Older trades
-        ] + [
-            {'price': '50000'} for _ in range(5)  # Recent trades
-        ]
-
-        signal = momentum_strategy._calculate_momentum(trades)
-        assert signal == 'buy'  # Price increased by ~2%
-
-    @pytest.mark.asyncio
-    async def test_momentum_calculation_sell_signal(self, momentum_strategy):
-        """Test momentum calculation generating sell signal"""
-        trades = [
-            {'price': '50000'} for _ in range(5)  # Older trades
-        ] + [
-            {'price': '49000'} for _ in range(5)  # Recent trades
-        ]
-
-        signal = momentum_strategy._calculate_momentum(trades)
-        assert signal == 'sell'  # Price decreased by ~2%
-
-    @pytest.mark.asyncio
-    async def test_momentum_calculation_no_signal(self, momentum_strategy):
-        """Test momentum calculation with no signal"""
-        trades = [
-            {'price': '50000'} for _ in range(10)  # Flat price
-        ]
-
-        signal = momentum_strategy._calculate_momentum(trades)
-        assert signal is None  # No significant momentum
-
-    @pytest.mark.asyncio
-    async def test_momentum_strategy_evaluation(self, momentum_strategy, mock_engine):
-        """Test momentum strategy evaluation"""
-        # Add trade data to market
-        mock_engine.market_data['XBT/USD_trades'] = [
-            {'price': '49000'} for _ in range(5)
-        ] + [
-            {'price': '50000'} for _ in range(5)
-        ]
-
-        await momentum_strategy.evaluate()
-
-        # Should place a buy order due to positive momentum
-        mock_engine.place_order.assert_called()
-        call_args = mock_engine.place_order.call_args[1]
-        assert call_args['side'] == OrderSide.BUY
-
-
-class TestMeanReversionStrategy:
-    """Test suite for MeanReversionStrategy"""
-
-    @pytest.fixture
-    def mock_engine(self):
-        """Create mock trading engine"""
-        engine = Mock()
-        engine.config = Mock()
-        engine.config.trading_pairs = ['XBT/USD']
-        engine.config.max_position_size = 1000
-        engine.market_data = {}
-        engine.positions = {}
-        engine.place_order = AsyncMock()
-        engine.close_position = AsyncMock()
-        engine.kraken = Mock()
-        engine.kraken.get_ticker = AsyncMock(return_value={
-            'XXBTZUSD': {'c': ['50000', '0.01']}
-        })
-        return engine
-
-    @pytest.fixture
-    def mean_reversion_strategy(self, mock_engine):
-        """Create MeanReversionStrategy instance"""
-        return MeanReversionStrategy(mock_engine)
-
-    @pytest.mark.asyncio
-    async def test_mean_reversion_buy_signal(self, mean_reversion_strategy):
-        """Test mean reversion generating buy signal (oversold)"""
-        # Create trades with current price significantly below mean
-        trades = [{'price': '50000'} for _ in range(19)]  # Mean around 50000
-        trades.append({'price': '47000'})  # Current price well below mean
-
-        signal = mean_reversion_strategy._calculate_reversion(trades)
-        assert signal == 'buy'  # Price is oversold
-
-    @pytest.mark.asyncio
-    async def test_mean_reversion_sell_signal(self, mean_reversion_strategy):
-        """Test mean reversion generating sell signal (overbought)"""
-        # Create trades with current price significantly above mean
-        trades = [{'price': '50000'} for _ in range(19)]  # Mean around 50000
-        trades.append({'price': '53000'})  # Current price well above mean
-
-        signal = mean_reversion_strategy._calculate_reversion(trades)
-        assert signal == 'sell'  # Price is overbought
-
-    @pytest.mark.asyncio
-    async def test_mean_reversion_no_signal(self, mean_reversion_strategy):
-        """Test mean reversion with no signal"""
-        # All prices around the same level
-        trades = [{'price': '50000'} for _ in range(20)]
-
-        signal = mean_reversion_strategy._calculate_reversion(trades)
-        assert signal is None  # Price is at mean
-
-
-class TestArbitrageStrategy:
-    """Test suite for ArbitrageStrategy"""
-
-    @pytest.fixture
-    def mock_engine(self):
-        """Create mock trading engine"""
-        engine = Mock()
-        engine.config = Mock()
-        engine.config.trading_pairs = ['XBT/USD', 'ETH/USD', 'ETH/XBT']
-        engine.config.max_position_size = 1000
-        engine.market_data = {
-            'XBT/USD_ticker': {'bid': 50000, 'ask': 50100},
-            'ETH/USD_ticker': {'bid': 3000, 'ask': 3010},
-            'ETH/XBT_ticker': {'bid': 0.059, 'ask': 0.061}
-        }
-        engine.place_order = AsyncMock()
-        return engine
-
-    @pytest.fixture
-    def arbitrage_strategy(self, mock_engine):
-        """Create ArbitrageStrategy instance"""
-        return ArbitrageStrategy(mock_engine)
-
-    @pytest.mark.asyncio
-    async def test_triangular_profit_calculation(self, arbitrage_strategy):
-        """Test triangular arbitrage profit calculation"""
-        pairs = ['XBT/USD', 'ETH/USD', 'ETH/XBT']
-        prices = {
-            'XBT/USD': Decimal('50000'),
-            'ETH/USD': Decimal('3000'),
-            'ETH/XBT': Decimal('0.06')  # ETH = 0.06 BTC
-        }
-
-        profit = arbitrage_strategy._calculate_triangular_profit(pairs, prices)
-        # Starting with 1 BTC -> USD -> ETH -> BTC should result in profit/loss
-        assert isinstance(profit, Decimal)
-
-    @pytest.mark.asyncio
-    async def test_arbitrage_opportunity_detection(self, arbitrage_strategy, mock_engine):
-        """Test detection of arbitrage opportunities"""
-        # Set up market data with arbitrage opportunity
-        mock_engine.market_data = {
-            'XBT/USD_ticker': {'bid': 50000, 'ask': 50100},
-            'ETH/USD_ticker': {'bid': 3000, 'ask': 3010},
-            'ETH/XBT_ticker': {'bid': 0.055, 'ask': 0.056}  # Mispriced
-        }
-
-        await arbitrage_strategy.evaluate()
-
-        # Check if strategy attempted to evaluate opportunities
-        # (actual execution depends on profit threshold)
-        assert arbitrage_strategy.arbitrage_pairs is not None
-
-    @pytest.mark.asyncio
-    async def test_direct_arbitrage_check(self, arbitrage_strategy, mock_engine):
-        """Test direct arbitrage detection (negative spread)"""
-        # Set up impossible scenario where bid > ask (arbitrage opportunity)
-        mock_engine.market_data = {
-            'XBT/USD_ticker': {'bid': 50100, 'ask': 50000}  # Bid > Ask!
-        }
-        mock_engine.config.trading_pairs = ['XBT/USD']
-
-        await arbitrage_strategy._check_direct_arbitrage()
-
-        # Should detect and attempt to execute arbitrage
-        mock_engine.place_order.assert_called()
+        assert trading_engine.market_data['balance']['BTC'] == 0.5
+        assert trading_engine.market_data['usd_balance'] == 10000
 
 
 class TestRiskManager:

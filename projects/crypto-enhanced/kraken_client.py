@@ -18,6 +18,15 @@ from errors_simple import APIError, KrakenAPIError, log_error, is_retryable
 from circuit_breaker import CircuitBreaker  # 2025 resilience pattern
 import random  # For exponential backoff
 
+# Import learning system integration for credential validation
+try:
+    from learning_integration import (
+        CryptoConnectionValidator,
+        PREVENTION_AVAILABLE
+    )
+except ImportError:
+    PREVENTION_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -50,6 +59,15 @@ class KrakenClient:
             self.api_key = config.kraken_api_key
             self.api_secret = config.kraken_api_secret
             self.key_label = "primary"
+
+        # Validate API credentials if learning system available
+        if PREVENTION_AVAILABLE and self.api_key and self.api_secret:
+            is_valid, msg = CryptoConnectionValidator.validate_api_credentials(
+                self.api_key, self.api_secret
+            )
+            if not is_valid:
+                logger.warning(f"API credential validation warning: {msg}")
+
         self.session: Optional[aiohttp.ClientSession] = None
         # Use separate nonce manager for each API key to prevent conflicts
         nonce_file = f"nonce_state_{self.key_label}.json"
@@ -103,8 +121,19 @@ class KrakenClient:
         postdata = urllib.parse.urlencode(data)
         encoded = (str(data['nonce']) + postdata).encode()
         message = urlpath.encode() + hashlib.sha256(encoded).digest()
+
+        # Decode API secret (Kraken provides base64-encoded secrets)
+        # Handle potential whitespace/formatting issues
+        try:
+            secret_bytes = base64.b64decode(self.api_secret.strip())
+        except Exception as e:
+            raise APIError(
+                f"Invalid API secret format - must be base64-encoded. "
+                f"Check KRAKEN_API_SECRET in .env file. Error: {e}"
+            )
+
         signature = hmac.new(
-            base64.b64decode(self.api_secret),
+            secret_bytes,
             message,
             hashlib.sha512
         )

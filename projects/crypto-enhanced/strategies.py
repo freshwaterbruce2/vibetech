@@ -177,15 +177,38 @@ class RSIMeanReversionStrategy(Strategy):
 
     def __init__(self, engine, config):
         super().__init__(engine, config, "RSI_MeanReversion")
+        
+        # Load optimization parameters from config
+        strategy_config = getattr(config, 'strategies', {}).get('mean_reversion', {})
+        
         self.rsi_period = 14
-        self.rsi_oversold = 35  # Conservative for small account
-        self.rsi_overbought = 65
-        self.position_size_usd = 8.0  # $8 per trade, leaving buffer
+        self.rsi_oversold = strategy_config.get('rsi_oversold', 35)
+        self.rsi_overbought = strategy_config.get('rsi_overbought', 65)
+        self.min_profit_target = strategy_config.get('min_profit_target', 0.004)  # 0.4%
+        self.max_accumulation = strategy_config.get('max_position_accumulation_xlm', 100)
+        self.stop_loss_pct = strategy_config.get('stop_loss_pct', 0.015)  # 1.5%
+        self.entry_levels = strategy_config.get('entry_levels', 3)
+        
+        # Position tracking
+        self.accumulated_xlm = 0
+        self.entry_count = 0
+        self.position_size_usd = 8.0  # $8 per entry, conservative
+
+    def sync_accumulation(self):
+        """Sync accumulated_xlm with actual engine positions"""
+        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions if pos.get('pair') == 'XLM/USD')
+        if abs(total_xlm - self.accumulated_xlm) > 0.1:  # Threshold to avoid float precision issues
+            logger.info(f"{self.name}: Syncing accumulation from {self.accumulated_xlm:.2f} to {total_xlm:.2f} XLM")
+            self.accumulated_xlm = total_xlm
+            self.entry_count = len([p for p in self.engine.positions if p.get('pair') == 'XLM/USD'])
 
     async def evaluate(self) -> Optional[Dict]:
         """Evaluate RSI strategy"""
         if not self.can_trade():
             return None
+
+        # Sync accumulation tracking with actual positions
+        self.sync_accumulation()
 
         try:
             # Get recent prices
@@ -207,13 +230,46 @@ class RSIMeanReversionStrategy(Strategy):
 
             # Check for oversold condition (buy signal)
             if rsi < self.rsi_oversold and current_price > self.config.xlm_price_range_min:
-                logger.info(f"{self.name}: RSI oversold signal - RSI={rsi:.2f}, Price=${current_price:.4f}")
-                return await self.place_trade("buy", self.position_size_usd, "limit", current_price * 1.001)  # Small premium for limit order
+                # Check accumulation limits before buying
+                if self.accumulated_xlm >= self.max_accumulation:
+                    logger.warning(f"{self.name}: Max accumulation reached ({self.accumulated_xlm:.2f} XLM >= {self.max_accumulation} XLM)")
+                    return None
+                
+                # Check if this trade would exceed max accumulation
+                estimated_xlm = self.position_size_usd / current_price
+                if self.accumulated_xlm + estimated_xlm > self.max_accumulation:
+                    # Adjust position size to not exceed limit
+                    remaining_capacity = self.max_accumulation - self.accumulated_xlm
+                    adjusted_size_usd = remaining_capacity * current_price
+                    if adjusted_size_usd < 1.0:  # Don't place trades under $1
+                        logger.warning(f"{self.name}: Remaining capacity too small (${adjusted_size_usd:.2f})")
+                        return None
+                    logger.info(f"{self.name}: Adjusted position size from ${self.position_size_usd:.2f} to ${adjusted_size_usd:.2f} to respect accumulation limit")
+                    self.position_size_usd = adjusted_size_usd
+                
+                logger.info(f"{self.name}: RSI oversold signal - RSI={rsi:.2f}, Price=${current_price:.4f}, Accumulated={self.accumulated_xlm:.2f} XLM")
+                result = await self.place_trade("buy", self.position_size_usd, "limit", current_price * 1.001)
+                
+                # Update accumulation tracking if trade was placed
+                if result:
+                    self.accumulated_xlm += estimated_xlm
+                    self.entry_count += 1
+                    logger.info(f"{self.name}: Updated accumulation: {self.accumulated_xlm:.2f} XLM (entry #{self.entry_count})")
+                
+                return result
 
             # Check for overbought condition (sell signal) - only if we have positions
             elif rsi > self.rsi_overbought and len(self.engine.positions) > 0:
-                logger.info(f"{self.name}: RSI overbought signal - RSI={rsi:.2f}, Price=${current_price:.4f}")
-                return await self.place_trade("sell", self.position_size_usd, "limit", current_price * 0.999)  # Small discount for limit order
+                logger.info(f"{self.name}: RSI overbought signal - RSI={rsi:.2f}, Price=${current_price:.4f}, Accumulated={self.accumulated_xlm:.2f} XLM")
+                result = await self.place_trade("sell", self.position_size_usd, "limit", current_price * 0.999)
+                
+                # Update accumulation tracking if trade was placed
+                if result:
+                    sold_xlm = self.position_size_usd / current_price
+                    self.accumulated_xlm = max(0, self.accumulated_xlm - sold_xlm)
+                    logger.info(f"{self.name}: Reduced accumulation: {self.accumulated_xlm:.2f} XLM remaining")
+                
+                return result
 
         except Exception as e:
             logger.error(f"{self.name}: Error in evaluation - {e}")
@@ -226,15 +282,33 @@ class RangeTradingStrategy(Strategy):
 
     def __init__(self, engine, config):
         super().__init__(engine, config, "RangeTrading")
+        
+        # Load optimization parameters
+        strategy_config = getattr(config, 'strategies', {}).get('range_trading', {})
+        
         self.support_level = 0.345  # Buy near support
         self.resistance_level = 0.395  # Sell near resistance
         self.position_size_usd = 9.0  # Slightly larger for range trading
         self.buffer_percent = 0.002  # 0.2% buffer for entry/exit
+        self.max_accumulation = strategy_config.get('max_position_accumulation_xlm', 80)  # Lower than mean reversion
+        
+        # Position tracking
+        self.accumulated_xlm = 0
+
+    def sync_accumulation(self):
+        """Sync accumulated_xlm with actual engine positions"""
+        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions if pos.get('pair') == 'XLM/USD')
+        if abs(total_xlm - self.accumulated_xlm) > 0.1:
+            logger.info(f"{self.name}: Syncing accumulation from {self.accumulated_xlm:.2f} to {total_xlm:.2f} XLM")
+            self.accumulated_xlm = total_xlm
 
     async def evaluate(self) -> Optional[Dict]:
         """Evaluate range trading strategy"""
         if not self.can_trade():
             return None
+
+        # Sync accumulation tracking
+        self.sync_accumulation()
 
         try:
             current_price = self.get_current_price()
@@ -248,14 +322,42 @@ class RangeTradingStrategy(Strategy):
             # Check for buy signal near support
             buy_threshold = self.support_level * (1 + self.buffer_percent)
             if current_price <= buy_threshold and current_price >= self.config.xlm_price_range_min:
-                logger.info(f"{self.name}: Range buy signal - Price ${current_price:.4f} near support ${self.support_level:.4f}")
-                return await self.place_trade("buy", self.position_size_usd, "limit", current_price * 1.0005)
+                # Check accumulation limits
+                if self.accumulated_xlm >= self.max_accumulation:
+                    logger.warning(f"{self.name}: Max accumulation reached ({self.accumulated_xlm:.2f} XLM)")
+                    return None
+                
+                estimated_xlm = self.position_size_usd / current_price
+                if self.accumulated_xlm + estimated_xlm > self.max_accumulation:
+                    remaining_capacity = self.max_accumulation - self.accumulated_xlm
+                    adjusted_size_usd = remaining_capacity * current_price
+                    if adjusted_size_usd < 1.0:
+                        logger.warning(f"{self.name}: Remaining capacity too small (${adjusted_size_usd:.2f})")
+                        return None
+                    logger.info(f"{self.name}: Adjusted position size from ${self.position_size_usd:.2f} to ${adjusted_size_usd:.2f}")
+                    self.position_size_usd = adjusted_size_usd
+                
+                logger.info(f"{self.name}: Range buy signal - Price ${current_price:.4f} near support ${self.support_level:.4f}, Accumulated={self.accumulated_xlm:.2f} XLM")
+                result = await self.place_trade("buy", self.position_size_usd, "limit", current_price * 1.0005)
+                
+                if result:
+                    self.accumulated_xlm += estimated_xlm
+                    logger.info(f"{self.name}: Updated accumulation: {self.accumulated_xlm:.2f} XLM")
+                
+                return result
 
             # Check for sell signal near resistance (only if we have positions)
             sell_threshold = self.resistance_level * (1 - self.buffer_percent)
             if current_price >= sell_threshold and len(self.engine.positions) > 0:
                 logger.info(f"{self.name}: Range sell signal - Price ${current_price:.4f} near resistance ${self.resistance_level:.4f}")
-                return await self.place_trade("sell", self.position_size_usd, "limit", current_price * 0.9995)
+                result = await self.place_trade("sell", self.position_size_usd, "limit", current_price * 0.9995)
+                
+                if result:
+                    sold_xlm = self.position_size_usd / current_price
+                    self.accumulated_xlm = max(0, self.accumulated_xlm - sold_xlm)
+                    logger.info(f"{self.name}: Reduced accumulation: {self.accumulated_xlm:.2f} XLM remaining")
+                
+                return result
 
             # Breakout detection - if price breaks resistance with volume
             if current_price > self.resistance_level * 1.005:  # 0.5% above resistance
