@@ -5,8 +5,10 @@ Starts the system in LIVE TRADING mode with real money
 """
 
 import sys
+import os
 import asyncio
 import logging
+import psutil
 from pathlib import Path
 from datetime import datetime
 
@@ -32,8 +34,63 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def check_and_kill_duplicates():
+    """Check for duplicate trading instances and auto-kill them"""
+    current_pid = os.getpid()
+    trading_processes = []
+
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if proc.info['pid'] == current_pid:
+                continue
+
+            if 'python' not in proc.info['name'].lower():
+                continue
+
+            cmdline = proc.info['cmdline']
+            if not cmdline:
+                continue
+
+            cmdline_str = ' '.join(cmdline).lower()
+            if any(keyword in cmdline_str for keyword in ['start_live_trading', 'trading_engine', 'crypto-enhanced']):
+                trading_processes.append(proc)
+
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+
+    if trading_processes:
+        print("="*60)
+        print("[CRITICAL] DUPLICATE INSTANCES DETECTED!")
+        print("="*60)
+        print(f"Found {len(trading_processes)} other trading process(es):")
+        for proc in trading_processes:
+            try:
+                print(f"  [PID {proc.pid}] {' '.join(proc.cmdline())}")
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                print(f"  [PID {proc.pid}] [access denied]")
+
+        print("\n[AUTO-KILL] Terminating duplicate instances...")
+        for proc in trading_processes:
+            try:
+                proc.terminate()
+                proc.wait(timeout=5)
+                print(f"  [KILLED] PID {proc.pid}")
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
+                try:
+                    proc.kill()
+                    print(f"  [FORCE KILLED] PID {proc.pid}")
+                except:
+                    print(f"  [ERROR] Could not kill PID {proc.pid}")
+
+        print("[OK] Duplicate instances terminated")
+        print("="*60)
+
+
 async def start_live_trading():
     """Start live trading with real money"""
+    # CRITICAL: Check and kill duplicates before anything else
+    check_and_kill_duplicates()
+
     print("="*60)
     print("CRYPTO ENHANCED TRADING SYSTEM - LIVE TRADING MODE")
     print("="*60)
@@ -68,6 +125,12 @@ async def start_live_trading():
 
     logger.info("Instance lock acquired successfully")
 
+    # Initialize component references for cleanup
+    engine = None
+    ws_manager = None
+    kraken_client = None
+    db = None
+
     try:
         # Initialize components
         logger.info("Initializing trading system components...")
@@ -76,16 +139,13 @@ async def start_live_trading():
         db = Database(config.db_path)
         await db.initialize()
 
-        # Kraken REST clients - separate keys for nonce isolation
-        kraken_client = KrakenClient(config, use_secondary_key=False)  # Primary for trading
-        kraken_status_client = KrakenClient(config, use_secondary_key=True)  # Secondary for status checks
-
+        # Kraken REST client - single client for all operations
+        kraken_client = KrakenClient(config, use_secondary_key=False)
         await kraken_client.connect()
-        await kraken_status_client.connect()
 
-        # Test connection with status client to avoid nonce conflicts
+        # Test connection
         try:
-            balance = await kraken_status_client.get_account_balance()
+            balance = await kraken_client.get_account_balance()
             logger.info(f"Connected to Kraken. Account has {len(balance)} assets")
 
             # Show USD balance if available
@@ -126,17 +186,58 @@ async def start_live_trading():
     except Exception as e:
         logger.error(f"Fatal error: {e}", exc_info=True)
     finally:
-        # Cleanup
-        if 'ws_manager' in locals():
-            await ws_manager.stop()
-        if 'kraken_client' in locals():
-            await kraken_client.disconnect()
-        if 'kraken_status_client' in locals():
-            await kraken_status_client.disconnect()
-        if 'db' in locals():
-            await db.close()
+        # CRITICAL: Cleanup in correct order to prevent orphaned orders
+        logger.info("="*60)
+        logger.info("SHUTDOWN SEQUENCE INITIATED")
+        logger.info("="*60)
+        
+        # 1. FIRST: Stop trading engine (cancels all orders)
+        if engine and engine.is_running():
+            logger.info("[1/4] Stopping trading engine and cancelling orders...")
+            try:
+                await asyncio.wait_for(engine.stop(), timeout=10.0)
+                logger.info("[OK] Trading engine stopped successfully")
+            except asyncio.TimeoutError:
+                logger.error("[ERROR] Trading engine stop timeout - may have orphaned orders")
+            except Exception as e:
+                logger.error(f"[ERROR] Error stopping trading engine: {e}")
+        
+        # 2. SECOND: Stop WebSocket manager
+        if ws_manager:
+            logger.info("[2/4] Stopping WebSocket manager...")
+            try:
+                await asyncio.wait_for(ws_manager.stop(), timeout=5.0)
+                logger.info("[OK] WebSocket manager stopped")
+            except asyncio.TimeoutError:
+                logger.error("[ERROR] WebSocket stop timeout")
+            except Exception as e:
+                logger.error(f"[ERROR] Error stopping WebSocket: {e}")
+        
+        # 3. THIRD: Disconnect Kraken client
+        if kraken_client:
+            logger.info("[3/4] Disconnecting Kraken client...")
+            try:
+                await asyncio.wait_for(kraken_client.disconnect(), timeout=3.0)
+                logger.info("[OK] Kraken client disconnected")
+            except asyncio.TimeoutError:
+                logger.error("[ERROR] Kraken disconnect timeout")
+            except Exception as e:
+                logger.error(f"[ERROR] Error disconnecting Kraken: {e}")
+        
+        # 4. FOURTH: Close database
+        if db:
+            logger.info("[4/4] Closing database...")
+            try:
+                await db.close()
+                logger.info("[OK] Database closed")
+            except Exception as e:
+                logger.error(f"[ERROR] Error closing database: {e}")
+        
+        # Release instance lock
         lock.release()
-        logger.info("Trading system stopped")
+        logger.info("="*60)
+        logger.info("SHUTDOWN COMPLETE")
+        logger.info("="*60)
 
 
 if __name__ == "__main__":

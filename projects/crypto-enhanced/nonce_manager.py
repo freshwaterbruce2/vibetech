@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 class NonceManager:
     """Thread-safe nonce manager that continues from Kraken's remembered value"""
 
-    # New API keys start with fresh nonce
-    # Set to 0 to use current timestamp
-    KRAKEN_REMEMBERED_NONCE = 0
+    # Kraken remembers the highest nonce ever used with each API key
+    # For FRESH API keys, set to 0 to start from current timestamp
+    # For existing keys with history, set to highest nonce Kraken remembers
+    KRAKEN_REMEMBERED_NONCE = 0  # Fresh API keys - start from current time
 
     def __init__(self, storage_path: str = "nonce_state.json"):
         self.storage_path = Path(storage_path)
@@ -42,9 +43,9 @@ class NonceManager:
             except Exception as e:
                 logger.warning(f"Could not load stored nonce: {e}")
 
-        # For new keys (KRAKEN_REMEMBERED_NONCE = 0), start from current timestamp in nanoseconds
+        # For new keys (KRAKEN_REMEMBERED_NONCE = 0), start from current timestamp in milliseconds
         if self.KRAKEN_REMEMBERED_NONCE == 0:
-            initial_nonce = int(time.time() * 1000000000)  # Nanoseconds!
+            initial_nonce = int(time.time() * 1000)  # Milliseconds (standard for Kraken)
             logger.info(f"Starting with fresh nonce for new keys: {initial_nonce}")
         else:
             # Continue from known high value + buffer

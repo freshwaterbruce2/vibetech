@@ -227,6 +227,8 @@ class Database:
     # Order methods
     async def log_order(self, order_data: Dict):
         """Log order to database"""
+        if not await self.is_connected():
+            await self.initialize()
         try:
             await self.conn.execute("""
                 INSERT INTO orders (order_id, pair, side, order_type, volume, price, status, metadata)
@@ -261,6 +263,8 @@ class Database:
     # Trade methods
     async def log_trade(self, trade_data: Dict):
         """Log trade to database"""
+        if not await self.is_connected():
+            await self.initialize()
         try:
             await self.conn.execute("""
                 INSERT INTO trades (trade_id, order_id, pair, side, price, volume, fee, executed_at)
@@ -303,6 +307,8 @@ class Database:
     # Position methods
     async def log_position(self, position_data: Dict):
         """Log position to database"""
+        if not await self.is_connected():
+            await self.initialize()
         try:
             await self.conn.execute("""
                 INSERT INTO positions (position_id, pair, side, entry_price, volume, stop_loss, take_profit, status, metadata)
@@ -340,6 +346,8 @@ class Database:
     # Market data methods
     async def log_market_data(self, pair: str, data: Dict):
         """Log market data"""
+        if not await self.is_connected():
+            await self.initialize()
         try:
             await self.conn.execute("""
                 INSERT INTO market_data (pair, timestamp, open, high, low, close, volume, bid, ask)
@@ -362,6 +370,8 @@ class Database:
     # Performance methods
     async def log_performance(self, metrics: Dict):
         """Log performance metrics"""
+        if not await self.is_connected():
+            await self.initialize()
         try:
             await self.conn.execute("""
                 INSERT INTO performance (total_pnl, win_rate, sharpe_ratio, max_drawdown, total_trades, winning_trades, losing_trades, metadata)
@@ -397,6 +407,8 @@ class Database:
     # Event methods
     async def log_event(self, event_type: str, message: str, severity: str = "INFO", metadata: Optional[Dict] = None):
         """Log system event"""
+        if not await self.is_connected():
+            await self.initialize()
         try:
             await self.conn.execute("""
                 INSERT INTO events (event_type, severity, message, metadata)
@@ -435,6 +447,8 @@ class Database:
     # Execution methods
     async def log_execution(self, execution_data: Dict):
         """Log execution data from WebSocket"""
+        if not await self.is_connected():
+            await self.initialize()
         try:
             await self.conn.execute("""
                 INSERT INTO executions (
@@ -467,6 +481,8 @@ class Database:
 
     async def log_balance(self, usd_balance: float, xlm_balance: float, source: str = "websocket"):
         """Log balance update"""
+        if not await self.is_connected():
+            await self.initialize()
         try:
             await self.conn.execute("""
                 INSERT INTO balance_history (usd_balance, xlm_balance, source)

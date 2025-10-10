@@ -45,19 +45,34 @@ class KrakenAPIError(APIError):
     def _classify_severity(self, msg: str) -> ErrorSeverity:
         """Classify error severity based on message"""
         msg_lower = str(msg).lower()
-        
+
         # Critical errors - stop trading immediately
         if any(x in msg_lower for x in ['authentication', 'unauthorized', 'api key', 'invalid key']):
             return ErrorSeverity.CRITICAL
         if any(x in msg_lower for x in ['insufficient funds', 'balance']):
             return ErrorSeverity.CRITICAL
-        
+
         # Warnings - retryable issues
         if any(x in msg_lower for x in ['rate limit', 'too many', 'timeout']):
             return ErrorSeverity.WARNING
-        
+
         # Default to ERROR
         return ErrorSeverity.ERROR
+
+    def is_rate_limit_error(self) -> bool:
+        """Check if error is rate limit related"""
+        msg_lower = str(self.error_message).lower()
+        return any(x in msg_lower for x in ['rate limit', 'too many'])
+
+    def is_nonce_error(self) -> bool:
+        """Check if error is nonce related"""
+        msg_lower = str(self.error_message).lower()
+        return 'nonce' in msg_lower
+
+    def is_permission_error(self) -> bool:
+        """Check if error is permission related"""
+        msg_lower = str(self.error_message).lower()
+        return any(x in msg_lower for x in ['permission', 'unauthorized', 'forbidden'])
 
 
 class WebSocketError(TradingError):

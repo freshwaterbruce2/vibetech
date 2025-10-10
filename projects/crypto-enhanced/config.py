@@ -4,12 +4,13 @@ Configuration module for Crypto Enhanced Trading System
 
 import os
 import json
+import base64
 from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables (override any existing ones)
+load_dotenv(override=True)
 
 
 class Config:
@@ -87,13 +88,21 @@ class Config:
             self._load_from_env()
 
         # Load multiple API credentials from environment for nonce isolation
+        # MULTI-KEY SUPPORT: Up to 3 API key pairs for maximum safety
         # Primary key for trading operations
-        self.kraken_api_key = os.getenv('KRAKEN_API_KEY', '')
-        self.kraken_api_secret = os.getenv('KRAKEN_API_SECRET', '')
+        self.kraken_api_key = os.getenv('KRAKEN_API_KEY', '').strip()
+        self.kraken_api_secret = os.getenv('KRAKEN_API_SECRET', '').strip()
 
-        # Secondary key for status/balance checks to avoid nonce conflicts
-        self.kraken_api_key_2 = os.getenv('KRAKEN_API_KEY_2', self.kraken_api_key)
-        self.kraken_api_secret_2 = os.getenv('KRAKEN_API_SECRET_2', self.kraken_api_secret)
+        # Secondary key (fallback for nonce conflicts)
+        self.kraken_api_key_2 = os.getenv('KRAKEN_API_KEY_2', '').strip()
+        self.kraken_api_secret_2 = os.getenv('KRAKEN_API_SECRET_2', '').strip()
+
+        # Tertiary key (backup - optional but recommended)
+        self.kraken_api_key_3 = os.getenv('KRAKEN_API_KEY_3', '').strip()
+        self.kraken_api_secret_3 = os.getenv('KRAKEN_API_SECRET_3', '').strip()
+
+        # Track active key index (0=primary, 1=secondary, 2=tertiary)
+        self.active_key_index = 0
 
         # WebSocket token
         self.ws_auth_token = os.getenv('KRAKEN_WS_TOKEN', '')
@@ -171,6 +180,20 @@ class Config:
             errors.append("KRAKEN_API_KEY not set")
         if not self.kraken_api_secret:
             errors.append("KRAKEN_API_SECRET not set")
+
+        # Validate API secret format (must be valid base64)
+        if self.kraken_api_secret:
+            try:
+                base64.b64decode(self.kraken_api_secret)
+            except Exception as e:
+                errors.append(f"KRAKEN_API_SECRET is not valid base64: {e}")
+
+        # Validate secondary API secret if different from primary
+        if self.kraken_api_secret_2 and self.kraken_api_secret_2 != self.kraken_api_secret:
+            try:
+                base64.b64decode(self.kraken_api_secret_2)
+            except Exception as e:
+                errors.append(f"KRAKEN_API_SECRET_2 is not valid base64: {e}")
 
         # Warn if secondary keys not configured (not required but recommended)
         if self.kraken_api_key_2 == self.kraken_api_key:

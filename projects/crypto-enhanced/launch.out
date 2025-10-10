@@ -1,0 +1,25 @@
+============================================================
+CRYPTO ENHANCED TRADING SYSTEM - AUTO LAUNCH
+============================================================
+
+Configuration:
+  Trading Pairs: ['XLM/USD']
+  Max Position: $10
+  Max Exposure: $10
+============================================================
+
+[AUTO] Starting live trading system...
+2025-10-10 02:10:05,903 - __main__ - INFO - Initializing trading system components...
+2025-10-10 02:10:05,911 - nonce_manager - INFO - Loaded nonce from storage: 1759968838993
+2025-10-10 02:10:05,911 - nonce_manager - INFO - Nonce manager initialized with value: 1759968838993
+2025-10-10 02:10:05,911 - kraken_client - INFO - Kraken client initialized with circuit breaker protection (primary API key)
+2025-10-10 02:10:05,923 - database - INFO - Database initialized at trading.db
+2025-10-10 02:10:05,923 - __main__ - INFO - ============================================================
+2025-10-10 02:10:05,923 - __main__ - INFO - LIVE TRADING STARTED - REFACTORED ENGINE
+2025-10-10 02:10:05,923 - __main__ - INFO - ============================================================
+2025-10-10 02:10:05,923 - trading_engine - INFO - Trading engine started (optimized version)
+2025-10-10 02:10:05,928 - strategies - INFO - Using estimated balance $98.00 for strategy initialization
+2025-10-10 02:10:05,928 - strategies - INFO - Initialized 3 trading strategies: ['RSI_MeanReversion', 'RangeTrading', 'MicroScalping']
+2025-10-10 02:10:05,928 - trading_engine - INFO - Initialized 3 strategies: ['RSI_MeanReversion', 'RangeTrading', 'MicroScalping']
+2025-10-10 02:10:05,929 - kraken_client - INFO - Kraken client connected
+2025-10-10 02:10:06,474 - trading_engine - INFO - Initial state loaded: 1 orders, 0 positions

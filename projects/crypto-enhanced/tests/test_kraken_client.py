@@ -16,6 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kraken_client import KrakenClient, KrakenAPIError
+from errors_simple import APIError
 from config import Config
 
 
@@ -189,18 +190,24 @@ class TestKrakenClient:
         await client.connect()  # Connect first
         call_count = 0
 
-        async def side_effect(*args, **kwargs):
+        def side_effect(*args, **kwargs):
             nonlocal call_count
             call_count += 1
             if call_count < 3:
                 raise aiohttp.ClientError("Network error")
 
-            response_mock = AsyncMock()
+            response_mock = MagicMock()
             response_mock.json = AsyncMock(return_value={
                 'error': [],
                 'result': {'status': 'online'}
             })
-            return AsyncMock(__aenter__=AsyncMock(return_value=response_mock))
+            response_mock.status = 200
+
+            # Create proper async context manager
+            context_manager = MagicMock()
+            context_manager.__aenter__ = AsyncMock(return_value=response_mock)
+            context_manager.__aexit__ = AsyncMock(return_value=None)
+            return context_manager
 
         with patch.object(client.session, 'request', side_effect=side_effect):
             result = await client._request('public/SystemStatus')
@@ -215,9 +222,11 @@ class TestKrakenClient:
         with patch.object(client.session, 'request') as mock_request:
             mock_request.side_effect = aiohttp.ClientError("Persistent network error")
 
-            with pytest.raises(aiohttp.ClientError):
+            # Should raise APIError after max retries (wrapped by kraken_client)
+            with pytest.raises(APIError) as excinfo:
                 await client._request('public/SystemStatus')
 
+            assert "Network error after 5 retries" in str(excinfo.value)
             # Should have tried MAX_RETRIES + 1 times (initial + retries)
             assert mock_request.call_count == 6  # 1 initial + 5 retries
 
