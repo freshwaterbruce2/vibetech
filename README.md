@@ -46,7 +46,7 @@ Here are the most common scripts available from the root of the project:
 Command	Description
 pnpm rundev	Starts the main web application development server (port 5173).
 pnpm runbuild	Builds all projects for production.
-npm test	Runs all unit and integration tests across the monorepo.
+pnpm run test	Runs all unit and integration tests across the monorepo.
 pnpm runquality	Runs all code quality checks (linting, formatting, type-checking).
 pnpm runmonorepo:health	Displays a health and status report for the workspace.
 pnpm runworkspace:clean	Removes all node_modules and build artifacts.
