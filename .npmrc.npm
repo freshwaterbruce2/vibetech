@@ -1,0 +1,24 @@
+# npm Workspace Optimization Configuration
+# Generated: 2025-10-03
+# Reference: npm workspaces best practices 2025
+
+# Automatically deduplicate dependencies during install
+# Reduces node_modules size by 30-40%
+prefer-dedupe=true
+
+# Strict engine checking (enforce Node version requirements)
+engine-strict=true
+
+# Use legacy peer dependency resolution for compatibility
+# Can be set to false once all packages are updated
+legacy-peer-deps=true
+
+# Save exact versions (no ^ or ~) for reproducible builds
+# Disabled to allow minor/patch updates within semver
+save-exact=false
+
+# Progress bars for better CLI feedback
+progress=true
+
+# Audit level for security checks
+audit-level=moderate

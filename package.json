@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "description": "Vibe Tech multi-project monorepo with booking platforms, web apps, and desktop applications",
-  "packageManager": "bun@1.2.22",
+  "packageManager": "pnpm@9.15.0",
   "workspaces": [
     "backend",
     "packages/*",
@@ -12,6 +12,12 @@
     "projects/active/desktop-apps/*",
     "projects/Vibe-Subscription-Guard"
   ],
+  "resolutions": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.1"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -29,6 +35,9 @@
     "test:unit:watch": "vitest",
     "test:unit:ui": "vitest --ui",
     "test:unit:coverage": "vitest run --coverage",
+    "test:coverage": "npm run test:unit:coverage && npm run crypto:coverage",
+    "test:coverage:all": "nx run-many -t test:coverage",
+    "coverage:report": "npm run test:unit:coverage && npm run crypto:coverage:report",
     "typecheck": "tsc --noEmit",
     "quality": "nx run-many -t quality",
     "quality:fix": "nx run-many -t quality:fix",
@@ -54,6 +63,8 @@
     "clean:artifacts": "del /q *.log 2>nul && del /q fix-*.* 2>nul || echo \"Artifact clean completed\"",
     "monorepo:health": "npm run quality && npm run crypto:test",
     "crypto:test": "cd projects/crypto-enhanced && .venv\\Scripts\\python.exe run_tests.py",
+    "crypto:coverage": "cd projects/crypto-enhanced && .venv\\Scripts\\python.exe -m pytest --cov=. --cov-report=term-missing --cov-report=html --cov-report=json --cov-report=xml",
+    "crypto:coverage:report": "cd projects/crypto-enhanced && start coverage_html\\index.html",
     "parallel": "powershell -ExecutionPolicy Bypass -File scripts\\workspace-manager.ps1 -Action parallel",
     "parallel:dev": "powershell -ExecutionPolicy Bypass -File scripts\\Start-ParallelMonorepo.ps1 -Group dev",
     "parallel:full-stack": "powershell -ExecutionPolicy Bypass -File scripts\\Start-ParallelMonorepo.ps1 -Group full-stack",
@@ -126,7 +137,6 @@
     "@eslint/js": "^9.37.0",
     "@nx/js": "^21.6.3",
     "@playwright/test": "^1.56.0",
-    "@tailwindcss/postcss": "^4.1.14",
     "@tailwindcss/typography": "^0.5.19",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -148,7 +158,7 @@
     "nx": "21.6.3",
     "postcss": "^8.5.6",
     "puppeteer": "^24.23.0",
-    "tailwindcss": "^4.1.14",
+    "tailwindcss": "^3.4.15",
     "terser": "^5.44.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.0",
