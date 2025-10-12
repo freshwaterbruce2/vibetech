@@ -14,6 +14,7 @@ export default tseslint.config(
       ".turbo",
       ".nx",
       ".next",
+      ".venv*/**",
       "DesktopCommanderMCP/**",
       "Vibe-Tutor/**",
       "opcode/**",
@@ -25,6 +26,8 @@ export default tseslint.config(
       "projects/**",
       "PowerShell/**",
       "public/assets/**",
+      "supabase/**",
+      "desktop-commander-mcp/**",
       "*.min.js",
       "*.bundle.js"
     ]
