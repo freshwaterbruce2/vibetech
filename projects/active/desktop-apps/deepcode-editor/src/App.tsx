@@ -145,7 +145,7 @@ function App() {
   });
 
   // Git panel state
-  const [gitPanelOpen, setGitPanelOpen] = useState(false);
+  const [gitPanelOpen, _setGitPanelOpen] = useState(false);
   
   // Agent Mode and Composer Mode state
   const [agentModeOpen, setAgentModeOpen] = useState(false);

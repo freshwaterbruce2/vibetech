@@ -84,7 +84,8 @@
     ],
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/dist/"
+      "/dist/",
+      "/tests/visual/"
     ],
     "collectCoverageFrom": [
       "server.js",

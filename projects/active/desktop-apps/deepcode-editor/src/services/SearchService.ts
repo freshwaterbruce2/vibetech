@@ -38,8 +38,8 @@ export class SearchService {
    * Search for text across multiple files
    */
   async searchInFiles(
-    searchText: string, 
-    files: string[], 
+    searchText: string,
+    files: string[],
     options: SearchOptions
   ): Promise<Record<string, SearchResult[]>> {
     if (!searchText.trim()) {
@@ -72,7 +72,7 @@ export class SearchService {
   async searchInFile(
     filePath: string, 
     pattern: RegExp, 
-    options: SearchOptions
+    _options: SearchOptions
   ): Promise<SearchResult[]> {
     try {
       const content = await this.fileSystemService.readFile(filePath);
@@ -168,7 +168,7 @@ export class SearchService {
       }
 
       let replacements = 0;
-      const newContent = content.replace(pattern, (match: string) => {
+      const newContent = content.replace(pattern, (_match: string) => {
         replacements++;
         return replaceText;
       });

@@ -316,7 +316,7 @@ export class CodebaseAnalyzer {
         architecture,
       };
 
-      const analysisTime = Date.now() - startTime;
+      const _analysisTime = Date.now() - startTime;
 
       // Cache the result for performance
       this.analysisCache.set(rootPath, { context, timestamp: Date.now() });
@@ -741,7 +741,7 @@ Provide recommendations for:
    * Real-time analysis for file changes
    */
   async analyzeFileChange(
-    filePath: string,
+    _filePath: string,
     _content: string
   ): Promise<{
     patterns: CodePatterns;

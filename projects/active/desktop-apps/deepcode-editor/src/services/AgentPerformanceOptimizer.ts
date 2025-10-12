@@ -119,7 +119,7 @@ export class AgentPerformanceOptimizer extends EventEmitter {
   /**
    * Calculate workload score based on recent activity
    */
-  private calculateWorkloadScore(agentId: string, metrics: PerformanceMetrics[]): number {
+  private calculateWorkloadScore(_agentId: string, metrics: PerformanceMetrics[]): number {
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
     

@@ -259,7 +259,7 @@ export class AgentReliabilityManager extends EventEmitter {
   /**
    * Record failed agent execution
    */
-  private recordFailure(agentId: string, error: Error, context: any, responseTime: number): void {
+  private recordFailure(agentId: string, error: Error, context: any, _responseTime: number): void {
     const metrics = this.getOrCreateMetrics(agentId);
     metrics.totalRequests++;
     metrics.failedRequests++;
@@ -381,7 +381,7 @@ export class AgentReliabilityManager extends EventEmitter {
     return breaker?.isOpen || false;
   }
 
-  private updateCircuitBreaker(agentId: string, error: Error): void {
+  private updateCircuitBreaker(agentId: string, _error: Error): void {
     if (!this.circuitBreakers.has(agentId)) {
       this.circuitBreakers.set(agentId, {
         isOpen: false,
@@ -525,7 +525,7 @@ export class AgentReliabilityManager extends EventEmitter {
   }
 
   private calculateReliabilityMetrics(): void {
-    const uptime = (Date.now() - this.startTime) / (1000 * 60 * 60); // hours
+    const _uptime = (Date.now() - this.startTime) / (1000 * 60 * 60); // hours
 
     for (const [agentId, metrics] of this.reliabilityMetrics.entries()) {
       const history = this.failureHistory.get(agentId) || [];
