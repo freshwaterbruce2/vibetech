@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture Overview
 
 This is a multi-project monorepo with three primary focus areas:
-1. **React/TypeScript Web Application** (root level) - A Vite-based web app using shadcn/ui components
+1. **React/TypeScript Web Application** (root level) - A Vite 7-based web app using React 19 and shadcn/ui components
 2. **Python Trading System** (projects/crypto-enhanced) - Live cryptocurrency trading with Kraken API
 3. **Capacitor Mobile Apps** (various projects/) - Native Android/iOS apps from web code
 
@@ -27,10 +27,10 @@ This is a multi-project monorepo with three primary focus areas:
 ### Workspace Web Applications
 
 **business-booking-platform** (`projects/active/web-apps/business-booking-platform`) - Production Hotel Booking Platform
-- **Type**: React 18 + TypeScript + Vite web application
+- **Type**: React 19 + TypeScript + Vite web application
 - **Version**: 2.0.0 (Production-ready)
 - **Features**: AI-powered search, Square payment integration, passion-based hotel matching
-- **Tech Stack**: React Query, React Router, shadcn/ui, Tailwind CSS
+- **Tech Stack**: React Query, React Router 7, shadcn/ui, Tailwind CSS 4
 - **Documentation**: See `projects/active/web-apps/business-booking-platform/CLAUDE.md`
 - **Status**: ✅ Production-ready with comprehensive features and testing
 
@@ -43,28 +43,38 @@ This is a multi-project monorepo with three primary focus areas:
 ## Key Commands
 
 ### Web Application (Root Directory)
+
+**Package Manager:** pnpm 9.15.0 (migrated from npm for 59.5% disk space savings via hard links)
+
 ```bash
 # Development
-npm run dev                # Start dev server (port 5173)
-npm run build              # Production build
-npm run preview            # Preview production build
+pnpm run dev                # Start dev server (port 5173)
+pnpm run build              # Production build
+pnpm run preview            # Preview production build
 
 # Quality Checks (run before commits)
-npm run quality            # Full pipeline: lint + typecheck + test + build
-npm run quality:fix        # Auto-fix lint issues + typecheck
-npm run lint               # ESLint check only
-npm run typecheck          # TypeScript compilation check
+pnpm run quality            # Full pipeline: lint + typecheck + build (Nx-powered)
+pnpm run quality:fix        # Auto-fix lint issues + typecheck
+pnpm run quality:affected   # Only run checks on changed projects
+pnpm run lint               # ESLint check only
+pnpm run typecheck          # TypeScript compilation check
 
-# Turborepo Optimized Commands (with caching)
-npm run turbo:build        # Cached build
-npm run turbo:quality      # Cached quality checks
-npm run turbo:quality:affected  # Only run checks on changed files
+# Nx Monorepo Commands (with intelligent caching)
+pnpm run build:all          # Build all projects with caching
+pnpm run lint:all           # Lint all projects
+pnpm run test:all           # Test all projects
+pnpm nx graph               # Visualize project dependencies
 
 # Testing
-npm run test               # Run Playwright tests
-npm run test:ui            # Playwright UI mode
-npm run test:unit          # Run unit tests
-npm run test:unit:coverage # Run with coverage report
+pnpm run test               # Run Playwright tests
+pnpm run test:ui            # Playwright UI mode
+pnpm run test:unit          # Run unit tests
+pnpm run test:unit:coverage # Run with coverage report
+
+# Package Management
+pnpm install                # Install all workspace dependencies
+pnpm add <package>          # Add dependency to root workspace
+pnpm add <package> --filter <project>  # Add to specific project
 ```
 
 ### Crypto Trading System (projects/crypto-enhanced)
@@ -100,12 +110,14 @@ docker-compose exec crypto-trader python check_orders.py  # Run commands inside 
 ## High-Level Architecture
 
 ### Web Application Stack
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI Components**: shadcn/ui (Radix UI primitives) + Tailwind CSS
-- **State Management**: React Query (TanStack Query)
-- **Routing**: React Router v6
-- **Forms**: React Hook Form + Zod validation
-- **3D Graphics**: Three.js + React Three Fiber
+- **Frontend**: React 19 + TypeScript 5.9 + Vite 7
+- **UI Components**: shadcn/ui (Radix UI primitives) + Tailwind CSS 4
+- **State Management**: React Query 5 (TanStack Query)
+- **Routing**: React Router v7
+- **Forms**: React Hook Form 7 + Zod 4 validation
+- **3D Graphics**: Three.js 0.180 + React Three Fiber 9
+- **Monorepo**: Nx 21.6 with intelligent caching
+- **Package Manager**: pnpm 9.15.0 (59.5% disk space savings via content-addressable storage with hard links)
 
 ### Trading System Architecture
 ```
@@ -126,14 +138,14 @@ crypto-enhanced/
 
 ## Critical Configuration
 
-### Trading System Risk Parameters (Current Status: ACTIVE)
-- **Max Position Size**: $10 per trade (reduced for safety)
-- **Max Total Exposure**: $10 (1 position only)
+### Trading System Risk Parameters (Current Status: READY)
+- **Max Position Size**: $10 per trade (safety-first configuration)
+- **Max Total Exposure**: $10 (1 position maximum)
 - **Trading Pair**: XLM/USD only
-- **Account Balance**: $98.82 USD
-- **Strategies**: Configured but needs activation (0 currently initialized)
+- **Account Balance**: ~$98 USD (verify with `/crypto:status`)
+- **Strategies**: Mean Reversion and Scalping (both enabled in config)
 - **Database**: SQLite (trading.db) for state persistence
-- **System Status**: Connected and running, awaiting strategy configuration
+- **System Status**: Configured and ready for live trading (requires explicit YES confirmation)
 
 ### Build Configuration
 - **Desktop Apps**: Use Tauri (NOT Electron) - smaller bundles, better performance
@@ -149,6 +161,129 @@ When using `/yolo-mode <task>`:
 3. **Apply** - Make changes without confirmation prompts
 4. **Test** - Run quality checks automatically
 5. **Iterate** - Fix errors and repeat until perfect
+
+## Phase 1.5 Memory System
+
+The workspace includes an intelligent memory system that provides context-aware assistance across sessions.
+
+### Core Features
+
+**1. Task Persistence**
+- Automatically tracks tasks across Claude Code sessions
+- Stores up to 5 recent tasks with metadata (timestamp, complexity, category, project)
+- Tasks marked as `in_progress` or `completed` based on completion signals
+- Storage: `projects/active/web-apps/memory-bank/quick-access/recent-tasks.json`
+
+**2. Project-Aware Context Tracking**
+- Automatically detects current project from git modified files or working directory
+- Filters task history to show only relevant tasks for current project
+- Workspace tasks visible across all project contexts
+- Supported project structures:
+  - `projects/[project-name]/`
+  - `projects/active/web-apps/[project-name]/`
+  - `projects/active/desktop-apps/[project-name]/`
+  - `active-projects/[project-name]/`
+
+**3. Proactive Agent System**
+- Specialist agents automatically available based on project context
+- Each agent includes anti-duplication directives as PRIMARY DIRECTIVE
+- Configuration: `.claude/agents.json`
+- Agent definitions: `.claude/agents/*.md`
+
+### Specialist Agents
+
+**Crypto Trading Expert** (`@crypto-expert`)
+- **Expertise**: Python, AsyncIO, Kraken API, WebSocket, Trading Algorithms
+- **Primary Directive**: Anti-Duplication & Code Quality
+- **Projects**: crypto-enhanced
+
+**Web Application Expert** (`@webapp-expert`)
+- **Expertise**: React, TypeScript, Vite, Tailwind CSS, shadcn/ui
+- **Primary Directive**: Anti-Duplication & Component Reusability
+- **Projects**: digital-content-builder, business-booking-platform, shipping-pwa, vibe-tech-lovable
+
+**Desktop Application Expert** (`@desktop-expert`)
+- **Expertise**: React, TypeScript, Tauri, Electron
+- **Primary Directive**: Anti-Duplication & Performance Optimization
+- **Projects**: taskmaster, deepcode-editor, nova-agent-current, productivity-dashboard, desktop-commander-v2-final
+
+**Mobile Application Expert** (`@mobile-expert`)
+- **Expertise**: Capacitor, React Native, PWA, iOS, Android
+- **Primary Directive**: Anti-Duplication & Native Performance
+- **Projects**: Vibe-Tutor
+
+**Backend API Expert** (`@backend-expert`)
+- **Expertise**: Node.js, TypeScript, Python, REST API, Databases
+- **Primary Directive**: Anti-Duplication & Security
+- **Projects**: memory-bank
+
+**DevOps & Infrastructure Expert** (`@devops-expert`)
+- **Expertise**: Docker, GitHub Actions, CI/CD, Deployment, Monitoring
+- **Primary Directive**: Anti-Duplication & Automation
+- **Projects**: Available for workspace-level infrastructure tasks
+
+### Session Start Display
+
+When starting a Claude Code session, you'll see:
+```
+CONTEXT: [project-name] | Specialist Agent: @[agent-name] is available
+         [Agent Display Name] - [Primary Directive]
+
+RECENT WORK
+----------------
+  In Progress:
+    [!] fix nonce synchronization error
+        Category: debugging | Started: 2025-10-09 16:40:48
+```
+
+### Anti-Duplication Workflow
+
+All specialist agents follow this workflow before implementing new code:
+1. **Search** existing codebase for similar implementations
+2. **Document** all duplicates found with file paths
+3. **Propose** refactoring to consolidate logic
+4. **Implement** reusable abstractions
+5. **Delete** redundant code after migration
+
+### Memory System Files
+
+- **Configuration**: `.claude/agents.json` - Project-to-agent mappings
+- **Agent Definitions**: `.claude/agents/*.md` - Specialist instructions
+- **Task History**: `projects/active/web-apps/memory-bank/quick-access/recent-tasks.json`
+- **Hooks**:
+  - `.claude/hooks/session-start.ps1` - Display context on session start
+  - `.claude/hooks/user-prompt-submit.ps1` - Track tasks on user input
+
+## Custom Slash Commands
+
+The monorepo includes custom automation commands in `.claude/commands/` for frequent tasks:
+
+### Web Development Commands
+- **`/web:restart-server`** - Restart digital-content-builder dev server with health checks
+- **`/web:test-all`** - Run all PowerShell test suites with consolidated reporting
+- **`/web:quality-check [fix]`** - Complete quality pipeline (lint + typecheck + build)
+- **`/web:component-create <name> [type]`** - Generate new React component with TypeScript
+
+### Crypto Trading Commands
+- **`/crypto:status`** - Comprehensive trading system health check (database + logs + processes)
+- **`/crypto:trading-status`** - Quick check of positions, orders, and system health
+- **`/crypto:position-check`** - Analyze current positions with risk metrics
+
+### Development Utilities
+- **`/dev:port-check <port>`** - Check if port is in use and identify process
+- **`/dev:parallel-dev [web|crypto|both]`** - Start dev servers in parallel
+- **`/dev:cleanup [quick|deep|analyze]`** - Smart cleanup of temp files and caches
+
+### Git & Quality Commands
+- **`/git:smart-commit [message]`** - AI-powered conventional commit message generator (uses Opus model)
+- **`/mcp:debug`** - Diagnose MCP server issues with config, logs, and process checks
+- **`/list-commands`** - Show all available custom commands with descriptions
+
+**Usage Tips:**
+- Commands support arguments: `/dev:port-check 5173`
+- Some commands auto-fix issues: `/web:quality-check fix`
+- Interactive commands wait for approval: `/git:smart-commit`
+- View command source: `.claude/commands/<category>/<name>.md`
 
 ### Database Operations
 ```bash
@@ -184,14 +319,90 @@ The trading system uses Kraken's WebSocket V2 API for real-time data:
 
 ### Web Application
 - Playwright for E2E testing
+- Vitest for unit tests with React Testing Library
 - Run `npm run test:ui` for interactive debugging
-- Tests located in `tests/` directory
+- Run `npm run test:unit:coverage` for coverage reports
+- Tests located in `tests/` and `src/**/*.test.tsx`
+- Target: 80%+ coverage (enforced in vitest.config.ts)
 
 ### Trading System
-- pytest with async support
+- pytest with async support and pytest-cov for coverage
 - Mock WebSocket responses for unit tests
 - Run with `.venv\Scripts\python.exe run_tests.py`
+- Run `npm run crypto:coverage` for coverage reports
 - Test files in `tests/` subdirectory
+- Target: 90%+ coverage for critical trading paths
+
+### Coverage Commands
+```bash
+# Run all coverage reports
+npm run test:coverage
+
+# Python only
+npm run crypto:coverage
+
+# React only
+npm run test:unit:coverage
+
+# View HTML reports
+npm run crypto:coverage:report    # Python
+start coverage/index.html         # React
+
+# Nx optimized (parallel execution with caching)
+npm run test:coverage:all
+```
+
+### Test Priority Areas (See TEST_PRIORITY_ACTION_PLAN.md)
+**Python Critical:**
+1. kraken_client.py (API error handling, financial safety)
+2. strategies.py (trading decision logic)
+3. trading_engine.py (shutdown and error recovery)
+
+**React Critical:**
+1. src/pages/ (error boundaries, loading states)
+2. src/components/ (form validation, conditional logic)
+3. src/hooks/ (async operations, race conditions)
+
+## Git Hooks & Pre-commit Quality Gates
+
+The repository includes an enhanced pre-commit hook (`.git/hooks/pre-commit`) that runs automatically before each commit:
+
+### Pre-commit Checks (10 total)
+1. **File Size Validation** - Blocks files >5MB from being committed
+2. **Security Scan** - Detects hardcoded secrets, API keys, tokens in code
+3. **JavaScript/TypeScript** - ESLint with auto-fix, checks for console.log/debugger
+4. **Python Linting** - Ruff check + format, warns about print statements
+5. **PowerShell Analysis** - PSScriptAnalyzer for script quality
+6. **Rust Formatting** - rustfmt for .rs files
+7. **JSON/YAML Validation** - Syntax validation for config files
+8. **Merge Conflict Detection** - Prevents committing conflict markers
+9. **Import Validation** - Warns about deep relative imports (../../../)
+10. **Trading System Safety** - Financial safety checks before code changes
+
+### Trading System Safety Check (Critical)
+The pre-commit hook includes safety validation for the crypto trading system:
+
+**Blocks commits if:**
+- More than 5 failed orders in last 24 hours
+- More than 10 errors in last 100 log lines
+- Missing critical files (config.py, nonce_state_primary.json)
+
+**Warns if:**
+- 1-5 failed orders detected (acceptable range)
+- Open positions with P&L < -$5
+
+**Why This Matters:**
+Prevents committing code changes when the trading system is unhealthy, reducing risk of compounding issues during live trading.
+
+**Performance:**
+- Target: <5 seconds execution time
+- Typical: 2-3 seconds for clean commits
+- Uses parallel checks where possible
+
+**Bypass (Emergency Only):**
+```bash
+git commit --no-verify -m "emergency fix"  # Skip all hooks
+```
 
 ## Current State Tracking
 
@@ -201,18 +412,30 @@ Check these locations for system state:
 - **Session Status**: `projects/crypto-enhanced/SESSION_STATUS.md`
 - **Database State**: `trading.db` for orders/positions
 
-## CI/CD Pipeline Optimizations (2025-10-02)
+## CI/CD Pipeline Optimizations (2025-10-09)
 
-### Turborepo Integration
-The monorepo now uses **Turborepo 2.5.8** for intelligent build caching and affected-only builds:
-- **Local caching**: 80-90% faster repeated builds
-- **Affected detection**: Only builds/tests changed projects
+### Nx Monorepo Integration
+The monorepo uses **Nx 21.6.3** with @nx/js plugin for intelligent build caching and affected-only builds:
+- **Local caching**: 80-90% faster repeated builds with Nx cache
+- **Affected detection**: Only builds/tests changed projects (`npm run quality:affected`)
 - **Parallel execution**: Tasks run concurrently when possible
+- **Project graph**: Visualize dependencies with `nx graph`
 
 **Performance Impact:**
 - Typecheck: 854ms → 160ms (81% faster with cache)
 - CI Pipeline: ~15-20min → ~3-5min (75% faster)
 - Deployments: ~25min → ~5-8min (70% faster)
+
+**Latest Updates (2025-10-10):**
+- **Tailwind CSS:** Downgraded 4 → 3.4.18 (stable, production-ready)
+  - Reason: V4 `@apply` directive incompatibilities with `@layer components`
+  - Workspace fix: Removed v4 from nova-agent-current causing hoisting conflicts
+  - See: `TAILWIND_V3_DOWNGRADE.md`, `TAILWIND_V3_DOWNGRADE_SUCCESS.md`, `TAILWIND_V3_COMPLETION_SUMMARY.md`
+- React 19, React Router 7, Zod 4 - all stable
+- All Radix UI components updated to latest
+- All quality checks passing
+- Added 6 custom slash commands for workflow automation
+- Enhanced pre-commit hook with trading system safety checks
 
 ### Smart Change Detection
 GitHub Actions workflows now use `dorny/paths-filter` to:
@@ -233,23 +456,29 @@ Crypto trading system is now containerized:
 The trading system has been successfully restored to full functionality:
 
 **Key Fixes Applied:**
-1. **API Authentication**: Fixed with new Kraken API keys ($98.82 USD balance)
+1. **API Authentication**: Fixed with new Kraken API keys (~$98 USD balance)
 2. **Nonce Synchronization**: Changed from microseconds to nanoseconds (`int(time.time() * 1000000000)`)
-3. **Codebase Simplification**: Reduced from 28 files to 12 core files
+3. **Codebase Cleanup**: Organized 29 Python files into logical categories
 4. **Error Handling**: Replaced complex enums with simple error classes in `errors_simple.py`
 5. **WebSocket Methods**: Fixed `run()/disconnect()` to `start()/stop()`
-6. **Trading Engine**: Fixed initialization parameter order
+6. **Trading Engine**: Fixed initialization parameter order and enabled strategies
 
 **Current Status:**
-- System is running and connected
-- All WebSocket channels active (public and private)
-- Ready for strategy configuration
-- No trades executing until strategies are enabled
+- System is configured and ready for live trading
+- Strategies enabled: Mean Reversion + Scalping
+- WebSocket V2 integration for real-time data
+- Database initialized (0 trades currently)
+- Requires explicit YES confirmation to start trading
 
-**Core File Structure (12 files):**
-- Core: `kraken_client.py`, `websocket_manager.py`, `trading_engine.py`, `database.py`
-- Support: `config.py`, `errors_simple.py`, `timestamp_utils.py`, `nonce_manager.py`, `instance_lock.py`
-- Entry: `start_live_trading.py`, `check_orders.py`, `run_tests.py`
+**Core File Structure (29 Python files):**
+- **Core Trading**: `kraken_client.py`, `websocket_manager.py`, `trading_engine.py`, `database.py`, `strategies.py`
+- **Configuration**: `config.py`, `nonce_manager.py`, `timestamp_utils.py`, `instance_lock.py`
+- **Error Handling**: `errors_simple.py`, `circuit_breaker.py`
+- **Entry Points**: `start_live_trading.py`, `check_orders.py`, `run_tests.py`, `api_server.py`
+- **Validation**: `startup_validator.py`, `api_validator.py`, `verify_code_fixes.py`
+- **Learning**: `learning_integration.py`, `analyze_trades.py`
+- **Testing**: `test_api_simple.py`, `test_credentials.py`, `test_new_keys.py`
+- **Utilities**: Multiple status check and diagnostic scripts
 
 ## MCP Server Configuration & Troubleshooting
 
@@ -319,3 +548,18 @@ The monorepo uses Desktop Commander Enhanced for advanced file operations:
 - System architecturally sound - ready for strategy activation
 - No Emojis ever
 - dont overcomplicate
+
+<!-- nx configuration start-->
+<!-- Leave the start & end comments to automatically receive updates. -->
+
+# General Guidelines for working with Nx
+
+- When running tasks (for example build, lint, test, e2e, etc.), always prefer running the task through `nx` (i.e. `nx run`, `nx run-many`, `nx affected`) instead of using the underlying tooling directly
+- You have access to the Nx MCP server and its tools, use them to help the user
+- When answering questions about the repository, use the `nx_workspace` tool first to gain an understanding of the workspace architecture where applicable.
+- When working in individual projects, use the `nx_project_details` mcp tool to analyze and understand the specific project structure and dependencies
+- For questions around nx configuration, best practices or if you're unsure, use the `nx_docs` tool to get relevant, up-to-date docs. Always use this instead of assuming things about nx configuration
+- If the user needs help with an Nx configuration or project graph error, use the `nx_workspace` tool to get any errors
+
+
+<!-- nx configuration end-->
