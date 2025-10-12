@@ -50,11 +50,11 @@ jobs:
         uses: nrwl/nx-set-shas@v4
 
       - name: Run ESLint on affected projects
-        run: npx nx affected -t lint --base=origin/main --parallel=3
+        run: npx nx affected -t lint --parallel=3
         continue-on-error: true  # Allow warnings, but report them
 
       - name: Run TypeScript type checking on affected projects
-        run: npx nx affected -t typecheck --base=origin/main
+        run: npx nx affected -t typecheck
 
   # Job 2: Unit Tests (Nx Affected)
   unit-tests:
@@ -94,10 +94,10 @@ jobs:
         uses: nrwl/nx-set-shas@v4
 
       - name: Run unit tests on affected projects
-        run: npx nx affected -t test:unit --base=origin/main --parallel=3
+        run: npx nx affected -t test:unit --parallel=3
 
       - name: Generate coverage report (if applicable)
-        run: npx nx affected -t test:unit:coverage --base=origin/main
+        run: npx nx affected -t test:unit:coverage
         continue-on-error: true
 
       - name: Upload coverage reports
@@ -151,7 +151,7 @@ jobs:
         uses: nrwl/nx-set-shas@v4
 
       - name: Run Playwright tests on affected projects
-        run: npx nx affected -t test --base=origin/main
+        run: npx nx affected -t test
         continue-on-error: true
 
       - name: Upload Playwright report
@@ -201,7 +201,7 @@ jobs:
         uses: nrwl/nx-set-shas@v4
 
       - name: Build affected projects in production mode
-        run: npx nx affected -t build:production --base=origin/main --parallel=3
+        run: npx nx affected -t build:production --parallel=3
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

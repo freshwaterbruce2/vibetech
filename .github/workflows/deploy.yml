@@ -61,7 +61,7 @@ jobs:
         uses: nrwl/nx-set-shas@v4
 
       - name: Build affected projects for production
-        run: npx nx affected -t build:production --base=origin/main~1 --parallel=3
+        run: npx nx affected -t build:production --parallel=3
         env:
           NODE_ENV: production
 
