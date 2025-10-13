@@ -38,31 +38,9 @@ const mockModelsResponse = {
     config: {}
 };
 
-// Mock error response for authentication failures
-const mockUnauthorizedError = {
-    response: {
-        status: 401,
-        statusText: 'Unauthorized',
-        data: {
-            error: {
-                message: 'Invalid authentication credentials',
-                type: 'invalid_request_error',
-                code: 'invalid_api_key'
-            }
-        }
-    },
-    message: 'Request failed with status code 401'
-};
-
 const mockAxiosInstance = {
     get: () => Promise.resolve(mockModelsResponse),
-    post: () => {
-        // Simulate API key validation - test environment uses fake key
-        if (process.env.NODE_ENV === 'test' && process.env.DEEPSEEK_API_KEY === 'sk-test-key-for-testing') {
-            return Promise.reject(mockUnauthorizedError);
-        }
-        return Promise.resolve(mockResponse);
-    },
+    post: () => Promise.resolve(mockResponse),
     put: () => Promise.resolve(mockResponse),
     delete: () => Promise.resolve(mockResponse),
     patch: () => Promise.resolve(mockResponse),
@@ -84,13 +62,7 @@ const mockAxiosInstance = {
 
 const axios = {
     get: () => Promise.resolve(mockModelsResponse),
-    post: () => {
-        // Simulate API key validation - test environment uses fake key
-        if (process.env.NODE_ENV === 'test' && process.env.DEEPSEEK_API_KEY === 'sk-test-key-for-testing') {
-            return Promise.reject(mockUnauthorizedError);
-        }
-        return Promise.resolve(mockResponse);
-    },
+    post: () => Promise.resolve(mockResponse),
     put: () => Promise.resolve(mockResponse),
     delete: () => Promise.resolve(mockResponse),
     patch: () => Promise.resolve(mockResponse),

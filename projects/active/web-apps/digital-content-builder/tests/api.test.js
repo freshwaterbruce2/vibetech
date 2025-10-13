@@ -89,7 +89,7 @@ describe('Digital Content Builder API', () => {
                     prompt: 'This is a valid test prompt with enough characters to pass validation',
                     contentType: 'general'
                 })
-                .expect(401); // Will fail due to fake API key but headers should be present
+                .expect(200); // Mock axios returns success
 
             expect(response.headers).toHaveProperty('ratelimit-policy');
             expect(response.headers).toHaveProperty('ratelimit');
@@ -132,9 +132,11 @@ describe('Digital Content Builder API', () => {
                         prompt: `Generate ${contentType} content with enough characters to pass validation requirements`,
                         contentType: contentType
                     })
-                    .expect(401); // Will fail due to fake API key
+                    .expect(200); // Mock axios returns success
 
-                // We can't test the response body since the API call fails, but validation passed
+                // Test that response has expected structure
+                expect(response.body).toHaveProperty('content');
+                expect(response.body).toHaveProperty('sanitizedContent');
             }
         });
 
