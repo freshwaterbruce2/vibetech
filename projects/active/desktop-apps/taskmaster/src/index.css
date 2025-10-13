@@ -209,7 +209,12 @@
 
   /* Hover lift effect */
   .hover-lift {
-    @apply transition-transform duration-200 hover:-translate-y-0.5;
+    transition-property: transform;
+    transition-duration: 200ms;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-0.125rem);
   }
 
   /* Card styles */
