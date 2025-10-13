@@ -184,7 +184,11 @@
 
   /* Text effects */
   .text-gradient {
-    @apply bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent;
+    background: linear-gradient(to right, rgb(96 165 250), rgb(192 132 252));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
   }
 
   .text-muted {
