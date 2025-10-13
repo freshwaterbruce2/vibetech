@@ -277,7 +277,7 @@ describe('Digital Content Builder API', () => {
                 .post('/api/deepseek/generate')
                 .send({
                     prompt: 'Valid prompt for testing with all parameters',
-                    contentType: 'blog-post',
+                    contentType: 'blog',
                     model: 'deepseek-chat',
                     temperature: 0.8,
                     maxTokens: 1000,
