@@ -1092,8 +1092,29 @@ app.post('/api/deepseek/generate',
     }
 );
 
-// Handle unsupported HTTP methods for /api/deepseek/generate
-app.all('/api/deepseek/generate', (req, res) => {
+// Handle unsupported HTTP methods for /api/deepseek/generate (exclude OPTIONS for CORS)
+app.get('/api/deepseek/generate', (req, res) => {
+    res.status(405).json({
+        error: 'Method not allowed',
+        message: `${req.method} method is not supported for this endpoint. Use POST instead.`,
+        timestamp: new Date().toISOString()
+    });
+});
+app.put('/api/deepseek/generate', (req, res) => {
+    res.status(405).json({
+        error: 'Method not allowed',
+        message: `${req.method} method is not supported for this endpoint. Use POST instead.`,
+        timestamp: new Date().toISOString()
+    });
+});
+app.delete('/api/deepseek/generate', (req, res) => {
+    res.status(405).json({
+        error: 'Method not allowed',
+        message: `${req.method} method is not supported for this endpoint. Use POST instead.`,
+        timestamp: new Date().toISOString()
+    });
+});
+app.patch('/api/deepseek/generate', (req, res) => {
     res.status(405).json({
         error: 'Method not allowed',
         message: `${req.method} method is not supported for this endpoint. Use POST instead.`,
