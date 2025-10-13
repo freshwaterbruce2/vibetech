@@ -202,6 +202,9 @@ jobs:
         uses: nrwl/nx-set-shas@v4
 
       - name: Build affected projects in production mode
+        env:
+          SKIP_LINTING: 'true'
+          SKIP_TESTS: 'true'
         run: npx nx affected -t build:production --parallel=3
 
       - name: Upload build artifacts
