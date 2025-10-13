@@ -101,14 +101,18 @@ class ProductionBuilder {
         'package.json',
         'tsconfig.json',
         'vite.config.ts',
-        'src/App.tsx',
-        'electron/main.js'
+        'src/App.tsx'
       ]
 
       for (const file of requiredFiles) {
         if (!fs.existsSync(file)) {
           throw new Error(`Required file missing: ${file}`)
         }
+      }
+
+      // Electron main.js is optional (may not exist in all configurations)
+      if (!fs.existsSync('electron/main.js')) {
+        this.log('electron/main.js not found (optional for web-only builds)', 'warning')
       }
 
       // Check disk space (require at least 1GB free)
