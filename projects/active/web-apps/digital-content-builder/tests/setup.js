@@ -8,6 +8,9 @@ process.env.NODE_ENV = 'test';
 process.env.PORT = '0'; // Use random available port
 process.env.DEEPSEEK_API_KEY = 'sk-test-key-for-testing';
 
+// Note: axios is mocked via manual mock in tests/__mocks__/axios.js
+// This prevents real HTTP requests to DeepSeek API during testing
+
 // Global test timeout (30 seconds for AI generation tests)
 // Note: setTimeout is set in Jest config or individual test files
 
