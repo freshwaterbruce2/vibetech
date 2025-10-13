@@ -485,12 +485,12 @@ export class CodeExecutor {
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      if (line.trim() === '') continue;
-      
-      const indent = line?.length - line?.trimStart().length;
+      if (!line || line.trim() === '') continue;
+
+      const _indent = line.length - line.trimStart().length;
       
       // Basic indentation check
-      if (line?.trimEnd().endsWith(':')) {
+      if (line.trimEnd().endsWith(':')) {
         expectedIndent += 4;
       }
     }

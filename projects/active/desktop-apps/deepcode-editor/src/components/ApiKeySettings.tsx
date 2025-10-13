@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Key, Save, TestTube, Trash2, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Save, TestTube, Trash2, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
