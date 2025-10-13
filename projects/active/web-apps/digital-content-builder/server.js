@@ -1092,6 +1092,15 @@ app.post('/api/deepseek/generate',
     }
 );
 
+// Handle unsupported HTTP methods for /api/deepseek/generate
+app.all('/api/deepseek/generate', (req, res) => {
+    res.status(405).json({
+        error: 'Method not allowed',
+        message: `${req.method} method is not supported for this endpoint. Use POST instead.`,
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Serve static files
 app.use(express.static(__dirname, {
     index: 'index.html',
