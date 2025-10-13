@@ -263,7 +263,7 @@ const corsOptions = {
         ? ['https://vibe-tech.org', 'https://www.vibe-tech.org']
         : true,
     credentials: true,
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 204  // Standard HTTP status for successful OPTIONS requests
 };
 app.use(cors(corsOptions));
 
