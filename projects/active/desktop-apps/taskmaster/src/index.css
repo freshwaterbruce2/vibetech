@@ -86,7 +86,8 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+    outline-color: rgba(59, 130, 246, 0.5);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
