@@ -561,7 +561,7 @@ export class AgentOrchestrator {
    */
   private generateCoordinationSummary(agentResponses: Record<string, AgentResponse>): string {
     const responses = Object.values(agentResponses);
-    
+
     if (responses.length <= 1) {
       return '';
     }

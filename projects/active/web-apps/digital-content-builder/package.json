@@ -84,8 +84,12 @@
     ],
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/dist/"
+      "/dist/",
+      "/tests/visual/"
     ],
+    "moduleNameMapper": {
+      "^axios$": "<rootDir>/tests/__mocks__/axios.js"
+    },
     "collectCoverageFrom": [
       "server.js",
       "!tests/**",

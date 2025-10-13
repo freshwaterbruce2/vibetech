@@ -67,7 +67,7 @@ export function useMarkdown(options: UseMarkdownOptions = {}) {
   const workerRef = useRef<Worker | null>(null);
   const requestIdRef = useRef(0);
   const cacheRef = useRef<Map<string, MarkdownResult>>(new Map());
-  const debounceTimerRef = useRef<NodeJS.Timeout>();
+  const debounceTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const pendingRequestsRef = useRef<Map<string, (response: MarkdownResponse) => void>>(new Map());
 
   const [state, setState] = useState<MarkdownState>({
