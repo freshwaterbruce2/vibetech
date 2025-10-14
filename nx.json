@@ -14,7 +14,10 @@
     }
   ],
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
@@ -52,7 +55,9 @@
   },
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "inputs": [
         "production",
         "^production",
@@ -69,25 +74,37 @@
       "cache": true
     },
     "build:production": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "inputs": [
         "production",
         "^production"
       ],
-      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/build/**"],
+      "outputs": [
+        "{projectRoot}/dist/**",
+        "{projectRoot}/build/**"
+      ],
       "cache": true
     },
     "build:dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "inputs": [
         "default",
         "^default"
       ],
-      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/build/**"],
+      "outputs": [
+        "{projectRoot}/dist/**",
+        "{projectRoot}/build/**"
+      ],
       "cache": true
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "inputs": [
         "default",
         "^production"
@@ -104,7 +121,9 @@
         "default",
         "^production"
       ],
-      "outputs": ["{projectRoot}/coverage/**"],
+      "outputs": [
+        "{projectRoot}/coverage/**"
+      ],
       "cache": true
     },
     "test:unit:coverage": {
@@ -112,11 +131,15 @@
         "default",
         "^production"
       ],
-      "outputs": ["{projectRoot}/coverage/**"],
+      "outputs": [
+        "{projectRoot}/coverage/**"
+      ],
       "cache": true
     },
     "test:ui": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": false
     },
     "lint": {
@@ -147,11 +170,18 @@
       "cache": true
     },
     "quality": {
-      "dependsOn": ["lint", "typecheck", "build"],
+      "dependsOn": [
+        "lint",
+        "typecheck",
+        "build"
+      ],
       "cache": true
     },
     "quality:fix": {
-      "dependsOn": ["lint:fix", "typecheck"],
+      "dependsOn": [
+        "lint:fix",
+        "typecheck"
+      ],
       "cache": false
     },
     "dev": {
@@ -161,7 +191,9 @@
       "cache": false
     },
     "preview": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": false
     },
     "install": {
@@ -177,7 +209,9 @@
       "cache": false
     },
     "test:coverage": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "inputs": [
         "default",
         "^production"
@@ -206,5 +240,6 @@
   },
   "affected": {
     "defaultBase": "main"
-  }
+  },
+  "nxCloudId": "68edca82f2b9a8eee56b978f"
 }
