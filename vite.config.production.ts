@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
 export default defineConfig({
+  // Persistent cache directory for faster rebuilds
+  cacheDir: '.vite-cache',
+
   plugins: [
     react()
   ],
@@ -10,6 +13,18 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+  },
+  optimizeDeps: {
+    // Pre-bundle common dependencies
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-tabs'
+    ],
+    force: false
   },
   build: {
     target: 'es2015',

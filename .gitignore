@@ -46,6 +46,10 @@ build/
 out/
 *.tsbuildinfo
 
+# Vite cache
+.vite-cache/
+node_modules/.vite/
+
 # Test coverage
 coverage/
 *.lcov
