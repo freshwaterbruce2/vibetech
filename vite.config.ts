@@ -5,6 +5,9 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // Persistent cache directory for faster rebuilds
+  cacheDir: '.vite-cache',
+
   server: {
     host: "::",
     port: 5173,
@@ -50,6 +53,18 @@ export default defineConfig(({ mode }) => ({
     sourcemap: mode !== 'production'
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom']
+    // Pre-bundle common dependencies for faster dev server start
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-toast',
+      '@radix-ui/react-tabs',
+      'react-hook-form',
+      'zod'
+    ],
+    // Only force rebuild on lock file changes
+    force: false
   }
 }));

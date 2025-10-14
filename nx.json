@@ -1,0 +1,210 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "extends": "nx/presets/npm.json",
+  "workspaceLayout": {
+    "appsDir": "projects",
+    "libsDir": "packages"
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/js",
+      "options": {
+        "analyzeSourceFiles": true
+      }
+    }
+  ],
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/eslint.config.js",
+      "!{projectRoot}/**/*.test.[jt]s?(x)"
+    ],
+    "sourceOnly": [
+      "{projectRoot}/src/**",
+      "{projectRoot}/index.html",
+      "{projectRoot}/public/**",
+      "!{projectRoot}/**/*.test.*",
+      "!{projectRoot}/**/*.spec.*"
+    ],
+    "configOnly": [
+      "{projectRoot}/package.json",
+      "{projectRoot}/vite.config.ts",
+      "{projectRoot}/tsconfig.json",
+      "{projectRoot}/tailwind.config.ts"
+    ],
+    "sharedGlobals": [
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/tsconfig.json",
+      "{workspaceRoot}/tsconfig.*.json",
+      "{workspaceRoot}/vite.config.ts",
+      "{workspaceRoot}/vite.config.production.ts",
+      "{workspaceRoot}/vitest.config.ts",
+      "{workspaceRoot}/playwright.config.ts",
+      "{workspaceRoot}/eslint.config.js",
+      "{workspaceRoot}/.eslintrc.*",
+      "{workspaceRoot}/tailwind.config.ts",
+      "{workspaceRoot}/postcss.config.js"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "production",
+        "^production",
+        "{projectRoot}/src/**",
+        "{projectRoot}/index.html",
+        "{projectRoot}/vite.config.ts",
+        "{projectRoot}/public/**"
+      ],
+      "outputs": [
+        "{projectRoot}/dist/**",
+        "{projectRoot}/build/**",
+        "{projectRoot}/.next/**"
+      ],
+      "cache": true
+    },
+    "build:production": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "production",
+        "^production"
+      ],
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/build/**"],
+      "cache": true
+    },
+    "build:dev": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "default",
+        "^default"
+      ],
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/build/**"],
+      "cache": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "default",
+        "^production"
+      ],
+      "outputs": [
+        "{projectRoot}/playwright-report/**",
+        "{projectRoot}/test-results/**",
+        "{projectRoot}/coverage/**"
+      ],
+      "cache": true
+    },
+    "test:unit": {
+      "inputs": [
+        "default",
+        "^production"
+      ],
+      "outputs": ["{projectRoot}/coverage/**"],
+      "cache": true
+    },
+    "test:unit:coverage": {
+      "inputs": [
+        "default",
+        "^production"
+      ],
+      "outputs": ["{projectRoot}/coverage/**"],
+      "cache": true
+    },
+    "test:ui": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/eslint.config.js",
+        "{workspaceRoot}/.eslintrc.*"
+      ],
+      "outputs": [],
+      "cache": true
+    },
+    "lint:fix": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/eslint.config.js"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "typecheck": {
+      "dependsOn": [],
+      "inputs": [
+        "default",
+        "^default",
+        "{projectRoot}/tsconfig.json"
+      ],
+      "outputs": [],
+      "cache": true
+    },
+    "quality": {
+      "dependsOn": ["lint", "typecheck", "build"],
+      "cache": true
+    },
+    "quality:fix": {
+      "dependsOn": ["lint:fix", "typecheck"],
+      "cache": false
+    },
+    "dev": {
+      "cache": false
+    },
+    "start": {
+      "cache": false
+    },
+    "preview": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "install": {
+      "cache": false
+    },
+    "clean": {
+      "cache": false
+    },
+    "crypto:test": {
+      "cache": true
+    },
+    "crypto:install": {
+      "cache": false
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "default",
+        "^production"
+      ],
+      "outputs": [
+        "{projectRoot}/coverage/**",
+        "{projectRoot}/coverage_html/**",
+        "{projectRoot}/coverage.json",
+        "{projectRoot}/coverage.xml"
+      ],
+      "cache": true
+    },
+    "crypto:coverage": {
+      "inputs": [
+        "default",
+        "{projectRoot}/**/*.py"
+      ],
+      "outputs": [
+        "{projectRoot}/coverage_html/**",
+        "{projectRoot}/coverage.json",
+        "{projectRoot}/coverage.xml",
+        "{projectRoot}/.coverage"
+      ],
+      "cache": true
+    }
+  },
+  "affected": {
+    "defaultBase": "main"
+  }
+}
