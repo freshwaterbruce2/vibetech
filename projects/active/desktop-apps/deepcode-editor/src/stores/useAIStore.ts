@@ -14,7 +14,15 @@ interface AIState {
   // Chat state
   messages: AIMessage[];
   isResponding: boolean;
-  currentModel: 'deepseek-chat' | 'deepseek-coder' | 'deepseek-reasoner';
+  currentModel:
+    // OpenAI GPT-5 (October 2025)
+    | 'gpt-5' | 'gpt-5-mini' | 'gpt-5-nano'
+    // Anthropic Claude 4 (October 2025)
+    | 'claude-sonnet-4-5' | 'claude-opus-4-1'
+    // Google Gemini 2.x (October 2025)
+    | 'gemini-2-5-pro' | 'gemini-2-5-flash' | 'gemini-2-5-flash-lite' | 'gemini-2-0-flash'
+    // DeepSeek V3.2 (October 2025)
+    | 'deepseek-v3-2-exp';
   showReasoningProcess: boolean;
 
   // Completion state
@@ -78,7 +86,7 @@ export const useAIStore = create<AIState>()(
         // Initial state
         messages: [],
         isResponding: false,
-        currentModel: 'deepseek-chat',
+        currentModel: 'deepseek-v3-2-exp',
         showReasoningProcess: false,
         completionEnabled: true,
         completionDelay: 300,
@@ -122,8 +130,9 @@ export const useAIStore = create<AIState>()(
           setModel: (model) =>
             set((state) => {
               state.currentModel = model;
-              // Auto-enable reasoning process for reasoner model
-              if (model === 'deepseek-reasoner') {
+              // Auto-enable reasoning process for models with extended thinking
+              const reasoningModels = ['gpt-5', 'gpt-5-mini', 'gpt-5-nano', 'claude-sonnet-4-5', 'claude-opus-4-1', 'gemini-2-5-pro'];
+              if (reasoningModels.includes(model)) {
                 state.showReasoningProcess = true;
               }
             }),

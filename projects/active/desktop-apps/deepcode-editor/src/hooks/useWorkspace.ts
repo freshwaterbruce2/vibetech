@@ -11,7 +11,7 @@ export interface UseWorkspaceReturn {
   error: string | null;
 
   // Actions
-  indexWorkspace: (rootPath: string) => Promise<void>;
+  indexWorkspace: (rootPath: string) => Promise<WorkspaceContext | null>;
   getRelatedFiles: (filePath: string, maxResults?: number) => ContextualFile[];
   searchFiles: (query: string, maxResults?: number) => any[];
   getFileContext: (file: EditorFile) => ContextualFile[];
@@ -27,10 +27,10 @@ export const useWorkspace = (): UseWorkspaceReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const indexWorkspace = useCallback(
-    async (rootPath: string) => {
+    async (rootPath: string): Promise<WorkspaceContext | null> => {
       if (isIndexing) {
         console.warn('Indexing already in progress');
-        return;
+        return null;
       }
 
       try {
@@ -60,9 +60,12 @@ export const useWorkspace = (): UseWorkspaceReturn => {
 
         // Reset progress after a brief delay
         setTimeout(() => setIndexingProgress(0), 1000);
+
+        return context;
       } catch (err) {
         console.error('Workspace indexing failed:', err);
         setError(err instanceof Error ? err.message : 'Indexing failed');
+        return null;
       } finally {
         setIsIndexing(false);
       }

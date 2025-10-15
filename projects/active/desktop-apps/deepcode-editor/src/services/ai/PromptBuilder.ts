@@ -69,6 +69,11 @@ Guidelines:
       prompt += this.buildWorkspaceSection(request.workspaceContext);
     }
 
+    // Add user activity context (NEW!)
+    if (request.userActivity) {
+      prompt += this.buildUserActivitySection(request.userActivity);
+    }
+
     // Add current file context
     if (request.currentFile) {
       prompt += `
@@ -106,6 +111,20 @@ Project Context:
 - Test Coverage: ${context.testFiles} test files
 ${context.summary ? `- Summary: ${context.summary}` : ''}
 ${Object.keys(context.dependencies).length > 0 ? `- Dependencies: ${Object.keys(context.dependencies).slice(0, 5).join(', ')}` : ''}`;
+  }
+
+  static buildUserActivitySection(activity: import('../../types').UserActivity): string {
+    return `
+
+User Activity Context:
+- Workspace Folder: ${activity.workspaceFolder || 'None'}
+- Open Files (${activity.openFiles.length} tabs):
+${activity.openFiles.map(f => `  • ${f.name}${f.isModified ? ' (modified)' : ''}`).join('\n')}
+- Sidebar: ${activity.sidebarOpen ? 'Visible' : 'Hidden'} (file explorer)
+- Preview Panel: ${activity.previewOpen ? 'Open' : 'Closed'}
+- AI Chat: ${activity.aiChatOpen ? 'Active' : 'Inactive'}
+${activity.currentSelection ? `- Current Selection: Lines ${activity.currentSelection.startLine}-${activity.currentSelection.endLine}` : ''}
+${activity.recentFiles.length > 0 ? `- Recently Accessed: ${activity.recentFiles.slice(0, 3).join(', ')}` : ''}`;
   }
 
   static buildCodeCompletionPrompt(

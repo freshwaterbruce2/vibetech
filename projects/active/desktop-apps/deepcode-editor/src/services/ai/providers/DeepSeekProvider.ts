@@ -106,7 +106,11 @@ export class DeepSeekProvider implements IAIProvider {
       }
 
       const data = await response.json();
-      
+
+      // DEBUG: Log raw API response
+      console.log('[DeepSeekProvider] Raw API response:', data);
+      console.log('[DeepSeekProvider] First choice content:', data.choices?.[0]?.message?.content);
+
       // Update usage stats
       if (data.usage) {
         this.usageStats.tokensUsed += data.usage.total_tokens;
@@ -121,7 +125,7 @@ export class DeepSeekProvider implements IAIProvider {
         }
       }
 
-      return {
+      const result = {
         id: data.id,
         choices: data.choices.map((choice: any) => ({
           message: {
@@ -140,6 +144,12 @@ export class DeepSeekProvider implements IAIProvider {
         model: data.model,
         created: data.created
       };
+
+      // DEBUG: Log formatted response
+      console.log('[DeepSeekProvider] Formatted CompletionResponse:', result);
+      console.log('[DeepSeekProvider] First choice message:', result.choices[0]?.message);
+
+      return result;
     } catch (error) {
       console.error('DeepSeek completion error:', error);
       throw error;

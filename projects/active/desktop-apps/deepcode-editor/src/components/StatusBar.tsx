@@ -10,65 +10,49 @@ import { EditorFile } from '../types';
 const StatusBarContainer = styled.div`
   display: flex;
   align-items: center;
-  height: 32px;
-  background: linear-gradient(
-    135deg,
-    ${vibeTheme.colors.primary} 0%,
-    ${vibeTheme.colors.secondary} 100%
-  );
-  border-top: 2px solid rgba(139, 92, 246, 0.2);
-  color: ${vibeTheme.colors.text};
+  height: 28px;
+  background: ${vibeTheme.colors.primary};
+  border-top: 1px solid rgba(139, 92, 246, 0.1);
+  color: ${vibeTheme.colors.textSecondary};
   font-size: ${vibeTheme.typography.fontSize.xs};
-  padding: 0 ${vibeTheme.spacing.md};
+  padding: 0 ${vibeTheme.spacing[4]};
   justify-content: space-between;
   flex-shrink: 0;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: ${vibeTheme.gradients.border};
-    opacity: 0.6;
-  }
 `;
 
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
-  gap: ${vibeTheme.spacing.md};
+  gap: ${vibeTheme.spacing[3]};
 `;
 
 const RightSection = styled.div`
   display: flex;
   align-items: center;
-  gap: ${vibeTheme.spacing.md};
+  gap: ${vibeTheme.spacing[2]};
 `;
 
 const StatusItem = styled(motion.div)`
   display: flex;
   align-items: center;
-  gap: ${vibeTheme.spacing.xs};
+  gap: ${vibeTheme.spacing[1]};
   cursor: pointer;
-  padding: ${vibeTheme.spacing.xs} ${vibeTheme.spacing.sm};
-  border-radius: ${vibeTheme.borderRadius.small};
-  background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  transition: all ${vibeTheme.animation.duration.fast} ease;
-  font-weight: ${vibeTheme.typography.fontWeight.medium};
+  padding: ${vibeTheme.spacing[1]} ${vibeTheme.spacing[2]};
+  border-radius: ${vibeTheme.borderRadius.sm};
+  background: transparent;
+  transition: ${vibeTheme.animation.transition.all};
+  font-weight: ${vibeTheme.typography.fontWeight.normal};
+  color: ${vibeTheme.colors.textSecondary};
 
   &:hover {
-    background: rgba(139, 92, 246, 0.2);
-    border-color: ${vibeTheme.colors.cyan};
-    transform: translateY(-1px);
+    background: ${vibeTheme.colors.hover};
+    color: ${vibeTheme.colors.text};
   }
 
   svg {
-    color: ${vibeTheme.colors.cyan};
-    filter: drop-shadow(0 0 4px ${vibeTheme.colors.cyan}50);
+    color: inherit;
+    width: 14px;
+    height: 14px;
   }
 `;
 
@@ -76,51 +60,41 @@ const ToggleButton = styled(motion.button).withConfig({
   shouldForwardProp: (prop) => prop !== 'active',
 })<{ active: boolean }>`
   background: ${(props) =>
-    props.active
-      ? 'linear-gradient(90deg, rgba(139, 92, 246, 0.3) 0%, rgba(0, 212, 255, 0.2) 100%)'
-      : 'rgba(139, 92, 246, 0.1)'};
-  border: 2px solid ${(props) => (props.active ? vibeTheme.colors.cyan : 'rgba(139, 92, 246, 0.2)')};
-  color: ${vibeTheme.colors.text};
+    props.active ? vibeTheme.colors.hoverStrong : 'transparent'};
+  border: 1px solid ${(props) =>
+    props.active ? 'rgba(0, 212, 255, 0.3)' : 'transparent'};
+  color: ${(props) =>
+    props.active ? vibeTheme.colors.text : vibeTheme.colors.textSecondary};
   cursor: pointer;
-  padding: ${vibeTheme.spacing.xs} ${vibeTheme.spacing.sm};
-  border-radius: ${vibeTheme.borderRadius.small};
+  padding: ${vibeTheme.spacing[1]} ${vibeTheme.spacing[2]};
+  border-radius: ${vibeTheme.borderRadius.sm};
   display: flex;
   align-items: center;
-  gap: ${vibeTheme.spacing.xs};
+  gap: ${vibeTheme.spacing[1]};
   font-size: ${vibeTheme.typography.fontSize.xs};
-  font-weight: ${vibeTheme.typography.fontWeight.medium};
-  transition: all ${vibeTheme.animation.duration.normal} ease;
-
-  ${(props) =>
-    props.active &&
-    `
-    box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
-  `}
+  font-weight: ${vibeTheme.typography.fontWeight.normal};
+  font-family: ${vibeTheme.typography.fontFamily.primary};
+  transition: ${vibeTheme.animation.transition.all};
 
   &:hover {
     background: ${(props) =>
-      props.active
-        ? 'linear-gradient(90deg, rgba(139, 92, 246, 0.4) 0%, rgba(0, 212, 255, 0.3) 100%)'
-        : 'rgba(139, 92, 246, 0.2)'};
-    border-color: ${vibeTheme.colors.cyan};
-    transform: translateY(-1px);
-    box-shadow: 0 0 16px rgba(0, 212, 255, 0.4);
+      props.active ? vibeTheme.colors.active : vibeTheme.colors.hover};
+    color: ${vibeTheme.colors.text};
   }
 
   svg {
-    color: ${(props) => (props.active ? vibeTheme.colors.cyan : vibeTheme.colors.textSecondary)};
-    filter: drop-shadow(
-      0 0 4px ${(props) => (props.active ? vibeTheme.colors.cyan : 'transparent')}
-    );
+    color: ${(props) =>
+      props.active ? vibeTheme.colors.cyan : 'inherit'};
+    width: 14px;
+    height: 14px;
   }
 `;
 
 const Separator = styled.div`
-  width: 2px;
-  height: 20px;
-  background: ${vibeTheme.gradients.border};
+  width: 1px;
+  height: 16px;
+  background: rgba(139, 92, 246, 0.2);
   border-radius: ${vibeTheme.borderRadius.full};
-  opacity: 0.6;
 `;
 
 interface StatusBarProps {

@@ -10,7 +10,7 @@ export interface EditorFile {
 
 export interface AIMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   reasoning_content?: string | undefined; // For deepseek-reasoner CoT
   timestamp: Date;
@@ -21,6 +21,23 @@ export interface AIMessage {
         processing_time?: number | undefined;
       }
     | undefined;
+  // Agent mode support
+  agentTask?: {
+    task: import('./agent').AgentTask;
+    currentStep?: import('./agent').AgentStep;
+    pendingApproval?: import('./agent').ApprovalRequest;
+  };
+  // Composer mode support
+  composerMode?: {
+    files: {
+      path: string;
+      content: string;
+      language: string;
+      isNew: boolean;
+      isDirty: boolean;
+    }[];
+    totalChanges: number;
+  };
 }
 
 export interface AIResponse {
@@ -85,7 +102,15 @@ export interface EditorSettings {
   autoSave: boolean;
   aiAutoComplete: boolean;
   aiSuggestions: boolean;
-  aiModel?: 'deepseek-chat' | 'deepseek-coder' | 'deepseek-reasoner';
+  aiModel?:
+    // OpenAI GPT-5 (October 2025)
+    | 'gpt-5' | 'gpt-5-mini' | 'gpt-5-nano'
+    // Anthropic Claude 4 (October 2025)
+    | 'claude-sonnet-4-5' | 'claude-opus-4-1'
+    // Google Gemini 2.x (October 2025)
+    | 'gemini-2-5-pro' | 'gemini-2-5-flash' | 'gemini-2-5-flash-lite' | 'gemini-2-0-flash'
+    // DeepSeek V3.2 (October 2025)
+    | 'deepseek-v3-2-exp';
   showReasoningProcess?: boolean;
   lineNumbers?: boolean;
   folding?: boolean;
@@ -162,12 +187,29 @@ export interface ContextualFile {
   reason: string;
 }
 
+export interface UserActivity {
+  openFiles: EditorFile[];
+  sidebarOpen: boolean;
+  previewOpen: boolean;
+  aiChatOpen: boolean;
+  currentSelection?: {
+    startLine: number;
+    startColumn: number;
+    endLine: number;
+    endColumn: number;
+    selectedText: string;
+  };
+  recentFiles: string[];
+  workspaceFolder: string | null;
+}
+
 export interface AIContextRequest {
   currentFile?: EditorFile | undefined;
   relatedFiles: ContextualFile[];
   workspaceContext: WorkspaceContext;
   userQuery: string;
   conversationHistory: AIMessage[];
+  userActivity?: UserActivity;
 }
 
 export interface MultiFileEdit {
@@ -354,3 +396,6 @@ export interface NotificationOptions {
     handler: () => void;
   };
 }
+
+// Re-export agent types
+export * from './agent';

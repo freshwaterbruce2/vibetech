@@ -98,7 +98,7 @@ const defaultSettings: EditorSettings = {
   autoSave: true,
   aiAutoComplete: true,
   aiSuggestions: true,
-  aiModel: 'deepseek-chat',
+  aiModel: 'deepseek-v3-2-exp',
   showReasoningProcess: false,
 };
 

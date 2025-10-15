@@ -2,12 +2,17 @@ import { FileSystemItem } from '../types';
 
 import { ElectronService } from './ElectronService';
 
+// Check if running in Tauri
+const isTauri = typeof window !== 'undefined' && '__TAURI__' in window;
+
 export class FileSystemService {
   private files: Map<string, string> = new Map();
   private electronService: ElectronService;
+  private isTauri: boolean;
 
   constructor() {
     this.electronService = new ElectronService();
+    this.isTauri = isTauri;
     this.initializeDemoFiles();
   }
 
@@ -274,6 +279,18 @@ module.exports = {
   }
 
   async readFile(path: string): Promise<string> {
+    if (this.isTauri) {
+      // Use Tauri filesystem plugin
+      try {
+        const { readTextFile } = await import('@tauri-apps/plugin-fs');
+        const content = await readTextFile(path);
+        return content;
+      } catch (error) {
+        console.error('Tauri readFile error:', error);
+        throw error;
+      }
+    }
+
     if (this.electronService.isElectron) {
       const content = await this.electronService.readFile(path);
       return content || '';
@@ -284,6 +301,18 @@ module.exports = {
   }
 
   async writeFile(path: string, content: string): Promise<void> {
+    if (this.isTauri) {
+      // Use Tauri filesystem plugin
+      try {
+        const { writeTextFile } = await import('@tauri-apps/plugin-fs');
+        await writeTextFile(path, content);
+        return;
+      } catch (error) {
+        console.error('Tauri writeFile error:', error);
+        throw error;
+      }
+    }
+
     if (this.electronService.isElectron) {
       await this.electronService.writeFile(path, content);
       return;
@@ -312,6 +341,30 @@ module.exports = {
   }
 
   async listDirectory(path: string): Promise<FileSystemItem[]> {
+    if (this.isTauri) {
+      // Use Tauri filesystem plugin
+      try {
+        const { readDir } = await import('@tauri-apps/plugin-fs');
+        const entries = await readDir(path);
+
+        const items: FileSystemItem[] = [];
+        for (const entry of entries) {
+          items.push({
+            name: entry.name,
+            path: `${path}${path.endsWith('\\') || path.endsWith('/') ? '' : '\\'}${entry.name}`,
+            type: entry.isDirectory ? 'directory' as const : 'file' as const,
+            size: 0, // Tauri readDir doesn't provide size by default
+            modified: new Date(),
+          });
+        }
+
+        return items;
+      } catch (error) {
+        console.error('Tauri listDirectory error:', error);
+        return [];
+      }
+    }
+
     if (this.electronService.isElectron) {
       // Use Electron IPC to get real directory listing
       try {

@@ -77,7 +77,10 @@ export function useFileManager({
   const handleOpenFile = useCallback(
     async (filePath: string) => {
       try {
+        console.log('[useFileManager] Opening file:', filePath);
         const content = await fileSystemService.readFile(filePath);
+        console.log('[useFileManager] File content length:', content?.length || 0);
+
         const file: EditorFile = {
           id: filePath,
           name: filePath.split('/').pop() || filePath,
@@ -87,17 +90,27 @@ export function useFileManager({
           isModified: false,
         };
 
+        console.log('[useFileManager] Created EditorFile:', {
+          name: file.name,
+          path: file.path,
+          language: file.language,
+          contentLength: file.content.length
+        });
+
         // Add to open files if not already open
         setOpenFiles((prev) => {
           if (!prev.find((f) => f.path === filePath)) {
+            console.log('[useFileManager] Adding file to openFiles');
             return [...prev, file];
           }
+          console.log('[useFileManager] File already in openFiles');
           return prev;
         });
 
+        console.log('[useFileManager] Setting as currentFile');
         setCurrentFile(file);
       } catch (error) {
-        console.error('Failed to open file:', error);
+        console.error('[useFileManager] Failed to open file:', error);
         throw error;
       }
     },

@@ -77,7 +77,18 @@ class KrakenAPIError(APIError):
 
 class WebSocketError(TradingError):
     """WebSocket connection issues"""
-    pass
+
+    def __init__(self, message: str, **kwargs):
+        """
+        Initialize WebSocket error with message and optional metadata
+        Args:
+            message: Error message
+            **kwargs: Optional metadata (channel, connection_type, etc.) - stored but not used
+        """
+        super().__init__(message)
+        self.message = message
+        # Store any additional context (channel, connection_type, etc.)
+        self.context = kwargs
 
 
 class OrderError(TradingError):

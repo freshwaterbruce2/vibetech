@@ -206,9 +206,71 @@ Get-Content .env | Select-String "NONCE_WINDOW"
 # Should be 10000 or higher
 ```
 
-## 📈 Performance Monitoring
+## 📈 Performance Monitoring & Profitability Validation (NEW: 2025-10-13)
 
-### Trading Performance
+### Quick Daily Dashboard
+```bash
+python check_status.py
+```
+
+**Shows:**
+- Live balance (USD + XLM value)
+- Open positions and orders
+- Trades executed today
+- System errors (last 24h)
+- 7-day performance metrics
+- 30-day scaling readiness status
+
+### Detailed Performance Reports
+```bash
+# Last 24 hours
+python performance_monitor.py daily
+
+# Last 7 days
+python performance_monitor.py weekly
+
+# Last 30 days (validation report)
+python performance_monitor.py monthly
+
+# Save daily snapshot to JSON
+python performance_monitor.py snapshot
+```
+
+### Setup Automated Monitoring (One-Time Setup)
+```powershell
+.\setup_monitoring.ps1
+```
+
+**What it does:**
+- Creates performance_snapshots directory
+- Tests the monitoring system
+- Configures Windows Task Scheduler for daily snapshots
+- Runs automatically at 11:59 PM every day
+
+### Performance Metrics Tracked
+- **Win Rate**: Percentage of profitable trades
+- **Expectancy**: Expected profit per trade (after fees)
+- **Profit Factor**: Gross Profit / Gross Loss ratio
+- **Max Drawdown**: Largest equity decline from peak
+- **Total P&L**: Net profit/loss after all fees
+
+### Capital Scaling Decision Framework
+
+**BEFORE ADDING CAPITAL, system must meet ALL 4 criteria:**
+
+1. **Minimum 50 complete trades** - Statistical significance
+2. **Win rate ≥52%** - Above break-even with 0.16-0.26% fees
+3. **Positive expectancy >$0.01** - Mathematical edge exists
+4. **Max drawdown <30%** - Acceptable risk level
+
+**Validation Timeline:**
+- Started: October 13, 2025
+- Complete: November 12, 2025 (30 days)
+- Next Milestone: 50 trades or 30 days, whichever comes first
+
+**DO NOT add capital until monitoring system shows "READY TO SCALE"**
+
+### Trading Performance (Logs)
 ```powershell
 # View recent trades
 Get-Content trading_new.log | Select-String "filled|executed" | Select-Object -Last 10
@@ -231,6 +293,26 @@ Get-Process python | Select-Object ProcessName,Id,StartTime
 # CPU usage
 Get-Process python | Select-Object ProcessName,Id,CPU
 ```
+
+### Understanding Expectancy (Why It Matters)
+
+**Expectancy Formula:**
+```
+E = (Win% × Avg Win) - (Loss% × Avg Loss)
+```
+
+**Example:**
+- Win Rate: 55%
+- Average Win: $0.50
+- Average Loss: $0.40
+- Expectancy: (0.55 × $0.50) - (0.45 × $0.40) = $0.095 per trade
+
+This means on average, every trade makes $0.095 (9.5 cents) regardless of win/loss.
+
+**Why >$0.01 minimum?**
+- Covers slippage, network delays, market volatility
+- Ensures system remains profitable after all costs
+- Provides safety margin for real-world conditions
 
 ## 🎯 Best Practices
 

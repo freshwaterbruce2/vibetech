@@ -70,7 +70,7 @@ const ProviderTitle = styled.h3`
   margin: 0;
 `;
 
-const StatusBadge = styled.div<{ status: 'valid' | 'invalid' | 'unknown' }>`
+const StatusBadge = styled.div<{ $status: 'valid' | 'invalid' | 'unknown' }>`
   display: flex;
   align-items: center;
   gap: 4px;
@@ -79,14 +79,14 @@ const StatusBadge = styled.div<{ status: 'valid' | 'invalid' | 'unknown' }>`
   font-size: ${vibeTheme.typography.fontSize.xs};
   font-weight: ${vibeTheme.typography.fontWeight.semibold};
   background: ${props => {
-    switch (props.status) {
+    switch (props.$status) {
       case 'valid': return 'rgba(34, 197, 94, 0.2)';
       case 'invalid': return 'rgba(239, 68, 68, 0.2)';
       default: return 'rgba(107, 114, 128, 0.2)';
     }
   }};
   color: ${props => {
-    switch (props.status) {
+    switch (props.$status) {
       case 'valid': return '#22c55e';
       case 'invalid': return '#ef4444';
       default: return '#6b7280';
@@ -217,6 +217,54 @@ const SuccessMessage = styled.div`
   margin-top: ${vibeTheme.spacing.xs};
 `;
 
+const PricingSection = styled.div`
+  margin-top: ${vibeTheme.spacing.md};
+  padding: ${vibeTheme.spacing.sm};
+  background: rgba(139, 92, 246, 0.05);
+  border-radius: ${vibeTheme.borderRadius.small};
+  border: 1px solid rgba(139, 92, 246, 0.1);
+`;
+
+const PricingTitle = styled.div`
+  color: ${vibeTheme.colors.textSecondary};
+  font-size: ${vibeTheme.typography.fontSize.xs};
+  font-weight: ${vibeTheme.typography.fontWeight.semibold};
+  margin-bottom: ${vibeTheme.spacing.xs};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const PricingTable = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: ${vibeTheme.spacing.xs};
+  font-size: ${vibeTheme.typography.fontSize.xs};
+`;
+
+const PricingHeader = styled.div`
+  color: ${vibeTheme.colors.textMuted};
+  font-weight: ${vibeTheme.typography.fontWeight.semibold};
+  padding: ${vibeTheme.spacing.xs} 0;
+  text-align: right;
+
+  &:first-child {
+    text-align: left;
+  }
+`;
+
+const PricingCell = styled.div`
+  color: ${vibeTheme.colors.textSecondary};
+  padding: ${vibeTheme.spacing.xs} 0;
+  text-align: right;
+  font-family: ${vibeTheme.typography.fontFamily.mono};
+
+  &:first-child {
+    text-align: left;
+    color: ${vibeTheme.colors.text};
+    font-family: ${vibeTheme.typography.fontFamily.base};
+  }
+`;
+
 interface ApiKeyStatus {
   provider: string;
   hasKey: boolean;
@@ -225,10 +273,50 @@ interface ApiKeyStatus {
 }
 
 const PROVIDERS = [
-  { id: 'deepseek', name: 'DeepSeek', placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' },
-  { id: 'openai', name: 'OpenAI', placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' },
-  { id: 'anthropic', name: 'Anthropic', placeholder: 'sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' },
-  { id: 'github', name: 'GitHub', placeholder: 'ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' }
+  {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    models: [
+      { name: 'DeepSeek V3.2-Exp', input: '$0.28', output: '$0.42', context: '128K' }
+    ]
+  },
+  {
+    id: 'openai',
+    name: 'OpenAI',
+    placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    models: [
+      { name: 'GPT-5', input: '$1.25', output: '$10.00', context: '272K' },
+      { name: 'GPT-5 Mini', input: '$0.25', output: '$2.00', context: '272K' },
+      { name: 'GPT-5 Nano', input: '$0.05', output: '$0.40', context: '272K' }
+    ]
+  },
+  {
+    id: 'anthropic',
+    name: 'Anthropic',
+    placeholder: 'sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    models: [
+      { name: 'Claude Sonnet 4.5', input: '$3.00', output: '$15.00', context: '200K' },
+      { name: 'Claude Opus 4.1', input: '$20.00', output: '$80.00', context: '200K' }
+    ]
+  },
+  {
+    id: 'google',
+    name: 'Google',
+    placeholder: 'AIzaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    models: [
+      { name: 'Gemini 2.5 Pro', input: '$1.25', output: '$10.00', context: '2M' },
+      { name: 'Gemini 2.5 Flash', input: '$0.30', output: '$1.20', context: '1M' },
+      { name: 'Gemini 2.5 Flash-Lite', input: '$0.075', output: '$0.30', context: '1M' },
+      { name: 'Gemini 2.0 Flash', input: '$0.10', output: '$0.40', context: '1M' }
+    ]
+  },
+  {
+    id: 'github',
+    name: 'GitHub',
+    placeholder: 'ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    models: []
+  }
 ];
 
 const ApiKeySettings: React.FC = () => {
@@ -367,7 +455,7 @@ const ApiKeySettings: React.FC = () => {
           <ProviderSection key={provider.id}>
             <ProviderHeader>
               <ProviderTitle>{provider.name}</ProviderTitle>
-              <StatusBadge status={getStatusBadge(status)}>
+              <StatusBadge $status={getStatusBadge(status)}>
                 {getStatusIcon(status)}
                 {getStatusText(status)}
               </StatusBadge>
@@ -437,6 +525,26 @@ const ApiKeySettings: React.FC = () => {
                 </>
               )}
             </ButtonGroup>
+
+            {provider.models && provider.models.length > 0 && (
+              <PricingSection>
+                <PricingTitle>Available Models & Pricing (per 1M tokens)</PricingTitle>
+                <PricingTable>
+                  <PricingHeader>Model</PricingHeader>
+                  <PricingHeader>Input</PricingHeader>
+                  <PricingHeader>Output</PricingHeader>
+                  <PricingHeader>Context</PricingHeader>
+                  {provider.models.map((model, idx) => (
+                    <React.Fragment key={idx}>
+                      <PricingCell>{model.name}</PricingCell>
+                      <PricingCell>{model.input}</PricingCell>
+                      <PricingCell>{model.output}</PricingCell>
+                      <PricingCell>{model.context}</PricingCell>
+                    </React.Fragment>
+                  ))}
+                </PricingTable>
+              </PricingSection>
+            )}
           </ProviderSection>
         );
       })}

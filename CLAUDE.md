@@ -34,6 +34,15 @@ This is a multi-project monorepo with three primary focus areas:
 - **Documentation**: See `projects/active/web-apps/business-booking-platform/CLAUDE.md`
 - **Status**: ✅ Production-ready with comprehensive features and testing
 
+**IconForge** (`projects/active/web-apps/iconforge`) - AI-Powered Icon Creation Platform
+- **Type**: React 19 + TypeScript + Vite web application
+- **Version**: 1.0.0 (Development)
+- **Features**: Fabric.js canvas editor, DALL-E 3 AI generation, real-time collaboration (Socket.io + Yjs)
+- **Tech Stack**: Fabric.js, Fastify backend, TanStack Query, Zustand, Tailwind CSS 3.4.18, Clerk Auth
+- **Database**: SQLite (D:\databases\database.db - unified database)
+- **Documentation**: See `projects/active/web-apps/iconforge/PRD_SUMMARY.md`
+- **Status**: 🚧 In Development - Phase 1 MVP
+
 **Other Active Web Apps**:
 - `shipping-pwa` - PWA for Walmart DC shipping management with offline support
 - `vibe-tech-lovable` - Portfolio website with 3D graphics and React Three Fiber
@@ -138,14 +147,42 @@ crypto-enhanced/
 
 ## Critical Configuration
 
-### Trading System Risk Parameters (Current Status: READY)
+### Trading System Risk Parameters (Current Status: OPERATIONAL WITH MONITORING)
 - **Max Position Size**: $10 per trade (safety-first configuration)
 - **Max Total Exposure**: $10 (1 position maximum)
 - **Trading Pair**: XLM/USD only
-- **Account Balance**: ~$98 USD (verify with `/crypto:status`)
-- **Strategies**: Mean Reversion and Scalping (both enabled in config)
+- **Account Balance**: ~$135 USD (verify with `python check_status.py`)
+- **Strategies**: Mean Reversion, Range Trading, Scalping (all enabled)
 - **Database**: SQLite (trading.db) for state persistence
-- **System Status**: Configured and ready for live trading (requires explicit YES confirmation)
+- **System Status**: Post sell-logic fix (8 critical bugs resolved Oct 13)
+- **Monitoring**: 30-day validation active (started Oct 13, 2025)
+
+### 30-Day Monitoring & Capital Scaling Decision
+The system now includes comprehensive performance monitoring to validate profitability before scaling capital:
+
+**Key Files:**
+- `performance_monitor.py` - FIFO P&L calculation, win rate, expectancy, profit factor
+- `check_status.py` - Quick daily dashboard (balance, positions, 7-day metrics)
+- `setup_monitoring.ps1` - Automated daily snapshots at 11:59 PM
+
+**Readiness Criteria (All 4 required before adding capital):**
+1. Minimum 50 complete trades (statistical significance)
+2. Win rate ≥52% (above break-even with fees)
+3. Positive expectancy >$0.01 per trade (edge exists)
+4. Max drawdown <30% (acceptable risk)
+
+**Validation Timeline:**
+- Started: October 13, 2025
+- Complete: November 12, 2025 (30 days)
+- Decision: Review `python performance_monitor.py monthly` after validation period
+- **NO CAPITAL SCALING until system shows "READY TO SCALE"**
+
+**Daily Commands:**
+```bash
+python check_status.py              # Quick dashboard
+python performance_monitor.py weekly   # Detailed 7-day report
+python performance_monitor.py monthly  # 30-day validation report
+```
 
 ### Build Configuration
 - **Desktop Apps**: Use Tauri (NOT Electron) - smaller bundles, better performance
@@ -482,9 +519,47 @@ The trading system has been successfully restored to full functionality:
 
 ## MCP Server Configuration & Troubleshooting
 
+### Active MCP Servers
+
+The monorepo uses the following MCP servers (configured in `.mcp.json`):
+
+**Core Servers:**
+- **Nx MCP** - Workspace management, project graph, task execution
+- **Filesystem MCP** - File operations across C:\dev and D:\
+- **SQLite MCP** - Database queries for trading.db
+
+**Browser Automation:**
+- **Playwright MCP** - Modern browser automation (Microsoft official)
+- **Puppeteer MCP** - Legacy browser automation
+
+**Configuration:**
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": ["C:\\Users\\fresh_zxae3v6\\AppData\\Roaming\\npm\\node_modules\\@playwright\\mcp\\index.js"]
+    }
+  }
+}
+```
+
+**Installation:**
+```bash
+npm install -g @playwright/mcp        # Playwright (recommended)
+npm install -g @modelcontextprotocol/server-puppeteer  # Puppeteer (legacy)
+```
+
+**Browser Automation Use Cases:**
+- Visual verification of dev servers
+- Deployment smoke tests
+- Interactive debugging of failed E2E tests
+- Screenshot capture for documentation
+
 ### Desktop Commander Enhanced Setup
 
-The monorepo uses Desktop Commander Enhanced for advanced file operations:
+The monorepo previously used Desktop Commander Enhanced for advanced file operations:
 
 **Configuration Location:** `%APPDATA%\Claude\claude_desktop_config.json`
 

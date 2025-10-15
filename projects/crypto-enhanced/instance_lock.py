@@ -89,28 +89,31 @@ class InstanceLockFixed:
             'app_id': self.app_id
         }
 
-    def acquire(self) -> bool:
+    def acquire(self, retry_count: int = 0, max_retries: int = 3) -> bool:
         """
-        BULLETPROOF lock acquisition with multiple layers
+        BULLETPROOF lock acquisition with multiple layers and automatic retry after cleanup
         """
-        print(f"[LOCK] Acquiring instance lock for {self.app_id}")
-        print(f"[LOCK] PID: {self.pid}, User: {self.process_info['user']}")
-        print(f"[LOCK] Lock ID: {self.full_lock_id}")
+        if retry_count == 0:
+            print(f"[LOCK] Acquiring instance lock for {self.app_id}")
+            print(f"[LOCK] PID: {self.pid}, User: {self.process_info['user']}")
+            print(f"[LOCK] Lock ID: {self.full_lock_id}")
+        else:
+            print(f"[LOCK] Retry attempt {retry_count}/{max_retries} after duplicate cleanup")
 
-                # Layer 1: Modern filelock library (primary)
+        # Layer 1: Modern filelock library (primary)
         if FILELOCK_AVAILABLE:
             try:
                 # Make sure parent directory exists
                 self.lock_file_path.parent.mkdir(parents=True, exist_ok=True)
-                
+
                 # Set appropriate timeout and retry
                 self.file_lock = FileLock(str(self.lock_file_path), timeout=self.timeout)
                 self.file_lock.acquire()
-                
+
                 # Write process info to lock file for debugging
                 with open(f"{self.lock_file_path}.info", 'w') as f:
                     json.dump(self.process_info, f, indent=2)
-                    
+
                 print(f"[LOCK] [OK] Layer 1 SUCCESS - Modern filelock acquired")
             except Timeout:
                 print(f"[LOCK] [ERROR] Layer 1 FAILED - Another instance holds the lock")
@@ -126,7 +129,19 @@ class InstanceLockFixed:
             print(f"[LOCK] [OK] Layer 1b SUCCESS - Legacy file lock acquired")
 
         # Layer 2: Process validation and PID tracking
-        if not self._acquire_process_lock():
+        process_lock_result = self._acquire_process_lock()
+        if process_lock_result == "retry_needed":
+            # Duplicates were killed, need to retry entire acquisition
+            print(f"[LOCK] [INFO] Duplicates cleaned up, retrying lock acquisition...")
+            self._cleanup_partial_locks()
+
+            if retry_count < max_retries:
+                time.sleep(2)  # Wait for cleanup to complete
+                return self.acquire(retry_count=retry_count + 1, max_retries=max_retries)
+            else:
+                print(f"[LOCK] [ERROR] Max retries ({max_retries}) exceeded after cleanup")
+                return False
+        elif not process_lock_result:
             print(f"[LOCK] [ERROR] Layer 2 FAILED - Process validation failed")
             self._cleanup_partial_locks()
             return False
@@ -168,21 +183,43 @@ class InstanceLockFixed:
             print(f"[LOCK] Legacy file lock error: {e}")
             return False
 
-    def _acquire_process_lock(self) -> bool:
-        """Enhanced process validation and PID file management"""
+    def _acquire_process_lock(self):
+        """Enhanced process validation and PID file management with auto-kill for duplicates
+        Returns: True if acquired, False if failed, "retry_needed" if duplicates were cleaned"""
         try:
-            # Check for existing trading processes
+            # Quick check for existing trading processes
             existing_processes = self._find_trading_processes()
+
             if existing_processes:
-                print(f"[LOCK] Found {len(existing_processes)} existing trading processes:")
+                # Found duplicates - kill them and signal retry needed
+                print(f"[LOCK] Found {len(existing_processes)} duplicate process(es), cleaning up...")
+
                 for proc in existing_processes:
                     try:
-                        print(f"  - PID {proc.pid}: {' '.join(proc.cmdline())}")
-                    except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
-                        print(f"  - PID {proc.pid}: [access denied or process ended]")
-                return False
+                        cmdline = proc.cmdline()
+                        print(f"[LOCK] Killing PID {proc.pid}: {' '.join(cmdline[:3])}")
+                        proc.terminate()
+                        try:
+                            proc.wait(timeout=2)
+                            print(f"[LOCK] Killed PID {proc.pid}")
+                        except psutil.TimeoutExpired:
+                            proc.kill()  # Force kill if terminate times out
+                            proc.wait(timeout=1)
+                            print(f"[LOCK] Force killed PID {proc.pid}")
+                    except psutil.NoSuchProcess:
+                        print(f"[LOCK] PID {proc.pid} already gone")
+                    except psutil.ZombieProcess:
+                        print(f"[LOCK] PID {proc.pid} is zombie (already terminating)")
+                    except psutil.AccessDenied:
+                        print(f"[LOCK] Access denied killing PID {proc.pid} - may need manual cleanup")
+                    except Exception as e:
+                        print(f"[LOCK] Error killing PID {proc.pid}: {e}")
 
-            # Create PID file
+                # Signal that duplicates were cleaned and retry is needed
+                print(f"[LOCK] Duplicate cleanup complete, will retry lock acquisition")
+                return "retry_needed"
+
+            # No duplicates found - proceed with PID file creation
             with open(self.pid_file_path, 'w') as f:
                 json.dump(self.process_info, f, indent=2)
 
@@ -246,9 +283,14 @@ class InstanceLockFixed:
         trading_processes = []
         current_pid = os.getpid()
 
+        print(f"[LOCK] [DEBUG] Scanning for trading processes (current PID: {current_pid})...")
+
         for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
             try:
-                if proc.info['pid'] == current_pid:
+                proc_pid = proc.info['pid']
+
+                if proc_pid == current_pid:
+                    print(f"[LOCK] [DEBUG] Skipping current process PID {proc_pid}")
                     continue
 
                 if 'python' not in proc.info['name'].lower():
@@ -268,11 +310,13 @@ class InstanceLockFixed:
                 ]
 
                 if any(keyword in cmdline_str for keyword in trading_keywords):
+                    print(f"[LOCK] [DEBUG] Found trading process PID {proc_pid}: {cmdline_str[:80]}")
                     trading_processes.append(proc)
 
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
 
+        print(f"[LOCK] [DEBUG] Scan complete. Found {len(trading_processes)} other trading process(es)")
         return trading_processes
 
     def _cleanup_stale_locks(self):

@@ -330,9 +330,9 @@ class AgentMemoryBridge:
             cursor = conn.cursor()
 
             cursor.execute("""
-                SELECT task, success_score, executed_at, execution_time_ms
+                SELECT task_description, success_score, executed_at, execution_time_seconds
                 FROM agent_executions
-                WHERE agent_name = ?
+                WHERE agent_id = (SELECT id FROM agent_registry WHERE name = ?)
                 ORDER BY executed_at DESC
                 LIMIT ?
             """, (agent_name, limit))
@@ -343,7 +343,7 @@ class AgentMemoryBridge:
                     "task": row[0],
                     "success_score": row[1],
                     "executed_at": row[2],
-                    "execution_time_ms": row[3]
+                    "execution_time_seconds": row[3]
                 })
 
             conn.close()
@@ -443,21 +443,46 @@ class AgentMemoryBridge:
             conn = sqlite3.connect(self.learning_db_path)
             cursor = conn.cursor()
 
-            # Store in agent_executions table
+            # Get or create agent_id from agent_registry
+            cursor.execute("SELECT id FROM agent_registry WHERE name = ?", (execution.agent_name,))
+            agent_row = cursor.fetchone()
+
+            if agent_row:
+                agent_id = agent_row[0]
+            else:
+                # Register new agent if not found
+                cursor.execute("""
+                    INSERT INTO agent_registry (name, agent_type, description, created_at)
+                    VALUES (?, ?, ?, ?)
+                """, (
+                    execution.agent_name,
+                    'specialist',
+                    f'Specialist agent: {execution.agent_name}',
+                    datetime.now()
+                ))
+                agent_id = cursor.lastrowid
+
+            # Store in agent_executions table with actual schema
             cursor.execute("""
                 INSERT INTO agent_executions
-                (agent_name, task, input_data, output_data, success_score,
-                 execution_time_ms, executed_at, memory_context_size)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (agent_id, task_type, task_description, user_request,
+                 status, execution_time_seconds, success_score,
+                 execution_context, executed_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                execution.agent_name,
+                agent_id,
+                self._determine_intent_category(execution.task_description),
                 execution.task_description,
-                json.dumps(execution.input_data),
-                json.dumps(execution.output_data) if execution.output_data else None,
+                execution.task_description,
+                'success' if execution.success_score > 0.7 else 'failure',
+                execution.execution_time_ms / 1000.0,  # Convert ms to seconds
                 execution.success_score,
-                execution.execution_time_ms,
-                execution.timestamp,
-                len(execution.memory_context) if execution.memory_context else 0
+                json.dumps({
+                    'input_data': execution.input_data,
+                    'output_data': execution.output_data,
+                    'memory_context_size': len(execution.memory_context) if execution.memory_context else 0
+                }),
+                execution.timestamp
             ))
 
             conn.commit()

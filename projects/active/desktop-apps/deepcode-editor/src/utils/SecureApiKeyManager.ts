@@ -10,6 +10,7 @@ const API_KEY_PATTERNS = {
   DEEPSEEK: /^sk-[a-f0-9]{32,}$/i,
   OPENAI: /^sk-[a-zA-Z0-9]{48,}$/,
   ANTHROPIC: /^sk-ant-[a-zA-Z0-9\-_]{95,}$/,
+  GOOGLE: /^AIza[a-zA-Z0-9\-_]{35}$/,
   GITHUB: /^ghp_[a-zA-Z0-9]{36}$|^github_pat_[a-zA-Z0-9_]{82}$/
 };
 
@@ -31,9 +32,10 @@ export class SecureApiKeyManager {
   private storage: Storage;
 
   private constructor() {
+    // Initialize storage first, then get encryption key
+    this.storage = window.localStorage;
     // Generate or retrieve encryption key from secure storage
     this.encryptionKey = this.getOrCreateEncryptionKey();
-    this.storage = window.localStorage;
   }
 
   public static getInstance(): SecureApiKeyManager {
@@ -249,6 +251,8 @@ export class SecureApiKeyManager {
           return await this.testOpenAIKey(apiKey);
         case 'anthropic':
           return await this.testAnthropicKey(apiKey);
+        case 'google':
+          return await this.testGoogleKey(apiKey);
         case 'github':
           return await this.testGitHubKey(apiKey);
         default:
@@ -361,6 +365,15 @@ export class SecureApiKeyManager {
         })
       });
       return response.status !== 401;
+    } catch {
+      return false;
+    }
+  }
+
+  private async testGoogleKey(key: string): Promise<boolean> {
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+      return response.ok;
     } catch {
       return false;
     }

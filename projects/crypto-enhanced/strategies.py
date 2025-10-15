@@ -212,11 +212,11 @@ class RSIMeanReversionStrategy(Strategy):
 
     def sync_accumulation(self):
         """Sync accumulated_xlm with actual engine positions"""
-        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions if pos.get('pair') == 'XLM/USD')
+        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions.values() if pos.get('pair') == 'XLM/USD')
         if abs(total_xlm - self.accumulated_xlm) > 0.1:  # Threshold to avoid float precision issues
             logger.info(f"{self.name}: Syncing accumulation from {self.accumulated_xlm:.2f} to {total_xlm:.2f} XLM")
             self.accumulated_xlm = total_xlm
-            self.entry_count = len([p for p in self.engine.positions if p.get('pair') == 'XLM/USD'])
+            self.entry_count = len([p for p in self.engine.positions.values() if p.get('pair') == 'XLM/USD'])
 
     async def evaluate(self) -> Optional[Dict]:
         """Evaluate RSI strategy"""
@@ -313,7 +313,7 @@ class RangeTradingStrategy(Strategy):
 
     def sync_accumulation(self):
         """Sync accumulated_xlm with actual engine positions"""
-        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions if pos.get('pair') == 'XLM/USD')
+        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions.values() if pos.get('pair') == 'XLM/USD')
         if abs(total_xlm - self.accumulated_xlm) > 0.1:
             logger.info(f"{self.name}: Syncing accumulation from {self.accumulated_xlm:.2f} to {total_xlm:.2f} XLM")
             self.accumulated_xlm = total_xlm

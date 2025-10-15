@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { DeepSeekService } from '../services/DeepSeekService';
+import { UnifiedAIService } from '../services/ai/UnifiedAIService';
 import { AIContextRequest, AIMessage, EditorFile, WorkspaceContext } from '../types';
 
 export interface UseAIChatReturn {
@@ -14,17 +14,25 @@ export interface UseAIChatReturn {
 }
 
 export interface UseAIChatProps {
-  deepSeekService: DeepSeekService;
+  aiService: UnifiedAIService;
   currentFile?: EditorFile | null | undefined;
   workspaceContext?: WorkspaceContext | undefined;
   onError?: ((error: Error) => void) | undefined;
+  openFiles?: EditorFile[];
+  workspaceFolder?: string | null;
+  sidebarOpen?: boolean;
+  previewOpen?: boolean;
 }
 
 export function useAIChat({
-  deepSeekService,
+  aiService,
   currentFile,
   workspaceContext,
   onError,
+  openFiles = [],
+  workspaceFolder = null,
+  sidebarOpen = true,
+  previewOpen = false,
 }: UseAIChatProps): UseAIChatReturn {
   const [aiMessages, setAiMessages] = useState<AIMessage[]>([
     {
@@ -32,7 +40,7 @@ export function useAIChat({
       role: 'assistant',
       content: `Welcome to DeepCode Editor! 🚀
 
-I'm your AI coding assistant powered by DeepSeek. I can help you with:
+I'm your AI coding assistant. I can help you with:
 
 • **Code completion** - Smart suggestions as you type
 • **Code generation** - Write functions, classes, and more
@@ -74,7 +82,7 @@ Let's build something amazing together!`,
       setIsAiResponding(true);
 
       try {
-        // Build context request
+        // Build context request with enhanced user activity
         const fullContextRequest: AIContextRequest = {
           userQuery: message,
           relatedFiles: [],
@@ -92,6 +100,14 @@ Let's build something amazing together!`,
           },
           conversationHistory: [],
           currentFile: currentFile || undefined,
+          userActivity: {
+            openFiles: openFiles,
+            sidebarOpen: sidebarOpen,
+            previewOpen: previewOpen,
+            aiChatOpen: aiChatOpen,
+            recentFiles: openFiles.slice(0, 5).map(f => f.name),
+            workspaceFolder: workspaceFolder,
+          },
           ...contextRequest,
         };
 
@@ -111,7 +127,7 @@ Let's build something amazing together!`,
         addAiMessage(aiMessage);
 
         // Stream the response
-        for await (const chunk of deepSeekService.sendContextualMessageStream(fullContextRequest)) {
+        for await (const chunk of aiService.sendContextualMessageStream(fullContextRequest)) {
           // Check if this is reasoning content
           if (chunk.startsWith('[REASONING] ')) {
             isCollectingReasoning = true;
@@ -147,7 +163,11 @@ Let's build something amazing together!`,
         const errorMessage: AIMessage = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Sorry, I encountered an error while processing your request. Please try again.',
+          content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. ${
+            error instanceof Error && error.message.includes('API key')
+              ? 'Please add your API key in Settings > API Keys.'
+              : 'Please try again.'
+          }`,
           timestamp: new Date(),
         };
         addAiMessage(errorMessage);
@@ -157,7 +177,7 @@ Let's build something amazing together!`,
         setIsAiResponding(false);
       }
     },
-    [deepSeekService, currentFile, workspaceContext, addAiMessage, onError]
+    [aiService, currentFile, workspaceContext, addAiMessage, onError, openFiles, workspaceFolder, sidebarOpen, previewOpen]
   );
 
   return {

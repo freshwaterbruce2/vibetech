@@ -91,6 +91,53 @@ Get-Content .\trading_new.log -Wait
 
 ---
 
+## 📊 Performance Monitoring (New: 2025-10-13)
+
+### Quick Daily Dashboard
+```bash
+python check_status.py
+```
+
+Shows:
+- Live balance (USD + XLM)
+- Open positions and orders
+- Trades today and errors (24h)
+- 7-day performance summary
+- 30-day scaling readiness
+
+### Detailed Performance Reports
+```bash
+# Last 24 hours
+python performance_monitor.py daily
+
+# Last 7 days
+python performance_monitor.py weekly
+
+# Last 30 days (validation report)
+python performance_monitor.py monthly
+
+# Save daily snapshot (JSON)
+python performance_monitor.py snapshot
+```
+
+### Setup Automated Monitoring (One-Time)
+```powershell
+.\setup_monitoring.ps1
+```
+
+Creates Windows Task Scheduler job for daily snapshots at 11:59 PM.
+
+### Capital Scaling Readiness Criteria
+System must meet all 4 criteria before adding capital:
+- ✅ Minimum 50 complete trades
+- ✅ Win rate ≥52%
+- ✅ Positive expectancy >$0.01 per trade
+- ✅ Max drawdown <30%
+
+**Validation Period**: 30 days (Started: 2025-10-13, Complete: 2025-11-12)
+
+---
+
 ## 🚨 Emergency Procedures
 
 ### Emergency Stop (Immediate)
@@ -119,12 +166,19 @@ python start_live_trading.py
 # View logs in real-time
 Get-Content trading_new.log -Wait
 
+# Check performance (daily dashboard)
+python check_status.py
+
+# Weekly performance review
+python performance_monitor.py weekly
+
 # Emergency stop
 Get-Process python | Stop-Process -Force
 ```
 
 ---
 
-**Last Updated:** October 6, 2025  
-**System Version:** Live Trading (XLM/USD)  
-**Current Balance:** $98.82
+**Last Updated:** October 13, 2025
+**System Version:** Live Trading (XLM/USD) with 30-Day Monitoring
+**Current Balance:** $135.34 ($126.74 USD + 24.57 XLM)
+**Monitoring Status:** Day 1 of 30 (Validation Period)
