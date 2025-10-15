@@ -17,6 +17,7 @@ import ModelSelector from './components/ModelSelector/ModelSelector';
 // Components
 import { NotificationContainer } from './components/Notification';
 import Sidebar from './components/Sidebar';
+import { PreviewPanel } from './components/PreviewPanel';
 import StatusBar from './components/StatusBar';
 // import { EnhancedTerminal } from './components/Terminal/EnhancedTerminal';
 // Components - Using lazy loading for heavy components
@@ -24,20 +25,32 @@ import TitleBar from './components/TitleBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import { useAIChat } from './hooks/useAIChat';
 import { useAppSettings } from './hooks/useAppSettings';
-// import { useCommandPalette } from './hooks/useCommandPalette';
+import { useAICommandPalette } from './hooks/useAICommandPalette';
 import { useFileManager } from './hooks/useFileManager';
 import { useNotifications } from './hooks/useNotifications';
 // Custom Hooks
 import { useWorkspace } from './hooks/useWorkspace';
 import { autoUpdater } from './services/AutoUpdateService';
 // Services
-import { DeepSeekService } from './services/DeepSeekService';
+import { UnifiedAIService } from './services/ai/UnifiedAIService';
+import { TaskPlanner } from './services/ai/TaskPlanner';
+import { ExecutionEngine } from './services/ai/ExecutionEngine';
 import { FileSystemService } from './services/FileSystemService';
+import { WorkspaceService } from './services/WorkspaceService';
+// import { GitService } from './services/GitService'; // Disabled for browser - uses Node.js child_process
 import { SearchService } from './services/SearchService';
 import { telemetry } from './services/TelemetryService';
 import { getUserFriendlyError } from './utils/errorHandler';
 // Types
 import { AIMessage, EditorFile } from './types';
+
+// Browser-compatible Mock GitService (git_commit won't work in browser mode)
+class MockGitService {
+  async commit(message: string): Promise<void> {
+    console.warn('[MockGitService] Git commits not supported in browser mode. Use Tauri/Electron version for git integration.');
+    throw new Error('Git operations require Tauri/Electron environment');
+  }
+}
 
 const AppContainer = styled.div`
   display: flex;
@@ -85,8 +98,16 @@ function App() {
   const [isLoading] = useState(false); // Start without loading screen
 
   // Initialize services
-  const [deepSeekService] = useState(() => new DeepSeekService());
+  const [aiService] = useState(() => new UnifiedAIService());
   const [fileSystemService] = useState(() => new FileSystemService());
+  const [workspaceService] = useState(() => new WorkspaceService(fileSystemService));
+  const [gitService] = useState(() => new MockGitService() as any); // Use MockGitService in browser mode
+
+  // Initialize Agent Mode V2 services
+  const [taskPlanner] = useState(() => new TaskPlanner(aiService));
+  const [executionEngine] = useState(() =>
+    new ExecutionEngine(fileSystemService, aiService, workspaceService, gitService)
+  );
 
   // Notifications
   const { notifications, showError, showSuccess, showWarning, removeNotification } =
@@ -123,6 +144,12 @@ function App() {
     onSaveError: (fileName) => showError('Save Failed', `Unable to save ${fileName}`),
   });
 
+  // Preview panel state
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // Chat mode state
+  const [chatMode, setChatMode] = useState<'chat' | 'agent' | 'composer'>('chat');
+
   // AI Chat
   const {
     aiMessages,
@@ -131,9 +158,13 @@ function App() {
     handleSendMessage: handleAIMessage,
     addAiMessage,
   } = useAIChat({
-    deepSeekService,
+    aiService,
     currentFile,
     workspaceContext: workspaceContext || undefined,
+    openFiles,
+    workspaceFolder,
+    sidebarOpen,
+    previewOpen,
     onError: (error) =>
       showError(
         'AI Service Error',
@@ -209,7 +240,16 @@ function App() {
         e.preventDefault();
         setGlobalSearchOpen(true);
       }
-      
+
+      // Agent Mode: Ctrl+Shift+A (switch chat to agent mode)
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        if (!aiChatOpen) {
+          setAiChatOpen(true);
+        }
+        setChatMode('agent');
+      }
+
       // Keyboard shortcuts: Ctrl+K Ctrl+S
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
@@ -238,30 +278,95 @@ function App() {
   // Terminal state
   // const [terminalOpen, setTerminalOpen] = useState(false);
 
+  // Handle workspace opening with file picker
+  const handleOpenFolderDialog = async () => {
+    try {
+      console.log('Opening folder dialog...');
+
+      // Check if Tauri API is available
+      if (window.__TAURI__) {
+        console.log('Using Tauri dialog API');
+        const { open } = await import('@tauri-apps/plugin-dialog');
+
+        const folderPath = await open({
+          directory: true,
+          multiple: false,
+          title: 'Select Project Folder',
+          recursive: true, // Automatically expands scope for all subdirectories
+        });
+
+        console.log('Tauri dialog result:', folderPath);
+
+        if (folderPath) {
+          await handleOpenFolder(folderPath);
+        } else {
+          console.log('Folder selection cancelled');
+        }
+      } else if (window.electronAPI) {
+        // Use Electron's folder picker if available
+        console.log('Using Electron API');
+        const result = await window.electronAPI.showOpenDialog({
+          properties: ['openDirectory'],
+        });
+        console.log('Electron dialog result:', result);
+        if (!result.canceled && result.filePaths.length > 0 && result.filePaths[0]) {
+          await handleOpenFolder(result.filePaths[0]);
+        } else {
+          console.log('Folder selection cancelled');
+        }
+      } else if ('showDirectoryPicker' in window) {
+        // Use browser's File System Access API
+        console.log('Using File System Access API');
+        const dirHandle = await (window as any).showDirectoryPicker();
+        console.log('Directory handle:', dirHandle);
+
+        // Store the full path if available, otherwise use name
+        const folderPath = dirHandle.path || dirHandle.name;
+        console.log('Selected folder path:', folderPath);
+        await handleOpenFolder(folderPath);
+      } else {
+        // Fallback: prompt for folder path
+        console.log('Using prompt fallback');
+        const folderPath = prompt('Enter folder path (e.g., C:\\Users\\YourName\\Projects\\MyProject):');
+        if (folderPath) {
+          await handleOpenFolder(folderPath);
+        }
+      }
+    } catch (error) {
+      console.error('Error opening folder:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('User cancelled folder selection');
+        return; // Don't show error for user cancellation
+      }
+      showError('Open Folder Failed', `Unable to open the selected folder: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   // Handle workspace opening
   const handleOpenFolder = async (folderPath: string) => {
     try {
       console.log(`Opening workspace: ${folderPath}`);
       setWorkspaceFolder(folderPath);
 
-      // Start workspace indexing
-      await indexWorkspace(folderPath);
+      // Start workspace indexing and get the context
+      const indexedContext = await indexWorkspace(folderPath);
 
-      // Update AI assistant with workspace context
-      const contextMessage: AIMessage = {
-        id: Date.now().toString(),
-        role: 'assistant',
-        content: `✅ **Workspace Indexed Successfully!**
+      if (indexedContext) {
+        // Update AI assistant with workspace context using the returned context
+        const contextMessage: AIMessage = {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `✅ **Workspace Indexed Successfully!**
 
 I've analyzed your project at \`${folderPath}\` and I'm now ready to help with:
 
-🔍 **Repository Understanding**: ${workspaceContext?.totalFiles || 0} files indexed
+🔍 **Repository Understanding**: ${indexedContext.totalFiles || 0} files indexed
 🚀 **Multi-file Context**: I understand relationships between your files
 ⚡ **Smart Suggestions**: Context-aware code completion and generation
 🧠 **Project Knowledge**: Familiar with your codebase structure
 
-**Languages Detected**: ${workspaceContext?.languages.join(', ') || 'Analyzing...'}
-**Test Files**: ${workspaceContext?.testFiles || 0} detected
+**Languages Detected**: ${indexedContext.languages.join(', ') || 'Analyzing...'}
+**Test Files**: ${indexedContext.testFiles || 0} detected
 
 Try asking me:
 - "Create a new component that fits my project structure"
@@ -270,10 +375,13 @@ Try asking me:
 - "Refactor this code to match project patterns"
 
 I'm now your context-aware coding companion! 🎯`,
-        timestamp: new Date(),
-      };
+          timestamp: new Date(),
+        };
 
-      addAiMessage(contextMessage);
+        addAiMessage(contextMessage);
+      } else {
+        throw new Error('Failed to index workspace');
+      }
     } catch (error) {
       console.error('Failed to open workspace:', error);
 
@@ -333,34 +441,139 @@ I'm now your context-aware coding companion! 🎯`,
     setCurrentFile(newFile);
   };
 
-  // Command Palette (disabled for now)
-  // const { commandPaletteOpen, setCommandPaletteOpen, commands } = useCommandPalette({
-  //   onSaveFile: handleSaveFile,
-  //   onOpenFolder: handleOpenFolder,
-  //   onToggleSidebar: () => setSidebarOpen(!sidebarOpen),
-  //   onToggleAIChat: () => setAiChatOpen(!aiChatOpen),
-  //   onToggleGitPanel: () => setGitPanelOpen(!gitPanelOpen),
-  //   onOpenSettings: () => setSettingsOpen(true),
-  //   onOpenGlobalSearch: () => setGlobalSearchOpen(true),
-  //   onOpenAgentMode: () => setAgentModeOpen(true),
-  //   onOpenComposerMode: () => setComposerModeOpen(true),
-  //   onOpenTerminal: () => setTerminalOpen(true),
-  //   onShowKeyboardShortcuts: () => setKeyboardShortcutsOpen(true),
-  //   onTriggerFindReplace: () => {
-  //     // Trigger find/replace in the editor
-  //     document.dispatchEvent(
-  //       new KeyboardEvent('keydown', {
-  //         key: 'f',
-  //         ctrlKey: true,
-  //         bubbles: true,
-  //       })
-  //     );
-  //   },
-  // });
-  
-  // Fallback command palette state
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const commands: any[] = [];
+  // Handle file deletion
+  const handleDeleteFile = async (filePath: string): Promise<void> => {
+    try {
+      await fileSystemService.deleteFile(filePath);
+
+      // Close the file if it's currently open
+      if (currentFile?.path === filePath) {
+        setCurrentFile(null);
+      }
+
+      // Remove from open files list if present
+      const updatedOpenFiles = openFiles.filter(file => file.path !== filePath);
+      setOpenFiles(updatedOpenFiles);
+
+      showSuccess('File Deleted', `Successfully deleted ${filePath.split('/').pop()}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showError('Delete Failed', `Unable to delete file: ${errorMessage}`);
+      throw error; // Re-throw to let Sidebar handle it if needed
+    }
+  };
+
+  // Handle saving all open files
+  const handleSaveAll = async () => {
+    try {
+      let savedCount = 0;
+      for (const file of openFiles) {
+        if (file.isModified) {
+          await fileSystemService.writeFile(file.path, file.content);
+          savedCount++;
+        }
+      }
+      if (savedCount > 0) {
+        showSuccess('Files Saved', `Successfully saved ${savedCount} file(s)`);
+      } else {
+        showWarning('No Changes', 'No files needed to be saved');
+      }
+    } catch (error) {
+      showError('Save Failed', 'Unable to save all files');
+    }
+  };
+
+  // Handle closing current workspace
+  const handleCloseFolder = () => {
+    setWorkspaceFolder(null);
+    setCurrentFile(null);
+    setOpenFiles([]);
+    showSuccess('Workspace Closed', 'Workspace has been closed');
+  };
+
+  // Handle creating new file
+  const handleNewFile = () => {
+    const fileName = prompt('Enter new file name (e.g., script.js):');
+    if (fileName) {
+      handleCreateFile(fileName);
+    }
+  };
+
+  // AI Command Handler
+  const handleAICommand = useCallback(async (command: string) => {
+    if (!currentFile || !currentFile.content) {
+      showWarning('Please open a file first');
+      return;
+    }
+
+    // Open AI chat if not already open
+    if (!aiChatOpen) {
+      setAiChatOpen(true);
+    }
+
+    // Build prompt based on command
+    let prompt = '';
+    const selectedCode = currentFile.content; // In a full implementation, get actual selection
+
+    switch (command) {
+      case 'explain':
+        prompt = `Please explain this code:\n\n${selectedCode}`;
+        break;
+      case 'generate-tests':
+        prompt = `Generate comprehensive test cases for this code:\n\n${selectedCode}`;
+        break;
+      case 'refactor':
+        prompt = `Refactor this code to improve quality, readability, and maintainability:\n\n${selectedCode}`;
+        break;
+      case 'fix-bugs':
+        prompt = `Analyze this code for potential bugs and suggest fixes:\n\n${selectedCode}`;
+        break;
+      case 'optimize':
+        prompt = `Optimize this code for better performance:\n\n${selectedCode}`;
+        break;
+      case 'add-comments':
+        prompt = `Add clear, helpful comments to this code:\n\n${selectedCode}`;
+        break;
+      case 'generate-component':
+        prompt = 'Generate a React component based on the following description:\n[Component description]';
+        break;
+      default:
+        prompt = selectedCode;
+    }
+
+    // Send to AI chat
+    await handleAIMessage(prompt);
+    showSuccess(`AI ${command} command executed`);
+  }, [currentFile, aiChatOpen, setAiChatOpen, handleAIMessage, showSuccess, showWarning]);
+
+  // AI-Powered Command Palette
+  const { commandPaletteOpen, setCommandPaletteOpen, commands } = useAICommandPalette({
+    onSaveFile: handleSaveFile,
+    onOpenFolder: handleOpenFolderDialog,
+    onNewFile: handleNewFile,
+    onSaveAll: handleSaveAll,
+    onCloseFolder: handleCloseFolder,
+    onToggleSidebar: () => setSidebarOpen(!sidebarOpen),
+    onToggleAIChat: () => setAiChatOpen(!aiChatOpen),
+    onOpenSettings: () => setSettingsOpen(true),
+    onAIExplainCode: () => handleAICommand('explain'),
+    onAIGenerateTests: () => handleAICommand('generate-tests'),
+    onAIRefactor: () => handleAICommand('refactor'),
+    onAIFixBugs: () => handleAICommand('fix-bugs'),
+    onAIOptimize: () => handleAICommand('optimize'),
+    onAIAddComments: () => handleAICommand('add-comments'),
+    onAIGenerateComponent: () => handleAICommand('generate-component'),
+    onFormatDocument: () => {
+      // Format will be handled by Monaco editor
+      document.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'f',
+        shiftKey: true,
+        altKey: true,
+        bubbles: true,
+      }));
+    },
+    currentFile: currentFile?.path || null,
+  });
   
   // Agent Mode and Composer Mode handlers
   const handleAgentModeComplete = async (_task: string) => {
@@ -386,10 +599,17 @@ I'm now your context-aware coding companion! 🎯`,
     }
   };
   
-  const handleModelChange = (model: string) => {
+  const handleModelChange = async (model: string) => {
     setCurrentModel(model);
     // Update AI service with new model
-    deepSeekService.updateConfig({ model });
+    try {
+      await aiService.setModel(model);
+    } catch (error) {
+      showError(
+        'Model Error',
+        error instanceof Error ? error.message : 'Failed to update AI model'
+      );
+    }
   };
 
   // Initialize the application
@@ -411,8 +631,8 @@ I'm now your context-aware coding companion! 🎯`,
       }
     });
 
-    // Auto-open demo workspace if no workspace is open
-    if (!workspaceFolder && openFiles.length === 0) {
+    // Auto-open demo workspace if no workspace is open (web mode only)
+    if (!workspaceFolder && openFiles.length === 0 && !window.__TAURI__) {
       const demoPath = '/home/freshbruce/deepcode-editor/demo-workspace';
       handleOpenFolder(demoPath);
       // Open the index.js file automatically
@@ -463,8 +683,18 @@ I'm now your context-aware coding companion! 🎯`,
     >
       <Router>
         <AppContainer>
-          <TitleBar onSettingsClick={() => setSettingsOpen(true)}>
-            <ModelSelector 
+          <TitleBar
+            onSettingsClick={() => setSettingsOpen(true)}
+            onNewFile={handleNewFile}
+            onOpenFolder={handleOpenFolderDialog}
+            onSaveAll={handleSaveAll}
+            onCloseFolder={handleCloseFolder}
+            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+            onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
+            onTogglePreview={() => setPreviewOpen(!previewOpen)}
+            previewOpen={previewOpen}
+          >
+            <ModelSelector
               currentModel={currentModel}
               onModelChange={handleModelChange}
             />
@@ -477,27 +707,41 @@ I'm now your context-aware coding companion! 🎯`,
                 onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
                 aiChatOpen={aiChatOpen}
                 fileSystemService={fileSystemService}
+                onDeleteFile={handleDeleteFile}
+                onOpenFolder={handleOpenFolderDialog}
               />
             )}
 
             <EditorSection>
               {currentFile ? (
-                <Editor
-                  file={currentFile}
-                  openFiles={openFiles}
-                  onFileChange={handleFileChange}
-                  onCloseFile={handleCloseFile}
-                  onSaveFile={handleSaveFile}
-                  onFileSelect={setCurrentFile}
-                  deepSeekService={deepSeekService}
-                  workspaceContext={workspaceContext || undefined}
-                  getFileContext={getFileContext}
-                  settings={editorSettings}
-                />
+                <>
+                  <Editor
+                    file={currentFile}
+                    openFiles={openFiles}
+                    onFileChange={handleFileChange}
+                    onCloseFile={handleCloseFile}
+                    onSaveFile={handleSaveFile}
+                    onFileSelect={setCurrentFile}
+                    aiService={aiService}
+                    workspaceContext={workspaceContext || undefined}
+                    getFileContext={getFileContext}
+                    settings={editorSettings}
+                  />
+                  {previewOpen && (
+                    <PreviewPanel
+                      code={currentFile.content}
+                      fileName={currentFile.name}
+                      language={currentFile.language}
+                      onClose={() => setPreviewOpen(false)}
+                    />
+                  )}
+                </>
               ) : (
                 <WelcomeScreen
                   onOpenFolder={handleOpenFolder}
                   onCreateFile={handleCreateFile}
+                  onOpenAIChat={() => setAiChatOpen(true)}
+                  onShowSettings={() => setSettingsOpen(true)}
                   workspaceContext={workspaceContext}
                   isIndexing={isIndexing}
                   indexingProgress={indexingProgress}
@@ -511,11 +755,28 @@ I'm now your context-aware coding companion! 🎯`,
                   messages={aiMessages}
                   onSendMessage={handleAIMessage}
                   onClose={() => setAiChatOpen(false)}
-                  showReasoningProcess={
-                    editorSettings.aiModel === 'deepseek-reasoner' &&
-                    editorSettings.showReasoningProcess
-                  }
+                  showReasoningProcess={editorSettings.showReasoningProcess}
                   currentModel={editorSettings.aiModel}
+                  mode={chatMode}
+                  onModeChange={setChatMode}
+                  taskPlanner={taskPlanner}
+                  executionEngine={executionEngine}
+                  workspaceContext={
+                    workspaceFolder
+                      ? {
+                          workspaceRoot: workspaceFolder,
+                          currentFile: currentFile?.path,
+                          openFiles: openFiles.map((f) => f.path),
+                          recentFiles: openFiles.slice(0, 5).map((f) => f.path),
+                        }
+                      : undefined
+                  }
+                  onTaskComplete={(task) => {
+                    showSuccess('Task Completed', `Successfully executed: ${task.title}`);
+                  }}
+                  onTaskError={(task, error) => {
+                    showError('Task Failed', `Failed to execute ${task.title}: ${error.message}`);
+                  }}
                 />
               </Suspense>
             )}
@@ -528,8 +789,14 @@ I'm now your context-aware coding companion! 🎯`,
             aiChatOpen={aiChatOpen}
             onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
             onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
-            onOpenAgentMode={() => setAgentModeOpen(true)}
-            onOpenComposerMode={() => setComposerModeOpen(true)}
+            onOpenAgentMode={() => {
+              if (!aiChatOpen) setAiChatOpen(true);
+              setChatMode('agent');
+            }}
+            onOpenComposerMode={() => {
+              if (!aiChatOpen) setAiChatOpen(true);
+              setChatMode('composer');
+            }}
             onOpenTerminal={() => {/* Terminal disabled */}}
           />
 
@@ -540,13 +807,22 @@ I'm now your context-aware coding companion! 🎯`,
               isOpen={settingsOpen}
               onClose={() => setSettingsOpen(false)}
               settings={editorSettings}
-              onSettingsChange={(newSettings) => {
+              onSettingsChange={async (newSettings) => {
                 updateEditorSettings(newSettings);
-                // Update DeepSeekService if AI model changed
+                // Update AI service if model changed
                 if (newSettings.aiModel && newSettings.aiModel !== editorSettings.aiModel) {
-                  deepSeekService.updateConfig({ model: newSettings.aiModel });
+                  try {
+                    await aiService.setModel(newSettings.aiModel);
+                    showSuccess('Settings Updated', 'Your preferences have been saved');
+                  } catch (error) {
+                    showError(
+                      'Model Error',
+                      error instanceof Error ? error.message : 'Failed to update AI model'
+                    );
+                  }
+                } else {
+                  showSuccess('Settings Updated', 'Your preferences have been saved');
                 }
-                showSuccess('Settings Updated', 'Your preferences have been saved');
               }}
             />
           </Suspense>
@@ -585,7 +861,10 @@ I'm now your context-aware coding companion! 🎯`,
               openFiles: openFiles.map(f => f.name),
             }}
           />
-          
+
+          {/* Agent Mode V2 - Now integrated into unified chat interface */}
+          {/* Modal removed - use Ctrl+Shift+A to switch chat to agent mode */}
+
           {/* Composer Mode */}
           <ComposerMode
             isOpen={composerModeOpen}
@@ -597,7 +876,6 @@ I'm now your context-aware coding companion! 🎯`,
               gitBranch: 'main', // TODO: Get from Git service
             }}
             currentModel={currentModel}
-            deepSeekService={deepSeekService}
             initialFiles={openFiles.map(f => ({
               id: f.path,
               path: f.path,

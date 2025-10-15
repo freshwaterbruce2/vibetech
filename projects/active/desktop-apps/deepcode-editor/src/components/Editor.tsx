@@ -6,6 +6,8 @@ import { editor, languages, Range } from 'monaco-editor';
 import styled, { keyframes } from 'styled-components';
 
 import { DeepSeekService } from '../services/DeepSeekService';
+import { UnifiedAIService } from '../services/ai/UnifiedAIService';
+import { registerInlineCompletionProvider } from '../services/ai/InlineCompletionProvider';
 import { vibeTheme } from '../styles/theme';
 import { EditorFile, EditorSettings, WorkspaceContext } from '../types';
 // import { useMultiCursor } from '../hooks/useMultiCursor';
@@ -98,7 +100,8 @@ interface EditorProps {
   onCloseFile: (path: string) => void;
   onSaveFile: () => void;
   onFileSelect: (file: EditorFile) => void;
-  deepSeekService: DeepSeekService;
+  deepSeekService?: DeepSeekService; // Optional - legacy completion provider
+  aiService?: UnifiedAIService; // Primary AI service for inline completions
   workspaceContext?: WorkspaceContext | undefined;
   getFileContext?: ((file: EditorFile) => any[]) | undefined;
   settings?: EditorSettings | undefined;
@@ -112,6 +115,7 @@ const Editor: React.FC<EditorProps> = ({
   onSaveFile,
   onFileSelect,
   deepSeekService,
+  aiService,
   workspaceContext: _workspaceContext,
   getFileContext: _getFileContext,
   settings,
@@ -282,8 +286,16 @@ const Editor: React.FC<EditorProps> = ({
       mouseWheelZoom: true,
     });
 
-    // Set up AI completion provider
-    setupAiCompletionProvider(editor);
+    // Set up AI completion provider (legacy DeepSeek - if available)
+    if (deepSeekService) {
+      setupAiCompletionProvider(editor);
+    }
+
+    // Register inline completion provider (GitHub Copilot/Cursor-style)
+    if (aiService) {
+      registerInlineCompletionProvider(aiService);
+      console.log('✨ Inline completion provider registered successfully');
+    }
 
     // Track cursor position
     editor.onDidChangeCursorPosition((e) => {
@@ -307,6 +319,10 @@ const Editor: React.FC<EditorProps> = ({
   };
 
   const setupAiCompletionProvider = (_editor: editor.IStandaloneCodeEditor) => {
+    if (!deepSeekService) {
+      return;
+    }
+
     // Custom completion provider for AI suggestions
     const disposable = languages.registerCompletionItemProvider(file.language, {
       triggerCharacters: ['.', ' ', '(', '\n'],
@@ -346,7 +362,7 @@ const Editor: React.FC<EditorProps> = ({
   };
 
   const triggerAiCompletion = async () => {
-    if (!editorRef.current) {
+    if (!editorRef.current || !deepSeekService) {
       return;
     }
 
@@ -557,6 +573,7 @@ const Editor: React.FC<EditorProps> = ({
 
       <MonacoContainer>
         <MonacoEditor
+          key={file.path}
           language={file.language}
           value={file.content}
           onChange={(value) => onFileChange(value || '')}

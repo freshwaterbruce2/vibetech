@@ -9,8 +9,14 @@ import os
 import asyncio
 import logging
 import psutil
+import time
+import tempfile
+import argparse
 from pathlib import Path
 from datetime import datetime
+
+# Check for bypass flags IMMEDIATELY
+BYPASS_DUPLICATE_CHECK = "--bypass-duplicate-check" in sys.argv or "--force" in sys.argv
 
 # Add current directory to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -34,8 +40,37 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def cleanup_stale_locks():
+    """Clean up lock files from killed processes"""
+    temp_dir = Path(tempfile.gettempdir())
+    lock_patterns = [
+        "kraken-crypto-trading-system-v1*.lock",
+        "kraken-crypto-trading-system-v1*.pid",
+        "kraken-crypto-trading-system-v1*.info"
+    ]
+
+    cleaned = 0
+    for pattern in lock_patterns:
+        for lock_file in temp_dir.glob(pattern):
+            try:
+                lock_file.unlink()
+                print(f"  [CLEANED] {lock_file.name}")
+                cleaned += 1
+            except Exception as e:
+                print(f"  [ERROR] Could not remove {lock_file.name}: {e}")
+
+    if cleaned > 0:
+        print(f"  [OK] Cleaned {cleaned} stale lock file(s)")
+
+    return cleaned
+
+
 def check_and_kill_duplicates():
     """Check for duplicate trading instances and auto-kill them"""
+    if BYPASS_DUPLICATE_CHECK:
+        print("[SKIP] Duplicate check bypassed with --bypass-duplicate-check flag")
+        return
+
     current_pid = os.getpid()
     trading_processes = []
 
@@ -55,7 +90,10 @@ def check_and_kill_duplicates():
             if any(keyword in cmdline_str for keyword in ['start_live_trading', 'trading_engine', 'crypto-enhanced']):
                 trading_processes.append(proc)
 
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+        except Exception as e:
+            print(f"[WARNING] Error checking process: {e}")
             continue
 
     if trading_processes:
@@ -73,23 +111,61 @@ def check_and_kill_duplicates():
         for proc in trading_processes:
             try:
                 proc.terminate()
-                proc.wait(timeout=5)
+                proc.wait(timeout=5)  # CRITICAL: Wait for actual termination
                 print(f"  [KILLED] PID {proc.pid}")
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
                 try:
-                    proc.kill()
+                    proc.kill()  # Force kill if terminate times out
+                    proc.wait(timeout=2)
                     print(f"  [FORCE KILLED] PID {proc.pid}")
                 except:
                     print(f"  [ERROR] Could not kill PID {proc.pid}")
 
-        print("[OK] Duplicate instances terminated")
+        # CRITICAL: Wait for processes to fully terminate
+        print("\n[WAIT] Waiting 2 seconds for complete termination...")
+        time.sleep(2)
+
+        # CRITICAL: Clean up stale lock files
+        print("[CLEANUP] Removing stale lock files...")
+        cleanup_stale_locks()
+
+        # Verify all are dead
+        remaining = []
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                if proc.info['pid'] == current_pid:
+                    continue
+                if 'python' not in proc.info['name'].lower():
+                    continue
+                cmdline = proc.info['cmdline']
+                if not cmdline:
+                    continue
+                cmdline_str = ' '.join(cmdline).lower()
+                if any(keyword in cmdline_str for keyword in ['start_live_trading', 'trading_engine', 'crypto-enhanced']):
+                    remaining.append(proc)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+
+        if remaining:
+            print(f"\n[WARNING] {len(remaining)} process(es) still alive!")
+            for proc in remaining:
+                try:
+                    print(f"  [STILL ALIVE] PID {proc.pid}")
+                except:
+                    pass
+        else:
+            print("\n[VERIFIED] All duplicate processes terminated")
+
+        print("[OK] Duplicate instance cleanup complete")
         print("="*60)
 
 
-async def start_live_trading():
+async def start_live_trading(auto_confirm: bool = False):
     """Start live trading with real money"""
-    # CRITICAL: Check and kill duplicates before anything else
-    check_and_kill_duplicates()
+    # NOTE: Duplicate check disabled - InstanceLock handles single-instance enforcement
+    # The check_and_kill_duplicates() was detecting the current process as a duplicate
+    # InstanceLock provides more robust protection via file locks, PID files, port locks, and mutex
+    # check_and_kill_duplicates()  # DISABLED - was causing false positives
 
     print("="*60)
     print("CRYPTO ENHANCED TRADING SYSTEM - LIVE TRADING MODE")
@@ -107,11 +183,14 @@ async def start_live_trading():
     print(f"  Max Positions: {config.max_positions}")
     print("="*60)
 
-    # Confirmation prompt
-    confirm = input("\nType 'YES' to start LIVE TRADING: ")
-    if confirm.strip().upper() != 'YES':
-        print("Live trading cancelled.")
-        return
+    # Confirmation prompt (skip if auto-confirmed)
+    if auto_confirm:
+        print("\n[AUTO-CONFIRM] Starting LIVE TRADING automatically...")
+    else:
+        confirm = input("\nType 'YES' to start LIVE TRADING: ")
+        if confirm.strip().upper() != 'YES':
+            print("Live trading cancelled.")
+            return
 
     # Check instance lock with proper error handling
     lock = InstanceLock()
@@ -241,8 +320,34 @@ async def start_live_trading():
 
 
 if __name__ == "__main__":
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Start live trading with real money')
+    parser.add_argument(
+        '--auto-confirm',
+        action='store_true',
+        help='Automatically confirm startup without prompting for YES (for automation)'
+    )
+    parser.add_argument(
+        '-y', '--yes',
+        action='store_true',
+        dest='auto_confirm',
+        help='Alias for --auto-confirm'
+    )
+    parser.add_argument(
+        '--bypass-duplicate-check',
+        action='store_true',
+        help='Skip duplicate instance detection (use with caution - relies on InstanceLock only)'
+    )
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        dest='bypass_duplicate_check',
+        help='Alias for --bypass-duplicate-check'
+    )
+    args = parser.parse_args()
+
     try:
-        asyncio.run(start_live_trading())
+        asyncio.run(start_live_trading(auto_confirm=args.auto_confirm))
     except KeyboardInterrupt:
         print("\nShutdown complete")
     except Exception as e:

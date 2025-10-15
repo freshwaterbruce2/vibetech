@@ -8,41 +8,26 @@ import { EditorFile } from '../types';
 
 const TabsContainer = styled.div`
   display: flex;
-  background: linear-gradient(
-    135deg,
-    ${vibeTheme.colors.primary} 0%,
-    ${vibeTheme.colors.secondary} 100%
-  );
-  border-bottom: 2px solid rgba(139, 92, 246, 0.2);
+  background: ${vibeTheme.colors.primary};
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
   overflow-x: auto;
   flex-shrink: 0;
-  position: relative;
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: ${vibeTheme.gradients.border};
-    opacity: 0.6;
-  }
-
+  /* Modern scrollbar */
   &::-webkit-scrollbar {
-    height: 4px;
+    height: 3px;
   }
 
   &::-webkit-scrollbar-track {
-    background: ${vibeTheme.colors.primary};
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(139, 92, 246, 0.3);
-    border-radius: ${vibeTheme.borderRadius.small};
+    background: rgba(139, 92, 246, 0.2);
+    border-radius: ${vibeTheme.borderRadius.full};
 
     &:hover {
-      background: rgba(139, 92, 246, 0.5);
+      background: rgba(139, 92, 246, 0.4);
     }
   }
 `;
@@ -50,32 +35,34 @@ const TabsContainer = styled.div`
 const Tab = styled(motion.div)<{ active: boolean }>`
   display: flex;
   align-items: center;
-  padding: ${vibeTheme.spacing.sm} ${vibeTheme.spacing.md};
+  padding: ${vibeTheme.spacing[2]} ${vibeTheme.spacing[4]};
   background: ${(props) =>
-    props.active
-      ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(0, 212, 255, 0.2) 100%)'
-      : 'transparent'};
-  border-right: 1px solid rgba(139, 92, 246, 0.1);
-  border-radius: ${vibeTheme.borderRadius.small} ${vibeTheme.borderRadius.small} 0 0;
+    props.active ? vibeTheme.colors.secondary : 'transparent'};
+  border-right: 1px solid rgba(139, 92, 246, 0.08);
   cursor: pointer;
-  min-width: 140px;
-  max-width: 220px;
+  min-width: 120px;
+  max-width: 200px;
   position: relative;
-  transition: all ${vibeTheme.animation.duration.fast} ease;
+  transition: ${vibeTheme.animation.transition.all};
+  height: 36px;
 
   ${(props) =>
     props.active &&
     `
-    border-bottom: 2px solid ${vibeTheme.colors.cyan};
-    box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: ${vibeTheme.colors.cyan};
+    }
   `}
 
   &:hover {
     background: ${(props) =>
-      props.active
-        ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(0, 212, 255, 0.3) 100%)'
-        : 'rgba(139, 92, 246, 0.1)'};
-    transform: translateY(-2px);
+      props.active ? vibeTheme.colors.secondary : vibeTheme.colors.hover};
   }
 
   &:hover .close-button {
@@ -87,19 +74,19 @@ const TabLabel = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== 'modified',
 })<{ modified: boolean }>`
   font-size: ${vibeTheme.typography.fontSize.sm};
-  font-weight: ${vibeTheme.typography.fontWeight.medium};
+  font-weight: ${vibeTheme.typography.fontWeight.normal};
   color: ${(props) => (props.modified ? vibeTheme.colors.text : vibeTheme.colors.textSecondary)};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
-  margin-right: ${vibeTheme.spacing.xs};
+  margin-right: ${vibeTheme.spacing[2]};
 
   &:after {
     content: ${(props) => (props.modified ? '"●"' : '""')};
-    margin-left: ${vibeTheme.spacing.xs};
+    margin-left: ${vibeTheme.spacing[1]};
     color: ${vibeTheme.colors.cyan};
-    filter: drop-shadow(0 0 4px ${vibeTheme.colors.cyan});
+    font-size: 8px;
   }
 `;
 
@@ -108,38 +95,36 @@ const CloseButton = styled(motion.button)`
   border: none;
   color: ${vibeTheme.colors.textSecondary};
   cursor: pointer;
-  padding: ${vibeTheme.spacing.xs};
-  border-radius: ${vibeTheme.borderRadius.small};
+  padding: ${vibeTheme.spacing[1]};
+  border-radius: ${vibeTheme.borderRadius.sm};
   opacity: 0;
-  transition: all ${vibeTheme.animation.duration.fast} ease;
+  transition: ${vibeTheme.animation.transition.all};
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.2);
+    background: ${vibeTheme.colors.hover};
     color: ${vibeTheme.colors.error};
-    transform: scale(1.1);
   }
 `;
 
 const LanguageIcon = styled.span`
-  width: 20px;
-  height: 20px;
-  margin-right: ${vibeTheme.spacing.sm};
-  border-radius: ${vibeTheme.borderRadius.small};
+  width: 18px;
+  height: 18px;
+  margin-right: ${vibeTheme.spacing[2]};
+  border-radius: ${vibeTheme.borderRadius.xs};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${vibeTheme.typography.fontSize.xs};
+  font-size: 9px;
   font-weight: ${vibeTheme.typography.fontWeight.bold};
   background: #007acc;
   color: ${vibeTheme.colors.text};
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: ${vibeTheme.shadows.small};
   font-family: ${vibeTheme.typography.fontFamily.mono};
+  letter-spacing: -0.5px;
 `;
 
 interface FileTabsProps {

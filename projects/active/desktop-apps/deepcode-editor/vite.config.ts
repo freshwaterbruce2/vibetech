@@ -36,6 +36,7 @@ export default defineConfig({
   
   define: {
     global: 'globalThis',
+    'process.env': '{}',
   },
   
   optimizeDeps: {
@@ -143,8 +144,8 @@ export default defineConfig({
   },
   
   server: {
-    port: 3001,
-    strictPort: true,
+    port: 3006,
+    strictPort: false,
     
     cors: true,
     

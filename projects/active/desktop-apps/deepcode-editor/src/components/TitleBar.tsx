@@ -1,35 +1,36 @@
 import React, { useState } from 'react';
-import { Command, Menu, Minimize2, Settings, Square, X } from 'lucide-react';
+import {
+  Command,
+  Eye,
+  FileText,
+  FolderOpen,
+  HelpCircle,
+  Info,
+  Menu,
+  Minimize2,
+  Search,
+  Settings,
+  Square,
+  X,
+  ZoomIn,
+  ZoomOut,
+} from 'lucide-react';
 import styled from 'styled-components';
 
 import { ElectronService } from '../services/ElectronService';
 import { vibeTheme } from '../styles/theme';
+import { DropdownMenu, DropdownMenuItem } from './ui/DropdownMenu';
 
 const TitleBarContainer = styled.div`
   display: flex;
   align-items: center;
-  height: 48px;
-  background: linear-gradient(
-    135deg,
-    ${vibeTheme.colors.primary} 0%,
-    ${vibeTheme.colors.secondary} 100%
-  );
-  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  height: 44px;
+  background: ${vibeTheme.colors.primary};
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
   user-select: none;
   -webkit-app-region: drag;
   position: relative;
   z-index: 1000;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: ${vibeTheme.gradients.border};
-    opacity: 0.6;
-  }
 `;
 
 const LeftSection = styled.div`
@@ -63,7 +64,9 @@ const AppTitle = styled.span`
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: ${vibeTheme.typography.fontWeight.bold};
+  font-weight: ${vibeTheme.typography.fontWeight.extrabold};
+  letter-spacing: ${vibeTheme.typography.letterSpacing.tight};
+  font-size: ${vibeTheme.typography.fontSize.md};
 `;
 
 const CenterSection = styled.div`
@@ -189,16 +192,153 @@ const MenuButton = styled(ActionButton)`
 
 interface TitleBarProps {
   onSettingsClick?: () => void;
+  onNewFile?: () => void;
+  onOpenFolder?: () => void;
+  onSaveAll?: () => void;
+  onCloseFolder?: () => void;
+  onToggleSidebar?: () => void;
+  onToggleAIChat?: () => void;
+  onTogglePreview?: () => void;
+  previewOpen?: boolean;
   children?: React.ReactNode;
 }
 
-const TitleBar: React.FC<TitleBarProps> = ({ onSettingsClick, children }) => {
+const TitleBar: React.FC<TitleBarProps> = ({
+  onSettingsClick,
+  onNewFile,
+  onOpenFolder,
+  onSaveAll,
+  onCloseFolder,
+  onToggleSidebar,
+  onToggleAIChat,
+  onTogglePreview,
+  previewOpen,
+  children,
+}) => {
   const [electronService] = useState(() => new ElectronService());
 
-  const handleMenuClick = () => {
-    // Open application menu
-    // TODO: Implement application menu
-  };
+  const menuItems: DropdownMenuItem[] = [
+    {
+      id: 'file',
+      label: 'File',
+      icon: <FileText size={16} />,
+      submenu: [
+        {
+          id: 'file-new',
+          label: 'New File',
+          icon: <FileText size={16} />,
+          shortcut: 'Ctrl+N',
+          onClick: onNewFile,
+        },
+        {
+          id: 'file-open',
+          label: 'Open Folder',
+          icon: <FolderOpen size={16} />,
+          shortcut: 'Ctrl+O',
+          onClick: onOpenFolder,
+        },
+        { id: 'divider-1', label: '', divider: true },
+        {
+          id: 'file-save-all',
+          label: 'Save All',
+          shortcut: 'Ctrl+Shift+S',
+          onClick: onSaveAll,
+        },
+        { id: 'divider-2', label: '', divider: true },
+        {
+          id: 'file-close-folder',
+          label: 'Close Folder',
+          onClick: onCloseFolder,
+        },
+      ],
+    },
+    {
+      id: 'edit',
+      label: 'Edit',
+      submenu: [
+        {
+          id: 'edit-find',
+          label: 'Find',
+          icon: <Search size={16} />,
+          shortcut: 'Ctrl+F',
+          onClick: () => console.log('Find'),
+        },
+        {
+          id: 'edit-replace',
+          label: 'Replace',
+          shortcut: 'Ctrl+H',
+          onClick: () => console.log('Replace'),
+        },
+        { id: 'divider-3', label: '', divider: true },
+        {
+          id: 'edit-preferences',
+          label: 'Preferences',
+          icon: <Settings size={16} />,
+          shortcut: 'Ctrl+,',
+          onClick: onSettingsClick,
+        },
+      ],
+    },
+    {
+      id: 'view',
+      label: 'View',
+      submenu: [
+        {
+          id: 'view-sidebar',
+          label: 'Toggle Sidebar',
+          shortcut: 'Ctrl+B',
+          onClick: onToggleSidebar,
+        },
+        {
+          id: 'view-ai-chat',
+          label: 'Toggle AI Chat',
+          shortcut: 'Ctrl+Shift+L',
+          onClick: onToggleAIChat,
+        },
+        {
+          id: 'view-preview',
+          label: 'Toggle Preview Panel',
+          icon: <Eye size={16} />,
+          shortcut: 'Ctrl+Shift+V',
+          onClick: onTogglePreview,
+        },
+        { id: 'divider-4', label: '', divider: true },
+        {
+          id: 'view-zoom-in',
+          label: 'Zoom In',
+          icon: <ZoomIn size={16} />,
+          shortcut: 'Ctrl++',
+          onClick: () => console.log('Zoom In'),
+        },
+        {
+          id: 'view-zoom-out',
+          label: 'Zoom Out',
+          icon: <ZoomOut size={16} />,
+          shortcut: 'Ctrl+-',
+          onClick: () => console.log('Zoom Out'),
+        },
+      ],
+    },
+    {
+      id: 'help',
+      label: 'Help',
+      icon: <HelpCircle size={16} />,
+      submenu: [
+        {
+          id: 'help-docs',
+          label: 'Documentation',
+          onClick: () => window.open('https://vibecodestudio.dev/docs', '_blank'),
+        },
+        { id: 'divider-5', label: '', divider: true },
+        {
+          id: 'help-about',
+          label: 'About Vibe Code Studio',
+          icon: <Info size={16} />,
+          onClick: () => console.log('About'),
+        },
+      ],
+    },
+  ];
 
   const handleSettingsClick = () => {
     if (onSettingsClick) {
@@ -232,7 +372,7 @@ const TitleBar: React.FC<TitleBarProps> = ({ onSettingsClick, children }) => {
       await electronService.closeWindow();
     } else {
       // Web fallback - confirm before closing tab
-      if (window.confirm('Are you sure you want to close DeepCode Editor?')) {
+      if (window.confirm('Are you sure you want to close Vibe Code Studio?')) {
         window.close();
       }
     }
@@ -241,11 +381,18 @@ const TitleBar: React.FC<TitleBarProps> = ({ onSettingsClick, children }) => {
   return (
     <TitleBarContainer>
       <LeftSection>
-        <MenuButton onClick={handleMenuClick}>
-          <Menu />
-        </MenuButton>
+        <DropdownMenu
+          items={menuItems}
+          trigger={
+            <MenuButton>
+              <Menu />
+            </MenuButton>
+          }
+          align="left"
+          width="220px"
+        />
         <Logo>
-          <AppTitle>DeepCode Studio</AppTitle>
+          <AppTitle>Vibe Code Studio</AppTitle>
         </Logo>
       </LeftSection>
 
@@ -259,6 +406,18 @@ const TitleBar: React.FC<TitleBarProps> = ({ onSettingsClick, children }) => {
       </CenterSection>
 
       <RightSection>
+        {onTogglePreview && (
+          <ActionButton
+            onClick={onTogglePreview}
+            title="Toggle Preview Panel (Ctrl+Shift+V)"
+            style={{
+              background: previewOpen ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+              color: previewOpen ? vibeTheme.colors.purple : vibeTheme.colors.textSecondary,
+            }}
+          >
+            <Eye />
+          </ActionButton>
+        )}
         <ActionButton onClick={handleSettingsClick} title="Settings">
           <Settings />
         </ActionButton>

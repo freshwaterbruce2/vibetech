@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { EditorSettings } from '../types';
 
+import ApiKeySettings from './ApiKeySettings';
 import { ModelComparison } from './ModelComparison';
 
 interface SettingsProps {
@@ -135,22 +136,83 @@ const NumberInput = styled.input.attrs({ type: 'number' })`
 `;
 
 const Select = styled.select`
-  background: #1e1e1e;
-  border: 1px solid #404040;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #1e1e1e 0%, #252525 100%);
+  border: 2px solid #404040;
+  border-radius: 6px;
   color: #d4d4d4;
-  padding: 6px 8px;
+  padding: 8px 12px;
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+
+  &:hover {
+    border-color: #61dafb;
+    box-shadow: 0 0 8px rgba(97, 218, 251, 0.2);
+  }
 
   &:focus {
     outline: none;
     border-color: #61dafb;
+    box-shadow: 0 0 12px rgba(97, 218, 251, 0.3);
   }
 
   option {
     background: #2d2d2d;
     color: #d4d4d4;
+    padding: 8px;
+    font-weight: 400;
+  }
+
+  optgroup {
+    background: #1e1e1e;
+    color: #61dafb;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 6px 0;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const ModelPricingInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(97, 218, 251, 0.05);
+  border: 1px solid rgba(97, 218, 251, 0.2);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-top: 8px;
+
+  .pricing-label {
+    color: #61dafb;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pricing-details {
+    display: flex;
+    gap: 12px;
+    color: #d4d4d4;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  }
+
+  .pricing-item {
+    display: flex;
+    gap: 4px;
+
+    .label {
+      color: #888;
+    }
+
+    .value {
+      color: #61dafb;
+      font-weight: 600;
+    }
   }
 `;
 
@@ -205,7 +267,7 @@ const defaultSettings: EditorSettings = {
   autoSave: true,
   aiAutoComplete: true,
   aiSuggestions: true,
-  aiModel: 'deepseek-chat',
+  aiModel: 'deepseek-v3-2-exp',
   showReasoningProcess: false,
   lineNumbers: true,
   folding: true,
@@ -216,6 +278,19 @@ const defaultSettings: EditorSettings = {
   renderWhitespace: false,
   smoothScrolling: true,
   cursorBlinking: true,
+};
+
+const MODEL_PRICING = {
+  'gpt-5': { input: '$1.25', output: '$10.00', context: '272K' },
+  'gpt-5-mini': { input: '$0.25', output: '$2.00', context: '272K' },
+  'gpt-5-nano': { input: '$0.05', output: '$0.40', context: '272K' },
+  'claude-sonnet-4-5': { input: '$3.00', output: '$15.00', context: '200K' },
+  'claude-opus-4-1': { input: '$20.00', output: '$80.00', context: '200K' },
+  'gemini-2-5-pro': { input: '$1.25', output: '$10.00', context: '2M' },
+  'gemini-2-5-flash': { input: '$0.30', output: '$1.20', context: '1M' },
+  'gemini-2-5-flash-lite': { input: '$0.075', output: '$0.30', context: '1M' },
+  'gemini-2-0-flash': { input: '$0.10', output: '$0.40', context: '1M' },
+  'deepseek-v3-2-exp': { input: '$0.28', output: '$0.42', context: '128K' },
 };
 
 export const Settings: React.FC<SettingsProps> = ({
@@ -242,6 +317,11 @@ export const Settings: React.FC<SettingsProps> = ({
 
   const updateSetting = <K extends keyof EditorSettings>(key: K, value: EditorSettings[K]) => {
     setLocalSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const getModelPricing = (modelId: string | undefined) => {
+    if (!modelId) return null;
+    return MODEL_PRICING[modelId as keyof typeof MODEL_PRICING];
   };
 
   return (
@@ -523,30 +603,70 @@ export const Settings: React.FC<SettingsProps> = ({
                   id="ai-model-select"
                   name="aiModel"
                   aria-label="AI model selection"
-                  value={localSettings.aiModel || 'deepseek-chat'}
+                  value={localSettings.aiModel || 'deepseek-v3-2-exp'}
                   onChange={(e) =>
                     updateSetting(
                       'aiModel',
-                      e.target.value as 'deepseek-chat' | 'deepseek-coder' | 'deepseek-reasoner'
+                      e.target.value as any
                     )
                   }
                 >
-                  <option value="deepseek-chat">DeepSeek Chat</option>
-                  <option value="deepseek-coder">DeepSeek Coder</option>
-                  <option value="deepseek-reasoner">DeepSeek Reasoner (CoT)</option>
+                  <optgroup label="OpenAI GPT-5">
+                    <option value="gpt-5">GPT-5</option>
+                    <option value="gpt-5-mini">GPT-5 Mini</option>
+                    <option value="gpt-5-nano">GPT-5 Nano</option>
+                  </optgroup>
+                  <optgroup label="Anthropic Claude 4">
+                    <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+                    <option value="claude-opus-4-1">Claude Opus 4.1</option>
+                  </optgroup>
+                  <optgroup label="Google Gemini">
+                    <option value="gemini-2-5-pro">Gemini 2.5 Pro</option>
+                    <option value="gemini-2-5-flash">Gemini 2.5 Flash</option>
+                    <option value="gemini-2-5-flash-lite">Gemini 2.5 Flash-Lite</option>
+                    <option value="gemini-2-0-flash">Gemini 2.0 Flash</option>
+                  </optgroup>
+                  <optgroup label="DeepSeek">
+                    <option value="deepseek-v3-2-exp">DeepSeek V3.2-Exp</option>
+                  </optgroup>
                 </Select>
               </SettingControl>
             </SettingItem>
+
+            {getModelPricing(localSettings.aiModel) && (
+              <ModelPricingInfo>
+                <div className="pricing-label">Pricing per 1M tokens</div>
+                <div className="pricing-details">
+                  <div className="pricing-item">
+                    <span className="label">Input:</span>
+                    <span className="value">{getModelPricing(localSettings.aiModel)?.input}</span>
+                  </div>
+                  <div className="pricing-item">
+                    <span className="label">Output:</span>
+                    <span className="value">{getModelPricing(localSettings.aiModel)?.output}</span>
+                  </div>
+                  <div className="pricing-item">
+                    <span className="label">Context:</span>
+                    <span className="value">{getModelPricing(localSettings.aiModel)?.context}</span>
+                  </div>
+                </div>
+              </ModelPricingInfo>
+            )}
 
             {showModelComparison && (
               <ModelComparison currentModel={localSettings.aiModel || undefined} />
             )}
 
-            {localSettings.aiModel === 'deepseek-reasoner' && (
+            {(localSettings.aiModel === 'gpt-5' ||
+              localSettings.aiModel === 'gpt-5-mini' ||
+              localSettings.aiModel === 'gpt-5-nano' ||
+              localSettings.aiModel === 'claude-sonnet-4-5' ||
+              localSettings.aiModel === 'claude-opus-4-1' ||
+              localSettings.aiModel === 'gemini-2-5-pro') && (
               <SettingItem>
                 <SettingLabel>
                   Show Reasoning Process
-                  <span>Display Chain of Thought reasoning in AI responses</span>
+                  <span>Display extended thinking in AI responses</span>
                 </SettingLabel>
                 <SettingControl>
                   <Toggle
@@ -556,6 +676,11 @@ export const Settings: React.FC<SettingsProps> = ({
                 </SettingControl>
               </SettingItem>
             )}
+          </SettingsSection>
+
+          <SettingsSection>
+            <SectionTitle>API Keys</SectionTitle>
+            <ApiKeySettings />
           </SettingsSection>
         </SettingsContent>
 

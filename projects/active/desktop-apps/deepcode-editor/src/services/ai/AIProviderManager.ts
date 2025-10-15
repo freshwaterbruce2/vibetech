@@ -15,6 +15,7 @@ import {
 import { OpenAIProvider } from './providers/OpenAIProvider';
 import { AnthropicProvider } from './providers/AnthropicProvider';
 import { DeepSeekProvider } from './providers/DeepSeekProvider';
+import { GoogleProvider } from './providers/GoogleProvider';
 
 export class AIProviderManager {
   private providers: Map<AIProvider, IAIProvider> = new Map();
@@ -55,6 +56,9 @@ export class AIProviderManager {
         break;
       case AIProvider.DEEPSEEK:
         providerInstance = new DeepSeekProvider();
+        break;
+      case AIProvider.GOOGLE:
+        providerInstance = new GoogleProvider();
         break;
       default:
         throw new Error(`Unknown provider: ${provider}`);
@@ -98,13 +102,18 @@ export class AIProviderManager {
     if (!modelInfo) {
       throw new Error(`Unknown model: ${model}`);
     }
-    
+
     const provider = this.providers.get(modelInfo.provider);
     if (!provider) {
       throw new Error(`Provider ${modelInfo.provider} not configured`);
     }
-    
-    return provider.complete(model, options);
+
+    console.log('[AIProviderManager] Calling provider.complete() with model:', model);
+    const result = await provider.complete(model, options);
+    console.log('[AIProviderManager] Received result:', result);
+    console.log('[AIProviderManager] Result choices:', result.choices);
+
+    return result;
   }
 
   async *streamComplete(model: string, options: CompletionOptions): AsyncGenerator<StreamCompletionResponse> {
