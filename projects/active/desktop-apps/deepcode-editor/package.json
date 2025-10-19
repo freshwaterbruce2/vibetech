@@ -1,6 +1,7 @@
 {
   "name": "vibe-code-studio",
   "version": "1.0.0",
+  "type": "module",
   "description": "Vibe Code Studio - Next-generation AI-powered code editor where innovation meets elegant design",
   "keywords": [
     "code editor",
@@ -14,23 +15,17 @@
   "homepage": "https://vibecodestudio.dev",
   "license": "MIT",
   "author": "Fresh Bruce",
-  "main": "electron/main.js",
   "scripts": {
     "build": "tsc --project tsconfig.build.relaxed.json && vite build",
     "build:prod": "NODE_ENV=production tsc --project tsconfig.build.json && vite build --mode production",
     "build:analyze": "ANALYZE=true npm run build:prod",
     "build:production": "node scripts/build-production.js",
-    "build:production:electron": "node scripts/build-production.js --electron",
     "build:fast": "SKIP_TESTS=true SKIP_LINTING=true node scripts/build-production.js",
     "build:verbose": "VERBOSE=true node scripts/build-production.js",
     "build:strict": "tsc && vite build",
-    "build:electron": "npm run build && electron-builder --publish=never",
-    "build:electron:publish": "npm run build && electron-builder --publish=always",
-    "build:electron:draft": "npm run build && electron-builder --publish=onTagOrDraft",
     "build:types": "tsc --emitDeclarationOnly -p tsconfig.build.json",
     "clean": "rm -rf dist build .tsbuildinfo .tsbuildinfo.node dist/.tsbuildinfo",
-    "dev": "concurrently \"npm run dev:web\" \"wait-on http://localhost:3001 && npm run dev:electron\"",
-    "dev:electron": "electron electron/main.js",
+    "dev": "pnpm tauri dev",
     "dev:web": "vite",
     "tauri:dev": "pnpm tauri dev",
     "tauri:build": "pnpm tauri build",
@@ -39,13 +34,6 @@
     "tauri:bundle:win": "pnpm run build && pnpm tauri build --target x86_64-pc-windows-msvc",
     "tauri:bundle:mac": "pnpm run build && pnpm tauri build --target aarch64-apple-darwin --target x86_64-apple-darwin",
     "tauri:bundle:linux": "pnpm run build && pnpm tauri build --target x86_64-unknown-linux-gnu",
-    "dist": "npm run build:prod && electron-builder --publish=never",
-    "dist:all": "npm run build:prod && electron-builder --mac --win --linux --publish=never",
-    "dist:mac": "npm run build:prod && electron-builder --mac --publish=never",
-    "dist:win": "npm run build:prod && electron-builder --win --publish=never",
-    "dist:linux": "npm run build:prod && electron-builder --linux --publish=never",
-    "electron:dist": "electron-builder",
-    "electron:pack": "electron-builder --dir",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx}\"",
     "hook": "node hooks/index.js",
@@ -75,7 +63,6 @@
     "dev:advanced": "npm run system:init && npm run dev",
     "lint": "eslint src --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --fix",
-    "package": "npm run build && electron-builder --dir",
     "prepare": "husky install || true",
     "preview": "vite preview",
     "puppeteer:demo": "node scripts/web-automation-demo.js",
@@ -84,8 +71,11 @@
     "puppeteer:screenshot": "bash ~/.claude/hooks/puppeteer-automation.sh UserPromptSubmit screenshot",
     "puppeteer:test": "bash ~/.claude/hooks/puppeteer-automation.sh UserPromptSubmit test",
     "setup:hooks": "node scripts/setup-hooks.js",
-    "start": "electron electron/main.js",
     "test": "vitest",
+    "test:e2e": "tsx tests/run-e2e-tests.ts",
+    "test:e2e:headed": "HEADLESS=false tsx tests/run-e2e-tests.ts",
+    "test:verify": "tsx tests/auto-verify.ts",
+    "test:all": "pnpm test && pnpm test:e2e",
     "typecheck": "tsc --noEmit --project tsconfig.build.relaxed.json",
     "typecheck:strict": "tsc --noEmit",
     "typecheck:all": "npm run typecheck && npm run typecheck:build && npm run typecheck:test",
@@ -107,15 +97,14 @@
     "allotment": "^1.20.2",
     "axios": "^1.7.2",
     "crypto-js": "^4.2.0",
-    "electron-is-dev": "^3.0.1",
-    "electron-updater": "^6.6.2",
-    "electron-window-state": "^5.0.3",
     "eventsource-parser": "^1.1.2",
     "framer-motion": "^11.2.10",
     "immer": "^10.1.1",
     "isomorphic-dompurify": "^2.9.0",
+    "js-yaml": "^4.1.0",
     "lucide-react": "^0.395.0",
     "marked": "^12.0.0",
+    "minimatch": "^10.0.3",
     "monaco-editor": "^0.50.0",
     "openai": "^4.52.0",
     "react": "19.2.0",
@@ -134,6 +123,8 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/glob": "^8.1.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/minimatch": "^6.0.0",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.1",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
@@ -141,9 +132,6 @@
     "@vitejs/plugin-react": "^4.3.1",
     "chokidar": "^3.6.0",
     "concurrently": "^8.2.2",
-    "electron": "^30.1.2",
-    "electron-builder": "^24.13.3",
-    "electron-reload": "^2.0.0-alpha.1",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
@@ -152,7 +140,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^8.0.3",
     "jsdom": "^26.1.0",
-    "lint-staged": "^16.1.2",
+    "lint-staged": "^16.2.4",
     "prettier": "^3.1.0",
     "puppeteer": "^24.14.0",
     "rollup-plugin-visualizer": "^6.0.3",
@@ -162,191 +150,9 @@
     "vite": "^7.0.5",
     "vite-bundle-analyzer": "^1.1.0",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-electron": "^0.28.7",
+    "vite-plugin-monaco-editor-esm": "^2.0.2",
     "vitest": "^3.2.4",
     "wait-on": "^7.2.0",
     "webpack-bundle-analyzer": "^4.10.2"
-  },
-  "build": {
-    "appId": "com.deepcode.editor",
-    "productName": "DeepCode Editor",
-    "copyright": "Copyright © 2025 Fresh Bruce. All rights reserved.",
-    "compression": "maximum",
-    "electronVersion": "30.1.2",
-    "directories": {
-      "output": "release",
-      "buildResources": "build"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/**/*.js",
-      "node_modules/**/*",
-      "!node_modules/.cache/**/*",
-      "!node_modules/**/*.{ts,tsx,map}",
-      "!node_modules/**/{README,CHANGELOG,HISTORY}.{md,txt}",
-      "!node_modules/**/{test,tests,spec,specs,__tests__}/**/*",
-      "!node_modules/**/*.d.ts",
-      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,__pycache__,thumbs.db,.gitignore,.gitkeep,.gitattributes,.npmignore,.eslintrc,.eslintignore,.stylelintrc,.stylelintignore,.jshintrc,.flowconfig,.documentup.json,.yarn-metadata.json,.travis.yml,appveyor.yml,.nyc_output,karma.conf.js,wallaby.js,wallaby.conf.js}/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "public/icon.png",
-        "to": "icon.png"
-      }
-    ],
-    "mac": {
-      "category": "public.app-category.developer-tools",
-      "icon": "public/icon.icns",
-      "hardenedRuntime": true,
-      "gatekeeperAssess": false,
-      "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.plist",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "darkModeSupport": true
-    },
-    "dmg": {
-      "contents": [
-        {
-          "x": 130,
-          "y": 220
-        },
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ],
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
-    },
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/icon.ico",
-      "publisherName": "Fresh Bruce",
-      "requestedExecutionLevel": "asInvoker",
-      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "DeepCode Editor",
-      "include": "build/installer.nsh",
-      "installerIcon": "public/icon.ico",
-      "uninstallerIcon": "public/icon.ico",
-      "installerHeaderIcon": "public/icon.ico",
-      "deleteAppDataOnUninstall": false
-    },
-    "portable": {
-      "artifactName": "${productName}-${version}-Portable.${ext}"
-    },
-    "linux": {
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "deb",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "rpm",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "tar.gz",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/icon.png",
-      "category": "Development",
-      "description": "AI-powered code editor with DeepSeek integration",
-      "desktop": {
-        "Name": "DeepCode Editor",
-        "Comment": "AI-powered code editor",
-        "Keywords": "editor;development;ai;code;",
-        "StartupWMClass": "deepcode-editor"
-      },
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
-    },
-    "deb": {
-      "depends": [
-        "gconf2",
-        "gconf-service",
-        "libnotify4",
-        "libappindicator1",
-        "libxtst6",
-        "libnss3"
-      ]
-    },
-    "rpm": {
-      "depends": [
-        "libXScrnSaver"
-      ]
-    },
-    "appImage": {
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "freshbruce",
-      "repo": "deepcode-editor",
-      "private": false,
-      "releaseType": "release"
-    },
-    "afterSign": "build/notarize.js",
-    "afterPack": "build/afterPack.js",
-    "electronDist": "node_modules/electron/dist",
-    "nodeGypRebuild": false,
-    "buildDependenciesFromSource": false,
-    "protocols": [
-      {
-        "name": "DeepCode Editor Protocol",
-        "schemes": [
-          "deepcode"
-        ]
-      }
-    ]
   }
 }
