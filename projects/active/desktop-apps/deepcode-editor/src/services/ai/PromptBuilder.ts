@@ -1,9 +1,17 @@
 import { AIContextRequest, WorkspaceContext } from '../../types';
+import { RulesParser, type Rule } from '../RulesParser';
+import { FileSystemService } from '../FileSystemService';
 
 /**
  * Builds system prompts and context for AI interactions
+ * NOW WITH CUSTOM INSTRUCTIONS SUPPORT (.deepcoderules / .cursorrules)
  */
 export class PromptBuilder {
+  private static rulesParser = new RulesParser();
+  private static fileSystem = new FileSystemService();
+  private static rulesCache: Map<string, Rule[]> = new Map();
+  private static cacheExpiry: Map<string, number> = new Map();
+  private static readonly CACHE_TTL = 60000; // 1 minute cache
   static buildBaseSystemPrompt(model?: string): string {
     // Optimize prompt based on model
     if (model === 'deepseek-coder') {
@@ -61,8 +69,20 @@ Guidelines:
 - Focus on the specific programming language being used`;
   }
 
-  static buildContextualSystemPrompt(request: AIContextRequest, model?: string): string {
+  static async buildContextualSystemPrompt(request: AIContextRequest, model?: string): Promise<string> {
     let prompt = this.buildBaseSystemPrompt(model);
+
+    // INJECT CUSTOM RULES FIRST (highest priority)
+    if (request.workspaceContext?.rootPath && request.currentFile?.name) {
+      const customRules = await this.loadCustomRules(
+        request.workspaceContext.rootPath,
+        request.currentFile.name
+      );
+
+      if (customRules.length > 0) {
+        prompt += this.buildCustomRulesSection(customRules);
+      }
+    }
 
     // Add workspace context
     if (request.workspaceContext) {
@@ -162,5 +182,82 @@ ${code}
 \`\`\`
 
 Provide the refactored code with explanations of the changes made.`;
+  }
+
+  /**
+   * Load custom rules from .deepcoderules or .cursorrules
+   * with caching to improve performance
+   */
+  private static async loadCustomRules(workspaceRoot: string, currentFile: string): Promise<Rule[]> {
+    const cacheKey = `${workspaceRoot}:${currentFile}`;
+
+    // Check cache
+    const cached = this.rulesCache.get(cacheKey);
+    const expiry = this.cacheExpiry.get(cacheKey);
+
+    if (cached && expiry && Date.now() < expiry) {
+      return cached;
+    }
+
+    try {
+      // Try loading .deepcoderules first (modern format)
+      const deepcodeRulesPath = `${workspaceRoot}/.deepcoderules`;
+
+      this.rulesParser.setFileReader(async (path) => {
+        return await this.fileSystem.readFile(path);
+      });
+
+      let parsedRules;
+      try {
+        parsedRules = await this.rulesParser.loadFromFile(deepcodeRulesPath);
+      } catch {
+        // If .deepcoderules doesn't exist, try .cursorrules (legacy)
+        const cursorrulesPath = `${workspaceRoot}/.cursorrules`;
+        parsedRules = await this.rulesParser.loadFromFile(cursorrulesPath);
+      }
+
+      // Filter rules that match the current file
+      const matchingRules = this.rulesParser.mergeRulesForFile(
+        parsedRules.rules,
+        currentFile
+      );
+
+      // Cache the results
+      this.rulesCache.set(cacheKey, matchingRules);
+      this.cacheExpiry.set(cacheKey, Date.now() + this.CACHE_TTL);
+
+      return matchingRules;
+    } catch (error) {
+      // No custom rules file found - that's OK
+      return [];
+    }
+  }
+
+  /**
+   * Build custom rules section for prompt injection
+   */
+  private static buildCustomRulesSection(rules: Rule[]): string {
+    if (rules.length === 0) return '';
+
+    const rulesContent = rules.map((rule, index) => {
+      const header = rule.description ? `### ${rule.description}` : `### Custom Rule ${index + 1}`;
+      return `${header}\n${rule.content}`;
+    }).join('\n\n');
+
+    return `
+
+PROJECT-SPECIFIC CUSTOM INSTRUCTIONS:
+${rulesContent}
+
+IMPORTANT: The above custom instructions have the HIGHEST PRIORITY. Follow them strictly for this project.
+`;
+  }
+
+  /**
+   * Clear rules cache (useful when rules file changes)
+   */
+  static clearRulesCache(): void {
+    this.rulesCache.clear();
+    this.cacheExpiry.clear();
   }
 }
