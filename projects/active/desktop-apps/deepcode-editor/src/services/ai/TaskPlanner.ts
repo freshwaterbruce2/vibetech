@@ -27,6 +27,7 @@ import {
 
 export class TaskPlanner {
   private structureDetector: ProjectStructureDetector | null = null;
+  private strategyMemory: StrategyMemory;
 
   constructor(
     private aiService: UnifiedAIService,
@@ -35,6 +36,8 @@ export class TaskPlanner {
     if (fileSystemService) {
       this.structureDetector = new ProjectStructureDetector(fileSystemService);
     }
+    // PHASE 6: Initialize strategy memory for confidence-based planning
+    this.strategyMemory = new StrategyMemory();
   }
 
   /**
@@ -1018,6 +1021,15 @@ Generate the task plan now:`;
       ...basePlan,
       insights,
     };
+  }
+
+  /**
+   * PHASE 6: Plan task with enhanced confidence (convenience wrapper using internal memory)
+   * This is the recommended method for UI components
+   */
+  async planTaskEnhanced(request: TaskPlanRequest): Promise<TaskPlanResponse & { insights: PlanningInsights }> {
+    console.log('[TaskPlanner] 🎯 Using Phase 6 enhanced planning with confidence scores...');
+    return this.planTaskWithConfidence(request, this.strategyMemory);
   }
 
   /**

@@ -31,6 +31,8 @@ import {
   ApprovalRequest,
   TaskStatus,
   StepStatus,
+  EnhancedAgentStep,
+  PlanningInsights,
 } from '../../types';
 
 interface AgentModeV2Props {
@@ -452,6 +454,125 @@ const WarningItem = styled.div`
   line-height: 1.5;
 `;
 
+// Phase 6: Confidence Display Components
+const ConfidenceBadge = styled.div<{ $riskLevel: 'low' | 'medium' | 'high' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: ${props => {
+    switch (props.$riskLevel) {
+      case 'low': return `${vibeTheme.colors.success}15`;
+      case 'medium': return 'rgba(251, 191, 36, 0.15)';
+      case 'high': return `${vibeTheme.colors.error}15`;
+    }
+  }};
+  color: ${props => {
+    switch (props.$riskLevel) {
+      case 'low': return vibeTheme.colors.success;
+      case 'medium': return '#fbbf24';
+      case 'high': return vibeTheme.colors.error;
+    }
+  }};
+  border: 1px solid ${props => {
+    switch (props.$riskLevel) {
+      case 'low': return `${vibeTheme.colors.success}40`;
+      case 'medium': return 'rgba(251, 191, 36, 0.4)';
+      case 'high': return `${vibeTheme.colors.error}40`;
+    }
+  }};
+`;
+
+const ConfidenceFactors = styled.div`
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+`;
+
+const FactorItem = styled.div<{ $positive: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: ${props => props.$positive ? vibeTheme.colors.success : vibeTheme.colors.error};
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .factor-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .factor-text {
+    flex: 1;
+    color: ${vibeTheme.colors.text};
+  }
+
+  .factor-impact {
+    font-weight: 600;
+    color: ${props => props.$positive ? vibeTheme.colors.success : vibeTheme.colors.error};
+  }
+`;
+
+const FallbackIndicator = styled.div`
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+`;
+
+const FallbackItem = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .fallback-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.2);
+    color: ${vibeTheme.colors.cyan};
+    font-weight: 600;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .fallback-content {
+    flex: 1;
+    color: ${vibeTheme.colors.text};
+    line-height: 1.5;
+  }
+
+  .fallback-trigger {
+    color: ${vibeTheme.colors.textSecondary};
+    font-style: italic;
+    margin-bottom: 4px;
+  }
+
+  .fallback-confidence {
+    color: ${vibeTheme.colors.cyan};
+    font-weight: 600;
+  }
+`;
+
 const Footer = styled.div`
   padding: 20px 28px;
   border-top: ${vibeTheme.borders.thin};
@@ -477,6 +598,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
   const [estimatedTime, setEstimatedTime] = useState<string>('');
   const [warnings, setWarnings] = useState<string[]>([]);
   const [reasoning, setReasoning] = useState<string>('');
+  const [planningInsights, setPlanningInsights] = useState<PlanningInsights | null>(null);
   const stepsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -487,8 +609,8 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
     if (!userRequest.trim()) return;
 
     try {
-      // Plan the task using AI
-      const planResponse = await taskPlanner.planTask({
+      // PHASE 6: Plan the task using enhanced planning with confidence scores
+      const planResponse = await taskPlanner.planTaskEnhanced({
         userRequest,
         context: {
           workspaceRoot: workspaceContext?.workspaceRoot || '',
@@ -507,6 +629,10 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
       setReasoning(planResponse.reasoning);
       setEstimatedTime(planResponse.estimatedTime || 'Unknown');
       setWarnings(planResponse.warnings || []);
+      // PHASE 6: Store planning insights
+      setPlanningInsights(planResponse.insights);
+
+      console.log('[AgentModeV2] 📊 Planning Insights:', planResponse.insights);
     } catch (error) {
       console.error('Failed to plan task:', error);
       alert(`Failed to plan task: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -746,6 +872,11 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
                       const isSynthesis = step.result?.data?.isSynthesis === true;
                       const hasAIReview = step.result?.data?.generatedCode && step.status === 'completed';
 
+                      // PHASE 6: Cast to EnhancedAgentStep to access confidence data
+                      const enhancedStep = step as EnhancedAgentStep;
+                      const hasConfidence = enhancedStep.confidence !== undefined;
+                      const hasFallbacks = enhancedStep.fallbackPlans && enhancedStep.fallbackPlans.length > 0;
+
                       return (
                       <StepCard
                         key={step.id}
@@ -768,6 +899,20 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
                           <StepContent>
                             <StepTitle>{step.title}</StepTitle>
                             <StepDescription>{step.description}</StepDescription>
+
+                            {/* PHASE 6: Confidence Badge */}
+                            {hasConfidence && (
+                              <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                                <ConfidenceBadge $riskLevel={enhancedStep.confidence!.riskLevel}>
+                                  {enhancedStep.confidence!.riskLevel === 'low' && '✓'}
+                                  {enhancedStep.confidence!.riskLevel === 'medium' && '⚠'}
+                                  {enhancedStep.confidence!.riskLevel === 'high' && '⚠'}
+                                  {Math.round(enhancedStep.confidence!.score)}% confidence
+                                  {enhancedStep.confidence!.memoryBacked && ' • Memory-backed'}
+                                </ConfidenceBadge>
+                              </div>
+                            )}
+
                             <StepMeta>
                               <div className="meta-item">
                                 <Code />
@@ -794,6 +939,49 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
                             </StepMeta>
                           </StepContent>
                         </StepHeader>
+
+                        {/* PHASE 6: Confidence Factors */}
+                        {hasConfidence && enhancedStep.confidence!.factors.length > 0 && (
+                          <ConfidenceFactors>
+                            <div style={{ fontWeight: 600, fontSize: '12px', marginBottom: '8px', color: vibeTheme.colors.purple }}>
+                              Confidence Factors
+                            </div>
+                            {enhancedStep.confidence!.factors.map((factor, idx) => (
+                              <FactorItem key={idx} $positive={factor.impact > 0}>
+                                <span className="factor-icon">
+                                  {factor.impact > 0 ? '+' : ''}
+                                </span>
+                                <span className="factor-text">{factor.description}</span>
+                                <span className="factor-impact">
+                                  {factor.impact > 0 ? '+' : ''}{factor.impact}
+                                </span>
+                              </FactorItem>
+                            ))}
+                          </ConfidenceFactors>
+                        )}
+
+                        {/* PHASE 6: Fallback Plans */}
+                        {hasFallbacks && (
+                          <FallbackIndicator>
+                            <div style={{ fontWeight: 600, fontSize: '12px', marginBottom: '8px', color: vibeTheme.colors.cyan }}>
+                              {enhancedStep.fallbackPlans!.length} Fallback Plan{enhancedStep.fallbackPlans!.length > 1 ? 's' : ''} Available
+                            </div>
+                            {enhancedStep.fallbackPlans!.map((fallback, idx) => (
+                              <FallbackItem key={fallback.id}>
+                                <div className="fallback-number">{idx + 1}</div>
+                                <div className="fallback-content">
+                                  <div className="fallback-trigger">{fallback.trigger}</div>
+                                  <div>{fallback.reasoning}</div>
+                                  <div style={{ marginTop: '4px' }}>
+                                    <span className="fallback-confidence">
+                                      {fallback.confidence}% confidence
+                                    </span>
+                                  </div>
+                                </div>
+                              </FallbackItem>
+                            ))}
+                          </FallbackIndicator>
+                        )}
 
                         {/* Display result data (file content, search results, etc.) */}
                         {step.result?.data && step.status === 'completed' ? (
@@ -1190,6 +1378,51 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
                     <span className="label">Open Files:</span>
                     <span className="value">{workspaceContext.openFiles.length}</span>
                   </InfoRow>
+                </SidePanelSection>
+              )}
+
+              {/* PHASE 6: Planning Insights Panel */}
+              {planningInsights && (
+                <SidePanelSection>
+                  <SectionTitle>
+                    <Activity />
+                    Planning Insights
+                  </SectionTitle>
+                  <InfoRow>
+                    <span className="label">Confidence:</span>
+                    <span className="value" style={{
+                      color: planningInsights.overallConfidence >= 70 ? vibeTheme.colors.success :
+                             planningInsights.overallConfidence >= 40 ? '#fbbf24' : vibeTheme.colors.error
+                    }}>
+                      {Math.round(planningInsights.overallConfidence)}%
+                    </span>
+                  </InfoRow>
+                  <InfoRow>
+                    <span className="label">Success Rate:</span>
+                    <span className="value" style={{ color: vibeTheme.colors.success }}>
+                      {Math.round(planningInsights.estimatedSuccessRate)}%
+                    </span>
+                  </InfoRow>
+                  <InfoRow>
+                    <span className="label">Memory-Backed:</span>
+                    <span className="value">
+                      {planningInsights.memoryBackedSteps} / {currentTask?.steps.length || 0} steps
+                    </span>
+                  </InfoRow>
+                  <InfoRow>
+                    <span className="label">Fallbacks:</span>
+                    <span className="value">
+                      {planningInsights.fallbacksGenerated} plan{planningInsights.fallbacksGenerated !== 1 ? 's' : ''}
+                    </span>
+                  </InfoRow>
+                  {planningInsights.highRiskSteps > 0 && (
+                    <InfoRow>
+                      <span className="label">High Risk:</span>
+                      <span className="value" style={{ color: vibeTheme.colors.error }}>
+                        {planningInsights.highRiskSteps} step{planningInsights.highRiskSteps !== 1 ? 's' : ''}
+                      </span>
+                    </InfoRow>
+                  )}
                 </SidePanelSection>
               )}
 
