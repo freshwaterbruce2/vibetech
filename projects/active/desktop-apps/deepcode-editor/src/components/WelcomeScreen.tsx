@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   FileText,
@@ -10,6 +10,7 @@ import styled, { keyframes } from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
 import { WorkspaceContext } from '../types';
+import { InputDialog } from './InputDialog';
 
 interface WelcomeScreenProps {
   onOpenFolder: (folderPath: string) => void;
@@ -223,6 +224,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   isIndexing,
   indexingProgress,
 }) => {
+  // Dialog state management
+  const [folderDialogOpen, setFolderDialogOpen] = useState(false);
+  const [fileDialogOpen, setFileDialogOpen] = useState(false);
+
   const handleOpenFolder = async () => {
     // Use Electron's folder picker if available
     if (window.electronAPI) {
@@ -254,19 +259,32 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         console.error('Browser folder picker error:', error);
       }
     } else {
-      // Last resort: prompt for folder path
-      const folderPath = prompt('Enter folder path:');
-      if (folderPath) {
-        onOpenFolder(folderPath);
-      }
+      // Last resort: show custom input dialog for folder path
+      setFolderDialogOpen(true);
     }
   };
 
   const handleCreateFile = () => {
-    const fileName = prompt('Enter file name:');
-    if (fileName) {
-      onCreateFile(fileName);
+    setFileDialogOpen(true);
+  };
+
+  const handleFolderPathConfirm = (folderPath: string) => {
+    setFolderDialogOpen(false);
+    onOpenFolder(folderPath);
+  };
+
+  const handleFileNameConfirm = (fileName: string) => {
+    setFileDialogOpen(false);
+    onCreateFile(fileName);
+  };
+
+  const validateFileName = (fileName: string): string | null => {
+    // Validate file name doesn't contain invalid characters
+    const invalidChars = /[<>:"/\\|?*\x00-\x1F]/;
+    if (invalidChars.test(fileName)) {
+      return 'File name contains invalid characters';
     }
+    return null;
   };
 
   return (
@@ -353,6 +371,24 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           </LoadingIndicator>
         )}
       </MainContent>
+
+      {/* Input Dialogs */}
+      <InputDialog
+        isOpen={folderDialogOpen}
+        title="Enter Folder Path"
+        placeholder="C:\path\to\folder or /path/to/folder"
+        onConfirm={handleFolderPathConfirm}
+        onCancel={() => setFolderDialogOpen(false)}
+      />
+
+      <InputDialog
+        isOpen={fileDialogOpen}
+        title="Create New File"
+        placeholder="example.tsx"
+        onConfirm={handleFileNameConfirm}
+        onCancel={() => setFileDialogOpen(false)}
+        validate={validateFileName}
+      />
     </Container>
   );
 };
