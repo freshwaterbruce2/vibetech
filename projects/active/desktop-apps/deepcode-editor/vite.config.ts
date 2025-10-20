@@ -3,23 +3,28 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
+import monacoEditorPlugin from 'vite-plugin-monaco-editor'
 
 export default defineConfig({
   plugins: [
     react(),
-    
-    
+
+    // Monaco Editor plugin for proper worker handling
+    monacoEditorPlugin.default({
+      languageWorkers: ['editorWorkerService', 'css', 'html', 'json', 'typescript']
+    }),
+
     viteCompression({
       algorithm: 'gzip',
       threshold: 10240
     }),
-    
+
     viteCompression({
       algorithm: 'brotliCompress',
       threshold: 10240,
       ext: '.br'
     }),
-    
+
     process.env.ANALYZE && visualizer({
       filename: './dist/stats.html',
       open: true,
@@ -48,11 +53,23 @@ export default defineConfig({
       'zustand',
       'framer-motion'
     ],
-    
+
     exclude: [
       'monaco-editor',
       '@monaco-editor/react'
     ]
+  },
+
+  worker: {
+    format: 'es',
+    plugins: () => [
+      react()
+    ],
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+      }
+    }
   },
   
   build: {
