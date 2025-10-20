@@ -216,8 +216,8 @@ export class ExecutionEngine {
           }
         }
 
-        // Execute step with retry logic and error handling
-        const result = await this.executeStepWithRetry(step, callbacks);
+        // PHASE 6: Execute step with fallback support (includes retry logic)
+        const result = await this.executeStepWithFallbacks(step, callbacks);
 
         // Store result for potential rollback
         this.storeStepResult(task.id, step, result);
@@ -373,6 +373,51 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
       console.error('[ExecutionEngine] ❌ Self-correction failed:', err);
       return null;
     }
+  }
+
+  /**
+   * PHASE 6: Execute step with fallback plans if primary approach fails
+   */
+  private async executeStepWithFallbacks(
+    step: AgentStep,
+    callbacks?: ExecutionCallbacks
+  ): Promise<StepResult> {
+    // Try primary approach first
+    const result = await this.executeStepWithRetry(step, callbacks);
+
+    // If failed and fallbacks exist, try each fallback
+    const enhancedStep = step as any; // EnhancedAgentStep type
+    if (!result.success && enhancedStep.fallbackPlans && enhancedStep.fallbackPlans.length > 0) {
+      console.log(`[ExecutionEngine] ❌ Primary approach failed, trying fallbacks...`);
+
+      for (const fallback of enhancedStep.fallbackPlans) {
+        console.log(`[ExecutionEngine] 📋 Fallback: ${fallback.reasoning}`);
+
+        // Create temporary step with fallback action
+        const fallbackStep: AgentStep = {
+          ...step,
+          action: fallback.alternativeAction,
+        };
+
+        const fallbackResult = await this.executeStepWithRetry(fallbackStep, callbacks);
+
+        if (fallbackResult.success) {
+          console.log(`[ExecutionEngine] ✅ Fallback succeeded!`);
+          return {
+            ...fallbackResult,
+            data: {
+              ...fallbackResult.data,
+              usedFallback: true,
+              fallbackId: fallback.id,
+            },
+          };
+        }
+      }
+
+      console.log(`[ExecutionEngine] ❌ All fallbacks exhausted`);
+    }
+
+    return result;
   }
 
   /**
