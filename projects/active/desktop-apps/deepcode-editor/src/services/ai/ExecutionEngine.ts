@@ -10,10 +10,10 @@ import { UnifiedAIService } from './UnifiedAIService';
 import { WorkspaceService } from '../WorkspaceService';
 import { TaskPersistence } from './TaskPersistence';
 import { CodeQualityAnalyzer } from '../CodeQualityAnalyzer';
-import { TauriService } from '../TauriService';
 import { MetacognitiveLayer } from './MetacognitiveLayer'; // PHASE 3: Help-seeking when stuck
 import { ReActExecutor } from './ReActExecutor'; // PHASE 4: Reason-Act-Observe-Reflect pattern
 import { StrategyMemory } from './StrategyMemory'; // PHASE 5: Learning across tasks
+import { LiveEditorStream } from '../LiveEditorStream'; // PHASE 7: Live editor streaming
 // Import GitService conditionally - it uses Node.js child_process
 // In browser mode, a mock GitService will be passed from App.tsx
 import type { GitService } from '../GitService';
@@ -57,6 +57,7 @@ export class ExecutionEngine {
   private metacognitiveLayer: MetacognitiveLayer; // PHASE 3: Self-awareness and help-seeking
   private reactExecutor: ReActExecutor; // PHASE 4: Thought-Action-Observation-Reflection
   private strategyMemory: StrategyMemory; // PHASE 5: Learning across tasks
+  private liveStream?: LiveEditorStream; // PHASE 7: Live editor streaming
   private enableReAct: boolean = true; // Feature flag for ReAct pattern
   private enableMemory: boolean = true; // Feature flag for Strategy Memory
   private currentCallbacks?: ExecutionCallbacks;
@@ -70,14 +71,19 @@ export class ExecutionEngine {
     private fileSystemService: FileSystemService,
     private aiService: UnifiedAIService,
     private workspaceService: WorkspaceService,
-    private gitService: GitService,
-    private tauriService?: TauriService
+    private gitService: GitService
   ) {
     this.taskPersistence = new TaskPersistence(fileSystemService);
     this.codeQualityAnalyzer = new CodeQualityAnalyzer(fileSystemService);
     this.metacognitiveLayer = new MetacognitiveLayer(aiService); // PHASE 3: Initialize metacognitive monitoring
     this.reactExecutor = new ReActExecutor(aiService); // PHASE 4: Initialize ReAct pattern executor
     this.strategyMemory = new StrategyMemory(); // PHASE 5: Initialize strategy memory
+
+    // Use deepseek-reasoner for agentic tasks (Cursor-style model selection)
+    // Reasoning model provides chain-of-thought for complex multi-step operations
+    this.aiService.setModel('deepseek-reasoner').catch((error) => {
+      console.warn('[ExecutionEngine] Failed to set reasoning model, falling back to default:', error);
+    });
   }
 
   /**
@@ -104,6 +110,13 @@ export class ExecutionEngine {
   setTaskContext(userRequest: string, workspaceRoot: string): void {
     this.currentTaskState.userRequest = userRequest;
     this.currentTaskState.workspaceRoot = workspaceRoot;
+  }
+
+  /**
+   * Sets live editor stream instance for Phase 7 live streaming
+   */
+  setLiveStream(liveStream: LiveEditorStream): void {
+    this.liveStream = liveStream;
   }
 
   /**
@@ -406,7 +419,9 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
           return {
             ...fallbackResult,
             data: {
-              ...fallbackResult.data,
+              ...(typeof fallbackResult.data === 'object' && fallbackResult.data !== null
+                ? (fallbackResult.data as Record<string, unknown>)
+                : {}),
               usedFallback: true,
               fallbackId: fallback.id,
             },
@@ -429,7 +444,9 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
     callbacks?: ExecutionCallbacks
   ): Promise<StepResult> {
     // 2025 ENHANCEMENT: Monitor step for stuck patterns
-    this.metacognitiveLayer.monitorStepStart(step, this.currentTaskState);
+    if (this.currentTaskState.task) {
+      this.metacognitiveLayer.monitorStepStart(step, this.currentTaskState.task);
+    }
 
     while (step.retryCount <= step.maxRetries) {
       try {
@@ -533,19 +550,21 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         console.error(`[ExecutionEngine] ❌ Step ${step.order} failed (attempt ${step.retryCount}/${step.maxRetries}):`, errorMessage);
 
         // 2025 ENHANCEMENT Phase 3: Check if agent is stuck before final failure
-        const stuckAnalysis = await this.metacognitiveLayer.analyzeStuckPattern(
-          step,
-          this.currentTaskState,
-          error as Error
-        );
+        const stuckAnalysis = this.currentTaskState.task
+          ? await this.metacognitiveLayer.analyzeStuckPattern(
+              step,
+              this.currentTaskState.task,
+              error as Error
+            )
+          : { isStuck: false, recommendation: '', confidence: 0 };
 
-        if (stuckAnalysis.isStuck && stuckAnalysis.shouldSeekHelp) {
+        if (stuckAnalysis.isStuck && 'shouldSeekHelp' in stuckAnalysis && stuckAnalysis.shouldSeekHelp && this.currentTaskState.task) {
           console.log('[ExecutionEngine] 🤔 Agent appears stuck, seeking help from AI...');
           try {
             const helpResponse = await this.metacognitiveLayer.seekHelp(
               step,
-              this.currentTaskState,
-              stuckAnalysis.pattern!
+              this.currentTaskState.task,
+              'pattern' in stuckAnalysis && stuckAnalysis.pattern ? stuckAnalysis.pattern : 'unknown'
             );
 
             if (helpResponse.shouldContinue) {
@@ -956,6 +975,11 @@ Please update with actual content.
       // Resolve path against workspace root
       const resolvedPath = this.resolveFilePath(params.filePath);
 
+      // PHASE 7: Stream content to editor before writing file
+      if (this.liveStream) {
+        await this.liveStream.streamToEditor(resolvedPath, params.content);
+      }
+
       await this.fileSystemService.writeFile(resolvedPath, params.content);
 
       // Notify UI that file was created
@@ -983,6 +1007,22 @@ Please update with actual content.
 
       // Apply edit (replace oldContent with newContent)
       const newContent = oldContent.replace(params.oldContent, params.newContent);
+
+      // PHASE 7: Show diff and request approval before applying
+      if (this.liveStream) {
+        const changes = this.liveStream.showDiffPreview(resolvedPath, oldContent, newContent);
+        const approved = await this.liveStream.requestApproval(resolvedPath, changes);
+
+        if (!approved) {
+          this.liveStream.clearDecorations();
+          return {
+            success: false,
+            message: `Edit rejected by user: ${resolvedPath}`,
+          };
+        }
+
+        this.liveStream.clearDecorations();
+      }
 
       // Write updated content
       await this.fileSystemService.writeFile(resolvedPath, newContent);
@@ -1045,49 +1085,12 @@ Please update with actual content.
         throw new Error('Missing required parameter: command');
       }
 
-      // Check if running in Tauri mode
-      if (!this.tauriService || !this.tauriService.isTauri) {
-        console.warn('[ExecutionEngine] Command execution only available in Tauri mode');
-        return {
-          success: false,
-          message: 'Command execution is only available in desktop mode (Tauri)',
-        };
-      }
-
-      console.log(`[ExecutionEngine] Executing command: ${params.command}`);
-
-      // Parse command and arguments
-      const commandParts = params.command.split(' ');
-      const command = commandParts[0];
-      const args = commandParts.slice(1);
-
-      // Execute command with optional working directory
-      const result = await this.tauriService.executeCommand(command, args, {
-        cwd: params.cwd || this.currentTaskState.workspaceRoot,
-        env: params.env,
-      });
-
-      // Check if command succeeded
-      if (result.code !== 0) {
-        return {
-          success: false,
-          data: {
-            stdout: result.stdout,
-            stderr: result.stderr,
-            exitCode: result.code,
-          },
-          message: `Command failed with exit code ${result.code}: ${result.stderr || 'No error message'}`,
-        };
-      }
-
+      // Command execution not yet implemented for Electron
+      // TODO: Implement shell command execution via Electron IPC
+      console.warn('[ExecutionEngine] Command execution not yet implemented');
       return {
-        success: true,
-        data: {
-          stdout: result.stdout,
-          stderr: result.stderr,
-          exitCode: result.code,
-        },
-        message: `Command executed successfully: ${params.command}`,
+        success: false,
+        message: 'Command execution not yet implemented',
       };
     } catch (error) {
       throw new Error(`Failed to run command: ${error}`);
@@ -1295,7 +1298,7 @@ Keep it concise (3-5 bullet points).`;
     try {
       // Get workspace context for better code generation
       const workspaceContext = await this.workspaceService.getWorkspaceContext();
-      
+
       const response = await this.aiService.sendContextualMessage({
         userQuery: prompt,
         workspaceContext,
@@ -1307,9 +1310,14 @@ Keep it concise (3-5 bullet points).`;
       // Extract code from response if it's wrapped in markdown
       const generatedCode = this.extractCodeFromResponse(response.content, params.targetLanguage);
 
+      // PHASE 7: Stream generated code to editor (if filePath provided for preview)
+      if (this.liveStream && params.filePath) {
+        await this.liveStream.streamToEditor(params.filePath, generatedCode);
+      }
+
       return {
         success: true,
-        data: { 
+        data: {
           generatedCode,
           fullResponse: response.content
         },
@@ -1380,18 +1388,14 @@ Keep it concise (3-5 bullet points).`;
 
   private async executeRunTests(params: any): Promise<StepResult> {
     try {
-      // Check if running in Tauri mode
-      if (!this.tauriService || !this.tauriService.isTauri) {
-        console.warn('[ExecutionEngine] Test execution only available in Tauri mode');
-        return {
-          success: false,
-          message: 'Test execution is only available in desktop mode (Tauri)',
-        };
-      }
+      // Test execution not available in browser mode
+      console.warn('[ExecutionEngine] Test execution not yet available in browser mode');
+      return {
+        success: false,
+        message: 'Test execution is only available in desktop mode',
+      };
 
-      // Determine test command based on project
-      const testPattern = params.testPattern || '';
-      const testCommand = params.command || await this.detectTestCommand();
+      // Unreachable code removed - test execution not implemented
 
       console.log(`[ExecutionEngine] Running tests with command: ${testCommand} ${testPattern}`);
 
@@ -1404,24 +1408,18 @@ Keep it concise (3-5 bullet points).`;
         args.push(testPattern);
       }
 
-      const result = await this.tauriService.executeCommand(command, args, {
-        cwd: this.currentTaskState.workspaceRoot,
-      });
-
-      // Parse test results (exit code 0 = all tests passed)
-      const allTestsPassed = result.code === 0;
-
+      // Test execution not yet implemented for Electron
+      // TODO: Implement test execution via Electron IPC
+      console.warn('[ExecutionEngine] Test execution not yet implemented');
       return {
-        success: allTestsPassed,
+        success: false,
+        message: 'Test execution not yet implemented',
         data: {
-          stdout: result.stdout,
-          stderr: result.stderr,
-          exitCode: result.code,
-          testsPassed: allTestsPassed,
+          stdout: '',
+          stderr: 'Test execution not yet implemented',
+          exitCode: -1,
+          testsPassed: false,
         },
-        message: allTestsPassed
-          ? 'All tests passed successfully'
-          : `Tests failed with exit code ${result.code}`,
       };
     } catch (error) {
       throw new Error(`Failed to run tests: ${error}`);
@@ -1541,8 +1539,8 @@ ${report.fileReports
       // Collect file paths and reviews
       const fileAnalyses = stepsWithAIContent.map(step => {
         const data = step.result!.data as any;
-        const filePath = data.filePath || data.analysis?.filePath || 'unknown';
-        const review = data.generatedCode || data.analysis?.aiReview || '';
+        const filePath = data?.filePath || data?.analysis?.filePath || 'unknown';
+        const review = data?.generatedCode || data?.analysis?.aiReview || '';
         return `\n### ${filePath}\n${review}`;
       }).join('\n\n---\n');
 
@@ -1586,6 +1584,7 @@ Be detailed, specific, and actionable. Reference specific files when making poin
       // Create virtual synthesis step
       const synthesisStep: AgentStep = {
         id: `synthesis-${Date.now()}`,
+        taskId: task.id,
         order: task.steps.length + 1,
         title: '📊 Comprehensive Review Summary',
         description: `Synthesis of ${stepsWithAIContent.length} file analyses`,

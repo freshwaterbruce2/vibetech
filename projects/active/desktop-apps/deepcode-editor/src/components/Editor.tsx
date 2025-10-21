@@ -105,6 +105,8 @@ interface EditorProps {
   workspaceContext?: WorkspaceContext | undefined;
   getFileContext?: ((file: EditorFile) => any[]) | undefined;
   settings?: EditorSettings | undefined;
+  liveStream?: any; // PHASE 7: LiveEditorStream instance for live code streaming
+  onEditorMount?: (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => void; // Callback when editor mounts (for Auto-Fix)
 }
 
 const Editor: React.FC<EditorProps> = ({
@@ -119,6 +121,8 @@ const Editor: React.FC<EditorProps> = ({
   workspaceContext: _workspaceContext,
   getFileContext: _getFileContext,
   settings,
+  liveStream, // PHASE 7: Live editor streaming
+  onEditorMount, // Callback when editor mounts (for Auto-Fix integration)
 }) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [aiSuggestion, setAiSuggestion] = useState<string>('');
@@ -233,8 +237,13 @@ const Editor: React.FC<EditorProps> = ({
     }
   });
 
-  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
+  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
     editorRef.current = editor;
+
+    // Notify parent component (for Auto-Fix integration)
+    if (onEditorMount) {
+      onEditorMount(editor, monaco);
+    }
 
     // Configure editor settings with Vibe Tech theme
     editor.updateOptions({
@@ -316,6 +325,12 @@ const Editor: React.FC<EditorProps> = ({
         }
       }, 2000);
     });
+
+    // PHASE 7: Connect live editor stream
+    if (liveStream) {
+      liveStream.setEditor(editor);
+      console.log('✨ Live editor streaming connected');
+    }
   };
 
   const setupAiCompletionProvider = (_editor: editor.IStandaloneCodeEditor) => {
@@ -562,6 +577,13 @@ const Editor: React.FC<EditorProps> = ({
     editorRef.current.getAction('editor.action.previousMatchFindAction')?.run();
   };
 
+  // Monaco workers handled by vite-plugin-monaco-editor
+  const handleBeforeMount = (monaco: typeof import('monaco-editor')) => {
+    // Let vite-plugin-monaco-editor handle all worker configuration
+    // No manual MonacoEnvironment setup needed - it interferes with the plugin
+    console.log('[Editor] Monaco editor initialized');
+  };
+
   return (
     <EditorContainer>
       <FileTabs
@@ -577,6 +599,7 @@ const Editor: React.FC<EditorProps> = ({
           language={file.language}
           value={file.content}
           onChange={(value) => onFileChange(value || '')}
+          beforeMount={handleBeforeMount}
           onMount={handleEditorDidMount}
           theme={settings?.theme === 'light' ? 'vs' : 'vs-dark'}
           options={{

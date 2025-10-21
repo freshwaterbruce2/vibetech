@@ -1,7 +1,27 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { WorkspaceService } from '../services/WorkspaceService';
 import { ContextualFile, EditorFile, WorkspaceContext } from '../types';
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
+
+  return function executedFunction(...args: Parameters<T>) {
+    const later = () => {
+      timeout = null;
+      func(...args);
+    };
+
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(later, wait);
+  };
+}
 
 export interface UseWorkspaceReturn {
   workspaceService: WorkspaceService;
@@ -174,6 +194,25 @@ export const useWorkspace = (): UseWorkspaceReturn => {
     await indexWorkspace(workspaceContext.rootPath);
   }, [indexWorkspace, workspaceContext]);
 
+  // Debounced version of refreshIndex (5 second delay to prevent rapid re-indexing)
+  // FIX: Use ref to store workspace context to prevent infinite loop from dependency changes
+  const workspaceContextRef = useRef(workspaceContext);
+  useEffect(() => {
+    workspaceContextRef.current = workspaceContext;
+  }, [workspaceContext]);
+
+  const debouncedRefreshIndex = useMemo(
+    () =>
+      debounce(() => {
+        const ctx = workspaceContextRef.current;
+        if (ctx && !isIndexing) {
+          console.log('[useWorkspace] Debounced refresh triggered');
+          indexWorkspace(ctx.rootPath);
+        }
+      }, 5000),
+    [indexWorkspace, isIndexing] // Removed workspaceContext and refreshIndex to prevent loop
+  );
+
   const clearWorkspace = useCallback(() => {
     setWorkspaceContext(null);
     setError(null);
@@ -181,23 +220,37 @@ export const useWorkspace = (): UseWorkspaceReturn => {
   }, []);
 
   // Auto-refresh index periodically (every 5 minutes)
+  // Uses debounced version to prevent performance issues from rapid refreshes
+  // FIX: Added stability check to prevent refresh during active indexing
   useEffect(() => {
     if (!workspaceContext) {
       return;
     }
 
+    // Only set up auto-refresh if not currently indexing
+    if (isIndexing) {
+      console.log('[useWorkspace] Skipping auto-refresh setup - indexing in progress');
+      return;
+    }
+
+    console.log('[useWorkspace] Setting up auto-refresh interval (5 minutes)');
     const interval = setInterval(
       () => {
         if (!isIndexing) {
-          console.log('Auto-refreshing workspace index...');
-          refreshIndex();
+          console.log('[useWorkspace] Auto-refresh scheduled (debounced)');
+          debouncedRefreshIndex();
+        } else {
+          console.log('[useWorkspace] Skipping auto-refresh - indexing in progress');
         }
       },
       5 * 60 * 1000
     ); // 5 minutes
 
-    return () => clearInterval(interval);
-  }, [workspaceContext, isIndexing, refreshIndex]);
+    return () => {
+      console.log('[useWorkspace] Cleaning up auto-refresh interval');
+      clearInterval(interval);
+    };
+  }, [workspaceContext?.rootPath, isIndexing]); // FIX: Removed debouncedRefreshIndex to prevent loop!
 
   return {
     workspaceService,

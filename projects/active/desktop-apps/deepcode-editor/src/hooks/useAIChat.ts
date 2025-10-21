@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, startTransition } from 'react';
 
 import { UnifiedAIService } from '../services/ai/UnifiedAIService';
 import { AIContextRequest, AIMessage, EditorFile, WorkspaceContext } from '../types';
@@ -11,6 +11,7 @@ export interface UseAIChatReturn {
   handleSendMessage: (message: string, contextRequest?: Partial<AIContextRequest>) => Promise<void>;
   clearAiMessages: () => void;
   addAiMessage: (message: AIMessage) => void;
+  updateAiMessage: (messageId: string, updater: (msg: AIMessage) => AIMessage) => void;
 }
 
 export interface UseAIChatProps {
@@ -61,7 +62,26 @@ Let's build something amazing together!`,
   const [isAiResponding, setIsAiResponding] = useState(false);
 
   const addAiMessage = useCallback((message: AIMessage) => {
-    setAiMessages((prev) => [...prev, message]);
+    // Use startTransition for non-urgent message additions (e.g., agent task updates)
+    // Urgent messages (e.g., user messages) will skip this and update immediately
+    const isUrgent = message.role === 'user';
+
+    if (isUrgent) {
+      setAiMessages((prev) => [...prev, message]);
+    } else {
+      startTransition(() => {
+        setAiMessages((prev) => [...prev, message]);
+      });
+    }
+  }, []);
+
+  const updateAiMessage = useCallback((messageId: string, updater: (msg: AIMessage) => AIMessage) => {
+    // Use startTransition for non-urgent message updates (agent task step progress)
+    startTransition(() => {
+      setAiMessages((prev) =>
+        prev.map((msg) => (msg.id === messageId ? updater(msg) : msg))
+      );
+    });
   }, []);
 
   const clearAiMessages = useCallback(() => {
@@ -140,17 +160,20 @@ Let's build something amazing together!`,
             aiResponseContent += chunk;
           }
 
-          setAiMessages((prev) => {
-            return prev.map((msg) => {
-              if (msg.id === aiResponseId) {
-                const updatedMsg: AIMessage = {
-                  ...msg,
-                  content: aiResponseContent,
-                  ...(aiReasoningContent ? { reasoning_content: aiReasoningContent } : {}),
-                };
-                return updatedMsg;
-              }
-              return msg;
+          // Use startTransition to mark streaming updates as non-urgent (improves performance)
+          startTransition(() => {
+            setAiMessages((prev) => {
+              return prev.map((msg) => {
+                if (msg.id === aiResponseId) {
+                  const updatedMsg: AIMessage = {
+                    ...msg,
+                    content: aiResponseContent,
+                    ...(aiReasoningContent ? { reasoning_content: aiReasoningContent } : {}),
+                  };
+                  return updatedMsg;
+                }
+                return msg;
+              });
             });
           });
         }
@@ -188,5 +211,6 @@ Let's build something amazing together!`,
     handleSendMessage,
     clearAiMessages,
     addAiMessage,
+    updateAiMessage,
   };
 }

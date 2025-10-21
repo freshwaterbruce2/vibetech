@@ -1,10 +1,9 @@
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import styled from 'styled-components';
 
 // New AI components
-import AgentMode from './components/AgentMode/AgentMode';
 import ComposerMode from './components/AgentMode/ComposerMode';
 import Editor from './components/Editor';
 import { ModernErrorBoundary } from './components/ErrorBoundary/index';
@@ -18,6 +17,9 @@ import ModelSelector from './components/ModelSelector/ModelSelector';
 import { NotificationContainer } from './components/Notification';
 import Sidebar from './components/Sidebar';
 import { PreviewPanel } from './components/PreviewPanel';
+import { BackgroundTaskPanel } from './components/BackgroundTaskPanel';
+import { EditorStreamPanel } from './components/EditorStreamPanel';
+import { ErrorFixPanel } from './components/ErrorFixPanel';
 import StatusBar from './components/StatusBar';
 // import { EnhancedTerminal } from './components/Terminal/EnhancedTerminal';
 // Components - Using lazy loading for heavy components
@@ -28,6 +30,7 @@ import { useAppSettings } from './hooks/useAppSettings';
 import { useAICommandPalette } from './hooks/useAICommandPalette';
 import { useFileManager } from './hooks/useFileManager';
 import { useNotifications } from './hooks/useNotifications';
+import { useBackgroundTaskNotifications } from './hooks/useBackgroundTaskNotifications';
 // Custom Hooks
 import { useWorkspace } from './hooks/useWorkspace';
 import { autoUpdater } from './services/AutoUpdateService';
@@ -35,6 +38,13 @@ import { autoUpdater } from './services/AutoUpdateService';
 import { UnifiedAIService } from './services/ai/UnifiedAIService';
 import { TaskPlanner } from './services/ai/TaskPlanner';
 import { ExecutionEngine } from './services/ai/ExecutionEngine';
+import { BackgroundAgentSystem } from './services/BackgroundAgentSystem';
+import { LiveEditorStream } from './services/LiveEditorStream';
+import { AutoFixService } from './services/AutoFixService';
+import { ErrorDetector } from './services/ErrorDetector';
+import { AutoFixCodeActionProvider } from './services/AutoFixCodeActionProvider';
+import type { DetectedError } from './services/ErrorDetector';
+import type { GeneratedFix, FixSuggestion } from './services/AutoFixService';
 import { FileSystemService } from './services/FileSystemService';
 import { WorkspaceService } from './services/WorkspaceService';
 // import { GitService } from './services/GitService'; // Disabled for browser - uses Node.js child_process
@@ -100,18 +110,32 @@ function App() {
   // Initialize services
   const [aiService] = useState(() => new UnifiedAIService());
   const [fileSystemService] = useState(() => new FileSystemService());
-  const [workspaceService] = useState(() => new WorkspaceService(fileSystemService));
+  const [workspaceService] = useState(() => new WorkspaceService());
   const [gitService] = useState(() => new MockGitService() as any); // Use MockGitService in browser mode
 
   // Initialize Agent Mode V2 services
-  const [taskPlanner] = useState(() => new TaskPlanner(aiService));
-  const [executionEngine] = useState(() =>
-    new ExecutionEngine(fileSystemService, aiService, workspaceService, gitService)
+  const [taskPlanner] = useState(() => new TaskPlanner(aiService, fileSystemService));
+  const [liveStream] = useState(() => new LiveEditorStream()); // PHASE 7: Live editor streaming
+  const [executionEngine] = useState(() => {
+    const engine = new ExecutionEngine(fileSystemService, aiService, workspaceService, gitService);
+    engine.setLiveStream(liveStream); // Connect live streaming
+    return engine;
+  });
+  const [backgroundAgentSystem] = useState(() =>
+    new BackgroundAgentSystem(executionEngine, taskPlanner, 3) // Max 3 concurrent tasks
   );
 
   // Notifications
   const { notifications, showError, showSuccess, showWarning, removeNotification } =
     useNotifications();
+
+  // Background task notifications
+  useBackgroundTaskNotifications({
+    backgroundAgentSystem,
+    showSuccess,
+    showError,
+    showWarning
+  });
 
   // Workspace management
   const { workspaceContext, isIndexing, indexingProgress, getFileContext, indexWorkspace } =
@@ -138,6 +162,7 @@ function App() {
     handleFileChange,
     handleSaveFile,
     setCurrentFile,
+    setOpenFiles,
   } = useFileManager({
     fileSystemService,
     onSaveSuccess: (fileName) => showSuccess('File Saved', `${fileName} saved successfully`),
@@ -157,6 +182,7 @@ function App() {
     setAiChatOpen,
     handleSendMessage: handleAIMessage,
     addAiMessage,
+    updateAiMessage,
   } = useAIChat({
     aiService,
     currentFile,
@@ -178,8 +204,7 @@ function App() {
   // Git panel state
   const [gitPanelOpen, _setGitPanelOpen] = useState(false);
   
-  // Agent Mode and Composer Mode state
-  const [agentModeOpen, setAgentModeOpen] = useState(false);
+  // Composer Mode state
   const [composerModeOpen, setComposerModeOpen] = useState(false);
 
   // Global search state
@@ -187,10 +212,138 @@ function App() {
   
   // Keyboard shortcuts state
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
+  const [backgroundPanelOpen, setBackgroundPanelOpen] = useState(false);
+
+  // Auto-Fix Error Panel state
+  const [currentError, setCurrentError] = useState<DetectedError | null>(null);
+  const [currentFix, setCurrentFix] = useState<GeneratedFix | null>(null);
+  const [errorFixPanelOpen, setErrorFixPanelOpen] = useState(false);
+  const [fixLoading, setFixLoading] = useState(false);
+  const [fixError, setFixError] = useState<string>('');
+
+  // Auto-Fix refs
+  const editorRef = useRef<any>(null); // Monaco editor instance
+  const errorDetectorRef = useRef<ErrorDetector | null>(null);
+  const autoFixServiceRef = useRef<AutoFixService | null>(null);
+  const codeActionProviderRef = useRef<any>(null); // Monaco disposable for code action provider
 
   // Search service
   const searchService = new SearchService(fileSystemService);
-  const [currentModel, setCurrentModel] = useState('deepseek-v3');
+  const [currentModel, setCurrentModel] = useState('deepseek-chat');
+
+  // Auto-Fix: Handle editor mount - initialize error detection
+  const handleEditorMount = useCallback((editor: any, monaco: any) => {
+    console.log('[AutoFix] Editor mounted, initializing error detection');
+    editorRef.current = editor;
+
+    // Initialize AutoFixService
+    autoFixServiceRef.current = new AutoFixService(aiService);
+    console.log('[AutoFix] AutoFixService initialized');
+
+    // Initialize ErrorDetector
+    errorDetectorRef.current = new ErrorDetector({
+      editor,
+      monaco,
+      onError: (error: DetectedError) => {
+        console.log('[AutoFix] Error detected:', error);
+        setCurrentError(error);
+        setErrorFixPanelOpen(true);
+        setFixLoading(true);
+        setFixError('');
+        setCurrentFix(null);
+
+        // Generate fix suggestions
+        autoFixServiceRef.current?.generateFix(error, editor)
+          .then((fix) => {
+            console.log('[AutoFix] Fix generated:', fix);
+            setCurrentFix(fix);
+            setFixLoading(false);
+          })
+          .catch((err) => {
+            console.error('[AutoFix] Fix generation failed:', err);
+            setFixError(err.message || 'Failed to generate fix');
+            setFixLoading(false);
+          });
+      },
+      onErrorResolved: (errorId: string) => {
+        console.log('[AutoFix] Error resolved:', errorId);
+        // Auto-dismiss panel if error is resolved
+        if (currentError?.id === errorId) {
+          setErrorFixPanelOpen(false);
+          setCurrentError(null);
+          setCurrentFix(null);
+        }
+      },
+    });
+
+    console.log('[AutoFix] ErrorDetector initialized');
+
+    // Register Monaco Code Actions Provider for "Fix with AI" in context menu
+    if (autoFixServiceRef.current && errorDetectorRef.current) {
+      const provider = new AutoFixCodeActionProvider({
+        autoFixService: autoFixServiceRef.current,
+        errorDetector: errorDetectorRef.current,
+        onFixApplied: (fixTitle: string) => {
+          showSuccess('Fix Applied', fixTitle);
+        },
+        onFixFailed: (error: Error) => {
+          showError('Fix Failed', error.message);
+        }
+      });
+
+      // Register provider for all languages
+      const disposable = monaco.languages.registerCodeActionProvider('*', provider);
+      codeActionProviderRef.current = disposable;
+
+      // Register command handlers
+      provider.registerCommandHandlers(editor, monaco);
+
+      console.log('[AutoFix] Code Actions Provider registered');
+    }
+  }, [aiService, currentError, showSuccess, showError]);
+
+  // Auto-Fix: Apply suggested fix
+  const handleApplyFix = useCallback((suggestion: FixSuggestion) => {
+    if (!editorRef.current || !currentError) {
+      console.error('[AutoFix] Cannot apply fix: editor or error not available');
+      return;
+    }
+
+    console.log('[AutoFix] Applying fix:', suggestion);
+
+    try {
+      const editor = editorRef.current;
+      const model = editor.getModel();
+
+      if (!model) {
+        throw new Error('Editor model not available');
+      }
+
+      // Apply the fix
+      editor.executeEdits('auto-fix', [{
+        range: {
+          startLineNumber: suggestion.startLine,
+          startColumn: 1,
+          endLineNumber: suggestion.endLine,
+          endColumn: model.getLineMaxColumn(suggestion.endLine),
+        },
+        text: suggestion.code,
+      }]);
+
+      // Success feedback
+      showSuccess('Fix Applied', suggestion.title);
+
+      // Close panel
+      setErrorFixPanelOpen(false);
+      setCurrentError(null);
+      setCurrentFix(null);
+
+      console.log('[AutoFix] Fix applied successfully');
+    } catch (error) {
+      console.error('[AutoFix] Failed to apply fix:', error);
+      showError('Fix Failed', error instanceof Error ? error.message : 'Unknown error');
+    }
+  }, [currentError, showSuccess, showError]);
 
   // Global search handlers
   const handleOpenFileFromSearch = useCallback((file: string, line?: number, column?: number) => {
@@ -241,12 +394,10 @@ function App() {
         setGlobalSearchOpen(true);
       }
 
-      // Agent Mode: Ctrl+Shift+A (switch chat to agent mode)
+      // Agent Mode: Ctrl+Shift+A (open AI Chat in Agent Mode)
       if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         e.preventDefault();
-        if (!aiChatOpen) {
-          setAiChatOpen(true);
-        }
+        setAiChatOpen(true);
         setChatMode('agent');
       }
 
@@ -283,36 +434,18 @@ function App() {
     try {
       console.log('Opening folder dialog...');
 
-      // Check if Tauri API is available
-      if (window.__TAURI__) {
-        console.log('Using Tauri dialog API');
-        const { open } = await import('@tauri-apps/plugin-dialog');
-
-        const folderPath = await open({
-          directory: true,
-          multiple: false,
-          title: 'Select Project Folder',
-          recursive: true, // Automatically expands scope for all subdirectories
-        });
-
-        console.log('Tauri dialog result:', folderPath);
-
-        if (folderPath) {
-          await handleOpenFolder(folderPath);
-        } else {
-          console.log('Folder selection cancelled');
-        }
-      } else if (window.electronAPI) {
-        // Use Electron's folder picker if available
-        console.log('Using Electron API');
-        const result = await window.electronAPI.showOpenDialog({
-          properties: ['openDirectory'],
-        });
-        console.log('Electron dialog result:', result);
+      // Check if Electron API is available
+      if (window.electron?.isElectron) {
+        console.log('[App] Using Electron dialog API');
+        const result = await window.electron.dialog.openFolder({});
+        console.log('[App] Electron dialog result:', result);
         if (!result.canceled && result.filePaths.length > 0 && result.filePaths[0]) {
-          await handleOpenFolder(result.filePaths[0]);
+          // Normalize path to forward slashes
+          const normalizedPath = result.filePaths[0].replace(/\\/g, '/');
+          console.log('[App] Opening folder:', normalizedPath);
+          await handleOpenFolder(normalizedPath);
         } else {
-          console.log('Folder selection cancelled');
+          console.log('[App] Folder selection cancelled');
         }
       } else if ('showDirectoryPicker' in window) {
         // Use browser's File System Access API
@@ -575,17 +708,7 @@ I'm now your context-aware coding companion! 🎯`,
     currentFile: currentFile?.path || null,
   });
   
-  // Agent Mode and Composer Mode handlers
-  const handleAgentModeComplete = async (_task: string) => {
-    try {
-      // TODO: Implement agent task execution
-      showSuccess('Agent Mode', 'Task completed successfully');
-      setAgentModeOpen(false);
-    } catch (error) {
-      showError('Agent Mode', 'Failed to complete task');
-    }
-  };
-  
+  // Composer Mode handler
   const handleComposerModeApply = async (files: any[]) => {
     try {
       // TODO: Implement multi-file changes application
@@ -632,7 +755,7 @@ I'm now your context-aware coding companion! 🎯`,
     });
 
     // Auto-open demo workspace if no workspace is open (web mode only)
-    if (!workspaceFolder && openFiles.length === 0 && !window.__TAURI__) {
+    if (!workspaceFolder && openFiles.length === 0 && !window.electron) {
       const demoPath = '/home/freshbruce/deepcode-editor/demo-workspace';
       handleOpenFolder(demoPath);
       // Open the index.js file automatically
@@ -726,6 +849,8 @@ I'm now your context-aware coding companion! 🎯`,
                     workspaceContext={workspaceContext || undefined}
                     getFileContext={getFileContext}
                     settings={editorSettings}
+                    liveStream={liveStream}
+                    onEditorMount={handleEditorMount}
                   />
                   {previewOpen && (
                     <PreviewPanel
@@ -771,6 +896,15 @@ I'm now your context-aware coding companion! 🎯`,
                         }
                       : undefined
                   }
+                  onAddMessage={addAiMessage}
+                  onUpdateMessage={updateAiMessage}
+                  onFileChanged={(filePath, action) => {
+                    console.log('[App] Agent file changed:', filePath, action);
+                    if (action === 'created' || action === 'modified') {
+                      // Open the file in editor
+                      handleOpenFile(filePath);
+                    }
+                  }}
                   onTaskComplete={(task) => {
                     showSuccess('Task Completed', `Successfully executed: ${task.title}`);
                   }}
@@ -782,13 +916,25 @@ I'm now your context-aware coding companion! 🎯`,
             )}
 
             {gitPanelOpen && <GitPanel workingDirectory={workspaceFolder || undefined} />}
+
+            {backgroundPanelOpen && (
+              <BackgroundTaskPanel
+                backgroundAgent={backgroundAgentSystem}
+                onTaskClick={(task) => {
+                  console.log('[App] Background task clicked:', task);
+                  // Optional: Show task details in a modal or expand inline
+                }}
+              />
+            )}
           </MainContent>
 
           <StatusBar
             currentFile={currentFile}
             aiChatOpen={aiChatOpen}
+            backgroundPanelOpen={backgroundPanelOpen}
             onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
             onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
+            onToggleBackgroundPanel={() => setBackgroundPanelOpen(!backgroundPanelOpen)}
             onOpenAgentMode={() => {
               if (!aiChatOpen) setAiChatOpen(true);
               setChatMode('agent');
@@ -801,6 +947,59 @@ I'm now your context-aware coding companion! 🎯`,
           />
 
           <NotificationContainer notifications={notifications} onClose={removeNotification} />
+
+          {/* PHASE 7: Live Editor Streaming Control Panel */}
+          <EditorStreamPanel
+            isStreaming={liveStream.isCurrentlyStreaming()}
+            onApprove={(filePath) => {
+              console.log(`[App] Approved changes for: ${filePath}`);
+              showSuccess('Changes Approved', `Applied changes to ${filePath}`);
+            }}
+            onReject={(filePath) => {
+              console.log(`[App] Rejected changes for: ${filePath}`);
+              showWarning('Changes Rejected', `Discarded changes to ${filePath}`);
+            }}
+          />
+
+          {/* Auto-Fix Error Panel */}
+          {errorFixPanelOpen && currentError && (
+            <div style={{
+              position: 'fixed',
+              bottom: '80px',
+              right: '20px',
+              zIndex: 2000,
+              maxWidth: '600px',
+            }}>
+              <ErrorFixPanel
+                error={currentError}
+                fix={currentFix}
+                isLoading={fixLoading}
+                errorMessage={fixError}
+                showDiff={true}
+                onApplyFix={handleApplyFix}
+                onDismiss={() => {
+                  setErrorFixPanelOpen(false);
+                  setCurrentError(null);
+                  setCurrentFix(null);
+                }}
+                onRetry={() => {
+                  if (currentError && editorRef.current && autoFixServiceRef.current) {
+                    setFixLoading(true);
+                    setFixError('');
+                    autoFixServiceRef.current.generateFix(currentError, editorRef.current)
+                      .then((fix) => {
+                        setCurrentFix(fix);
+                        setFixLoading(false);
+                      })
+                      .catch((err) => {
+                        setFixError(err.message || 'Failed to generate fix');
+                        setFixLoading(false);
+                      });
+                  }
+                }}
+              />
+            </div>
+          )}
 
           <Suspense fallback={<div>Loading Settings...</div>}>
             <LazySettings
@@ -849,22 +1048,6 @@ I'm now your context-aware coding companion! 🎯`,
             isOpen={keyboardShortcutsOpen}
             onClose={() => setKeyboardShortcutsOpen(false)}
           />
-          
-          {/* Agent Mode */}
-          <AgentMode
-            isOpen={agentModeOpen}
-            onClose={() => setAgentModeOpen(false)}
-            onComplete={handleAgentModeComplete}
-            workspaceContext={{
-              workspaceFolder: workspaceFolder || '',
-              ...(currentFile && { currentFile: currentFile.name }),
-              openFiles: openFiles.map(f => f.name),
-            }}
-          />
-
-          {/* Agent Mode V2 - Now integrated into unified chat interface */}
-          {/* Modal removed - use Ctrl+Shift+A to switch chat to agent mode */}
-
           {/* Composer Mode */}
           <ComposerMode
             isOpen={composerModeOpen}

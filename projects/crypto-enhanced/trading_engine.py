@@ -438,10 +438,27 @@ class TradingEngine:
             try:
                 current_price = await self._get_current_price(position['pair'])
                 entry = position.get('entry_price')
+                entry_price = float(entry) if entry else 0
+                
                 logger.debug(
                     f"Position {position_id}: {position['pair']} "
                     f"entry={entry}, current={current_price}"
                 )
+                
+                # CRITICAL FIX: Auto-set stop-loss/take-profit if missing
+                if not position.get('stop_loss') and entry_price > 0:
+                    # Set 1.5% stop-loss below entry
+                    stop_loss = entry_price * 0.985
+                    position['stop_loss'] = stop_loss
+                    self.open_positions[position_id]['stop_loss'] = stop_loss
+                    logger.info(f"[AUTO-SET] Stop-loss for {position_id}: ${stop_loss:.4f} (-1.5% from ${entry_price:.4f})")
+                
+                if not position.get('take_profit') and entry_price > 0:
+                    # Set 1.5% take-profit above entry
+                    take_profit = entry_price * 1.015
+                    position['take_profit'] = take_profit
+                    self.open_positions[position_id]['take_profit'] = take_profit
+                    logger.info(f"[AUTO-SET] Take-profit for {position_id}: ${take_profit:.4f} (+1.5% from ${entry_price:.4f})")
 
                 # Enhanced XLM-specific monitoring
                 if 'XLM' in position.get('pair', ''):

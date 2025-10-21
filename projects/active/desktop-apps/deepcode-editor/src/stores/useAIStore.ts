@@ -21,8 +21,9 @@ interface AIState {
     | 'claude-sonnet-4-5' | 'claude-opus-4-1'
     // Google Gemini 2.x (October 2025)
     | 'gemini-2-5-pro' | 'gemini-2-5-flash' | 'gemini-2-5-flash-lite' | 'gemini-2-0-flash'
-    // DeepSeek V3.2 (October 2025)
-    | 'deepseek-v3-2-exp';
+    // DeepSeek V3.2 (October 2025) - Current API Models
+    | 'deepseek-chat'
+    | 'deepseek-reasoner';
   showReasoningProcess: boolean;
 
   // Completion state
@@ -86,7 +87,7 @@ export const useAIStore = create<AIState>()(
         // Initial state
         messages: [],
         isResponding: false,
-        currentModel: 'deepseek-v3-2-exp',
+        currentModel: 'deepseek-chat',
         showReasoningProcess: false,
         completionEnabled: true,
         completionDelay: 300,

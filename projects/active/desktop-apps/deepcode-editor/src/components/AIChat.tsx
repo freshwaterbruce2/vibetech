@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bot, Copy, Send, ThumbsDown, ThumbsUp, User, X, Zap, Play, FileEdit, CheckCircle2, XCircle, Loader2, AlertCircle, Shield } from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
@@ -579,6 +579,180 @@ const ApprovalButton = styled(motion.button)<{ $variant: 'approve' | 'reject' }>
 
 export type ChatMode = 'chat' | 'agent' | 'composer';
 
+// Memoized step card component to improve rendering performance
+interface MemoizedStepCardProps {
+  step: AgentStep;
+  pendingApproval: ApprovalRequest | null;
+  getStepIcon: (status: StepStatus) => React.ReactElement;
+  handleApproval?: (stepId: string, approved: boolean) => void;
+}
+
+const MemoizedStepCard = memo<MemoizedStepCardProps>(
+  ({ step, pendingApproval, getStepIcon, handleApproval }) => {
+    return (
+      <CompactStepCard
+        key={step.id}
+        $status={step.status}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <StepHeaderCompact>
+          <StepIconCompact $status={step.status}>
+            {getStepIcon(step.status)}
+          </StepIconCompact>
+          <StepTitleCompact>{step.title}</StepTitleCompact>
+        </StepHeaderCompact>
+        {step.description && (
+          <StepDescriptionCompact>{step.description}</StepDescriptionCompact>
+        )}
+
+        {/* Show step results if completed */}
+        {step.status === 'completed' && step.result?.data && (
+          <div
+            style={{
+              marginTop: '8px',
+              padding: '12px',
+              background: 'rgba(0,0,0,0.2)',
+              borderRadius: '6px',
+              borderLeft: '3px solid rgba(139, 92, 246, 0.5)',
+            }}
+          >
+            {(() => {
+              const data = step.result!.data as any;
+              const isSynthesis = data.isSynthesis === true;
+
+              return (
+                <>
+                  {/* Display AI Review/Synthesis */}
+                  {data.generatedCode && (
+                    <div>
+                      <div
+                        style={{
+                          marginBottom: '8px',
+                          fontWeight: 700,
+                          fontSize: isSynthesis ? '14px' : '13px',
+                          color: isSynthesis ? '#a78bfa' : '#8b5cf6',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                        }}
+                      >
+                        {isSynthesis ? '✨ Comprehensive Review Summary' : '🤖 AI Review'}
+                        {isSynthesis && (
+                          <span
+                            style={{
+                              background: 'rgba(139, 92, 246, 0.3)',
+                              padding: '2px 6px',
+                              borderRadius: '10px',
+                              fontSize: '10px',
+                              fontWeight: 500,
+                            }}
+                          >
+                            AUTO-GENERATED
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: isSynthesis ? '13px' : '12px',
+                          whiteSpace: 'pre-wrap',
+                          lineHeight: '1.6',
+                          background: isSynthesis
+                            ? 'rgba(139, 92, 246, 0.15)'
+                            : 'rgba(139, 92, 246, 0.1)',
+                          padding: isSynthesis ? '12px' : '10px',
+                          borderRadius: '4px',
+                          border: isSynthesis
+                            ? '2px solid rgba(139, 92, 246, 0.5)'
+                            : '1px solid rgba(139, 92, 246, 0.3)',
+                          boxShadow: isSynthesis
+                            ? '0 4px 16px rgba(139, 92, 246, 0.2)'
+                            : 'none',
+                          maxHeight: isSynthesis ? '600px' : '300px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {data.generatedCode}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Display file content (collapsed by default) */}
+                  {data.content && !data.generatedCode && (
+                    <details style={{ marginTop: '8px' }}>
+                      <summary
+                        style={{
+                          cursor: 'pointer',
+                          color: '#10b981',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          marginBottom: '6px',
+                        }}
+                      >
+                        📄 File Content ({data.filePath || 'file'})
+                      </summary>
+                      <pre
+                        style={{
+                          fontSize: '11px',
+                          whiteSpace: 'pre-wrap',
+                          background: 'rgba(0,0,0,0.3)',
+                          padding: '8px',
+                          borderRadius: '4px',
+                          maxHeight: '200px',
+                          overflow: 'auto',
+                          marginTop: '6px',
+                        }}
+                      >
+                        {typeof data.content === 'string'
+                          ? data.content.slice(0, 2000)
+                          : JSON.stringify(data.content).slice(0, 2000)}
+                        {(typeof data.content === 'string' ? data.content : JSON.stringify(data.content))
+                          .length > 2000 && '\n... (truncated)'}
+                      </pre>
+                    </details>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* Show approval prompt if this step is pending approval */}
+        {pendingApproval && pendingApproval.stepId === step.id && handleApproval && (
+          <ApprovalPromptCompact initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+            <div style={{ fontSize: '12px', marginBottom: '8px', color: vibeTheme.colors.text }}>
+              <strong>Approval Required</strong>
+              <div style={{ marginTop: '4px' }}>
+                Risk: {pendingApproval.impact.riskLevel} | Affected: {pendingApproval.impact.filesAffected.length}{' '}
+                files
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <ApprovalButton onClick={() => handleApproval(step.id, true)} $variant="approve">
+                Approve
+              </ApprovalButton>
+              <ApprovalButton onClick={() => handleApproval(step.id, false)} $variant="reject">
+                Reject
+              </ApprovalButton>
+            </div>
+          </ApprovalPromptCompact>
+        )}
+      </CompactStepCard>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison: only re-render if step status, result, or pending approval changed
+    return (
+      prevProps.step.id === nextProps.step.id &&
+      prevProps.step.status === nextProps.step.status &&
+      prevProps.step.result === nextProps.step.result &&
+      prevProps.pendingApproval?.stepId === nextProps.pendingApproval?.stepId
+    );
+  }
+);
+
+MemoizedStepCard.displayName = 'MemoizedStepCard';
+
 interface AIChatProps {
   messages: AIMessage[];
   onSendMessage: (message: string) => void;
@@ -596,7 +770,11 @@ interface AIChatProps {
     openFiles: string[];
     recentFiles: string[];
   };
+  // Message management for Agent Mode
+  onAddMessage?: (message: AIMessage) => void;
+  onUpdateMessage?: (messageId: string, updater: (msg: AIMessage) => AIMessage) => void;
   // Callbacks for agent actions
+  onFileChanged?: (filePath: string, action: 'created' | 'modified' | 'deleted') => void;
   onTaskComplete?: (task: AgentTask) => void;
   onTaskError?: (task: AgentTask, error: Error) => void;
   onApprovalRequired?: (step: AgentStep, request: ApprovalRequest) => Promise<boolean>;
@@ -617,6 +795,9 @@ const AIChat: React.FC<AIChatProps> = ({
   taskPlanner,
   executionEngine,
   workspaceContext,
+  onAddMessage,
+  onUpdateMessage,
+  onFileChanged,
   onTaskComplete,
   onTaskError,
   onApprovalRequired,
@@ -811,6 +992,10 @@ const AIChat: React.FC<AIChatProps> = ({
     }
 
     try {
+      // Set workspace context for ExecutionEngine so it can resolve paths correctly
+      executionEngine.setTaskContext(userRequest, workspaceContext.workspaceRoot);
+      console.log('[AIChat] Set task context with workspace root:', workspaceContext.workspaceRoot);
+
       // Plan the task
       const planResponse = await taskPlanner.planTask({
         userRequest,
@@ -823,8 +1008,9 @@ const AIChat: React.FC<AIChatProps> = ({
       });
 
       // Create a message with the agent task
+      const agentMessageId = Date.now().toString();
       const agentMessage: AIMessage = {
-        id: Date.now().toString(),
+        id: agentMessageId,
         role: 'assistant',
         content: `**Agent Task**: ${planResponse.task.title}\n\n${planResponse.task.description}\n\nPlanning complete. Ready to execute ${planResponse.task.steps.length} steps.`,
         timestamp: new Date(),
@@ -833,20 +1019,54 @@ const AIChat: React.FC<AIChatProps> = ({
         },
       };
 
-      // Add the message (this should trigger a re-render showing the steps)
-      // Note: This assumes parent component manages messages state
-      // In a real implementation, we'd need a way to update messages from here
+      // Add the message to show initial task plan
+      if (onAddMessage) {
+        onAddMessage(agentMessage);
+        console.log('[AIChat] Added agent message with task plan');
+      } else {
+        console.warn('[AIChat] onAddMessage not provided, agent task will not be visible');
+      }
 
       // Execute the task with callbacks
       const callbacks = {
         onStepStart: (step: AgentStep) => {
-          console.log('Step started:', step.title);
+          console.log('[AIChat] Step started:', step.title);
+          // Update message to show current step
+          if (onUpdateMessage) {
+            onUpdateMessage(agentMessageId, (msg) => ({
+              ...msg,
+              agentTask: msg.agentTask
+                ? {
+                    ...msg.agentTask,
+                    currentStep: step,
+                  }
+                : msg.agentTask,
+            }));
+          }
         },
         onStepComplete: (step: AgentStep, result: any) => {
-          console.log('Step completed:', step.title, result);
+          console.log('[AIChat] Step completed:', step.title, result);
+          // Update message to reflect completed step
+          if (onUpdateMessage) {
+            onUpdateMessage(agentMessageId, (msg) => {
+              // The step object passed in should already have the updated status and result
+              // Just trigger a re-render by updating the message
+              return { ...msg };
+            });
+          }
         },
         onStepError: (step: AgentStep, error: Error) => {
-          console.error('Step failed:', step.title, error);
+          console.error('[AIChat] Step failed:', step.title, error);
+          // Update message to show error
+          if (onUpdateMessage) {
+            onUpdateMessage(agentMessageId, (msg) => ({ ...msg }));
+          }
+        },
+        onFileChanged: (filePath: string, action: 'created' | 'modified' | 'deleted') => {
+          console.log('[AIChat] File changed:', filePath, action);
+          if (onFileChanged) {
+            onFileChanged(filePath, action);
+          }
         },
         onStepApprovalRequired: async (step: AgentStep, request: ApprovalRequest) => {
           if (onApprovalRequired) {
@@ -931,65 +1151,16 @@ const AIChat: React.FC<AIChatProps> = ({
         </TaskProgressBar>
         <AgentStepsList>
           {task.steps.map((step) => (
-            <CompactStepCard
+            <MemoizedStepCard
               key={step.id}
-              $status={step.status}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <StepHeaderCompact>
-                <StepIconCompact $status={step.status}>
-                  {getStepIcon(step.status)}
-                </StepIconCompact>
-                <StepTitleCompact>{step.title}</StepTitleCompact>
-              </StepHeaderCompact>
-              {step.description && (
-                <StepDescriptionCompact>{step.description}</StepDescriptionCompact>
-              )}
-
-              {/* Show approval prompt if this step is pending approval */}
-              {pendingApproval && pendingApproval.stepId === step.id && (
-                <ApprovalPromptCompact
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                >
-                  <div style={{ fontSize: '12px', marginBottom: '8px', color: vibeTheme.colors.text }}>
-                    <strong>Approval Required</strong>
-                    <div style={{ marginTop: '4px' }}>
-                      Risk: {pendingApproval.impact.riskLevel} |
-                      Files: {pendingApproval.impact.filesAffected.length} |
-                      Reversible: {pendingApproval.impact.reversible ? 'Yes' : 'No'}
-                    </div>
-                  </div>
-                  <ApprovalActionsCompact>
-                    <ApprovalButton
-                      $variant="approve"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        // TODO: Handle approval
-                        console.log('Approved step:', step.id);
-                      }}
-                    >
-                      <CheckCircle2 size={14} />
-                      Approve
-                    </ApprovalButton>
-                    <ApprovalButton
-                      $variant="reject"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        // TODO: Handle rejection
-                        console.log('Rejected step:', step.id);
-                      }}
-                    >
-                      <XCircle size={14} />
-                      Reject
-                    </ApprovalButton>
-                  </ApprovalActionsCompact>
-                </ApprovalPromptCompact>
-              )}
-            </CompactStepCard>
+              step={step}
+              pendingApproval={pendingApproval}
+              getStepIcon={getStepIcon}
+              handleApproval={(stepId: string, approved: boolean) => {
+                // TODO: Handle approval/rejection properly
+                console.log(approved ? 'Approved step:' : 'Rejected step:', stepId);
+              }}
+            />
           ))}
         </AgentStepsList>
       </div>
@@ -1058,18 +1229,18 @@ const AIChat: React.FC<AIChatProps> = ({
         {messages.map((message) => (
           <Message
             key={message.id}
-            role={message.role}
+            role={message.role === 'system' ? 'assistant' : message.role}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <MessageIcon role={message.role}>
+            <MessageIcon role={message.role === 'system' ? 'assistant' : message.role}>
               {message.role === 'user' ? <User size={12} /> : <Bot size={12} />}
             </MessageIcon>
             <MessageContent>
               <SecureMessageContent
                 content={message.content}
-                role={message.role}
+                role={message.role === 'system' ? 'assistant' : message.role}
               />
 
               {/* Render agent task steps if present */}
