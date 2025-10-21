@@ -25,6 +25,7 @@ import {
 import { vibeTheme } from '../../styles/theme';
 import { TaskPlanner } from '../../services/ai/TaskPlanner';
 import { ExecutionEngine, ExecutionCallbacks } from '../../services/ai/ExecutionEngine';
+import { BackgroundAgentSystem } from '../../services/BackgroundAgentSystem';
 import {
   AgentTask,
   AgentStep,
@@ -41,6 +42,9 @@ interface AgentModeV2Props {
   onComplete: (task: AgentTask) => void;
   taskPlanner: TaskPlanner;
   executionEngine: ExecutionEngine;
+  backgroundAgentSystem?: BackgroundAgentSystem;
+  showSuccess?: (title: string, message?: string) => void;
+  showError?: (title: string, message?: string) => void;
   workspaceContext?: {
     workspaceRoot: string;
     currentFile?: string;
@@ -582,12 +586,39 @@ const Footer = styled.div`
   background: rgba(139, 92, 246, 0.05);
 `;
 
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  color: ${vibeTheme.colors.text};
+  border-radius: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(139, 92, 246, 0.1);
+  }
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: ${vibeTheme.colors.purple};
+  }
+`;
+
 const AgentModeV2: React.FC<AgentModeV2Props> = ({
   isOpen,
   onClose,
   onComplete,
   taskPlanner,
   executionEngine,
+  backgroundAgentSystem,
+  showSuccess,
+  showError,
   workspaceContext,
 }) => {
   const [userRequest, setUserRequest] = useState('');
@@ -599,6 +630,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
   const [warnings, setWarnings] = useState<string[]>([]);
   const [reasoning, setReasoning] = useState<string>('');
   const [planningInsights, setPlanningInsights] = useState<PlanningInsights | null>(null);
+  const [runInBackground, setRunInBackground] = useState(false);
   const stepsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -642,6 +674,43 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
   const handleExecuteTask = async () => {
     if (!currentTask) return;
 
+    // If running in background, submit to background agent system
+    if (runInBackground && backgroundAgentSystem) {
+      try {
+        const taskId = backgroundAgentSystem.submit(
+          'agent-mode-v2',
+          userRequest,
+          workspaceContext?.workspaceRoot || '',
+          {
+            context: workspaceContext,
+            files: workspaceContext?.openFiles || []
+          },
+          { priority: 'normal' }
+        );
+
+        if (showSuccess) {
+          showSuccess(
+            'Task Started in Background',
+            `Task ID: ${taskId.slice(0, 8)}... - Check background panel for progress`
+          );
+        }
+
+        // Close agent mode panel
+        onClose();
+        return;
+      } catch (error) {
+        console.error('[AgentModeV2] Failed to submit background task:', error);
+        if (showError) {
+          showError(
+            'Background Task Failed',
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+        }
+        return;
+      }
+    }
+
+    // Normal foreground execution
     const callbacks: ExecutionCallbacks = {
       onStepStart: (step) => {
         console.log('[AgentModeV2] Step started:', step.order, step.title);
@@ -1281,15 +1350,27 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
                   )}
 
                   {currentTask && currentTask.status === 'awaiting_approval' && (
-                    <Button
-                      $variant="primary"
-                      onClick={handleExecuteTask}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Play />
-                      Execute Task
-                    </Button>
+                    <>
+                      {backgroundAgentSystem && (
+                        <CheckboxLabel>
+                          <input
+                            type="checkbox"
+                            checked={runInBackground}
+                            onChange={(e) => setRunInBackground(e.target.checked)}
+                          />
+                          Run in Background
+                        </CheckboxLabel>
+                      )}
+                      <Button
+                        $variant="primary"
+                        onClick={handleExecuteTask}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Play />
+                        {runInBackground ? 'Start in Background' : 'Execute Task'}
+                      </Button>
+                    </>
                   )}
 
                   {currentTask && currentTask.status === 'in_progress' && (

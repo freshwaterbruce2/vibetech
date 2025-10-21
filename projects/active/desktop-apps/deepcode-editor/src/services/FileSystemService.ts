@@ -2,18 +2,17 @@ import { FileSystemItem } from '../types';
 
 import { ElectronService } from './ElectronService';
 
-// Check if running in Tauri
-const isTauri = typeof window !== 'undefined' && '__TAURI__' in window;
-
 export class FileSystemService {
   private files: Map<string, string> = new Map();
   private electronService: ElectronService;
-  private isTauri: boolean;
+  private isElectron: boolean;
 
   constructor() {
     this.electronService = new ElectronService();
-    this.isTauri = isTauri;
-    this.initializeDemoFiles();
+    this.isElectron = this.electronService.isElectron();
+    if (!this.isElectron) {
+      this.initializeDemoFiles();
+    }
   }
 
   private initializeDemoFiles() {
@@ -279,11 +278,10 @@ module.exports = {
   }
 
   async readFile(path: string): Promise<string> {
-    if (this.isTauri) {
-      // Use Tauri filesystem plugin
+    if (this.isElectron) {
+      // Use Electron filesystem API
       try {
-        const { readTextFile } = await import('@tauri-apps/plugin-fs');
-        const content = await readTextFile(path);
+        const content = await this.electronService.readFile(path);
         return content;
       } catch (error) {
         console.error('Tauri readFile error:', error);
@@ -301,11 +299,23 @@ module.exports = {
   }
 
   async writeFile(path: string, content: string): Promise<void> {
-    if (this.isTauri) {
-      // Use Tauri filesystem plugin
+    // Extract parent directory and ensure it exists
+    const lastSeparator = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+    if (lastSeparator > 0) {
+      const parentDir = path.substring(0, lastSeparator);
       try {
-        const { writeTextFile } = await import('@tauri-apps/plugin-fs');
-        await writeTextFile(path, content);
+        // Create parent directory if it doesn't exist
+        await this.createDirectory(parentDir);
+      } catch (error) {
+        // Ignore error if directory already exists
+        console.log('[FileSystemService] Parent directory might already exist:', parentDir);
+      }
+    }
+
+    if (this.isElectron) {
+      // Use Electron filesystem API
+      try {
+        await this.electronService.writeFile(path, content);
         return;
       } catch (error) {
         console.error('Tauri writeFile error:', error);
@@ -336,45 +346,55 @@ module.exports = {
     this.files.delete(path);
   }
 
-  async createDirectory(_path: string): Promise<void> {
-    // For demo purposes, we'll just track directories as empty strings
-  }
-
-  async listDirectory(path: string): Promise<FileSystemItem[]> {
-    if (this.isTauri) {
-      // Use Tauri filesystem plugin
+  async createDirectory(path: string): Promise<void> {
+    if (this.isElectron) {
       try {
-        const { readDir } = await import('@tauri-apps/plugin-fs');
-        const entries = await readDir(path);
-
-        const items: FileSystemItem[] = [];
-        for (const entry of entries) {
-          items.push({
-            name: entry.name,
-            path: `${path}${path.endsWith('\\') || path.endsWith('/') ? '' : '\\'}${entry.name}`,
-            type: entry.isDirectory ? 'directory' as const : 'file' as const,
-            size: 0, // Tauri readDir doesn't provide size by default
-            modified: new Date(),
-          });
-        }
-
-        return items;
+        await this.electronService.createDir(path);
+        console.log(`[FileSystemService] Created directory: ${path}`);
+        return;
       } catch (error) {
-        console.error('Tauri listDirectory error:', error);
-        return [];
+        console.error('[FileSystemService] Tauri createDirectory error:', error);
+        throw error;
       }
     }
 
     if (this.electronService.isElectron) {
-      // Use Electron IPC to get real directory listing
+      await this.electronService.createDirectory(path);
+      console.log(`[FileSystemService] Created directory via Electron: ${path}`);
+      return;
+    }
+
+    // For web/demo mode, just track it (no-op for in-memory filesystem)
+    console.log(`[FileSystemService] Skipping directory creation in web mode: ${path}`);
+  }
+
+  async listDirectory(path: string): Promise<FileSystemItem[]> {
+    if (this.isElectron && this.electronService.isElectron()) {
+      // Use Electron filesystem API (matches preload.cjs)
       try {
-        const result = await this.electronService.readDirectory(path);
-        return result?.map(item => ({
-          ...item,
-          type: item.isDirectory ? 'directory' as const : 'file' as const
-        })) || [];
+        console.log('[FileSystemService] Listing directory via Electron:', path);
+        const entries = await this.electronService.readDir(path);
+
+        console.log('[FileSystemService] Got', entries.length, 'entries from Electron');
+
+        const items: FileSystemItem[] = [];
+        for (const entry of entries) {
+          // Normalize path separators - always use forward slash
+          const normalizedPath = entry.path.replace(/\\/g, '/');
+
+          items.push({
+            name: entry.name,
+            path: normalizedPath,
+            type: entry.isDirectory ? 'directory' as const : 'file' as const,
+            size: 0, // Size will be fetched separately if needed
+            modified: new Date(),
+          });
+        }
+
+        console.log('[FileSystemService] Returning', items.length, 'items');
+        return items;
       } catch (error) {
-        console.error('Error listing directory:', error);
+        console.error('[FileSystemService] Electron listDirectory error:', error);
         return [];
       }
     }
@@ -413,20 +433,78 @@ module.exports = {
       ];
     }
 
-    console.warn('Directory listing not available in web mode for path:', path);
+    console.warn('[FileSystemService] Directory listing not available in web mode for path:', path);
     return [];
   }
 
   async exists(path: string): Promise<boolean> {
+    if (this.isElectron) {
+      try {
+        return await this.electronService.exists(path);
+      } catch (error) {
+        console.error('[FileSystemService] Tauri exists error:', error);
+        return false;
+      }
+    }
+
+    if (this.electronService.isElectron) {
+      try {
+        await this.electronService.readFile(path);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
     return this.files.has(path);
   }
 
   async isDirectory(path: string): Promise<boolean> {
-    // Simple check for demo purposes
+    if (this.isElectron) {
+      try {
+        const stats = await this.electronService.stat(path);
+        return stats.isDirectory;
+      } catch {
+        return false;
+      }
+    }
+
+    // Simple check for demo purposes in web mode
     return !path.includes('.');
   }
 
   async getFileStats(path: string) {
+    if (this.isElectron) {
+      try {
+        const stats = await this.electronService.stat(path);
+        return {
+          size: stats.size,
+          created: stats.birthtime ? new Date(stats.birthtime) : new Date(),
+          modified: stats.mtime ? new Date(stats.mtime) : new Date(),
+          isDirectory: stats.isDirectory,
+        };
+      } catch (error) {
+        // File doesn't exist or can't be accessed
+        throw new Error(`Failed to get file stats: ${error}`);
+      }
+    }
+
+    if (this.electronService.isElectron) {
+      // Electron mode - try to read file to check if it exists
+      try {
+        const content = await this.electronService.readFile(path);
+        return {
+          size: content?.length || 0,
+          created: new Date(),
+          modified: new Date(),
+          isDirectory: false, // Electron readFile only works on files
+        };
+      } catch (error) {
+        throw new Error(`Failed to get file stats: ${error}`);
+      }
+    }
+
+    // Web mode - fallback to in-memory storage
     const content = this.files.get(path) || '';
     return {
       size: content.length,
@@ -439,6 +517,35 @@ module.exports = {
   // Path utility methods
   joinPath(...paths: string[]): string {
     return paths.join('/').replace(/\/+/g, '/');
+  }
+
+  /**
+   * Resolves a file path against workspace root
+   * Handles both relative and absolute paths
+   */
+  resolveWorkspacePath(path: string, workspaceRoot?: string): string {
+    // If path is already absolute, just normalize and return
+    if (this.isAbsolute(path)) {
+      const normalized = path.replace(/\\/g, '/');
+      console.log(`[FileSystemService] Path already absolute: "${path}" → "${normalized}"`);
+      return normalized;
+    }
+
+    // If no workspace root provided, return path as-is
+    if (!workspaceRoot) {
+      console.log(`[FileSystemService] No workspace root, using path as-is: "${path}"`);
+      return path;
+    }
+
+    // Normalize separators (handle Windows backslashes)
+    const normalizedPath = path.replace(/\\/g, '/');
+    const normalizedRoot = workspaceRoot.replace(/\\/g, '/');
+
+    // Join workspace root with relative path
+    const resolved = this.joinPath(normalizedRoot, normalizedPath);
+
+    console.log(`[FileSystemService] Resolved path: "${path}" → "${resolved}" (workspace: ${workspaceRoot})`);
+    return resolved;
   }
 
   dirname(path: string): string {
@@ -458,7 +565,15 @@ module.exports = {
   }
 
   isAbsolute(path: string): boolean {
-    return path.startsWith('/');
+    // Check for Unix absolute paths (start with /)
+    if (path.startsWith('/')) {
+      return true;
+    }
+    // Check for Windows absolute paths (C:\, D:\, etc.)
+    if (/^[a-zA-Z]:[/\\]/.test(path)) {
+      return true;
+    }
+    return false;
   }
 
   relative(from: string, to: string): string {

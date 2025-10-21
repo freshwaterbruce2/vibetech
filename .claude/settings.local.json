@@ -1,23 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(Select-Object FullName)",
-      "Bash(Get-ChildItem \"C:\\dev\\projects\" -Directory -Recurse -Depth 2)",
-      "Bash(timeout:*)",
-      "WebSearch",
-      "Bash(findstr:*)",
-      "Bash(npx tsc:*)",
-      "Bash(test:*)",
-      "Bash(cat:*)",
-      "Bash(cargo check:*)",
-      "Bash(Rename-Item C:dev.claudehookspre-tool-use-stdin.ps1 C:dev.claudehookspre-tool-use-stdin.ps1.disabled -Force)",
-      "Bash(Rename-Item C:dev.claudehookspost-tool-use-stdin.ps1 C:dev.claudehookspost-tool-use-stdin.ps1.disabled -Force)",
-      "Bash(Measure-Object -Line)",
-      "Bash($env:CLAUDE_MAX_PLAN_TIER)",
-      "Bash(Remove-Item \"C:\\dev\\.git\\index.lock\" -Force -ErrorAction SilentlyContinue)",
-      "Bash(tasklist)",
+      "Bash(Select-Object Name, Id, Path)",
       "Bash(git add:*)",
-      "Bash(Get-ChildItem -Path \"C:\\dev\\projects\\active\\desktop-apps\\nova-agent-current\\src\" -Filter \"*types*\" -Recurse -File)"
+      "Bash(./gradlew.bat clean:*)"
     ],
     "deny": [],
     "ask": [],

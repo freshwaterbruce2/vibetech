@@ -267,7 +267,7 @@ const defaultSettings: EditorSettings = {
   autoSave: true,
   aiAutoComplete: true,
   aiSuggestions: true,
-  aiModel: 'deepseek-v3-2-exp',
+  aiModel: 'deepseek-chat',
   showReasoningProcess: false,
   lineNumbers: true,
   folding: true,
@@ -290,7 +290,8 @@ const MODEL_PRICING = {
   'gemini-2-5-flash': { input: '$0.30', output: '$1.20', context: '1M' },
   'gemini-2-5-flash-lite': { input: '$0.075', output: '$0.30', context: '1M' },
   'gemini-2-0-flash': { input: '$0.10', output: '$0.40', context: '1M' },
-  'deepseek-v3-2-exp': { input: '$0.28', output: '$0.42', context: '128K' },
+  'deepseek-chat': { input: '$0.028', output: '$0.042', context: '128K' },
+  'deepseek-reasoner': { input: '$0.028', output: '$0.042', context: '128K' },
 };
 
 export const Settings: React.FC<SettingsProps> = ({
@@ -603,7 +604,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   id="ai-model-select"
                   name="aiModel"
                   aria-label="AI model selection"
-                  value={localSettings.aiModel || 'deepseek-v3-2-exp'}
+                  value={localSettings.aiModel || 'deepseek-chat'}
                   onChange={(e) =>
                     updateSetting(
                       'aiModel',
@@ -626,8 +627,9 @@ export const Settings: React.FC<SettingsProps> = ({
                     <option value="gemini-2-5-flash-lite">Gemini 2.5 Flash-Lite</option>
                     <option value="gemini-2-0-flash">Gemini 2.0 Flash</option>
                   </optgroup>
-                  <optgroup label="DeepSeek">
-                    <option value="deepseek-v3-2-exp">DeepSeek V3.2-Exp</option>
+                  <optgroup label="DeepSeek (V3.2-Exp)">
+                    <option value="deepseek-chat">DeepSeek Chat (Fast, General)</option>
+                    <option value="deepseek-reasoner">DeepSeek Reasoner (Thinking, Agents)</option>
                   </optgroup>
                 </Select>
               </SettingControl>

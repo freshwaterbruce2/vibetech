@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, CheckCircle, GitBranch, Layers, MessageCircle, Sidebar, Sparkles, Terminal,Zap } from 'lucide-react';
+import { AlertCircle, CheckCircle, GitBranch, Layers, MessageCircle, Sidebar, Sparkles, Terminal, Zap, Activity } from 'lucide-react';
 import styled from 'styled-components';
 
 import { useGit } from '../hooks/useGit';
@@ -100,8 +100,10 @@ const Separator = styled.div`
 interface StatusBarProps {
   currentFile: EditorFile | null;
   aiChatOpen: boolean;
+  backgroundPanelOpen?: boolean;
   onToggleSidebar: () => void;
   onToggleAIChat: () => void;
+  onToggleBackgroundPanel?: () => void;
   onOpenAgentMode?: () => void;
   onOpenComposerMode?: () => void;
   onOpenTerminal?: () => void;
@@ -110,8 +112,10 @@ interface StatusBarProps {
 const StatusBar: React.FC<StatusBarProps> = ({
   currentFile,
   aiChatOpen,
+  backgroundPanelOpen,
   onToggleSidebar,
   onToggleAIChat,
+  onToggleBackgroundPanel,
   onOpenAgentMode,
   onOpenComposerMode,
   onOpenTerminal,
@@ -227,6 +231,19 @@ const StatusBar: React.FC<StatusBarProps> = ({
           >
             <Terminal size={14} />
             Terminal
+          </ToggleButton>
+        )}
+
+        {onToggleBackgroundPanel && (
+          <ToggleButton
+            active={backgroundPanelOpen || false}
+            onClick={onToggleBackgroundPanel}
+            title="Toggle Background Tasks"
+            whileHover={{ scale: 1.05, y: -1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Activity size={14} />
+            Tasks
           </ToggleButton>
         )}
 

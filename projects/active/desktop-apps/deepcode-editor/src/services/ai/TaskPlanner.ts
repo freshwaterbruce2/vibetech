@@ -57,10 +57,10 @@ export class TaskPlanner {
         projectStructure = await this.structureDetector.detectStructure(context.workspaceRoot);
         console.log('[TaskPlanner] Detected project structure:', ProjectStructureDetector.formatSummary(projectStructure));
       } catch (error) {
-        const isWebMode = !(window as any).__TAURI__;
+        const isWebMode = !window.electron?.isElectron;
         if (isWebMode) {
           console.warn('[TaskPlanner] Project structure detection failed in web mode. Using default structure.');
-          console.warn('[TaskPlanner] For full filesystem access, use the Tauri desktop application.');
+          console.warn('[TaskPlanner] For full filesystem access, use the Electron desktop application.');
         } else {
           console.error('[TaskPlanner] Failed to detect project structure:', error);
         }
@@ -808,6 +808,34 @@ Generate the task plan now:`;
    */
   /**
    * PHASE 6: Calculate confidence score for a step based on memory and context
+   *
+   * Analyzes a step to determine confidence in successful execution by considering:
+   * - Memory-backed patterns from past successes
+   * - File existence likelihood (for file operations)
+   * - Action complexity (code generation is riskier)
+   *
+   * Scoring Algorithm:
+   * - Baseline: 50 points
+   * - Memory match: +40 points (weighted by success rate)
+   * - File exists: +20 points
+   * - Complex action: -15 points
+   *
+   * Risk Levels:
+   * - Low (70-100): High confidence, no fallbacks needed
+   * - Medium (40-69): Moderate confidence, generate fallbacks
+   * - High (0-39): Low confidence, multiple fallbacks required
+   *
+   * @param step - The agent step to evaluate
+   * @param memory - Strategy memory for querying past patterns
+   * @returns StepConfidence with score, factors, memory backing, and risk level
+   *
+   * @example
+   * ```typescript
+   * const confidence = await planner.calculateStepConfidence(step, memory);
+   * if (confidence.riskLevel === 'high') {
+   *   console.log('Step has low confidence, generating fallbacks...');
+   * }
+   * ```
    */
   async calculateStepConfidence(
     step: AgentStep,
@@ -882,6 +910,32 @@ Generate the task plan now:`;
 
   /**
    * PHASE 6: Generate fallback plans for risky steps
+   *
+   * Creates alternative execution strategies for steps with medium/high risk levels.
+   * Fallbacks are attempted sequentially if the primary approach fails.
+   *
+   * Fallback Strategies by Action Type:
+   * - read_file: Search workspace first, then create default template
+   * - Config files: Create with default JSON ({})
+   * - High risk: Request user assistance as last resort
+   *
+   * Fallback Confidence:
+   * - Search strategy: 75% (usually finds the file)
+   * - Create default: 60% (may not match expected format)
+   * - User assistance: 90% (human can always help)
+   *
+   * @param step - The agent step to create fallbacks for
+   * @param confidence - The calculated confidence for this step
+   * @returns Array of fallback plans (empty for low-risk steps)
+   *
+   * @example
+   * ```typescript
+   * const fallbacks = await planner.generateFallbackPlans(step, confidence);
+   * console.log(`Generated ${fallbacks.length} fallback plans`);
+   * // Fallback 1: Search workspace
+   * // Fallback 2: Create default
+   * // Fallback 3: Ask user
+   * ```
    */
   async generateFallbackPlans(
     step: AgentStep,
@@ -975,6 +1029,34 @@ Generate the task plan now:`;
 
   /**
    * PHASE 6: Plan task with confidence scores and fallbacks
+   *
+   * Enhanced planning that analyzes each step's success probability and generates
+   * fallback strategies for risky steps. This is the core Phase 6 implementation.
+   *
+   * Process:
+   * 1. Generate base plan (using existing planTask logic)
+   * 2. Calculate confidence for each step
+   * 3. Generate fallbacks for medium/high-risk steps
+   * 4. Calculate overall planning insights
+   *
+   * Planning Insights Include:
+   * - Overall confidence (average across all steps)
+   * - High-risk step count
+   * - Memory-backed step count
+   * - Total fallbacks generated
+   * - Estimated success rate
+   *
+   * @param request - Task planning request with user intent and context
+   * @param memory - Strategy memory for querying successful patterns
+   * @returns Enhanced task plan response with insights and confidence data
+   *
+   * @example
+   * ```typescript
+   * const result = await planner.planTaskWithConfidence(request, memory);
+   * console.log(`Overall confidence: ${result.insights.overallConfidence}%`);
+   * console.log(`Success rate estimate: ${result.insights.estimatedSuccessRate}%`);
+   * console.log(`Generated ${result.insights.fallbacksGenerated} fallback plans`);
+   * ```
    */
   async planTaskWithConfidence(
     request: TaskPlanRequest,
@@ -1024,8 +1106,39 @@ Generate the task plan now:`;
   }
 
   /**
-   * PHASE 6: Plan task with enhanced confidence (convenience wrapper using internal memory)
-   * This is the recommended method for UI components
+   * PHASE 6: Plan task with enhanced confidence (convenience wrapper)
+   *
+   * Simplified interface for UI components that uses the internal StrategyMemory instance.
+   * This is the recommended method for Agent Mode UI and other high-level consumers.
+   *
+   * Benefits:
+   * - No need to manage StrategyMemory instance
+   * - Automatic confidence scoring
+   * - Automatic fallback generation
+   * - Planning insights included
+   *
+   * Use Cases:
+   * - Agent Mode V2 UI
+   * - Autonomous task execution
+   * - Background agent system
+   * - Any component needing confidence-aware planning
+   *
+   * @param request - Task planning request with user intent and context
+   * @returns Enhanced task plan response with insights and confidence data
+   *
+   * @example
+   * ```typescript
+   * // Simple usage - no memory management needed
+   * const result = await taskPlanner.planTaskEnhanced({
+   *   userRequest: 'Create a new React component',
+   *   context: { workspaceRoot: '/project', openFiles: [] }
+   * });
+   *
+   * // Check insights before execution
+   * if (result.insights.highRiskSteps > 0) {
+   *   console.warn('Task has high-risk steps, proceed with caution');
+   * }
+   * ```
    */
   async planTaskEnhanced(request: TaskPlanRequest): Promise<TaskPlanResponse & { insights: PlanningInsights }> {
     console.log('[TaskPlanner] 🎯 Using Phase 6 enhanced planning with confidence scores...');

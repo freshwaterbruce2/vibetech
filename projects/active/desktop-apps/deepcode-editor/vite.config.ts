@@ -6,13 +6,15 @@ import viteCompression from 'vite-plugin-compression'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor'
 
 export default defineConfig({
+  // Electron: No base path needed (uses file:// protocol)
+  // Monaco Editor workers work automatically in Electron
+  base: process.env.NODE_ENV === 'production' ? './' : '/',
+
   plugins: [
     react(),
 
-    // Monaco Editor plugin for proper worker handling
-    monacoEditorPlugin.default({
-      languageWorkers: ['editorWorkerService', 'css', 'html', 'json', 'typescript']
-    }),
+    // Monaco Editor plugin - works perfectly with Electron
+    monacoEditorPlugin.default({}),
 
     viteCompression({
       algorithm: 'gzip',
@@ -161,11 +163,11 @@ export default defineConfig({
   },
   
   server: {
-    port: 3006,
-    strictPort: false,
-    
+    port: 5174,
+    strictPort: true,
+
     cors: true,
-    
+
     warmup: {
       clientFiles: [
         './src/App.tsx',

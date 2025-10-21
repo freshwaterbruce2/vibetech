@@ -167,13 +167,33 @@ class Strategy(ABC):
                 logger.warning(f"{self.name}: Order size {xlm_volume:.2f} XLM below minimum {self.config.xlm_min_order_size}")
                 return {"error": f"Order below minimum size"}
 
+            # CRITICAL FIX: Calculate stop-loss and take-profit
+            stop_loss = None
+            take_profit = None
+            
+            if side.lower() == 'buy':
+                # For BUY orders: set stop-loss below and take-profit above
+                stop_loss_price = current_price * 0.985  # -1.5% stop-loss
+                take_profit_price = current_price * 1.015  # +1.5% take-profit
+                
+                stop_loss = str(stop_loss_price)
+                take_profit = str(take_profit_price)
+                
+                logger.info(
+                    f"{self.name}: Setting exits - "
+                    f"Stop-loss: ${stop_loss_price:.4f} (-1.5%), "
+                    f"Take-profit: ${take_profit_price:.4f} (+1.5%)"
+                )
+
             # Place the order
             result = await self.engine.place_order(
                 pair="XLM/USD",
                 side=order_side,
                 order_type=order_type_enum,
                 volume=str(xlm_volume),
-                price=round_price(price, 6) if price else None
+                price=round_price(price, 6) if price else None,
+                stop_loss=stop_loss,
+                take_profit=take_profit
             )
 
             if 'error' not in result:

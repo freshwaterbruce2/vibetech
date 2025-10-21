@@ -7,6 +7,7 @@ import { ProductionErrorBoundary } from './components/ErrorBoundary/ProductionEr
 import App from './App.tsx';
 
 import './index.css';
+import './styles/live-editor-stream.css'; // PHASE 7: Live editor streaming styles
 
 // Configure Monaco Editor to use local files instead of CDN (required for Tauri/Electron)
 loader.config({ monaco });

@@ -11,6 +11,7 @@ export interface UseFileManagerReturn {
   handleFileChange: (content: string) => void;
   handleSaveFile: () => Promise<void>;
   setCurrentFile: (file: EditorFile | null) => void;
+  setOpenFiles: (files: EditorFile[] | ((prev: EditorFile[]) => EditorFile[])) => void;
 }
 
 export interface UseFileManagerProps {
@@ -168,5 +169,6 @@ export function useFileManager({
     handleFileChange,
     handleSaveFile,
     setCurrentFile,
+    setOpenFiles,
   };
 }

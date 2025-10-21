@@ -261,7 +261,7 @@ const PricingCell = styled.div`
   &:first-child {
     text-align: left;
     color: ${vibeTheme.colors.text};
-    font-family: ${vibeTheme.typography.fontFamily.base};
+    font-family: ${vibeTheme.typography.fontFamily.primary};
   }
 `;
 
