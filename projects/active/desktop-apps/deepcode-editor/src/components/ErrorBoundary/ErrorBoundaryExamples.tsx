@@ -1,3 +1,4 @@
+import { logger } from '../../services/Logger';
 import { useState } from 'react';
 import styled from 'styled-components';
 
@@ -88,10 +89,10 @@ const BuggyButtonComponent = ({ label }: { label: string }) => {
 // Wrap component with error boundary HOC
 const SafeBuggyButton = withErrorBoundary(BuggyButtonComponent, {
   onError: (error, _errorInfo) => {
-    console.log('HOC Error caught:', error.message);
+    logger.debug('HOC Error caught:', error.message);
   },
   onReset: () => {
-    console.log('HOC Error boundary reset');
+    logger.debug('HOC Error boundary reset');
   },
 });
 

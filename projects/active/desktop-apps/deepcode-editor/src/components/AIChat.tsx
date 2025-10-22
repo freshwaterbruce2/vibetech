@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bot, Copy, Send, ThumbsDown, ThumbsUp, User, X, Zap, Play, FileEdit, CheckCircle2, XCircle, Loader2, AlertCircle, Shield } from 'lucide-react';
@@ -987,14 +988,14 @@ const AIChat: React.FC<AIChatProps> = ({
 
   const handleAgentTask = async (userRequest: string) => {
     if (!taskPlanner || !executionEngine || !workspaceContext) {
-      console.error('Agent mode requires taskPlanner, executionEngine, and workspaceContext');
+      logger.error('Agent mode requires taskPlanner, executionEngine, and workspaceContext');
       return;
     }
 
     try {
       // Set workspace context for ExecutionEngine so it can resolve paths correctly
       executionEngine.setTaskContext(userRequest, workspaceContext.workspaceRoot);
-      console.log('[AIChat] Set task context with workspace root:', workspaceContext.workspaceRoot);
+      logger.debug('[AIChat] Set task context with workspace root:', workspaceContext.workspaceRoot);
 
       // Plan the task
       const planResponse = await taskPlanner.planTask({
@@ -1022,15 +1023,15 @@ const AIChat: React.FC<AIChatProps> = ({
       // Add the message to show initial task plan
       if (onAddMessage) {
         onAddMessage(agentMessage);
-        console.log('[AIChat] Added agent message with task plan');
+        logger.debug('[AIChat] Added agent message with task plan');
       } else {
-        console.warn('[AIChat] onAddMessage not provided, agent task will not be visible');
+        logger.warn('[AIChat] onAddMessage not provided, agent task will not be visible');
       }
 
       // Execute the task with callbacks
       const callbacks = {
         onStepStart: (step: AgentStep) => {
-          console.log('[AIChat] Step started:', step.title);
+          logger.debug('[AIChat] Step started:', step.title);
           // Update message to show current step
           if (onUpdateMessage) {
             onUpdateMessage(agentMessageId, (msg) => ({
@@ -1045,7 +1046,7 @@ const AIChat: React.FC<AIChatProps> = ({
           }
         },
         onStepComplete: (step: AgentStep, result: any) => {
-          console.log('[AIChat] Step completed:', step.title, result);
+          logger.debug('[AIChat] Step completed:', step.title, result);
           // Update message to reflect completed step
           if (onUpdateMessage) {
             onUpdateMessage(agentMessageId, (msg) => {
@@ -1056,14 +1057,14 @@ const AIChat: React.FC<AIChatProps> = ({
           }
         },
         onStepError: (step: AgentStep, error: Error) => {
-          console.error('[AIChat] Step failed:', step.title, error);
+          logger.error('[AIChat] Step failed:', step.title, error);
           // Update message to show error
           if (onUpdateMessage) {
             onUpdateMessage(agentMessageId, (msg) => ({ ...msg }));
           }
         },
         onFileChanged: (filePath: string, action: 'created' | 'modified' | 'deleted') => {
-          console.log('[AIChat] File changed:', filePath, action);
+          logger.debug('[AIChat] File changed:', filePath, action);
           if (onFileChanged) {
             onFileChanged(filePath, action);
           }
@@ -1088,7 +1089,7 @@ const AIChat: React.FC<AIChatProps> = ({
 
       await executionEngine.executeTask(planResponse.task, callbacks);
     } catch (error) {
-      console.error('Agent task failed:', error);
+      logger.error('Agent task failed:', error);
       // TODO: Show error message
     }
   };
@@ -1158,7 +1159,7 @@ const AIChat: React.FC<AIChatProps> = ({
               getStepIcon={getStepIcon}
               handleApproval={(stepId: string, approved: boolean) => {
                 // TODO: Handle approval/rejection properly
-                console.log(approved ? 'Approved step:' : 'Rejected step:', stepId);
+                logger.debug(approved ? 'Approved step:' : 'Rejected step:', stepId);
               }}
             />
           ))}

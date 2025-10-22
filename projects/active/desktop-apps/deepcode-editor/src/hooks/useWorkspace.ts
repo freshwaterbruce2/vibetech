@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { WorkspaceService } from '../services/WorkspaceService';
@@ -49,7 +50,7 @@ export const useWorkspace = (): UseWorkspaceReturn => {
   const indexWorkspace = useCallback(
     async (rootPath: string): Promise<WorkspaceContext | null> => {
       if (isIndexing) {
-        console.warn('Indexing already in progress');
+        logger.warn('Indexing already in progress');
         return null;
       }
 
@@ -69,21 +70,21 @@ export const useWorkspace = (): UseWorkspaceReturn => {
           });
         }, 200);
 
-        console.log(`Starting workspace indexing for: ${rootPath}`);
+        logger.debug(`Starting workspace indexing for: ${rootPath}`);
         const context = await workspaceService.indexWorkspace(rootPath);
 
         clearInterval(progressInterval);
         setIndexingProgress(100);
         setWorkspaceContext(context);
 
-        console.log('Workspace indexing completed:', context);
+        logger.debug('Workspace indexing completed:', context);
 
         // Reset progress after a brief delay
         setTimeout(() => setIndexingProgress(0), 1000);
 
         return context;
       } catch (err) {
-        console.error('Workspace indexing failed:', err);
+        logger.error('Workspace indexing failed:', err);
         setError(err instanceof Error ? err.message : 'Indexing failed');
         return null;
       } finally {
@@ -206,7 +207,7 @@ export const useWorkspace = (): UseWorkspaceReturn => {
       debounce(() => {
         const ctx = workspaceContextRef.current;
         if (ctx && !isIndexing) {
-          console.log('[useWorkspace] Debounced refresh triggered');
+          logger.debug('[useWorkspace] Debounced refresh triggered');
           indexWorkspace(ctx.rootPath);
         }
       }, 5000),
@@ -229,25 +230,25 @@ export const useWorkspace = (): UseWorkspaceReturn => {
 
     // Only set up auto-refresh if not currently indexing
     if (isIndexing) {
-      console.log('[useWorkspace] Skipping auto-refresh setup - indexing in progress');
+      logger.debug('[useWorkspace] Skipping auto-refresh setup - indexing in progress');
       return;
     }
 
-    console.log('[useWorkspace] Setting up auto-refresh interval (5 minutes)');
+    logger.debug('[useWorkspace] Setting up auto-refresh interval (5 minutes)');
     const interval = setInterval(
       () => {
         if (!isIndexing) {
-          console.log('[useWorkspace] Auto-refresh scheduled (debounced)');
+          logger.debug('[useWorkspace] Auto-refresh scheduled (debounced)');
           debouncedRefreshIndex();
         } else {
-          console.log('[useWorkspace] Skipping auto-refresh - indexing in progress');
+          logger.debug('[useWorkspace] Skipping auto-refresh - indexing in progress');
         }
       },
       5 * 60 * 1000
     ); // 5 minutes
 
     return () => {
-      console.log('[useWorkspace] Cleaning up auto-refresh interval');
+      logger.debug('[useWorkspace] Cleaning up auto-refresh interval');
       clearInterval(interval);
     };
   }, [workspaceContext?.rootPath, isIndexing]); // FIX: Removed debouncedRefreshIndex to prevent loop!

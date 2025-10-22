@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { useCallback } from 'react';
 
 import { FileSystemService } from '../services/FileSystemService';
@@ -109,7 +110,7 @@ export function useFileManager({
         // Open file using store action
         openFile(file);
       } catch (error) {
-        console.error('Failed to open file:', error);
+        logger.error('Failed to open file:', error);
         showNotification({
           type: 'error',
           title: 'Failed to open file',
@@ -171,7 +172,7 @@ export function useFileManager({
         message: `${currentFile.name} saved successfully`,
       });
     } catch (error) {
-      console.error('Failed to save file:', error);
+      logger.error('Failed to save file:', error);
       onSaveError?.(currentFile.name, error as Error);
 
       showNotification({

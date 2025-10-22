@@ -1,0 +1,44 @@
+{
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "description": "TypeScript project with zero-error guarantee",
+  "scripts": {
+    "prepare": "husky install",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit",
+    "typecheck:strict": "tsc --noEmit --strict",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "quality": "pnpm typecheck && pnpm lint && pnpm format:check",
+    "quality:fix": "pnpm lint:fix && pnpm format",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "bash -c 'tsc --noEmit'"
+    ],
+    "*.{js,jsx,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "husky": "^9.0.0",
+    "lint-staged": "^16.2.4",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.3",
+    "vite": "^7.0.0",
+    "vitest": "^3.0.0"
+  }
+}

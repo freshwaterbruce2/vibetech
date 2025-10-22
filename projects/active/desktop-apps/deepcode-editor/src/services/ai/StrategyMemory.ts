@@ -9,6 +9,7 @@
  *
  * @see Phase 4: ReActExecutor for cycle generation
  */
+import { logger } from '../../services/Logger';
 
 import {
   StrategyPattern,
@@ -44,7 +45,7 @@ export class StrategyMemory {
     }
   ): Promise<void> {
     if (!cycle.observation.success) {
-      console.log('[StrategyMemory] Skipping failed cycle - only storing successes');
+      logger.debug('[StrategyMemory] Skipping failed cycle - only storing successes');
       return;
     }
 
@@ -71,9 +72,9 @@ export class StrategyMemory {
         existingPattern.confidence + 5 // Increase confidence with repeated success
       );
 
-      console.log(`[StrategyMemory] Updated existing pattern: ${problemSignature}`);
-      console.log(`[StrategyMemory]   Usage count: ${existingPattern.usageCount}`);
-      console.log(`[StrategyMemory]   Confidence: ${existingPattern.confidence}%`);
+      logger.debug(`[StrategyMemory] Updated existing pattern: ${problemSignature}`);
+      logger.debug(`[StrategyMemory]   Usage count: ${existingPattern.usageCount}`);
+      logger.debug(`[StrategyMemory]   Confidence: ${existingPattern.confidence}%`);
     } else {
       // Create new pattern
       const newPattern: StrategyPattern = {
@@ -94,9 +95,9 @@ export class StrategyMemory {
 
       this.patterns.set(problemSignature, newPattern);
 
-      console.log(`[StrategyMemory] ✅ Stored new pattern: ${problemSignature}`);
-      console.log(`[StrategyMemory]   Approach: ${newPattern.successfulApproach}`);
-      console.log(`[StrategyMemory]   Confidence: ${newPattern.confidence}%`);
+      logger.debug(`[StrategyMemory] ✅ Stored new pattern: ${problemSignature}`);
+      logger.debug(`[StrategyMemory]   Approach: ${newPattern.successfulApproach}`);
+      logger.debug(`[StrategyMemory]   Confidence: ${newPattern.confidence}%`);
     }
 
     // Enforce max patterns limit (remove oldest, least used)
@@ -133,14 +134,14 @@ export class StrategyMemory {
     const topMatches = matches.slice(0, maxResults);
 
     if (topMatches.length > 0) {
-      console.log(`[StrategyMemory] 🔍 Found ${topMatches.length} relevant pattern(s)`);
+      logger.debug(`[StrategyMemory] 🔍 Found ${topMatches.length} relevant pattern(s)`);
       topMatches.forEach((match, i) => {
-        console.log(`[StrategyMemory]   ${i + 1}. ${match.pattern.problemDescription}`);
-        console.log(`[StrategyMemory]      Relevance: ${match.relevanceScore}%`);
-        console.log(`[StrategyMemory]      Approach: ${match.pattern.successfulApproach}`);
+        logger.debug(`[StrategyMemory]   ${i + 1}. ${match.pattern.problemDescription}`);
+        logger.debug(`[StrategyMemory]      Relevance: ${match.relevanceScore}%`);
+        logger.debug(`[StrategyMemory]      Approach: ${match.pattern.successfulApproach}`);
       });
     } else {
-      console.log('[StrategyMemory] No relevant patterns found');
+      logger.debug('[StrategyMemory] No relevant patterns found');
     }
 
     return topMatches;
@@ -174,8 +175,8 @@ export class StrategyMemory {
           pattern.confidence = Math.max(0, pattern.confidence - 5);
         }
 
-        console.log(`[StrategyMemory] 📊 Updated pattern usage: ${pattern.problemDescription}`);
-        console.log(`[StrategyMemory]    Success: ${success}, Rate: ${pattern.successRate}%`);
+        logger.debug(`[StrategyMemory] 📊 Updated pattern usage: ${pattern.problemDescription}`);
+        logger.debug(`[StrategyMemory]    Success: ${success}, Rate: ${pattern.successRate}%`);
 
         this.saveToStorage();
         return;
@@ -237,7 +238,7 @@ export class StrategyMemory {
   clearAll(): void {
     this.patterns.clear();
     this.saveToStorage();
-    console.log('[StrategyMemory] 🗑️ All patterns cleared');
+    logger.debug('[StrategyMemory] 🗑️ All patterns cleared');
   }
 
   /**
@@ -268,9 +269,9 @@ export class StrategyMemory {
       }
 
       this.saveToStorage();
-      console.log(`[StrategyMemory] ✅ Imported ${patterns.length} patterns`);
+      logger.debug(`[StrategyMemory] ✅ Imported ${patterns.length} patterns`);
     } catch (error) {
-      console.error('[StrategyMemory] ❌ Failed to import patterns:', error);
+      logger.error('[StrategyMemory] ❌ Failed to import patterns:', error);
     }
   }
 
@@ -432,7 +433,7 @@ export class StrategyMemory {
       this.patterns.delete(pattern.problemSignature);
     }
 
-    console.log(`[StrategyMemory] Pruned ${removeCount} old patterns`);
+    logger.debug(`[StrategyMemory] Pruned ${removeCount} old patterns`);
   }
 
   /**
@@ -440,7 +441,7 @@ export class StrategyMemory {
    */
   private loadFromStorage(): void {
     if (!this.isStorageAvailable()) {
-      console.warn('[StrategyMemory] localStorage not available, using in-memory only');
+      logger.warn('[StrategyMemory] localStorage not available, using in-memory only');
       this.storageAvailable = false;
       return;
     }
@@ -461,10 +462,10 @@ export class StrategyMemory {
           this.patterns.set(pattern.problemSignature, pattern);
         }
 
-        console.log(`[StrategyMemory] ✅ Loaded ${patterns.length} patterns from storage`);
+        logger.debug(`[StrategyMemory] ✅ Loaded ${patterns.length} patterns from storage`);
       }
     } catch (error) {
-      console.error('[StrategyMemory] Failed to load from storage:', error);
+      logger.error('[StrategyMemory] Failed to load from storage:', error);
     }
   }
 
@@ -480,7 +481,7 @@ export class StrategyMemory {
       const patterns = Array.from(this.patterns.values());
       localStorage.setItem(STORAGE_KEY, JSON.stringify(patterns));
     } catch (error) {
-      console.error('[StrategyMemory] Failed to save to storage:', error);
+      logger.error('[StrategyMemory] Failed to save to storage:', error);
     }
   }
 

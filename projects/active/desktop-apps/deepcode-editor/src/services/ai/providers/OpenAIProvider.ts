@@ -1,6 +1,7 @@
 /**
  * OpenAI Provider - Implementation for OpenAI API integration
  */
+import { logger } from '../../../services/Logger';
 
 import {
   IAIProvider,
@@ -74,7 +75,7 @@ export class OpenAIProvider implements IAIProvider {
     if (config.apiKey && config.apiKey !== secureKeyManager.getApiKey('openai')) {
       const stored = secureKeyManager.storeApiKey('openai', config.apiKey);
       if (!stored) {
-        console.warn('Failed to store OpenAI API key securely');
+        logger.warn('Failed to store OpenAI API key securely');
       }
     }
 
@@ -158,7 +159,7 @@ export class OpenAIProvider implements IAIProvider {
         created: data.created
       };
     } catch (error) {
-      console.error('OpenAI completion error:', error);
+      logger.error('OpenAI completion error:', error);
       throw error;
     }
   }
@@ -251,7 +252,7 @@ export class OpenAIProvider implements IAIProvider {
 
               yield streamResponse;
             } catch (e) {
-              console.error('Error parsing stream chunk:', e);
+              logger.error('Error parsing stream chunk:', e);
             }
           }
         }
@@ -259,9 +260,9 @@ export class OpenAIProvider implements IAIProvider {
 
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
-        console.log('Stream cancelled');
+        logger.debug('Stream cancelled');
       } else {
-        console.error('OpenAI stream error:', error);
+        logger.error('OpenAI stream error:', error);
         throw error;
       }
     }
@@ -282,7 +283,7 @@ export class OpenAIProvider implements IAIProvider {
 
       return response.ok;
     } catch (error) {
-      console.error('OpenAI connection validation failed:', error);
+      logger.error('OpenAI connection validation failed:', error);
       return false;
     }
   }

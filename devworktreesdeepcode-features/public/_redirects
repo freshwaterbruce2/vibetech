@@ -1,0 +1,5 @@
+# API proxy
+/api/* https://function-bun-production-2a68.up.railway.app/api/:splat 200
+
+# SPA fallback - send all other requests to index.html
+/* /index.html 200

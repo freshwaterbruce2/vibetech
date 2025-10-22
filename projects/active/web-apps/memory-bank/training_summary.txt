@@ -1,0 +1,18 @@
+Agent Training Summary - 2025-10-13T00:57:12.964206
+======================================================================
+
+Agents Analyzed: 33
+Patterns Discovered: 0
+Insights Generated: 33
+
+Top Performing Agents:
+  desktop-development-specialist: 9.50 (2 tasks)
+  devops-infrastructure-agent: 9.50 (2 tasks)
+  mistake-analyzer: 9.50 (2 tasks)
+  performance-optimizer: 9.50 (2 tasks)
+  web-development-specialist: 9.50 (2 tasks)
+  auto_fixer_001: 1.00 (2528 tasks)
+  crypto-enhanced-trading: 1.00 (1277 tasks)
+  crypto_auto_fixer: 1.00 (428 tasks)
+  enhanced_market_001: 1.00 (129 tasks)
+  test_learning_agent: 1.00 (4 tasks)

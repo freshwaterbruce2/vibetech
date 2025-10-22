@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -239,14 +240,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           onOpenFolder(result.filePaths[0]);
         }
       } catch (error) {
-        console.error('Error opening folder:', error);
+        logger.error('Error opening folder:', error);
         // Fallback to browser file API if available
         if ('showDirectoryPicker' in window) {
           try {
             const dirHandle = await (window as Window & { showDirectoryPicker: () => Promise<{ name: string }> }).showDirectoryPicker();
             onOpenFolder(dirHandle.name);
           } catch (err) {
-            console.error('Browser folder picker error:', err);
+            logger.error('Browser folder picker error:', err);
           }
         }
       }
@@ -256,7 +257,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         const dirHandle = await (window as Window & { showDirectoryPicker: () => Promise<{ name: string }> }).showDirectoryPicker();
         onOpenFolder(dirHandle.name);
       } catch (error) {
-        console.error('Browser folder picker error:', error);
+        logger.error('Browser folder picker error:', error);
       }
     } else {
       // Last resort: show custom input dialog for folder path

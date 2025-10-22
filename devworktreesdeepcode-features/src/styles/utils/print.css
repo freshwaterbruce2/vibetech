@@ -1,0 +1,14 @@
+
+/* Optimize for print - hide unnecessary elements when printing */
+@media print {
+  nav, footer, .bg-decoration, .particles-bg-dense, button {
+    display: none !important;
+  }
+  main {
+    background: white !important;
+    color: black !important;
+  }
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+}

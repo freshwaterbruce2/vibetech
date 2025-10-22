@@ -4,6 +4,7 @@
  * This file demonstrates how to use the CodeExecutor service
  * for executing code in different languages with proper security.
  */
+import { logger } from '../services/Logger';
 
 import { CodeExecutor, type ExecutionOptions, type SecurityPolicy } from '../services/CodeExecutor';
 
@@ -30,49 +31,49 @@ export class CodeExecutorExample {
    * Execute JavaScript code examples
    */
   async demonstrateJavaScriptExecution() {
-    console.log('=== JavaScript Execution Examples ===');
+    logger.debug('=== JavaScript Execution Examples ===');
 
     // Simple calculation
     const mathResult = await this.executor.executeCode(`
       const a = 10;
       const b = 20;
       const result = a + b;
-      console.log('Result:', result);
+      logger.debug('Result:', result);
       result;
     `, 'javascript');
 
-    console.log('Math Result:', mathResult);
+    logger.debug('Math Result:', mathResult);
 
     // Working with arrays and functions
     const arrayResult = await this.executor.executeCode(`
       const numbers = [1, 2, 3, 4, 5];
       const doubled = numbers.map(n => n * 2);
       const sum = doubled.reduce((acc, n) => acc + n, 0);
-      console.log('Doubled:', doubled);
-      console.log('Sum:', sum);
+      logger.debug('Doubled:', doubled);
+      logger.debug('Sum:', sum);
       sum;
     `, 'javascript');
 
-    console.log('Array Result:', arrayResult);
+    logger.debug('Array Result:', arrayResult);
 
     // Error handling example
     const errorResult = await this.executor.executeCode(`
       try {
         throw new Error('This is a test error');
       } catch (error) {
-        console.log('Caught error:', error.message);
+        logger.debug('Caught error:', error.message);
         return 'Error handled successfully';
       }
     `, 'javascript');
 
-    console.log('Error Handling Result:', errorResult);
+    logger.debug('Error Handling Result:', errorResult);
   }
 
   /**
    * Execute TypeScript code examples
    */
   async demonstrateTypeScriptExecution() {
-    console.log('=== TypeScript Execution Examples ===');
+    logger.debug('=== TypeScript Execution Examples ===');
 
     const tsResult = await this.executor.executeCode(`
       interface User {
@@ -90,18 +91,18 @@ export class CodeExecutorExample {
       }
 
       const greeting = greetUser(user);
-      console.log(greeting);
+      logger.debug(greeting);
       greeting;
     `, 'typescript');
 
-    console.log('TypeScript Result:', tsResult);
+    logger.debug('TypeScript Result:', tsResult);
   }
 
   /**
    * Execute Python code examples (only works in Electron mode)
    */
   async demonstratePythonExecution() {
-    console.log('=== Python Execution Examples ===');
+    logger.debug('=== Python Execution Examples ===');
 
     const pythonResult = await this.executor.executeCode(`
 def fibonacci(n):
@@ -127,98 +128,98 @@ result = calc.add(5, 3)
 print(f"5 + 3 = {result}")
     `, 'python');
 
-    console.log('Python Result:', pythonResult);
+    logger.debug('Python Result:', pythonResult);
   }
 
   /**
    * Execute shell commands (only works in Electron mode)
    */
   async demonstrateCommandExecution() {
-    console.log('=== Command Execution Examples ===');
+    logger.debug('=== Command Execution Examples ===');
 
     // Simple echo command
     const echoResult = await this.executor.executeCommand('echo "Hello from shell!"');
-    console.log('Echo Result:', echoResult);
+    logger.debug('Echo Result:', echoResult);
 
     // List directory contents (safe command)
     const lsResult = await this.executor.executeCommand('ls -la');
-    console.log('Directory Listing:', lsResult);
+    logger.debug('Directory Listing:', lsResult);
 
     // Dangerous command (should be blocked)
     const dangerousResult = await this.executor.executeCommand('rm -rf *');
-    console.log('Dangerous Command Result:', dangerousResult);
+    logger.debug('Dangerous Command Result:', dangerousResult);
   }
 
   /**
    * Demonstrate syntax validation
    */
   async demonstrateSyntaxValidation() {
-    console.log('=== Syntax Validation Examples ===');
+    logger.debug('=== Syntax Validation Examples ===');
 
     // Valid JavaScript
     const validJS = await this.executor.validateSyntax(
-      'const x = 10; console.log(x);', 
+      'const x = 10; logger.debug(x);', 
       'javascript'
     );
-    console.log('Valid JavaScript:', validJS);
+    logger.debug('Valid JavaScript:', validJS);
 
     // Invalid JavaScript
     const invalidJS = await this.executor.validateSyntax(
-      'const x = 10 console.log(x);', // Missing semicolon
+      'const x = 10 logger.debug(x);', // Missing semicolon
       'javascript'
     );
-    console.log('Invalid JavaScript:', invalidJS);
+    logger.debug('Invalid JavaScript:', invalidJS);
 
     // Valid Python
     const validPython = await this.executor.validateSyntax(
       'def hello():\n    print("Hello World")',
       'python'
     );
-    console.log('Valid Python:', validPython);
+    logger.debug('Valid Python:', validPython);
 
     // Valid TypeScript
     const validTS = await this.executor.validateSyntax(
       'interface User { name: string; } const user: User = { name: "John" };',
       'typescript'
     );
-    console.log('Valid TypeScript:', validTS);
+    logger.debug('Valid TypeScript:', validTS);
   }
 
   /**
    * Demonstrate security features
    */
   async demonstrateSecurityFeatures() {
-    console.log('=== Security Features Examples ===');
+    logger.debug('=== Security Features Examples ===');
 
     // Attempt to access file system (should be blocked)
     const fsAccessResult = await this.executor.executeCode(`
       const fs = require('fs');
       fs.readFileSync('/etc/passwd');
     `, 'javascript');
-    console.log('File System Access Attempt:', fsAccessResult);
+    logger.debug('File System Access Attempt:', fsAccessResult);
 
     // Attempt to spawn child process (should be blocked)
     const childProcessResult = await this.executor.executeCode(`
       const { exec } = require('child_process');
       exec('cat /etc/passwd');
     `, 'javascript');
-    console.log('Child Process Attempt:', childProcessResult);
+    logger.debug('Child Process Attempt:', childProcessResult);
 
     // Safe code execution
     const safeResult = await this.executor.executeCode(`
       const data = [1, 2, 3, 4, 5];
       const processed = data.map(x => x * 2).filter(x => x > 5);
-      console.log('Processed data:', processed);
+      logger.debug('Processed data:', processed);
       processed;
     `, 'javascript');
-    console.log('Safe Code Execution:', safeResult);
+    logger.debug('Safe Code Execution:', safeResult);
   }
 
   /**
    * Demonstrate timeout and resource management
    */
   async demonstrateResourceManagement() {
-    console.log('=== Resource Management Examples ===');
+    logger.debug('=== Resource Management Examples ===');
 
     // Fast execution
     const fastResult = await this.executor.executeCode(`
@@ -228,26 +229,26 @@ print(f"5 + 3 = {result}")
         count += i;
       }
       const end = Date.now();
-      console.log(\`Processed \${count} in \${end - start}ms\`);
+      logger.debug(\`Processed \${count} in \${end - start}ms\`);
       count;
     `, 'javascript');
-    console.log('Fast Execution:', fastResult);
+    logger.debug('Fast Execution:', fastResult);
 
     // Timeout example (this should timeout)
     const timeoutResult = await this.executor.executeCode(`
-      console.log('Starting long operation...');
+      logger.debug('Starting long operation...');
       while (true) {
         // Infinite loop - should timeout
       }
     `, 'javascript', { timeout: 2000 });
-    console.log('Timeout Test:', timeoutResult);
+    logger.debug('Timeout Test:', timeoutResult);
   }
 
   /**
    * Demonstrate execution options
    */
   async demonstrateExecutionOptions() {
-    console.log('=== Execution Options Examples ===');
+    logger.debug('=== Execution Options Examples ===');
 
     const options: ExecutionOptions = {
       timeout: 5000,
@@ -258,12 +259,12 @@ print(f"5 + 3 = {result}")
     };
 
     const result = await this.executor.executeCode(`
-      console.log('Environment:', process.env.NODE_ENV);
-      console.log('Debug mode:', process.env.DEBUG);
+      logger.debug('Environment:', process.env.NODE_ENV);
+      logger.debug('Debug mode:', process.env.DEBUG);
       'Execution with custom options complete';
     `, 'javascript', options);
 
-    console.log('Custom Options Result:', result);
+    logger.debug('Custom Options Result:', result);
   }
 
   /**
@@ -280,7 +281,7 @@ print(f"5 + 3 = {result}")
       await this.demonstrateResourceManagement();
       await this.demonstrateExecutionOptions();
     } catch (error) {
-      console.error('Error running examples:', error);
+      logger.error('Error running examples:', error);
     }
   }
 }

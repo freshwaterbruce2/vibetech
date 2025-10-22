@@ -1,0 +1,100 @@
+docs: Update historical documentation to reflect Nx migration
+chore(build): Complete migration from Turborepo to Nx
+jj
+docs: Update CLAUDE.md and complete Phase 2 documentation
+feat(web-apps): Major updates to digital-content-builder and workspace apps
+fix(crypto): Refactor WebSocket manager and update dependencies
+perf(build): Optimize Turborepo with 75% faster CI/CD pipeline
+feat(claude): Integrate Claude Code hooks and learning system
+docs(mcp): Add comprehensive MCP server troubleshooting documentation
+feat(learning): Integrate learning system with Claude Code hooks
+docs: Add Capacitor mobile app section to monorepo CLAUDE.md
+feat(cicd): Pipeline optimizations - 75% faster CI/CD with Turborepo + change detection
+feat(cicd): Phase 2 - CI/CD Pipeline complete
+feat(testing): Phase 1 - Unit testing infrastructure complete
+feat: monorepo critical fixes - security, type safety, and documentation
+docs: Add comprehensive Vibe-Tech UI documentation and preview
+feat: Add Vibe-Tech themed Streamlit UI with neon glassmorphism design
+docs: Add DEPLOYMENT_HANDOFF.md - final deployment documentation
+docs: Add DEPLOYMENT_SUCCESS.md - comprehensive deployment summary
+deploy: Successfully deployed Prompt Engineer v1.0.0 to production
+deploy: Production deployment v1.0.0 - 86.8% test pass rate, all core features verified
+fix: Resolve 14 test failures - random.sample bug, CodeFile serialization, datetime handling
+docs: Add comprehensive restoration summary for Prompt Engineer
+feat: Restore Prompt Engineer - Production-ready context collector for AI prompt engineering
+docs: Add comprehensive project documentation and guides
+chore: Add workspace configuration and documentation
+chore: Add development tools and automation scripts
+feat: Add comprehensive active projects collection
+feat: Add memory bank system for Claude Code integration
+feat: Add cryptocurrency trading system with Kraken integration
+feat: Add Claude commands system with enhanced hooks
+chore: Remove deprecated Claude hooks and update crypto session status
+test: Update visual consistency tests
+chore: Update build and TypeScript configurations
+refactor: Update hooks and utility functions
+feat: Update UI components and pages
+docs: Update documentation and configuration files
+Add session status documentation
+chore: Add additional command permissions
+feat: Implement automatic memory system with hooks
+fix: Restore YOLO MODE and memory automation system
+fix: Improve profile picture cropping to show full head and face
+feat: Update Bruce Freshwater profile picture with professional headshot
+feat: enhance Vibe-Tech with admin features and visual improvements
+🎉 LAUNCH SUCCESS! Site is live at https://www.vibe-tech.org
+Final documentation update - 95% complete, DNS propagating
+Update deployment status and documentation - Vercel deploying
+Fix Vercel configuration - remove routes/rewrites conflict
+Add Railway config for backend deployment
+Add backend deployment and domain configuration for vibe-tech.org
+Apply SQL migration
+Run SQL to consolidate policies
+Rename "Hotel Booking Platform" to "Vibe-Booking"
+Add Vibe-Rentals project
+Fix: Handle 404 for project detail page
+Add hotel booking site to portfolio
+Enhance CRM heading
+Replace placeholder image
+Refactor: Improve CRM dashboard navigation and visuals
+Add Vanessa Freshwater's image
+Add Vanessa Freshwater's picture
+Fix: Contact page subtitle color
+Fix: Correct type for lead action tracking
+Refactor: Improve dashboard structure
+Fix: Google Analytics session ID error
+Add event tracking for consultation clicks
+Add Google Analytics ID
+Add analytics and performance improvements
+Fix: Ensure website content displays
+Run SQL to enable RLS
+Fix: Blog category link
+Visual edit in Lovable
+Visual edit in Lovable
+Remove Emma and Max from family
+Rename team to family
+Rename "Team" to "Family"
+Add placeholder images
+Visual edit in Lovable
+Refactor: Reduce dashboard intensity
+Refactor: Split AddLeadDialog.tsx into smaller files
+Refactor: Split useDashboardData hook
+Add manual lead creation
+Fix: Ensure dashboard functionality
+Fix: Dashboard text color
+Fix contact page text colors
+Fix: Blog CTA text color
+Fix: Ensure text elements are white
+Fix: BlogHero subtitle text color
+Fix: Ensure text color is white
+Fix: Ensure all text elements are white
+Fix: Text color in IntegrationShowcase
+Fix text color in tools section
+Fix text color in ToolsHeroSection
+Fix: Pricing table text color
+Fix pricing page text color
+Fix: Ensure text is white on services page
+Fix text color in HeroSection
+Fix pricing page text color
+Fix: Ensure pricing table text is white
+Fix: Ensure consistent text color

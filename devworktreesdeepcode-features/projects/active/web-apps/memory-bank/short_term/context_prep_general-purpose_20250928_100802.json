@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-09-28T10:08:02.528138",
+  "memory_type": "short_term",
+  "key": "context_prep_general-purpose_20250928_100802",
+  "data": {
+    "agent_name": "general-purpose",
+    "task": "Implement a new feature for user authentication",
+    "context_size": 0,
+    "recommendations_count": 0,
+    "history_items": 0,
+    "timestamp": "2025-09-28T10:08:02.528114"
+  },
+  "metadata": {
+    "type": "context_preparation",
+    "agent_name": "general-purpose"
+  },
+  "size_bytes": 202,
+  "checksum": "a5b514635f090776738909ac534ef540061d15690dee37ddf1dbcddc2c61e164",
+  "compression": null,
+  "restoration_info": null
+}

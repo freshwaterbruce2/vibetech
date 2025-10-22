@@ -12,6 +12,7 @@
  *
  * @see https://arxiv.org/abs/2210.03629 (ReAct paper)
  */
+import { logger } from '../../services/Logger';
 
 import { UnifiedAIService } from './UnifiedAIService';
 import {
@@ -107,17 +108,17 @@ Reason about the best way to execute this step. Consider:
           timestamp: new Date(),
         };
 
-        console.log(`[ReAct] 💭 Thought generated in ${Date.now() - startTime}ms`);
-        console.log(`[ReAct]    Approach: ${thought.approach}`);
-        console.log(`[ReAct]    Confidence: ${thought.confidence}%`);
-        console.log(`[ReAct]    Risks: ${thought.risks.length}`);
+        logger.debug(`[ReAct] 💭 Thought generated in ${Date.now() - startTime}ms`);
+        logger.debug(`[ReAct]    Approach: ${thought.approach}`);
+        logger.debug(`[ReAct]    Confidence: ${thought.confidence}%`);
+        logger.debug(`[ReAct]    Risks: ${thought.risks.length}`);
 
         return thought;
       }
 
       throw new Error('Failed to parse AI thought response');
     } catch (error) {
-      console.error('[ReAct] ❌ Failed to generate thought:', error);
+      logger.error('[ReAct] ❌ Failed to generate thought:', error);
 
       // Fallback to basic thought
       return {
@@ -198,16 +199,16 @@ Analyze the outcome compared to your expectations.
           timestamp: new Date(),
         };
 
-        console.log(`[ReAct] 👁️ Observation generated in ${Date.now() - startTime}ms`);
-        console.log(`[ReAct]    Outcome: ${observation.actualOutcome}`);
-        console.log(`[ReAct]    Learnings: ${observation.learnings.length}`);
+        logger.debug(`[ReAct] 👁️ Observation generated in ${Date.now() - startTime}ms`);
+        logger.debug(`[ReAct]    Outcome: ${observation.actualOutcome}`);
+        logger.debug(`[ReAct]    Learnings: ${observation.learnings.length}`);
 
         return observation;
       }
 
       throw new Error('Failed to parse observation response');
     } catch (error) {
-      console.error('[ReAct] ❌ Failed to generate observation:', error);
+      logger.error('[ReAct] ❌ Failed to generate observation:', error);
 
       return {
         actualOutcome: result.message || (result.success ? 'Success' : 'Failed'),
@@ -287,17 +288,17 @@ Reflect deeply on what happened. Should we retry with changes, or is this good e
           timestamp: new Date(),
         };
 
-        console.log(`[ReAct] 🤔 Reflection generated in ${Date.now() - startTime}ms`);
-        console.log(`[ReAct]    Should Retry: ${reflection.shouldRetry}`);
-        console.log(`[ReAct]    Root Cause: ${reflection.rootCause || 'N/A'}`);
-        console.log(`[ReAct]    Knowledge: ${reflection.knowledgeGained}`);
+        logger.debug(`[ReAct] 🤔 Reflection generated in ${Date.now() - startTime}ms`);
+        logger.debug(`[ReAct]    Should Retry: ${reflection.shouldRetry}`);
+        logger.debug(`[ReAct]    Root Cause: ${reflection.rootCause || 'N/A'}`);
+        logger.debug(`[ReAct]    Knowledge: ${reflection.knowledgeGained}`);
 
         return reflection;
       }
 
       throw new Error('Failed to parse reflection response');
     } catch (error) {
-      console.error('[ReAct] ❌ Failed to generate reflection:', error);
+      logger.error('[ReAct] ❌ Failed to generate reflection:', error);
 
       return {
         whatWorked: observation.success ? ['Action completed successfully'] : [],
@@ -324,24 +325,24 @@ Reflect deeply on what happened. Should we retry with changes, or is this good e
     const previousCycles = this.cycleHistory.get(step.id) || [];
     const cycleNumber = previousCycles.length + 1;
 
-    console.log(`\n[ReAct] 🔄 Starting Cycle #${cycleNumber} for step: ${step.title}`);
+    logger.debug(`\n[ReAct] 🔄 Starting Cycle #${cycleNumber} for step: ${step.title}`);
 
     // Phase 1: THOUGHT
-    console.log('[ReAct] Phase 1/4: Generating thought...');
+    logger.debug('[ReAct] Phase 1/4: Generating thought...');
     const thought = await this.generateThought(step, task, previousCycles);
 
     // Phase 2: ACTION (executed by caller's actionExecutor function)
-    console.log('[ReAct] Phase 2/4: Executing action...');
+    logger.debug('[ReAct] Phase 2/4: Executing action...');
     const actionStartTime = Date.now();
     const result = await actionExecutor(step.action);
     const actionDuration = Date.now() - actionStartTime;
 
     // Phase 3: OBSERVATION
-    console.log('[ReAct] Phase 3/4: Observing outcome...');
+    logger.debug('[ReAct] Phase 3/4: Observing outcome...');
     const observation = await this.generateObservation(thought, step.action, result, actionDuration);
 
     // Phase 4: REFLECTION
-    console.log('[ReAct] Phase 4/4: Reflecting on result...');
+    logger.debug('[ReAct] Phase 4/4: Reflecting on result...');
     const reflection = await this.generateReflection(thought, observation, step, previousCycles);
 
     const cycle: ReActCycle = {
@@ -358,8 +359,8 @@ Reflect deeply on what happened. Should we retry with changes, or is this good e
     previousCycles.push(cycle);
     this.cycleHistory.set(step.id, previousCycles);
 
-    console.log(`[ReAct] ✅ Cycle #${cycleNumber} complete in ${cycle.totalDurationMs}ms`);
-    console.log(`[ReAct]    Success: ${observation.success}, Retry: ${reflection.shouldRetry}\n`);
+    logger.debug(`[ReAct] ✅ Cycle #${cycleNumber} complete in ${cycle.totalDurationMs}ms`);
+    logger.debug(`[ReAct]    Success: ${observation.success}, Retry: ${reflection.shouldRetry}\n`);
 
     return cycle;
   }
@@ -383,6 +384,6 @@ Reflect deeply on what happened. Should we retry with changes, or is this good e
    */
   resetAllHistory(): void {
     this.cycleHistory.clear();
-    console.log('[ReAct] History reset for new task');
+    logger.debug('[ReAct] History reset for new task');
   }
 }

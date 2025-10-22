@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Search, Replace, ChevronDown, ChevronRight, FileText, X } from 'lucide-react';
@@ -376,7 +377,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
       setExpandedFiles(new Set(fileNames.slice(0, 3)));
       
     } catch (error) {
-      console.error('Search failed:', error);
+      logger.error('Search failed:', error);
     } finally {
       setIsSearching(false);
     }
@@ -419,7 +420,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
       // Refresh search after replace
       await performSearch();
     } catch (error) {
-      console.error('Replace failed:', error);
+      logger.error('Replace failed:', error);
     } finally {
       setIsReplacing(false);
     }

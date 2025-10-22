@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { FileAnalysis, FileSystemItem, WorkspaceContext } from '../types';
 
 export interface WorkspaceIndex {
@@ -65,7 +66,7 @@ export class WorkspaceService {
     }
 
     this.indexingInProgress = true;
-    console.log(`Starting workspace indexing for: ${rootPath}`);
+    logger.debug(`Starting workspace indexing for: ${rootPath}`);
 
     try {
       // 1. Analyze project structure
@@ -85,7 +86,7 @@ export class WorkspaceService {
 
       this.index.lastUpdated = new Date();
 
-      console.log(`Workspace indexing completed. Indexed ${this.index.files.size} files`);
+      logger.debug(`Workspace indexing completed. Indexed ${this.index.files.size} files`);
 
       return this.getWorkspaceContext();
     } finally {
@@ -119,11 +120,44 @@ export class WorkspaceService {
       }
 
       // Check for tsconfig.json
+
+
       const tsconfigPath = `${rootPath}/tsconfig.json`;
+
+
       if (await this.fileExists(tsconfigPath)) {
-        const content = await this.readFile(tsconfigPath);
-        structure.tsConfig = JSON.parse(content);
-        structure.configFiles.push('tsconfig.json');
+
+
+        try {
+
+
+          const content = await this.readFile(tsconfigPath);
+
+
+          // Remove comments from JSONC (JSON with Comments) format
+
+
+          const jsonContent = content.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+
+
+          structure.tsConfig = JSON.parse(jsonContent);
+
+
+          structure.configFiles.push('tsconfig.json');
+
+
+        } catch (error) {
+
+
+          logger.warn('Failed to parse tsconfig.json:', error);
+
+
+          structure.configFiles.push('tsconfig.json'); // Still track it exists
+
+
+        }
+
+
       }
 
       // Check for README
@@ -145,7 +179,7 @@ export class WorkspaceService {
           .filter((line) => line.trim() && !line.startsWith('#'));
       }
     } catch (error) {
-      console.warn('Error analyzing project structure:', error);
+      logger.warn('Error analyzing project structure:', error);
     }
 
     return structure;

@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { useCallback, useEffect, useState } from 'react';
 
 import {
@@ -52,7 +53,7 @@ export function useGit(workingDirectory?: string): UseGitReturn {
       setIsGitRepo(isRepo);
       return isRepo;
     } catch (err) {
-      console.error('Error checking git repository:', err);
+      logger.error('Error checking git repository:', err);
       return false;
     }
   }, [gitService]);
@@ -68,7 +69,7 @@ export function useGit(workingDirectory?: string): UseGitReturn {
       setStatus(newStatus);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
-      console.error('Error refreshing git status:', err);
+      logger.error('Error refreshing git status:', err);
     }
   }, [gitService, isGitRepo]);
 
@@ -82,7 +83,7 @@ export function useGit(workingDirectory?: string): UseGitReturn {
       const newCommits = await gitService.getCommits(20);
       setCommits(newCommits);
     } catch (err) {
-      console.error('Error refreshing commits:', err);
+      logger.error('Error refreshing commits:', err);
     }
   }, [gitService, isGitRepo]);
 
@@ -96,7 +97,7 @@ export function useGit(workingDirectory?: string): UseGitReturn {
       const newBranches = await gitService.getBranches();
       setBranches(newBranches);
     } catch (err) {
-      console.error('Error refreshing branches:', err);
+      logger.error('Error refreshing branches:', err);
     }
   }, [gitService, isGitRepo]);
 
@@ -110,7 +111,7 @@ export function useGit(workingDirectory?: string): UseGitReturn {
       const newRemotes = await gitService.getRemotes();
       setRemotes(newRemotes);
     } catch (err) {
-      console.error('Error refreshing remotes:', err);
+      logger.error('Error refreshing remotes:', err);
     }
   }, [gitService, isGitRepo]);
 

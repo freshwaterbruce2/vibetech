@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useState } from 'react';
 import {
   Command,
@@ -261,13 +262,13 @@ const TitleBar: React.FC<TitleBarProps> = ({
           label: 'Find',
           icon: <Search size={16} />,
           shortcut: 'Ctrl+F',
-          onClick: () => console.log('Find'),
+          onClick: () => logger.debug('Find'),
         },
         {
           id: 'edit-replace',
           label: 'Replace',
           shortcut: 'Ctrl+H',
-          onClick: () => console.log('Replace'),
+          onClick: () => logger.debug('Replace'),
         },
         { id: 'divider-3', label: '', divider: true },
         {
@@ -308,14 +309,14 @@ const TitleBar: React.FC<TitleBarProps> = ({
           label: 'Zoom In',
           icon: <ZoomIn size={16} />,
           shortcut: 'Ctrl++',
-          onClick: () => console.log('Zoom In'),
+          onClick: () => logger.debug('Zoom In'),
         },
         {
           id: 'view-zoom-out',
           label: 'Zoom Out',
           icon: <ZoomOut size={16} />,
           shortcut: 'Ctrl+-',
-          onClick: () => console.log('Zoom Out'),
+          onClick: () => logger.debug('Zoom Out'),
         },
       ],
     },
@@ -334,7 +335,7 @@ const TitleBar: React.FC<TitleBarProps> = ({
           id: 'help-about',
           label: 'About Vibe Code Studio',
           icon: <Info size={16} />,
-          onClick: () => console.log('About'),
+          onClick: () => logger.debug('About'),
         },
       ],
     },

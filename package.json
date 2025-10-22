@@ -10,7 +10,8 @@
     "packages/*",
     "projects/active/web-apps/*",
     "projects/active/desktop-apps/*",
-    "projects/Vibe-Subscription-Guard"
+    "projects/Vibe-Subscription-Guard",
+    "Vibe-Tutor"
   ],
   "resolutions": {
     "react": "19.2.0",

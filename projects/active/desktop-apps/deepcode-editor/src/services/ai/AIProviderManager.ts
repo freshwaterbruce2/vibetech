@@ -2,6 +2,7 @@
  * AIProviderManager - Manages multiple AI providers and model selection
  * Browser-compatible version without Node.js dependencies
  */
+import { logger } from '../../services/Logger';
 
 import {
   IAIProvider,
@@ -37,7 +38,7 @@ export class AIProviderManager {
       }
     } catch (error) {
       // Environment variables not available, skip initialization
-      console.log('Environment variables not available, skipping auto-initialization');
+      logger.debug('Environment variables not available, skipping auto-initialization');
     }
   }
 
@@ -108,10 +109,10 @@ export class AIProviderManager {
       throw new Error(`Provider ${modelInfo.provider} not configured`);
     }
 
-    console.log('[AIProviderManager] Calling provider.complete() with model:', model);
+    logger.debug('[AIProviderManager] Calling provider.complete() with model:', model);
     const result = await provider.complete(model, options);
-    console.log('[AIProviderManager] Received result:', result);
-    console.log('[AIProviderManager] Result choices:', result.choices);
+    logger.debug('[AIProviderManager] Received result:', result);
+    logger.debug('[AIProviderManager] Result choices:', result.choices);
 
     return result;
   }
@@ -136,5 +137,38 @@ export class AIProviderManager {
 
   getConfiguredProviders(): AIProvider[] {
     return Array.from(this.providers.keys());
+  }
+
+  /**
+   * Initialize the manager (for compatibility with services expecting this method)
+   */
+  async initialize(): Promise<void> {
+    logger.debug('[AIProviderManager] Initialized');
+    // Initialization already happens in constructor
+    // This method is here for interface compatibility
+  }
+
+  /**
+   * Configure a provider (alias for setProvider for compatibility)
+   */
+  async configureProvider(provider: AIProvider, config: AIProviderConfig): Promise<void> {
+    await this.setProvider(provider, config);
+  }
+
+  /**
+   * Set the model for the current provider
+   */
+  setModel(model: string): void {
+    const modelInfo = MODEL_REGISTRY[model];
+    if (!modelInfo) {
+      throw new Error(`Unknown model: ${model}`);
+    }
+
+    // Set the provider for this model as current
+    if (this.providers.has(modelInfo.provider)) {
+      this.currentProvider = modelInfo.provider;
+    } else {
+      throw new Error(`Provider ${modelInfo.provider} not configured for model ${model}`);
+    }
   }
 }

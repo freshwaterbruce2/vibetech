@@ -2,6 +2,7 @@
  * Secure API Key Manager
  * Provides validation, encryption, and secure storage for API keys
  */
+import { logger } from '../services/Logger';
 
 import * as CryptoJS from 'crypto-js';
 
@@ -83,7 +84,7 @@ export class SecureApiKeyManager {
       const encrypted = CryptoJS.AES.encrypt(key, this.encryptionKey).toString();
       return encrypted;
     } catch (error) {
-      console.error('Failed to encrypt API key:', error);
+      logger.error('Failed to encrypt API key:', error);
       throw new Error('Encryption failed');
     }
   }
@@ -102,7 +103,7 @@ export class SecureApiKeyManager {
       
       return decrypted;
     } catch (error) {
-      console.error('Failed to decrypt API key:', error);
+      logger.error('Failed to decrypt API key:', error);
       throw new Error('Decryption failed');
     }
   }
@@ -142,7 +143,7 @@ export class SecureApiKeyManager {
 
       return true;
     } catch (error) {
-      console.error('Failed to store API key:', error);
+      logger.error('Failed to store API key:', error);
       return false;
     }
   }
@@ -164,7 +165,7 @@ export class SecureApiKeyManager {
       
       // Verify metadata
       if (!storedKey.metadata.encrypted) {
-        console.warn('API key not encrypted, removing...');
+        logger.warn('API key not encrypted, removing...');
         this.removeApiKey(provider);
         return null;
       }
@@ -174,14 +175,14 @@ export class SecureApiKeyManager {
       
       // Validate decrypted key
       if (!this.validateApiKey(decryptedKey, provider)) {
-        console.warn('Stored API key is invalid, removing...');
+        logger.warn('Stored API key is invalid, removing...');
         this.removeApiKey(provider);
         return null;
       }
 
       return decryptedKey;
     } catch (error) {
-      console.error('Failed to retrieve API key:', error);
+      logger.error('Failed to retrieve API key:', error);
       this.removeApiKey(provider); // Remove corrupted key
       return null;
     }
@@ -200,7 +201,7 @@ export class SecureApiKeyManager {
       
       return true;
     } catch (error) {
-      console.error('Failed to remove API key:', error);
+      logger.error('Failed to remove API key:', error);
       return false;
     }
   }
@@ -228,7 +229,7 @@ export class SecureApiKeyManager {
         }
       }
     } catch (error) {
-      console.error('Failed to list providers:', error);
+      logger.error('Failed to list providers:', error);
     }
 
     return providers;
@@ -259,7 +260,7 @@ export class SecureApiKeyManager {
           return false;
       }
     } catch (error) {
-      console.error(`Failed to test ${provider} API key:`, error);
+      logger.error(`Failed to test ${provider} API key:`, error);
       return false;
     }
   }

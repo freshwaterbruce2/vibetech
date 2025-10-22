@@ -1,0 +1,6 @@
+﻿Screenshot Metadata
+===================
+Captured: 2025-10-12 17:39:42
+Mouse Position: (1503, 153)
+Annotation: Trading bot dashboard showing XLM/USD performance
+File: C:\dev\screenshot_20251012_173942.png

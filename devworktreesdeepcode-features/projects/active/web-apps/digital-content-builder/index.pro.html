@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Studio Pro - AI-Powered Content Creation Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #8b5cf6;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray-900: #1e293b;
+            --gray-800: #334155;
+            --gray-700: #475569;
+            --gray-600: #64748b;
+            --gray-500: #94a3b8;
+            --gray-400: #cbd5e1;
+            --gray-300: #e2e8f0;
+            --gray-200: #f1f5f9;
+            --gray-100: #f8fafc;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--gray-900) 100%);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--gray-900);
+            border-right: 1px solid var(--gray-800);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-800);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray-500);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-item:hover {
+            background: var(--gray-800);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--gray-900);
+            border-bottom: 1px solid var(--gray-800);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--gray-800);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            width: 400px;
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            color: var(--white);
+            outline: none;
+            flex: 1;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            background: var(--gray-800);
+            border: none;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--gray-700);
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* Builder Interface */
+        .builder-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            height: calc(100vh - 200px);
+        }
+
+        .input-section, .output-section {
+            background: var(--gray-900);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-800);
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--gray-400);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
+            border-radius: 0.5rem;
+            color: var(--white);
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 150px;
+            font-family: inherit;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-800);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-700);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        /* Output Display */
+        .output-content {
+            flex: 1;
+            background: var(--gray-800);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .output-content h1, .output-content h2, .output-content h3 {
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        .output-content pre {
+            background: var(--dark);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .output-content code {
+            background: var(--dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-700);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--gray-900);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--gray-900);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--gray-800);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            color: var(--success);
+            margin-top: 0.5rem;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+        }
+
+        .toast {
+            background: var(--gray-900);
+            border: 1px solid var(--gray-800);
+            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast-warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .builder-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 999;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .search-bar {
+                width: auto;
+                flex: 1;
+            }
+
+            .content-area {
+                padding: 1rem;
+            }
+        }
+
+        /* Advanced Features */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .feature-card.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-desc {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 4px;
+            background: var(--gray-800);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        /* Analytics Dashboard */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .chart-container {
+            background: var(--gray-900);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: 300px;
+        }
+
+        /* Collaboration Indicators */
+        .collab-users {
+            display: flex;
+            align-items: center;
+            gap: -0.5rem;
+        }
+
+        .collab-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 2px solid var(--gray-900);
+        }
+
+        .collab-cursor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--secondary);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h1>Content Studio Pro</h1>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">Content Types</div>
+                    <div class="nav-item active" data-type="ebook">
+                        <i class="ri-book-2-line"></i>
+                        <span>Ebook Creator</span>
+                    </div>
+                    <div class="nav-item" data-type="course">
+                        <i class="ri-graduation-cap-line"></i>
+                        <span>Course Builder</span>
+                    </div>
+                    <div class="nav-item" data-type="landingPage">
+                        <i class="ri-layout-4-line"></i>
+                        <span>Landing Page</span>
+                    </div>
+                    <div class="nav-item" data-type="blog">
+                        <i class="ri-article-line"></i>
+                        <span>Blog Post</span>
+                    </div>
+                    <div class="nav-item" data-type="email">
+                        <i class="ri-mail-line"></i>
+                        <span>Email Campaign</span>
+                    </div>
+                    <div class="nav-item" data-type="socialMedia">
+                        <i class="ri-share-line"></i>
+                        <span>Social Media</span>
+                    </div>
+                    <div class="nav-item" data-type="technicalDoc">
+                        <i class="ri-file-code-line"></i>
+                        <span>Technical Docs</span>
+                    </div>
+                    <div class="nav-item" data-type="videoScript">
+                        <i class="ri-video-line"></i>
+                        <span>Video Script</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Tools</div>
+                    <div class="nav-item" data-tool="templates">
+                        <i class="ri-layout-grid-line"></i>
+                        <span>Templates</span>
+                    </div>
+                    <div class="nav-item" data-tool="projects">
+                        <i class="ri-folder-3-line"></i>
+                        <span>My Projects</span>
+                    </div>
+                    <div class="nav-item" data-tool="analytics">
+                        <i class="ri-bar-chart-2-line"></i>
+                        <span>Analytics</span>
+                    </div>
+                    <div class="nav-item" data-tool="collaborate">
+                        <i class="ri-team-line"></i>
+                        <span>Collaborate</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <div class="nav-item" data-setting="profile">
+                        <i class="ri-user-line"></i>
+                        <span>Profile</span>
+                    </div>
+                    <div class="nav-item" data-setting="preferences">
+                        <i class="ri-settings-3-line"></i>
+                        <span>Preferences</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="btn-icon" id="menu-toggle">
+                    <i class="ri-menu-line"></i>
+                </button>
+
+                <div class="search-bar">
+                    <i class="ri-search-line"></i>
+                    <input type="text" placeholder="Search projects, templates, or tools...">
+                </div>
+
+                <div class="header-actions">
+                    <button class="btn-icon" id="theme-toggle">
+                        <i class="ri-moon-line"></i>
+                    </button>
+                    <button class="btn-icon" id="notifications">
+                        <i class="ri-notification-3-line"></i>
+                    </button>
+                    <button class="btn-icon" id="user-menu">
+                        <i class="ri-user-3-line"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area" id="content-area">
+                <!-- Dashboard View -->
+                <div id="dashboard-view" style="display: none;">
+                    <h2 style="margin-bottom: 1.5rem;">Welcome Back!</h2>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Projects</div>
+                            <div class="stat-value">24</div>
+                            <div class="stat-change">+3 this week</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Words Generated</div>
+                            <div class="stat-value">45.2K</div>
+                            <div class="stat-change">+12% increase</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Time Saved</div>
+                            <div class="stat-value">18h</div>
+                            <div class="stat-change">This month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Quality Score</div>
+                            <div class="stat-value">94%</div>
+                            <div class="stat-change">Above average</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 2rem 0 1rem;">Choose Content Type</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card" onclick="selectContentType('ebook')">
+                            <div class="feature-icon">📚</div>
+                            <div class="feature-name">Ebook</div>
+                            <div class="feature-desc">Create comprehensive ebooks</div>
+                        </div>
+                        <div class="feature-card" onclick="selectContentType('course')">
+                            <div class="feature-icon">🎓</div>
+                            <div class="feature-name">Course</div>
+                            <div class="feature-desc">Build online courses</div>
+                        </div>
+                        <div class="feature-card" onclick="selectContentType('landingPage')">
+                            <div class="feature-icon">🚀</div>
+                            <div class="feature-name">Landing Page</div>
+                            <div class="feature-desc">Design converting pages</div>
+                        </div>
+                        <div class="feature-card" onclick="selectContentType('blog')">
+                            <div class="feature-icon">✍️</div>
+                            <div class="feature-name">Blog Post</div>
+                            <div class="feature-desc">Write engaging articles</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Builder View -->
+                <div id="builder-view" class="builder-container">
+                    <!-- Input Section -->
+                    <div class="input-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Input</h3>
+                            <div class="section-actions">
+                                <button class="btn-icon" onclick="clearInput()">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Content Type</label>
+                            <select class="form-select" id="content-type">
+                                <option value="ebook">Ebook</option>
+                                <option value="course">Online Course</option>
+                                <option value="landingPage">Landing Page</option>
+                                <option value="blog">Blog Post</option>
+                                <option value="email">Email Campaign</option>
+                                <option value="socialMedia">Social Media</option>
+                                <option value="technicalDoc">Technical Documentation</option>
+                                <option value="videoScript">Video Script</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Title/Topic</label>
+                            <input type="text" class="form-input" id="content-title"
+                                placeholder="Enter your topic or title...">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description/Prompt</label>
+                            <textarea class="form-textarea" id="content-prompt"
+                                placeholder="Describe what you want to create in detail..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">AI Model</label>
+                            <select class="form-select" id="ai-model">
+                                <option value="gpt-4">GPT-4 (Most Advanced)</option>
+                                <option value="gpt-3.5">GPT-3.5 (Fast)</option>
+                                <option value="claude">Claude (Analytical)</option>
+                                <option value="gemini">Gemini (Creative)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Options</label>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="opt-seo"> SEO Optimized
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="opt-detailed"> Extra Detailed
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="opt-professional"> Professional Tone
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="generateContent()" style="width: 100%;">
+                            <i class="ri-sparkles-line"></i>
+                            Generate Content
+                        </button>
+
+                        <div class="progress-bar" id="progress-bar" style="display: none;">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Output Section -->
+                    <div class="output-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Output</h3>
+                            <div class="section-actions">
+                                <button class="btn-icon" onclick="copyContent()" title="Copy">
+                                    <i class="ri-file-copy-line"></i>
+                                </button>
+                                <button class="btn-icon" onclick="exportContent('md')" title="Export as Markdown">
+                                    <i class="ri-markdown-line"></i>
+                                </button>
+                                <button class="btn-icon" onclick="exportContent('pdf')" title="Export as PDF">
+                                    <i class="ri-file-pdf-line"></i>
+                                </button>
+                                <button class="btn-icon" onclick="exportContent('docx')" title="Export as Word">
+                                    <i class="ri-file-word-line"></i>
+                                </button>
+                                <button class="btn-icon" onclick="saveProject()" title="Save Project">
+                                    <i class="ri-save-line"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="output-content" id="output-content">
+                            <div style="text-align: center; color: var(--gray-500); padding: 4rem 2rem;">
+                                <i class="ri-sparkles-line" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                                <h3 style="color: var(--gray-400); margin-bottom: 0.5rem;">Ready to Create</h3>
+                                <p>Your generated content will appear here</p>
+                            </div>
+                        </div>
+
+                        <!-- Content Analysis -->
+                        <div id="content-analysis" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--gray-800); border-radius: 0.5rem;">
+                            <h4 style="margin-bottom: 0.5rem;">Content Analysis</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+                                <div>
+                                    <div style="color: var(--gray-500);">Words</div>
+                                    <div style="font-weight: 600;" id="word-count">0</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--gray-500);">Reading Time</div>
+                                    <div style="font-weight: 600;" id="reading-time">0 min</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--gray-500);">SEO Score</div>
+                                    <div style="font-weight: 600; color: var(--success);" id="seo-score">0%</div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--gray-500);">Readability</div>
+                                    <div style="font-weight: 600; color: var(--primary);" id="readability">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Socket.io for real-time features -->
+    <script>
+        // Initialize Socket.io
+        const socket = io();
+
+        // State Management
+        let currentProject = null;
+        let currentContent = '';
+        let isGenerating = false;
+
+        // API Configuration
+        const API_BASE = 'http://localhost:5555/api';
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEventListeners();
+            checkAuthentication();
+            loadDashboard();
+        });
+
+        // Event Listeners
+        function initializeEventListeners() {
+            // Sidebar Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', handleNavClick);
+            });
+
+            // Menu Toggle
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+
+            // Theme Toggle
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+            // Real-time collaboration
+            socket.on('content-update', handleContentUpdate);
+            socket.on('cursor-update', handleCursorUpdate);
+        }
+
+        // Navigation Handler
+        function handleNavClick(e) {
+            const item = e.currentTarget;
+            const type = item.dataset.type;
+            const tool = item.dataset.tool;
+            const setting = item.dataset.setting;
+
+            // Update active state
+            document.querySelectorAll('.nav-item').forEach(navItem => {
+                navItem.classList.remove('active');
+            });
+            item.classList.add('active');
+
+            // Handle navigation
+            if (type) {
+                selectContentType(type);
+            } else if (tool) {
+                loadTool(tool);
+            } else if (setting) {
+                loadSetting(setting);
+            }
+        }
+
+        // Content Generation
+        async function generateContent() {
+            if (isGenerating) return;
+
+            const title = document.getElementById('content-title').value;
+            const prompt = document.getElementById('content-prompt').value;
+            const type = document.getElementById('content-type').value;
+            const model = document.getElementById('ai-model').value;
+
+            if (!prompt) {
+                showToast('Please enter a prompt', 'warning');
+                return;
+            }
+
+            isGenerating = true;
+            showProgress();
+
+            const options = {
+                title,
+                seo: document.getElementById('opt-seo').checked,
+                detailed: document.getElementById('opt-detailed').checked,
+                professional: document.getElementById('opt-professional').checked
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({ prompt, type, model, options })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentContent = result.content;
+                    displayContent(result.content);
+                    displayAnalysis(result.analysis);
+                    showToast('Content generated successfully!', 'success');
+                } else {
+                    showToast(result.message || 'Generation failed', 'error');
+                }
+            } catch (error) {
+                showToast('Network error. Please try again.', 'error');
+                console.error('Generation error:', error);
+            } finally {
+                isGenerating = false;
+                hideProgress();
+            }
+        }
+
+        // Display Content
+        function displayContent(content) {
+            const outputEl = document.getElementById('output-content');
+            outputEl.innerHTML = marked.parse(content);
+            document.getElementById('content-analysis').style.display = 'block';
+
+            // Emit content change for collaboration
+            if (currentProject) {
+                socket.emit('content-change', {
+                    projectId: currentProject,
+                    content: content
+                });
+            }
+        }
+
+        // Display Analysis
+        function displayAnalysis(analysis) {
+            document.getElementById('word-count').textContent = analysis.wordCount || 0;
+            document.getElementById('reading-time').textContent = `${analysis.readingTime || 0} min`;
+            document.getElementById('seo-score').textContent = `${analysis.seo?.score || 0}%`;
+            document.getElementById('readability').textContent = analysis.readabilityScore || 0;
+        }
+
+        // Export Functions
+        async function exportContent(format) {
+            if (!currentContent) {
+                showToast('No content to export', 'warning');
+                return;
+            }
+
+            try {
+                switch (format) {
+                    case 'md':
+                        downloadMarkdown();
+                        break;
+                    case 'pdf':
+                        await exportPDF();
+                        break;
+                    case 'docx':
+                        await exportWord();
+                        break;
+                    default:
+                        break;
+                }
+                showToast(`Exported as ${format.toUpperCase()}`, 'success');
+            } catch (error) {
+                showToast('Export failed', 'error');
+                console.error('Export error:', error);
+            }
+        }
+
+        function downloadMarkdown() {
+            const blob = new Blob([currentContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'content.md';
+            a.click();
+        }
+
+        async function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Parse content and add to PDF
+            const lines = currentContent.split('\n');
+            let y = 20;
+
+            lines.forEach(line => {
+                if (y > 280) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.text(line, 10, y);
+                y += 7;
+            });
+
+            doc.save('content.pdf');
+        }
+
+        async function exportWord() {
+            // This would use the docx library to create a Word document
+            // Simplified version for demonstration
+            const blob = new Blob([currentContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+            saveAs(blob, 'content.docx');
+        }
+
+        // Copy Content
+        function copyContent() {
+            if (!currentContent) {
+                showToast('No content to copy', 'warning');
+                return;
+            }
+
+            navigator.clipboard.writeText(currentContent).then(() => {
+                showToast('Content copied to clipboard', 'success');
+            });
+        }
+
+        // Save Project
+        async function saveProject() {
+            if (!currentContent) {
+                showToast('No content to save', 'warning');
+                return;
+            }
+
+            const title = document.getElementById('content-title').value || 'Untitled Project';
+
+            try {
+                const response = await fetch(`${API_BASE}/projects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({
+                        title,
+                        content: currentContent,
+                        type: document.getElementById('content-type').value
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentProject = result.project.id;
+                    showToast('Project saved successfully', 'success');
+                }
+            } catch (error) {
+                showToast('Failed to save project', 'error');
+            }
+        }
+
+        // UI Functions
+        function showProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressFill = document.getElementById('progress-fill');
+
+            progressBar.style.display = 'block';
+            let progress = 0;
+
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = `${progress}%`;
+
+                if (!isGenerating) {
+                    progressFill.style.width = '100%';
+                    setTimeout(() => {
+                        progressBar.style.display = 'none';
+                    }, 500);
+                    clearInterval(interval);
+                }
+            }, 500);
+        }
+
+        function hideProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressFill = document.getElementById('progress-fill');
+
+            progressFill.style.width = '100%';
+            setTimeout(() => {
+                progressBar.style.display = 'none';
+                progressFill.style.width = '0%';
+            }, 500);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="ri-${type === 'success' ? 'check' : type === 'error' ? 'close' : 'information'}-circle-line"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function clearInput() {
+            document.getElementById('content-title').value = '';
+            document.getElementById('content-prompt').value = '';
+            document.getElementById('opt-seo').checked = false;
+            document.getElementById('opt-detailed').checked = false;
+            document.getElementById('opt-professional').checked = false;
+        }
+
+        function selectContentType(type) {
+            document.getElementById('content-type').value = type;
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('builder-view').style.display = 'grid';
+        }
+
+        function loadDashboard() {
+            document.getElementById('dashboard-view').style.display = 'block';
+            document.getElementById('builder-view').style.display = 'none';
+        }
+
+        function loadTool(tool) {
+            // Load specific tool interface
+            console.log('Loading tool:', tool);
+        }
+
+        function loadSetting(setting) {
+            // Load settings interface
+            console.log('Loading setting:', setting);
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.querySelector('#theme-toggle i');
+            icon.className = document.body.classList.contains('light-theme') ?
+                'ri-sun-line' : 'ri-moon-line';
+        }
+
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                // Show login modal or redirect to login
+                console.log('Not authenticated');
+            }
+        }
+
+        // Real-time Collaboration
+        function handleContentUpdate(data) {
+            if (data.projectId === currentProject) {
+                displayContent(data.content);
+                showToast('Content updated by collaborator', 'info');
+            }
+        }
+
+        function handleCursorUpdate(data) {
+            // Update cursor position for collaborative editing
+            console.log('Cursor update:', data);
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'Enter':
+                        generateContent();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveProject();
+                        break;
+                    case 'c':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            copyContent();
+                        }
+                        break;
+                    case 'e':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            exportContent('pdf');
+                        }
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

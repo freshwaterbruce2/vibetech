@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ChevronDown,
@@ -339,7 +340,7 @@ export const FileExplorerDemo: React.FC = () => {
       rootPath="/"
       files={mockFiles}
       height={600}
-      onFileSelect={(path) => console.log('Selected:', path)}
+      onFileSelect={(path) => logger.debug('Selected:', path)}
     />
   );
 };

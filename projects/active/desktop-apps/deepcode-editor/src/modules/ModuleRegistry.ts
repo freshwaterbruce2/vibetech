@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { EditorModuleInterface } from './editor';
 
 export interface Module {
@@ -59,19 +60,19 @@ class ModuleRegistry {
    */
   registerModule(module: Module): void {
     if (this.modules.has(module.name)) {
-      console.warn(`Module ${module.name} already registered`);
+      logger.warn(`Module ${module.name} already registered`);
       return;
     }
 
     // Check dependencies
     for (const dep of module.dependencies) {
       if (!this.modules.has(dep)) {
-        console.warn(`Module ${module.name} depends on ${dep} which is not registered`);
+        logger.warn(`Module ${module.name} depends on ${dep} which is not registered`);
       }
     }
 
     this.modules.set(module.name, module);
-    console.log(`Module ${module.name} v${module.version} registered`);
+    logger.debug(`Module ${module.name} v${module.version} registered`);
   }
 
   setModuleInterface(name: keyof ModuleInterfaces, moduleInterface: unknown): void {

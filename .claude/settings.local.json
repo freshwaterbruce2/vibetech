@@ -1,9 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(Select-Object Name, Id, Path)",
+      "Bash(gh:*)",
+      "WebSearch",
+      "Bash(Test-Path \"scripts/remove-console-logs.cjs\")",
+      "Bash(Write-Output \"EXISTS\")",
+      "Bash(Write-Output \"NOT FOUND\")",
+      "Bash(Select-String \"error TS\")",
+      "Bash(Measure-Object -Line)",
+      "Bash(Select-Object -First 30)",
       "Bash(git add:*)",
-      "Bash(./gradlew.bat clean:*)"
+      "Bash(Remove-Item -Path \"C:\\dev\\.git\\index.lock\" -Force -ErrorAction SilentlyContinue)"
     ],
     "deny": [],
     "ask": [],

@@ -1,3 +1,4 @@
+import { logger } from '../../services/Logger';
 import {
   AICodeCompletion,
   AICodeGenerationRequest,
@@ -49,7 +50,7 @@ Here's a general approach:
 3. **Write clean code** - Focus on readability and maintainability
 4. **Test your implementation** - Ensure it works as expected
 
-${request.workspaceContext ? `Based on your project context (${request.workspaceContext.languages.join(', ')}), ` : ''}I'd be happy to help you implement this. Could you provide more specific details about what you'd like to build?`,
+${request.workspaceContext?.languages ? `Based on your project context (${request.workspaceContext.languages.join(', ')}), ` : ''}I'd be happy to help you implement this. Could you provide more specific details about what you'd like to build?`,
       metadata: {
         model: 'demo',
         tokens: 50,
@@ -155,9 +156,9 @@ function LoginForm() {
     
     try {
       // API call here
-      console.log('Login attempt:', { email, password })
+      logger.debug('Login attempt:', { email, password })
     } catch (error) {
-      console.error('Login failed:', error)
+      logger.error('Login failed:', error)
     } finally {
       setIsLoading(false)
     }
@@ -415,7 +416,7 @@ function UserProfile({ userId }: { userId: string }) {
     () => fetch(\`/api/users/\${userId}\`).then(res => res.json()),
     [userId],
     {
-      onError: (error) => console.error('Failed to load user:', error)
+      onError: (error) => logger.error('Failed to load user:', error)
     }
   )
 
@@ -522,7 +523,7 @@ const emailValidator = createValidator<string>([
 ])
 
 const errors = emailValidator('test@example.com')
-console.log(errors) // []
+logger.debug(errors) // []
 \`\`\`
 
 These examples show:
@@ -561,6 +562,7 @@ These examples show:
           action: {
             type: 'search_codebase',
             params: {
+              searchQuery: 'project structure',
               workspaceRoot: workspaceRoot,
               pattern: '*',
               includeFiles: true,
@@ -625,8 +627,9 @@ These examples show:
           action: {
             type: 'search_codebase',
             params: {
+              searchQuery: 'TODO FIXME BUG ERROR',
               workspaceRoot: workspaceRoot,
-              pattern: 'TODO|FIXME|BUG|ERROR',
+              pattern: 'TODO|FIXME|BUG|ERROR'
             }
           },
           requiresApproval: false,

@@ -3,6 +3,7 @@
  * Implements 2025 best practices for agentic AI workflows
  */
 import React, { useState, useEffect, useRef } from 'react';
+import { logger } from '../../services/Logger';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -664,9 +665,9 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
       // PHASE 6: Store planning insights
       setPlanningInsights(planResponse.insights);
 
-      console.log('[AgentModeV2] 📊 Planning Insights:', planResponse.insights);
+      logger.debug('[AgentModeV2] 📊 Planning Insights:', planResponse.insights);
     } catch (error) {
-      console.error('Failed to plan task:', error);
+      logger.error('Failed to plan task:', error);
       alert(`Failed to plan task: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
@@ -699,7 +700,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
         onClose();
         return;
       } catch (error) {
-        console.error('[AgentModeV2] Failed to submit background task:', error);
+        logger.error('[AgentModeV2] Failed to submit background task:', error);
         if (showError) {
           showError(
             'Background Task Failed',
@@ -713,7 +714,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
     // Normal foreground execution
     const callbacks: ExecutionCallbacks = {
       onStepStart: (step) => {
-        console.log('[AgentModeV2] Step started:', step.order, step.title);
+        logger.debug('[AgentModeV2] Step started:', step.order, step.title);
         setCurrentTask(prev => {
           if (!prev) return null;
           return {
@@ -724,12 +725,12 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
       },
 
       onStepComplete: (step, result) => {
-        console.log('[AgentModeV2] Step completed:', step.order, step.title, 'Status:', step.status);
+        logger.debug('[AgentModeV2] Step completed:', step.order, step.title, 'Status:', step.status);
 
         // Track if step was skipped
         if (step.status === 'skipped' || result.skipped) {
           setSkippedSteps(prev => prev + 1);
-          console.log('[AgentModeV2] Step was skipped:', step.title, 'Reason:', result.message);
+          logger.debug('[AgentModeV2] Step was skipped:', step.title, 'Reason:', result.message);
         } else {
           setCompletedSteps(prev => prev + 1);
         }
@@ -744,7 +745,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
       },
 
       onStepError: (step, error) => {
-        console.error('[AgentModeV2] Step error:', step.order, step.title, error);
+        logger.error('[AgentModeV2] Step error:', step.order, step.title, error);
         setCurrentTask(prev => {
           if (!prev) return null;
           return {
@@ -773,23 +774,23 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
       },
 
       onTaskComplete: (task) => {
-        console.log('[AgentModeV2] 🎉 onTaskComplete received! Task status:', task.status);
-        console.log('[AgentModeV2] Task has', task.steps.length, 'steps');
+        logger.debug('[AgentModeV2] 🎉 onTaskComplete received! Task status:', task.status);
+        logger.debug('[AgentModeV2] Task has', task.steps.length, 'steps');
 
         // CRITICAL FIX: Create new object to force React re-render
         // React doesn't detect mutations to the same object reference
         setCurrentTask({ ...task, steps: [...task.steps] });
 
-        console.log('[AgentModeV2] Task state updated. Will call onComplete in 1.5 seconds...');
+        logger.debug('[AgentModeV2] Task state updated. Will call onComplete in 1.5 seconds...');
         setTimeout(() => {
-          console.log('[AgentModeV2] Calling onComplete callback');
+          logger.debug('[AgentModeV2] Calling onComplete callback');
           onComplete(task);
         }, 1500);
       },
 
       onTaskError: (task, error) => {
         setCurrentTask(task);
-        console.error('Task execution failed:', error);
+        logger.error('Task execution failed:', error);
       },
     };
 
@@ -797,7 +798,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
       const updatedTask = await executionEngine.executeTask(currentTask, callbacks);
       setCurrentTask(updatedTask);
     } catch (error) {
-      console.error('Execution engine error:', error);
+      logger.error('Execution engine error:', error);
     }
   };
 
@@ -938,8 +939,9 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
                   <StepsContainer>
                     {currentTask.steps.map((step, index) => {
                       // Check if this is a synthesis step for special styling
-                      const isSynthesis = step.result?.data?.isSynthesis === true;
-                      const hasAIReview = step.result?.data?.generatedCode && step.status === 'completed';
+                      const resultData = step.result?.data as any;
+                      const isSynthesis = resultData?.isSynthesis === true;
+                      const hasAIReview = resultData?.generatedCode && step.status === 'completed';
 
                       // PHASE 6: Cast to EnhancedAgentStep to access confidence data
                       const enhancedStep = step as EnhancedAgentStep;

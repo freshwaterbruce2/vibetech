@@ -1,6 +1,7 @@
 /**
  * Telemetry Service for production analytics and error tracking
  */
+import { logger } from '../services/Logger';
 
 interface TelemetryEvent {
   event: string;
@@ -154,12 +155,12 @@ export class TelemetryService {
       });
 
       if (!response.ok) {
-        console.error('Failed to send telemetry:', response.statusText);
+        logger.error('Failed to send telemetry:', response.statusText);
         // Re-queue events if failed
         this.eventQueue.unshift(...events);
       }
     } catch (error) {
-      console.error('Telemetry error:', error);
+      logger.error('Telemetry error:', error);
       // Re-queue events if failed
       this.eventQueue.unshift(...events);
     }
@@ -192,10 +193,10 @@ export class TelemetryService {
       });
 
       if (!response.ok) {
-        console.error('Failed to send error report:', response.statusText);
+        logger.error('Failed to send error report:', response.statusText);
       }
     } catch (error) {
-      console.error('Error reporting failed:', error);
+      logger.error('Error reporting failed:', error);
     }
   }
 

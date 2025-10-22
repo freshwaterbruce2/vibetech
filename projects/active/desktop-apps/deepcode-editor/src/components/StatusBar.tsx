@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, CheckCircle, GitBranch, Layers, MessageCircle, Sidebar, Sparkles, Terminal, Zap, Activity } from 'lucide-react';
+import { AlertCircle, CheckCircle, GitBranch, Layers, MessageCircle, Sidebar, Sparkles, Terminal, Zap, Activity, ImageIcon, Package } from 'lucide-react';
 import styled from 'styled-components';
 
 import { useGit } from '../hooks/useGit';
@@ -107,6 +107,9 @@ interface StatusBarProps {
   onOpenAgentMode?: () => void;
   onOpenComposerMode?: () => void;
   onOpenTerminal?: () => void;
+  onToggleScreenshot?: () => void;
+  onToggleLibrary?: () => void;
+  onToggleVisualEditor?: () => void;
 }
 
 const StatusBar: React.FC<StatusBarProps> = ({
@@ -119,8 +122,23 @@ const StatusBar: React.FC<StatusBarProps> = ({
   onOpenAgentMode,
   onOpenComposerMode,
   onOpenTerminal,
+  onToggleScreenshot,
+  onToggleLibrary,
+  onToggleVisualEditor,
 }) => {
   const { isGitRepo, status, branches } = useGit();
+
+  // Simple demo mode toggle using localStorage
+  const [isDemoMode, setIsDemoMode] = React.useState(() => {
+    return localStorage.getItem('forceDemoMode') === 'true';
+  });
+
+  const toggleDemoMode = () => {
+    const newValue = !isDemoMode;
+    setIsDemoMode(newValue);
+    localStorage.setItem('forceDemoMode', String(newValue));
+    window.location.reload(); // Reload to reinitialize AI services
+  };
 
   const getFileInfo = () => {
     if (!currentFile) {
@@ -194,7 +212,46 @@ const StatusBar: React.FC<StatusBarProps> = ({
         </StatusItem>
 
         <Separator />
-        
+
+        {onToggleScreenshot && (
+          <ToggleButton
+            active={false}
+            onClick={onToggleScreenshot}
+            title="Screenshot to Code"
+            whileHover={{ scale: 1.05, y: -1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <ImageIcon size={14} />
+            Screenshot
+          </ToggleButton>
+        )}
+
+        {onToggleLibrary && (
+          <ToggleButton
+            active={false}
+            onClick={onToggleLibrary}
+            title="Component Library"
+            whileHover={{ scale: 1.05, y: -1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Package size={14} />
+            Library
+          </ToggleButton>
+        )}
+
+        {onToggleVisualEditor && (
+          <ToggleButton
+            active={false}
+            onClick={onToggleVisualEditor}
+            title="Visual Editor"
+            whileHover={{ scale: 1.05, y: -1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Layers size={14} />
+            Visual
+          </ToggleButton>
+        )}
+
         {onOpenAgentMode && (
           <ToggleButton
             active={false}
@@ -266,6 +323,17 @@ const StatusBar: React.FC<StatusBarProps> = ({
           whileTap={{ scale: 0.95 }}
         >
           <Sidebar size={14} />
+        </ToggleButton>
+
+        <ToggleButton
+          active={isDemoMode}
+          onClick={toggleDemoMode}
+          title={isDemoMode ? "Demo Mode ON (click to use real API)" : "Demo Mode OFF (click to use mock data)"}
+          whileHover={{ scale: 1.05, y: -1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Sparkles size={14} />
+          {isDemoMode ? 'Demo' : 'Live'}
         </ToggleButton>
       </RightSection>
     </StatusBarContainer>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <!-- Required for lock task mode -->
+        <lock-task />
+        <!-- Allows setting package restrictions -->
+        <limit-password />
+        <!-- Prevents user from disabling the app -->
+        <force-lock />
+    </uses-policies>
+</device-admin>

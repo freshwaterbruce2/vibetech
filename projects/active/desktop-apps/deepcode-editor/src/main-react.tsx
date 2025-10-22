@@ -1,22 +1,23 @@
+import { logger } from './services/Logger';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-console.log('Loading React app...');
+logger.debug('Loading React app...');
 
 function DeepCodeApp() {
   const [currentView, setCurrentView] = React.useState('welcome');
 
   const openProject = () => {
-    console.log('Opening project...');
+    logger.debug('Opening project...');
     alert('Open Project clicked! (This will open folder picker)');
   };
 
   const createFile = () => {
-    console.log('Creating new file...');
+    logger.debug('Creating new file...');
     const fileName = prompt('Enter file name:', 'new-file.js');
     if (fileName) {
       setCurrentView('editor');
-      console.log('Creating file:', fileName);
+      logger.debug('Creating file:', fileName);
     }
   };
 
@@ -174,9 +175,9 @@ function DeepCodeApp() {
 
 const root = document.getElementById('root');
 if (root) {
-  console.log('Creating React root...');
+  logger.debug('Creating React root...');
   ReactDOM.createRoot(root).render(<DeepCodeApp />);
-  console.log('React app mounted successfully!');
+  logger.debug('React app mounted successfully!');
 } else {
-  console.error('Root element not found!');
+  logger.error('Root element not found!');
 }

@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useEditorStore } from '../stores/useEditorStore';
@@ -144,7 +145,7 @@ export function useCodeAnalysis(options: UseCodeAnalysisOptions = {}) {
 
       // Handle worker errors
       workerRef.current.onerror = (error) => {
-        console.error('Worker error:', error);
+        logger.error('Worker error:', error);
         setState((prev) => ({
           ...prev,
           isAnalyzing: false,
@@ -153,7 +154,7 @@ export function useCodeAnalysis(options: UseCodeAnalysisOptions = {}) {
         onError?.(new Error(`Worker error: ${error.message}`));
       };
     } catch (error) {
-      console.error('Failed to create worker:', error);
+      logger.error('Failed to create worker:', error);
       setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error : new Error('Failed to create worker'),
@@ -276,7 +277,7 @@ export function useCodeAnalysis(options: UseCodeAnalysisOptions = {}) {
         complexity,
       }));
     } catch (error) {
-      console.error('Analysis failed:', error);
+      logger.error('Analysis failed:', error);
       setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error : new Error('Analysis failed'),

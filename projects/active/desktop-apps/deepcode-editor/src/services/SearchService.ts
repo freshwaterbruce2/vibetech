@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 export interface SearchResult {
   file: string;
   line: number;
@@ -59,7 +60,7 @@ export class SearchService {
           results[file] = fileResults;
         }
       } catch (error) {
-        console.warn(`Failed to search in file ${file}:`, error);
+        logger.warn(`Failed to search in file ${file}:`, error);
       }
     }
 
@@ -113,7 +114,7 @@ export class SearchService {
 
       return results;
     } catch (error) {
-      console.error(`Error searching in file ${filePath}:`, error);
+      logger.error(`Error searching in file ${filePath}:`, error);
       return [];
     }
   }

@@ -3,6 +3,7 @@
  * Provides full repository understanding for autonomous agents
  * Based on latest AI trends: context-aware analysis, relationship mapping, pattern recognition
  */
+import { logger } from '../services/Logger';
 
 import { DeepSeekService } from './DeepSeekService';
 import { FileSystemService } from './FileSystemService';
@@ -323,7 +324,7 @@ export class CodebaseAnalyzer {
 
       return context;
     } catch (error) {
-      console.error('❌ Codebase analysis failed:', error);
+      logger.error('❌ Codebase analysis failed:', error);
       throw new Error(`Analysis failed: ${error}`);
     }
   }
@@ -418,7 +419,7 @@ Provide confidence scores (0-1) for each pattern identified.`;
       // Parse AI analysis into structured data
       return this.parsePatternAnalysis(analysis);
     } catch (error) {
-      console.error('Pattern analysis failed:', error);
+      logger.error('Pattern analysis failed:', error);
       return {
         designPatterns: [],
         namingConventions: [],
@@ -558,7 +559,7 @@ For each issue, provide:
 
       return this.parseDebtAnalysis(analysis);
     } catch (error) {
-      console.error('Technical debt analysis failed:', error);
+      logger.error('Technical debt analysis failed:', error);
       return [];
     }
   }
@@ -613,7 +614,7 @@ Provide recommendations for:
 
       return this.parseArchitectureAnalysis(analysis);
     } catch (error) {
-      console.error('Architecture analysis failed:', error);
+      logger.error('Architecture analysis failed:', error);
       return {
         patterns: [],
         layers: [],
@@ -812,7 +813,7 @@ Provide 5-10 specific, actionable insights for improving the codebase:
       // Parse into array of insights
       return insights.split('\n').filter((line) => line.trim().length > 0);
     } catch (error) {
-      console.error('Insight generation failed:', error);
+      logger.error('Insight generation failed:', error);
       return ['Analysis insights unavailable due to processing error.'];
     }
   }
