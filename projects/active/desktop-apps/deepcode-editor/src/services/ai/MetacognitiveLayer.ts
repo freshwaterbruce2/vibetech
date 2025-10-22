@@ -10,6 +10,7 @@
  * - "Agentic Metacognition" paper (Sept 2025)
  * - ReAct + self-reflection patterns
  */
+import { logger } from '../../services/Logger';
 
 import { AgentStep, AgentTask } from '../../types';
 import { UnifiedAIService } from './UnifiedAIService';
@@ -60,7 +61,7 @@ export class MetacognitiveLayer {
    */
   monitorStepStart(step: AgentStep, task: AgentTask): void {
     this.stepStartTimes.set(step.id, Date.now());
-    console.log(`[Metacognitive] Monitoring step: ${step.title}`);
+    logger.debug(`[Metacognitive] Monitoring step: ${step.title}`);
   }
 
   /**
@@ -72,12 +73,12 @@ export class MetacognitiveLayer {
     task: AgentTask,
     error?: Error
   ): Promise<MetacognitiveInsight> {
-    console.log('[Metacognitive] 🤔 Analyzing execution state...');
+    logger.debug('[Metacognitive] 🤔 Analyzing execution state...');
 
     // Check 1: Repeated errors (same error 3+ times)
     const repeatedErrorPattern = this.detectRepeatedErrors(step, error);
     if (repeatedErrorPattern) {
-      console.log('[Metacognitive] 🔴 Detected repeated error pattern');
+      logger.debug('[Metacognitive] 🔴 Detected repeated error pattern');
       return {
         isStuck: true,
         pattern: repeatedErrorPattern,
@@ -90,7 +91,7 @@ export class MetacognitiveLayer {
     // Check 2: Timeout (step taking >30 seconds)
     const timeoutPattern = this.detectTimeout(step);
     if (timeoutPattern) {
-      console.log('[Metacognitive] ⏰ Detected timeout pattern');
+      logger.debug('[Metacognitive] ⏰ Detected timeout pattern');
       return {
         isStuck: true,
         pattern: timeoutPattern,
@@ -103,7 +104,7 @@ export class MetacognitiveLayer {
     // Check 3: No progress across multiple steps
     const noProgressPattern = this.detectNoProgress(task);
     if (noProgressPattern) {
-      console.log('[Metacognitive] 📉 Detected no progress pattern');
+      logger.debug('[Metacognitive] 📉 Detected no progress pattern');
       return {
         isStuck: true,
         pattern: noProgressPattern,
@@ -132,12 +133,12 @@ export class MetacognitiveLayer {
     pattern: StuckPattern
   ): Promise<HelpResponse> {
     if (!this.canSeekHelp()) {
-      console.warn('[Metacognitive] ⚠️  Max help requests reached, cannot seek more help');
+      logger.warn('[Metacognitive] ⚠️  Max help requests reached, cannot seek more help');
       throw new Error('Maximum help requests exceeded for this task');
     }
 
     this.helpRequestCount++;
-    console.log(`[Metacognitive] 🆘 Seeking help from AI assistant (request ${this.helpRequestCount}/${this.MAX_HELP_REQUESTS_PER_TASK})`);
+    logger.debug(`[Metacognitive] 🆘 Seeking help from AI assistant (request ${this.helpRequestCount}/${this.MAX_HELP_REQUESTS_PER_TASK})`);
 
     // Build help request context
     const helpRequest: HelpRequest = {
@@ -162,14 +163,14 @@ export class MetacognitiveLayer {
       // Parse AI response
       const helpResponse = this.parseHelpResponse(response.content);
 
-      console.log(`[Metacognitive] 💡 AI Assistant provided guidance:`);
-      console.log(`  Diagnosis: ${helpResponse.diagnosis}`);
-      console.log(`  Approach: ${helpResponse.suggestedApproach}`);
-      console.log(`  Alternatives: ${helpResponse.alternativeStrategies.length} strategies`);
+      logger.debug(`[Metacognitive] 💡 AI Assistant provided guidance:`);
+      logger.debug(`  Diagnosis: ${helpResponse.diagnosis}`);
+      logger.debug(`  Approach: ${helpResponse.suggestedApproach}`);
+      logger.debug(`  Alternatives: ${helpResponse.alternativeStrategies.length} strategies`);
 
       return helpResponse;
     } catch (error) {
-      console.error('[Metacognitive] ❌ Failed to get help from AI:', error);
+      logger.error('[Metacognitive] ❌ Failed to get help from AI:', error);
       throw error;
     }
   }
@@ -181,7 +182,7 @@ export class MetacognitiveLayer {
     this.errorHistory.clear();
     this.stepStartTimes.clear();
     this.helpRequestCount = 0;
-    console.log('[Metacognitive] 🔄 Reset for new task');
+    logger.debug('[Metacognitive] 🔄 Reset for new task');
   }
 
   // ==================== PRIVATE DETECTION METHODS ====================
@@ -372,7 +373,7 @@ Please help me figure out what to do next. Be honest - if this task is impossibl
       }
 
       // Fallback: treat entire response as suggestion
-      console.warn('[Metacognitive] Could not parse JSON, using fallback interpretation');
+      logger.warn('[Metacognitive] Could not parse JSON, using fallback interpretation');
       return {
         diagnosis: 'Unable to parse structured response',
         suggestedApproach: content,
@@ -381,7 +382,7 @@ Please help me figure out what to do next. Be honest - if this task is impossibl
         reasoning: 'Fallback interpretation of unstructured response',
       };
     } catch (error) {
-      console.error('[Metacognitive] Failed to parse help response:', error);
+      logger.error('[Metacognitive] Failed to parse help response:', error);
       throw new Error('Could not understand AI assistant response');
     }
   }

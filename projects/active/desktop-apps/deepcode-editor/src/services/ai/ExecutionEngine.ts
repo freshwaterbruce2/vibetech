@@ -4,13 +4,14 @@
  * Executes agent task steps with approval gates, error handling, and rollback support.
  * Implements 2025 best practices for agentic AI workflows.
  */
+import { logger } from '../../services/Logger';
 
 import { FileSystemService } from '../FileSystemService';
 import { UnifiedAIService } from './UnifiedAIService';
 import { WorkspaceService } from '../WorkspaceService';
 import { TaskPersistence } from './TaskPersistence';
 import { CodeQualityAnalyzer } from '../CodeQualityAnalyzer';
-import { MetacognitiveLayer } from './MetacognitiveLayer'; // PHASE 3: Help-seeking when stuck
+import { MetacognitiveLayer, StuckPattern } from './MetacognitiveLayer'; // PHASE 3: Help-seeking when stuck
 import { ReActExecutor } from './ReActExecutor'; // PHASE 4: Reason-Act-Observe-Reflect pattern
 import { StrategyMemory } from './StrategyMemory'; // PHASE 5: Learning across tasks
 import { LiveEditorStream } from '../LiveEditorStream'; // PHASE 7: Live editor streaming
@@ -82,7 +83,7 @@ export class ExecutionEngine {
     // Use deepseek-reasoner for agentic tasks (Cursor-style model selection)
     // Reasoning model provides chain-of-thought for complex multi-step operations
     this.aiService.setModel('deepseek-reasoner').catch((error) => {
-      console.warn('[ExecutionEngine] Failed to set reasoning model, falling back to default:', error);
+      logger.warn('[ExecutionEngine] Failed to set reasoning model, falling back to default:', error);
     });
   }
 
@@ -93,14 +94,14 @@ export class ExecutionEngine {
   private resolveFilePath(path: string): string {
     // If no workspace root, return as-is
     if (!this.currentTaskState.workspaceRoot) {
-      console.warn('[ExecutionEngine] No workspace root set, using path as-is:', path);
+      logger.warn('[ExecutionEngine] No workspace root set, using path as-is:', path);
       return path;
     }
 
     // Use FileSystemService's existing resolution logic
     const resolvedPath = this.fileSystemService.resolveWorkspacePath(path, this.currentTaskState.workspaceRoot);
 
-    console.log(`[ExecutionEngine] Path resolution: "${path}" → "${resolvedPath}"`);
+    logger.debug(`[ExecutionEngine] Path resolution: "${path}" → "${resolvedPath}"`);
     return resolvedPath;
   }
 
@@ -125,11 +126,11 @@ export class ExecutionEngine {
   async resumeTask(taskId: string, callbacks?: ExecutionCallbacks): Promise<AgentTask | null> {
     const persistedTask = await this.taskPersistence.getPersistedTask(taskId);
     if (!persistedTask) {
-      console.warn(`[ExecutionEngine] No persisted task found with ID: ${taskId}`);
+      logger.warn(`[ExecutionEngine] No persisted task found with ID: ${taskId}`);
       return null;
     }
 
-    console.log(`[ExecutionEngine] Resuming task: ${persistedTask.originalTask.title} from step ${persistedTask.currentStepIndex + 1}`);
+    logger.debug(`[ExecutionEngine] Resuming task: ${persistedTask.originalTask.title} from step ${persistedTask.currentStepIndex + 1}`);
     
     // Set up task context
     this.currentTaskState.task = persistedTask.originalTask;
@@ -177,14 +178,14 @@ export class ExecutionEngine {
     if (startStepIndex === 0) {
       this.metacognitiveLayer.resetForNewTask();
       this.reactExecutor.resetAllHistory();
-      console.log('[ExecutionEngine] 🧠 Metacognitive monitoring active');
-      console.log('[ExecutionEngine] 🔄 ReAct pattern enabled:', this.enableReAct);
-      console.log('[ExecutionEngine] 💾 Strategy memory enabled:', this.enableMemory);
+      logger.debug('[ExecutionEngine] 🧠 Metacognitive monitoring active');
+      logger.debug('[ExecutionEngine] 🔄 ReAct pattern enabled:', this.enableReAct);
+      logger.debug('[ExecutionEngine] 💾 Strategy memory enabled:', this.enableMemory);
 
       // Log memory stats
       if (this.enableMemory) {
         const stats = this.strategyMemory.getStats();
-        console.log(`[ExecutionEngine] 📊 Memory has ${stats.totalPatterns} pattern(s), ${stats.averageSuccessRate.toFixed(1)}% avg success rate`);
+        logger.debug(`[ExecutionEngine] 📊 Memory has ${stats.totalPatterns} pattern(s), ${stats.averageSuccessRate.toFixed(1)}% avg success rate`);
       }
     }
 
@@ -267,7 +268,7 @@ export class ExecutionEngine {
         const synthesisStep = await this.generateAutoSynthesis(task);
         if (synthesisStep) {
           task.steps.push(synthesisStep); // Add synthesis as final step
-          console.log('[ExecutionEngine] Added auto-synthesis step to task');
+          logger.debug('[ExecutionEngine] Added auto-synthesis step to task');
 
           // Notify UI that synthesis step was added
           if (callbacks?.onStepComplete) {
@@ -283,14 +284,14 @@ export class ExecutionEngine {
           executionTimeMs: Date.now() - startTime,
         };
 
-        console.log('[ExecutionEngine] ✅ TASK COMPLETED - Status:', task.status);
-        console.log('[ExecutionEngine] Calling onTaskComplete callback...');
+        logger.debug('[ExecutionEngine] ✅ TASK COMPLETED - Status:', task.status);
+        logger.debug('[ExecutionEngine] Calling onTaskComplete callback...');
 
         if (callbacks?.onTaskComplete) {
           callbacks.onTaskComplete(task);
-          console.log('[ExecutionEngine] ✅ onTaskComplete callback fired');
+          logger.debug('[ExecutionEngine] ✅ onTaskComplete callback fired');
         } else {
-          console.warn('[ExecutionEngine] ⚠️ No onTaskComplete callback provided!');
+          logger.warn('[ExecutionEngine] ⚠️ No onTaskComplete callback provided!');
         }
       }
 
@@ -320,9 +321,9 @@ export class ExecutionEngine {
     attemptNumber: number
   ): Promise<StepAction | null> {
     try {
-      console.log(`[ExecutionEngine] 🤔 Self-Correction: Analyzing failure for "${step.title}"`);
-      console.log(`[ExecutionEngine] Error: ${error.message}`);
-      console.log(`[ExecutionEngine] Original action: ${step.action.type}`);
+      logger.debug(`[ExecutionEngine] 🤔 Self-Correction: Analyzing failure for "${step.title}"`);
+      logger.debug(`[ExecutionEngine] Error: ${error.message}`);
+      logger.debug(`[ExecutionEngine] Original action: ${step.action.type}`);
 
       const prompt = `I'm an AI coding agent that just failed a task step. Help me find an alternative approach.
 
@@ -370,20 +371,20 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
       // Parse AI response (handle JSON in text)
       const jsonMatch = response.content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        console.warn('[ExecutionEngine] ⚠️  AI did not return valid JSON strategy');
+        logger.warn('[ExecutionEngine] ⚠️  AI did not return valid JSON strategy');
         return null;
       }
 
       const strategy = JSON.parse(jsonMatch[0]);
-      console.log(`[ExecutionEngine] ✨ Alternative Strategy: ${strategy.strategy}`);
-      console.log(`[ExecutionEngine] Confidence: ${Math.round(strategy.confidence * 100)}%`);
+      logger.debug(`[ExecutionEngine] ✨ Alternative Strategy: ${strategy.strategy}`);
+      logger.debug(`[ExecutionEngine] Confidence: ${Math.round(strategy.confidence * 100)}%`);
 
       return {
         type: strategy.action as ActionType,
         params: strategy.params,
       };
     } catch (err) {
-      console.error('[ExecutionEngine] ❌ Self-correction failed:', err);
+      logger.error('[ExecutionEngine] ❌ Self-correction failed:', err);
       return null;
     }
   }
@@ -401,10 +402,10 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
     // If failed and fallbacks exist, try each fallback
     const enhancedStep = step as any; // EnhancedAgentStep type
     if (!result.success && enhancedStep.fallbackPlans && enhancedStep.fallbackPlans.length > 0) {
-      console.log(`[ExecutionEngine] ❌ Primary approach failed, trying fallbacks...`);
+      logger.debug(`[ExecutionEngine] ❌ Primary approach failed, trying fallbacks...`);
 
       for (const fallback of enhancedStep.fallbackPlans) {
-        console.log(`[ExecutionEngine] 📋 Fallback: ${fallback.reasoning}`);
+        logger.debug(`[ExecutionEngine] 📋 Fallback: ${fallback.reasoning}`);
 
         // Create temporary step with fallback action
         const fallbackStep: AgentStep = {
@@ -415,7 +416,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         const fallbackResult = await this.executeStepWithRetry(fallbackStep, callbacks);
 
         if (fallbackResult.success) {
-          console.log(`[ExecutionEngine] ✅ Fallback succeeded!`);
+          logger.debug(`[ExecutionEngine] ✅ Fallback succeeded!`);
           return {
             ...fallbackResult,
             data: {
@@ -429,7 +430,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         }
       }
 
-      console.log(`[ExecutionEngine] ❌ All fallbacks exhausted`);
+      logger.debug(`[ExecutionEngine] ❌ All fallbacks exhausted`);
     }
 
     return result;
@@ -475,7 +476,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         let reActCycleData: any = null;
 
         if (this.enableReAct && this.currentTaskState.task) {
-          console.log('[ExecutionEngine] 🔄 Using ReAct pattern for step execution');
+          logger.debug('[ExecutionEngine] 🔄 Using ReAct pattern for step execution');
 
           // Execute the full ReAct cycle
           const reActCycle = await this.reactExecutor.executeReActCycle(
@@ -514,7 +515,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
 
           // If ReAct reflection suggests retry with changes, apply those changes
           if (!reActCycle.observation.success && reActCycle.reflection.shouldRetry) {
-            console.log(`[ExecutionEngine] 🔄 ReAct suggests retry with changes:`, reActCycle.reflection.suggestedChanges);
+            logger.debug(`[ExecutionEngine] 🔄 ReAct suggests retry with changes:`, reActCycle.reflection.suggestedChanges);
           }
         } else {
           // Fallback: Execute action directly without ReAct pattern
@@ -547,7 +548,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         step.retryCount++;
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-        console.error(`[ExecutionEngine] ❌ Step ${step.order} failed (attempt ${step.retryCount}/${step.maxRetries}):`, errorMessage);
+        logger.error(`[ExecutionEngine] ❌ Step ${step.order} failed (attempt ${step.retryCount}/${step.maxRetries}):`, errorMessage);
 
         // 2025 ENHANCEMENT Phase 3: Check if agent is stuck before final failure
         const stuckAnalysis = this.currentTaskState.task
@@ -559,16 +560,16 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
           : { isStuck: false, recommendation: '', confidence: 0 };
 
         if (stuckAnalysis.isStuck && 'shouldSeekHelp' in stuckAnalysis && stuckAnalysis.shouldSeekHelp && this.currentTaskState.task) {
-          console.log('[ExecutionEngine] 🤔 Agent appears stuck, seeking help from AI...');
+          logger.debug('[ExecutionEngine] 🤔 Agent appears stuck, seeking help from AI...');
           try {
             const helpResponse = await this.metacognitiveLayer.seekHelp(
               step,
               this.currentTaskState.task,
-              'pattern' in stuckAnalysis && stuckAnalysis.pattern ? stuckAnalysis.pattern : 'unknown'
+              ('pattern' in stuckAnalysis && stuckAnalysis.pattern ? stuckAnalysis.pattern : 'unknown') as StuckPattern
             );
 
             if (helpResponse.shouldContinue) {
-              console.log(`[ExecutionEngine] 💡 AI guidance: ${helpResponse.suggestedApproach}`);
+              logger.debug(`[ExecutionEngine] 💡 AI guidance: ${helpResponse.suggestedApproach}`);
               // Try the AI's suggested approach as an alternative strategy
               step.action = {
                 type: 'custom' as ActionType,
@@ -578,7 +579,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
                 }
               };
             } else {
-              console.log(`[ExecutionEngine] 🛑 AI recommends stopping: ${helpResponse.reasoning}`);
+              logger.debug(`[ExecutionEngine] 🛑 AI recommends stopping: ${helpResponse.reasoning}`);
               step.status = 'failed';
               step.error = `Stopped on AI recommendation: ${helpResponse.reasoning}`;
               step.completedAt = new Date();
@@ -589,7 +590,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
               };
             }
           } catch (helpError) {
-            console.error('[ExecutionEngine] ⚠️ Failed to get help:', helpError);
+            logger.error('[ExecutionEngine] ⚠️ Failed to get help:', helpError);
             // Continue with normal retry logic if help-seeking fails
           }
         }
@@ -613,7 +614,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         }
 
         // 2025 ENHANCEMENT: Self-Correction - Try different strategy instead of same retry
-        console.log(`[ExecutionEngine] 🔄 Attempting self-correction...`);
+        logger.debug(`[ExecutionEngine] 🔄 Attempting self-correction...`);
         const alternativeStrategy = await this.generateAlternativeStrategy(
           step,
           error as Error,
@@ -622,12 +623,12 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
 
         if (alternativeStrategy) {
           // Update step action to use alternative strategy
-          console.log(`[ExecutionEngine] ✅ Using alternative: ${alternativeStrategy.type}`);
+          logger.debug(`[ExecutionEngine] ✅ Using alternative: ${alternativeStrategy.type}`);
           step.action = alternativeStrategy;
           // Continue loop to try new strategy
         } else {
           // No alternative found, use exponential backoff before retry
-          console.log(`[ExecutionEngine] ⚠️  No alternative found, retrying original action...`);
+          logger.debug(`[ExecutionEngine] ⚠️  No alternative found, retrying original action...`);
           const backoffMs = Math.min(1000 * Math.pow(2, step.retryCount - 1), 10000);
           await this.sleep(backoffMs);
         }
@@ -711,15 +712,15 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         // File exists at exact path, continue to read it
       } catch (statError) {
         // File doesn't exist at exact path - try common alternate locations
-        console.log(`[ExecutionEngine] File not found at exact path: ${resolvedPath}, searching alternate locations...`);
+        logger.debug(`[ExecutionEngine] File not found at exact path: ${resolvedPath}, searching alternate locations...`);
         const foundPath = await this.findFileInCommonLocations(resolvedPath);
 
         if (foundPath) {
-          console.log(`[ExecutionEngine] ✓ Found file at alternate location: ${foundPath} (requested: ${resolvedPath})`);
+          logger.debug(`[ExecutionEngine] ✓ Found file at alternate location: ${foundPath} (requested: ${resolvedPath})`);
           resolvedPath = foundPath; // Use the found path instead
         } else {
           // File doesn't exist anywhere - AUTO-CREATE IT (like Cursor does!)
-          console.log(`[ExecutionEngine] 🔧 File not found, auto-creating: ${resolvedPath}`);
+          logger.debug(`[ExecutionEngine] 🔧 File not found, auto-creating: ${resolvedPath}`);
 
           // Generate appropriate content for this file type
           const generatedContent = await this.generateMissingFileContent(resolvedPath);
@@ -732,7 +733,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
             this.currentCallbacks.onFileChanged(resolvedPath, 'created');
           }
 
-          console.log(`[ExecutionEngine] ✓ Auto-created file: ${resolvedPath} (${generatedContent.length} bytes)`);
+          logger.debug(`[ExecutionEngine] ✓ Auto-created file: ${resolvedPath} (${generatedContent.length} bytes)`);
 
           // Now read the newly created file and return it
           const content = await this.fileSystemService.readFile(resolvedPath);
@@ -782,13 +783,13 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
       this.fileSystemService.joinPath(workspaceRoot, 'app', '(tabs)', fileName), // app/(tabs)/ for Expo
     ];
 
-    console.log(`[ExecutionEngine] Searching for file: ${fileName}`);
-    console.log(`[ExecutionEngine] Trying locations:`, locationsToTry);
+    logger.debug(`[ExecutionEngine] Searching for file: ${fileName}`);
+    logger.debug(`[ExecutionEngine] Trying locations:`, locationsToTry);
 
     for (const location of locationsToTry) {
       try {
         await this.fileSystemService.getFileStats(location);
-        console.log(`[ExecutionEngine] ✓ Found file at: ${location}`);
+        logger.debug(`[ExecutionEngine] ✓ Found file at: ${location}`);
         return location; // File exists at this location
       } catch {
         // File doesn't exist here, try next location
@@ -796,7 +797,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
       }
     }
 
-    console.log(`[ExecutionEngine] ✗ File not found in any common location`);
+    logger.debug(`[ExecutionEngine] ✗ File not found in any common location`);
     return null; // File not found in any location
   }
 
@@ -880,7 +881,7 @@ For code files, include:
 
 Generate ONLY the file content, no explanations.`;
 
-      console.log('[ExecutionEngine] Generating content for missing file with AI...');
+      logger.debug('[ExecutionEngine] Generating content for missing file with AI...');
 
       const response = await this.aiService.sendContextualMessage({
         userQuery: prompt,
@@ -899,7 +900,7 @@ Generate ONLY the file content, no explanations.`;
 
       return content;
     } catch (error) {
-      console.error('[ExecutionEngine] AI generation failed, using fallback template:', error);
+      logger.error('[ExecutionEngine] AI generation failed, using fallback template:', error);
       // Fall back to basic templates
       const fileName = filePath.split(/[/\\]/).pop() || 'file';
       const extension = fileName.split('.').pop()?.toLowerCase() || '';
@@ -1087,7 +1088,7 @@ Please update with actual content.
 
       // Command execution not yet implemented for Electron
       // TODO: Implement shell command execution via Electron IPC
-      console.warn('[ExecutionEngine] Command execution not yet implemented');
+      logger.warn('[ExecutionEngine] Command execution not yet implemented');
       return {
         success: false,
         message: 'Command execution not yet implemented',
@@ -1099,10 +1100,10 @@ Please update with actual content.
 
   private async executeSearchCodebase(params: any): Promise<StepResult> {
     try {
-      console.log('[ExecutionEngine] executeSearchCodebase called with params:', JSON.stringify(params, null, 2));
+      logger.debug('[ExecutionEngine] executeSearchCodebase called with params:', JSON.stringify(params, null, 2));
 
       if (!params.searchQuery) {
-        console.error('[ExecutionEngine] Missing searchQuery parameter. Received params:', params);
+        logger.error('[ExecutionEngine] Missing searchQuery parameter. Received params:', params);
         throw new Error(`Missing required parameter: searchQuery. Received params: ${JSON.stringify(params)}`);
       }
 
@@ -1110,7 +1111,7 @@ Please update with actual content.
       let searchQuery: string;
       if (Array.isArray(params.searchQuery)) {
         searchQuery = params.searchQuery.join('|');
-        console.log(`[ExecutionEngine] Converted array to search pattern: ${searchQuery}`);
+        logger.debug(`[ExecutionEngine] Converted array to search pattern: ${searchQuery}`);
       } else if (typeof params.searchQuery === 'string') {
         searchQuery = params.searchQuery;
       } else {
@@ -1140,7 +1141,7 @@ Please update with actual content.
       const fileContent = await this.fileSystemService.readFile(resolvedPath);
 
       // Get AI analysis of the code (like Cursor/Copilot do)
-      console.log(`[ExecutionEngine] Requesting AI analysis for: ${resolvedPath}`);
+      logger.debug(`[ExecutionEngine] Requesting AI analysis for: ${resolvedPath}`);
 
       const aiAnalysisPrompt = `Analyze this code file and provide a concise review:
 
@@ -1195,7 +1196,7 @@ Keep it concise (3-5 bullet points).`;
           message: `✅ AI analyzed: ${resolvedPath}`,
         };
       } catch (aiError) {
-        console.error('[ExecutionEngine] AI analysis failed, returning basic stats:', aiError);
+        logger.error('[ExecutionEngine] AI analysis failed, returning basic stats:', aiError);
 
         // Fallback to basic analysis if AI fails
         const analysis = {
@@ -1389,37 +1390,10 @@ Keep it concise (3-5 bullet points).`;
   private async executeRunTests(params: any): Promise<StepResult> {
     try {
       // Test execution not available in browser mode
-      console.warn('[ExecutionEngine] Test execution not yet available in browser mode');
+      logger.warn('[ExecutionEngine] Test execution not yet available in browser mode');
       return {
         success: false,
         message: 'Test execution is only available in desktop mode',
-      };
-
-      // Unreachable code removed - test execution not implemented
-
-      console.log(`[ExecutionEngine] Running tests with command: ${testCommand} ${testPattern}`);
-
-      // Execute test command
-      const commandParts = testCommand.split(' ');
-      const command = commandParts[0];
-      const args = [...commandParts.slice(1)];
-
-      if (testPattern) {
-        args.push(testPattern);
-      }
-
-      // Test execution not yet implemented for Electron
-      // TODO: Implement test execution via Electron IPC
-      console.warn('[ExecutionEngine] Test execution not yet implemented');
-      return {
-        success: false,
-        message: 'Test execution not yet implemented',
-        data: {
-          stdout: '',
-          stderr: 'Test execution not yet implemented',
-          exitCode: -1,
-          testsPassed: false,
-        },
       };
     } catch (error) {
       throw new Error(`Failed to run tests: ${error}`);
@@ -1438,7 +1412,7 @@ Keep it concise (3-5 bullet points).`;
       // Check for pnpm-lock.yaml (pnpm)
       try {
         await this.fileSystemService.getFileStats(`${workspaceRoot}/pnpm-lock.yaml`);
-        console.log('[ExecutionEngine] Detected pnpm project');
+        logger.debug('[ExecutionEngine] Detected pnpm project');
         return 'pnpm test';
       } catch {
         // Not pnpm
@@ -1447,17 +1421,17 @@ Keep it concise (3-5 bullet points).`;
       // Check for yarn.lock (yarn)
       try {
         await this.fileSystemService.getFileStats(`${workspaceRoot}/yarn.lock`);
-        console.log('[ExecutionEngine] Detected yarn project');
+        logger.debug('[ExecutionEngine] Detected yarn project');
         return 'yarn test';
       } catch {
         // Not yarn
       }
 
       // Default to npm
-      console.log('[ExecutionEngine] Defaulting to npm');
+      logger.debug('[ExecutionEngine] Defaulting to npm');
       return 'npm test';
     } catch (error) {
-      console.error('[ExecutionEngine] Error detecting package manager:', error);
+      logger.error('[ExecutionEngine] Error detecting package manager:', error);
       return 'npm test';
     }
   }
@@ -1480,7 +1454,7 @@ Keep it concise (3-5 bullet points).`;
         throw new Error('Missing required parameter: workspaceRoot');
       }
 
-      console.log(`[ExecutionEngine] Analyzing project quality for: ${params.workspaceRoot}`);
+      logger.debug(`[ExecutionEngine] Analyzing project quality for: ${params.workspaceRoot}`);
       const report = await this.codeQualityAnalyzer.analyzeProject(params.workspaceRoot);
 
       // Format summary for agent
@@ -1519,22 +1493,22 @@ ${report.fileReports
    */
   private async generateAutoSynthesis(task: AgentTask): Promise<AgentStep | null> {
     try {
-      console.log('[ExecutionEngine] 🔍 Checking if auto-synthesis needed...');
+      logger.debug('[ExecutionEngine] 🔍 Checking if auto-synthesis needed...');
 
       // Collect all steps with AI-generated content (reviews, analyses)
       const stepsWithAIContent = task.steps.filter(step =>
         step.status === 'completed' &&
         step.result?.success &&
-        step.result.data?.generatedCode
+        (step.result.data as any)?.generatedCode
       );
 
       // Only synthesize if we have 2+ AI-analyzed files
       if (stepsWithAIContent.length < 2) {
-        console.log(`[ExecutionEngine] Skipping auto-synthesis (only ${stepsWithAIContent.length} AI-analyzed steps)`);
+        logger.debug(`[ExecutionEngine] Skipping auto-synthesis (only ${stepsWithAIContent.length} AI-analyzed steps)`);
         return null;
       }
 
-      console.log(`[ExecutionEngine] ✨ Auto-synthesizing results from ${stepsWithAIContent.length} analyzed files...`);
+      logger.debug(`[ExecutionEngine] ✨ Auto-synthesizing results from ${stepsWithAIContent.length} analyzed files...`);
 
       // Collect file paths and reviews
       const fileAnalyses = stepsWithAIContent.map(step => {
@@ -1608,11 +1582,11 @@ Be detailed, specific, and actionable. Reference specific files when making poin
         },
       };
 
-      console.log('[ExecutionEngine] ✅ Auto-synthesis complete!');
+      logger.debug('[ExecutionEngine] ✅ Auto-synthesis complete!');
       return synthesisStep;
 
     } catch (error) {
-      console.error('[ExecutionEngine] ❌ Auto-synthesis failed:', error);
+      logger.error('[ExecutionEngine] ❌ Auto-synthesis failed:', error);
       return null; // Fail gracefully - synthesis is a bonus feature
     }
   }
@@ -1652,7 +1626,7 @@ Be detailed, specific, and actionable. Reference specific files when making poin
               await this.fileSystemService.deleteFile(file);
               restoredFiles.push(file);
             } catch (error) {
-              console.error(`Failed to delete created file during rollback: ${file}`, error);
+              logger.error(`Failed to delete created file during rollback: ${file}`, error);
             }
           }
         }
@@ -1660,12 +1634,12 @@ Be detailed, specific, and actionable. Reference specific files when making poin
         if (result.filesModified) {
           // For modified files, we would need backup copies
           // This is a limitation - we can't fully restore without backups
-          console.warn(`Cannot restore modified files without backup: ${result.filesModified.join(', ')}`);
+          logger.warn(`Cannot restore modified files without backup: ${result.filesModified.join(', ')}`);
         }
 
         if (result.filesDeleted) {
           // Cannot restore deleted files without backup
-          console.warn(`Cannot restore deleted files: ${result.filesDeleted.join(', ')}`);
+          logger.warn(`Cannot restore deleted files: ${result.filesDeleted.join(', ')}`);
         }
 
         rolledBackSteps.push(`Step ${i + 1}`);

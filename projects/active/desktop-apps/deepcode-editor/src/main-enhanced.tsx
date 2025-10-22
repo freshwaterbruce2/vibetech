@@ -1,10 +1,11 @@
+import { logger } from './services/Logger';
 import { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import Editor from '@monaco-editor/react';
 
 import './index.css';
 
-console.log('Loading Enhanced DeepCode Editor...');
+logger.debug('Loading Enhanced DeepCode Editor...');
 
 // Types
 interface FileItem {
@@ -58,7 +59,7 @@ class DeepSeekService {
 
       return response;
     } catch (error) {
-      console.error('DeepSeek API Error:', error);
+      logger.error('DeepSeek API Error:', error);
       throw error;
     }
   }
@@ -95,7 +96,7 @@ class DeepSeekService {
                 yield content;
               }
             } catch (e) {
-              console.error('Error parsing chunk:', e);
+              logger.error('Error parsing chunk:', e);
             }
           }
         }
@@ -153,7 +154,7 @@ function DeepCodeEditor() {
     const newFile: FileItem = {
       id: Date.now().toString(),
       name,
-      content: `// Welcome to DeepCode Editor!\n// Start coding with AI assistance...\n\nconsole.log('Hello from ${name}!');\n`,
+      content: `// Welcome to DeepCode Editor!\n// Start coding with AI assistance...\n\nlogger.debug('Hello from ${name}!');\n`,
       language: languageMap[ext] || 'javascript',
     };
 
@@ -294,7 +295,7 @@ If the user asks to insert/replace code, format your response clearly.`,
         }
       }
     } catch (error) {
-      console.error('AI Error:', error);
+      logger.error('AI Error:', error);
       const errorMessage: Message = {
         id: (Date.now() + 2).toString(),
         role: 'assistant',
@@ -930,5 +931,5 @@ If the user asks to insert/replace code, format your response clearly.`,
 const root = document.getElementById('root');
 if (root) {
   ReactDOM.createRoot(root).render(<DeepCodeEditor />);
-  console.log('Enhanced DeepCode Editor loaded!');
+  logger.debug('Enhanced DeepCode Editor loaded!');
 }

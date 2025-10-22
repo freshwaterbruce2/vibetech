@@ -1,0 +1,146 @@
+// IconForge Database Schema
+// Using SQLite unified database at D:\databases\database.db
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Users table (synced with other workspace apps)
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  plan      String   @default("free") // free, pro, team, enterprise
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects      Project[]
+  collaborators Collaborator[]
+  aiGenerations AiGeneration[]
+
+  @@map("iconforge_users")
+}
+
+// Projects table
+model Project {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  settings  String   @default("{}") // JSON as TEXT in SQLite
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  icons         Icon[]
+  collaborators Collaborator[]
+  snapshots     ProjectSnapshot[]
+
+  @@map("iconforge_projects")
+}
+
+// Icons table
+model Icon {
+  id           String   @id @default(uuid())
+  projectId    String
+  name         String
+  svgData      String   // TEXT in SQLite
+  layers       String   // JSON as TEXT in SQLite
+  metadata     String   @default("{}") // JSON as TEXT
+  thumbnailUrl String?
+  version      Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  project  Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  versions IconVersion[]
+  exports  Export[]
+
+  @@index([projectId])
+  @@map("iconforge_icons")
+}
+
+// Icon versions for history
+model IconVersion {
+  id        String   @id @default(uuid())
+  iconId    String
+  version   Int
+  svgData   String   // TEXT
+  layers    String   // JSON as TEXT
+  createdBy String
+  createdAt DateTime @default(now())
+
+  icon Icon @relation(fields: [iconId], references: [id], onDelete: Cascade)
+
+  @@unique([iconId, version])
+  @@index([iconId, version])
+  @@map("iconforge_icon_versions")
+}
+
+// Collaborators for team projects
+model Collaborator {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  role      String   @default("viewer") // viewer, editor, admin
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@map("iconforge_collaborators")
+}
+
+// AI generations tracking
+model AiGeneration {
+  id        String   @id @default(uuid())
+  userId    String
+  prompt    String
+  style     String
+  model     String   // dalle-3, stable-diffusion
+  imageUrl  String?
+  cost      Real     // REAL in SQLite (float)
+  metadata  String   @default("{}") // JSON as TEXT
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("iconforge_ai_generations")
+}
+
+// Export tracking
+model Export {
+  id        String   @id @default(uuid())
+  iconId    String
+  format    String   // svg, png, ico, webp, pdf
+  options   String   @default("{}") // JSON as TEXT
+  fileUrl   String?
+  createdAt DateTime @default(now())
+
+  icon Icon @relation(fields: [iconId], references: [id], onDelete: Cascade)
+
+  @@index([iconId])
+  @@map("iconforge_exports")
+}
+
+// Project snapshots for collaboration (Yjs)
+model ProjectSnapshot {
+  id        String   @id @default(uuid())
+  projectId String
+  data      Bytes    // BLOB for binary Yjs state
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, version])
+  @@map("iconforge_project_snapshots")
+}

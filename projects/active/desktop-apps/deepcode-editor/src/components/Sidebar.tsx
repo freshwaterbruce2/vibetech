@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
@@ -289,7 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       setFileTree(files);
       // No expanded folders by default for the demo files
     } catch (error) {
-      console.error('Failed to load file tree:', error);
+      logger.error('Failed to load file tree:', error);
       // Fallback to empty tree
       setFileTree([]);
     }
@@ -312,12 +313,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     // Load children if expanding and not already loaded
     if (!isCurrentlyExpanded && !folderChildren.has(path) && fileSystemService) {
       try {
-        console.log('[Sidebar] Loading children for folder:', path);
+        logger.debug('[Sidebar] Loading children for folder:', path);
         const children = await fileSystemService.listDirectory(path);
-        console.log('[Sidebar] Loaded', children.length, 'items');
+        logger.debug('[Sidebar] Loaded', children.length, 'items');
         setFolderChildren((prev) => new Map(prev).set(path, children));
       } catch (error) {
-        console.error('[Sidebar] Failed to load folder children:', error);
+        logger.error('[Sidebar] Failed to load folder children:', error);
       }
     }
   };
@@ -335,7 +336,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
-    console.log('Right-click detected on file:', item.name, 'path:', item.path);
+    logger.debug('Right-click detected on file:', item.name, 'path:', item.path);
 
     const contextMenuItems: ContextMenuItem[] = [
       {
@@ -344,7 +345,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         icon: <ClipboardCopy size={16} />,
         onClick: () => {
           navigator.clipboard.writeText(item.path);
-          console.log('Copied path:', item.path);
+          logger.debug('Copied path:', item.path);
         },
       },
       { id: 'divider-1', label: '', divider: true },
@@ -354,7 +355,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         icon: <Trash2 size={16} />,
         danger: true,
         onClick: () => {
-          console.log('Delete clicked for:', item.name);
+          logger.debug('Delete clicked for:', item.name);
           setDeleteDialog({
             isOpen: true,
             fileName: item.name,
@@ -364,7 +365,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       },
     ];
 
-    console.log('Showing context menu with', contextMenuItems.length, 'items');
+    logger.debug('Showing context menu with', contextMenuItems.length, 'items');
     showContextMenu(e, contextMenuItems);
   };
 
@@ -380,7 +381,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         setSelectedFile(null);
       }
     } catch (error) {
-      console.error('Failed to delete file:', error);
+      logger.error('Failed to delete file:', error);
       // TODO: Show error toast/notification
     } finally {
       setDeleteDialog({ isOpen: false, fileName: '', filePath: '' });

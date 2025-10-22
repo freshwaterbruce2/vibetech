@@ -1,0 +1,42 @@
+
+<svg width="152" height="152" viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="grad152" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="152" height="152" rx="30.400000000000002" fill="url(#grad152)"/>
+
+  <!-- Neural network pattern -->
+  <g transform="translate(76,76)" fill="rgba(255,255,255,0.9)">
+    <!-- Central node -->
+    <circle cx="0" cy="0" r="12.16" fill="white"/>
+
+    
+    <!-- Connection nodes -->
+    <circle cx="-22.8" cy="-22.8" r="6.08"/>
+    <circle cx="22.8" cy="-22.8" r="6.08"/>
+    <circle cx="-22.8" cy="22.8" r="6.08"/>
+    <circle cx="22.8" cy="22.8" r="6.08"/>
+
+    <!-- Connection lines -->
+    <g stroke="rgba(255,255,255,0.7)" stroke-width="1.216" fill="none">
+      <line x1="0" y1="0" x2="-22.8" y2="-22.8"/>
+      <line x1="0" y1="0" x2="22.8" y2="-22.8"/>
+      <line x1="0" y1="0" x2="-22.8" y2="22.8"/>
+      <line x1="0" y1="0" x2="22.8" y2="22.8"/>
+    </g>
+    
+  </g>
+
+  
+  <!-- NOVA text -->
+  <text x="76" y="129.2" text-anchor="middle"
+        font-family="Arial, sans-serif" font-size="18.24"
+        font-weight="bold" fill="rgba(255,255,255,0.9)">NOVA</text>
+  
+</svg>

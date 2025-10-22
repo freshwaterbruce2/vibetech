@@ -1,0 +1,44 @@
+
+@layer components {
+  /* Neon Sweep Button */
+  .neon-sweep-btn {
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[rgba(0,255,255,0.3)] hover:border-[rgba(0,255,255,0.6)] shadow-neon-blue-soft transition-all duration-300;
+  }
+  
+  .neon-sweep-btn::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-[#00FFFF] via-[#B933FF] to-[#FF00AA] bg-[length:400%_100%] opacity-0 hover:opacity-20 animate-neon-sweep transition-opacity duration-300;
+    z-index: 0;
+  }
+  
+  /* Neon Button variants */
+  .neon-btn-purple {
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[rgba(185,51,255,0.3)] hover:border-[rgba(185,51,255,0.6)] shadow-neon-purple-soft transition-all duration-300;
+  }
+  
+  .neon-btn-purple::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-purple to-[rgba(185,51,255,0.7)] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
+    z-index: 0;
+  }
+  
+  .neon-btn-pink {
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[rgba(255,0,170,0.3)] hover:border-[rgba(255,0,170,0.6)] shadow-neon-pink-soft transition-all duration-300;
+  }
+  
+  .neon-btn-pink::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-pink to-[rgba(255,0,170,0.7)] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
+    z-index: 0;
+  }
+  
+  .neon-btn-teal {
+    @apply relative overflow-hidden bg-futuristic-darkBgLight border border-[rgba(0,255,204,0.3)] hover:border-[rgba(0,255,204,0.6)] shadow-neon-teal-soft transition-all duration-300;
+  }
+  
+  .neon-btn-teal::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-teal to-[rgba(0,255,204,0.7)] bg-[length:400%_100%] opacity-0 hover:opacity-20 transition-opacity duration-300;
+    z-index: 0;
+  }
+}

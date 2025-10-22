@@ -1,0 +1,257 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* VibeTech NOVA - Modern CSS with Tailwind */
+
+@layer base {
+  /* Modern font imports */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap');
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-sans antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground min-h-screen;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Scrollbar styling for webkit browsers */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-vibetech-cyan/30;
+  }
+
+  /* Selection styling */
+  ::selection {
+    @apply bg-vibetech-cyan/20 text-vibetech-cyan;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-vibetech-cyan/50 ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  /* Button Components */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-200;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vibetech-cyan/50;
+    @apply disabled:pointer-events-none disabled:opacity-50;
+    @apply active:scale-95;
+  }
+
+  .btn-primary {
+    @apply bg-vibetech-cyan hover:bg-vibetech-cyan-600 text-vibetech-black;
+    @apply shadow-glow hover:shadow-glow-lg;
+  }
+
+  .btn-secondary {
+    @apply bg-background-secondary hover:bg-background-tertiary text-foreground;
+    @apply border border-border hover:border-vibetech-cyan/50;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-background-secondary text-foreground-secondary hover:text-foreground;
+  }
+
+  .btn-sm {
+    @apply h-9 px-3;
+  }
+
+  .btn-default {
+    @apply h-10 px-4 py-2;
+  }
+
+  .btn-lg {
+    @apply h-11 px-8;
+  }
+
+  /* Card Components */
+  .card {
+    @apply glass rounded-lg border;
+    @apply transition-all duration-300 hover:border-vibetech-cyan/30;
+  }
+
+  .card-header {
+    @apply p-6 pb-3;
+  }
+
+  .card-content {
+    @apply p-6 pt-0;
+  }
+
+  .card-footer {
+    @apply p-6 pt-0;
+  }
+
+  /* Input Components */
+  .input {
+    @apply flex h-10 w-full rounded-md border border-border bg-background-secondary px-3 py-2;
+    @apply text-sm placeholder:text-foreground-muted;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vibetech-cyan/50;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .textarea {
+    @apply flex min-h-[80px] w-full rounded-md border border-border bg-background-secondary px-3 py-2;
+    @apply text-sm placeholder:text-foreground-muted resize-none;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vibetech-cyan/50;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Navigation Components */
+  .nav-item {
+    @apply flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium;
+    @apply text-foreground-secondary hover:text-foreground hover:bg-background-secondary;
+    @apply transition-all duration-200;
+  }
+
+  .nav-item.active {
+    @apply text-vibetech-cyan bg-background-secondary border border-vibetech-cyan/20;
+  }
+
+  /* Status Components */
+  .status-indicator {
+    @apply inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-online {
+    @apply bg-success/20 text-success border border-success/30;
+  }
+
+  .status-offline {
+    @apply bg-error/20 text-error border border-error/30;
+  }
+
+  .status-loading {
+    @apply bg-warning/20 text-warning border border-warning/30;
+  }
+
+  /* Message Components */
+  .message {
+    @apply p-4 rounded-lg max-w-[85%] break-words;
+  }
+
+  .message-user {
+    @apply bg-vibetech-cyan text-vibetech-black ml-auto text-right shadow-glow-sm;
+  }
+
+  .message-assistant {
+    @apply glass border border-vibetech-cyan/20;
+  }
+
+  .message-error {
+    @apply bg-error/20 text-error border border-error/30;
+  }
+
+  /* Loading Components */
+  .loading-spinner {
+    @apply inline-block animate-spin rounded-full border-2 border-current border-t-transparent;
+  }
+
+  .loading-dots {
+    @apply inline-flex space-x-1;
+  }
+
+  .loading-dots > div {
+    @apply w-2 h-2 bg-current rounded-full animate-pulse;
+  }
+
+  .loading-dots > div:nth-child(2) {
+    @apply animation-delay-200;
+  }
+
+  .loading-dots > div:nth-child(3) {
+    @apply animation-delay-400;
+  }
+}
+
+@layer utilities {
+  /* Animation delays */
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  /* Custom gradients */
+  .gradient-vibetech {
+    background: linear-gradient(135deg, #9333EA 0%, #00D4D4 100%);
+  }
+
+  .gradient-vibetech-text {
+    @apply bg-gradient-to-r from-vibetech-purple to-vibetech-cyan bg-clip-text text-transparent;
+  }
+
+  /* Cyberpunk effects */
+  .cyberpunk-border {
+    position: relative;
+  }
+
+  .cyberpunk-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, #00D4D4 50%, transparent 70%);
+    border-radius: inherit;
+    padding: 1px;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+
+  /* Neon text effects */
+  .neon-text {
+    color: #00D4D4;
+    text-shadow:
+      0 0 5px #00D4D4,
+      0 0 10px #00D4D4,
+      0 0 20px #00D4D4,
+      0 0 40px #00D4D4;
+  }
+
+  .neon-text-purple {
+    color: #9333EA;
+    text-shadow:
+      0 0 5px #9333EA,
+      0 0 10px #9333EA,
+      0 0 20px #9333EA,
+      0 0 40px #9333EA;
+  }
+
+  /* Glass morphism variants */
+  .glass-light {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .glass-medium {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20;
+  }
+
+  .glass-heavy {
+    @apply bg-white/15 backdrop-blur-xl border border-white/30;
+  }
+}

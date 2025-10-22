@@ -5,6 +5,7 @@
  * This service aligns EXACTLY with the window.electron API exposed
  * by electron/preload.cjs to ensure proper IPC communication
  */
+import { logger } from '../services/Logger';
 
 // Types matching preload.cjs exposed API
 interface ElectronFS {
@@ -34,11 +35,19 @@ interface ElectronApp {
   getPlatform: () => Promise<{ success: boolean; platform: string; arch: string; version: string; electron: string; node: string }>;
 }
 
+interface ElectronWindow {
+  minimize: () => void;
+  maximize: () => void;
+  close: () => void;
+  isMaximized: () => Promise<boolean>;
+}
+
 interface WindowElectron {
   fs: ElectronFS;
   dialog: ElectronDialog;
   shell: ElectronShell;
   app: ElectronApp;
+  window?: ElectronWindow;
   platform: string;
   isElectron: boolean;
 }
@@ -96,15 +105,15 @@ export class ElectronService {
       throw new Error('Electron API not available');
     }
 
-    console.log('[ElectronService] Reading directory:', dirPath);
+    logger.debug('[ElectronService] Reading directory:', dirPath);
     const result = await this.electron.fs.readDir(dirPath);
 
     if (!result.success) {
-      console.error('[ElectronService] readDir failed:', result.error);
+      logger.error('[ElectronService] readDir failed:', result.error);
       throw new Error(result.error || 'Failed to read directory');
     }
 
-    console.log('[ElectronService] readDir success, got', result.items?.length || 0, 'items');
+    logger.debug('[ElectronService] readDir success, got', result.items?.length || 0, 'items');
     return result.items || [];
   }
 
@@ -117,6 +126,13 @@ export class ElectronService {
     if (!result.success) {
       throw new Error(result.error || 'Failed to create directory');
     }
+  }
+
+  /**
+   * Alias for createDir (for compatibility)
+   */
+  async createDirectory(dirPath: string): Promise<void> {
+    return this.createDir(dirPath);
   }
 
   async remove(targetPath: string): Promise<void> {
@@ -187,9 +203,9 @@ export class ElectronService {
       throw new Error('Electron API not available');
     }
 
-    console.log('[ElectronService] Opening folder dialog...');
+    logger.debug('[ElectronService] Opening folder dialog...');
     const result = await this.electron.dialog.openFolder(options);
-    console.log('[ElectronService] Dialog result:', result);
+    logger.debug('[ElectronService] Dialog result:', result);
 
     return {
       canceled: result.canceled,
@@ -276,5 +292,56 @@ export class ElectronService {
   async readFromClipboard(): Promise<string> {
     // Use browser API - works in both Electron and web
     return await navigator.clipboard.readText();
+  }
+
+  // Window Control Operations
+  minimizeWindow(): void {
+    if (!this.electron?.window) {
+      logger.warn('[ElectronService] Window controls not available in web mode');
+      return;
+    }
+    this.electron.window.minimize();
+  }
+
+  maximizeWindow(): void {
+    if (!this.electron?.window) {
+      logger.warn('[ElectronService] Window controls not available in web mode');
+      return;
+    }
+    this.electron.window.maximize();
+  }
+
+  closeWindow(): void {
+    if (!this.electron?.window) {
+      logger.warn('[ElectronService] Window controls not available in web mode');
+      return;
+    }
+    this.electron.window.close();
+  }
+
+  async isMaximized(): Promise<boolean> {
+    if (!this.electron?.window) {
+      return false;
+    }
+    return await this.electron.window.isMaximized();
+  }
+
+  /**
+   * Generic IPC invoke method for Electron IPC
+   * @param channel - The IPC channel to invoke
+   * @param args - Arguments to pass to the main process
+   */
+  async invoke(channel: string, ...args: any[]): Promise<any> {
+    if (!this.electron) {
+      throw new Error('Electron API not available - invoke method only works in Electron');
+    }
+
+    // Direct invoke via electron object if available
+    if ((this.electron as any).invoke) {
+      return (this.electron as any).invoke(channel, ...args);
+    }
+
+    // Otherwise, throw error as invoke is not available
+    throw new Error(`IPC invoke not available for channel: ${channel}`);
   }
 }

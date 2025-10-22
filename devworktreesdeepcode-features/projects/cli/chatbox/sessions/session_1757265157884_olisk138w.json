@@ -1,0 +1,18 @@
+{
+  "sessionId": "session_1757265157884_olisk138w",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hello",
+      "timestamp": "2025-09-07T17:14:52.124Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! It's nice to meet you. How are you doing today? Is there anything I can help you with?",
+      "timestamp": "2025-09-07T17:14:54.090Z"
+    }
+  ],
+  "createdAt": "2025-09-07T17:12:37.884Z",
+  "updatedAt": "2025-09-07T17:14:54.090Z",
+  "model": "claude-sonnet-4-20250514"
+}

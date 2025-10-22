@@ -4,6 +4,7 @@
  * Responsible for breaking down user requests into executable steps using AI.
  * This is the core of Agent Mode's intelligence.
  */
+import { logger } from '../../services/Logger';
 
 import { UnifiedAIService } from './UnifiedAIService';
 import { StrategyMemory } from './StrategyMemory';
@@ -47,7 +48,7 @@ export class TaskPlanner {
     const { userRequest, context, currentFileObject, options } = request;
 
     // PHASE 1: Analyze project BEFORE planning (like Cursor/Copilot)
-    console.log('[TaskPlanner] 🔍 Phase 1: Analyzing project before planning...');
+    logger.debug('[TaskPlanner] 🔍 Phase 1: Analyzing project before planning...');
     const projectAnalysis = await this.analyzeProjectBeforePlanning(context.workspaceRoot);
 
     // Detect project structure to provide better context
@@ -55,14 +56,14 @@ export class TaskPlanner {
     if (this.structureDetector && context.workspaceRoot) {
       try {
         projectStructure = await this.structureDetector.detectStructure(context.workspaceRoot);
-        console.log('[TaskPlanner] Detected project structure:', ProjectStructureDetector.formatSummary(projectStructure));
+        logger.debug('[TaskPlanner] Detected project structure:', ProjectStructureDetector.formatSummary(projectStructure));
       } catch (error) {
         const isWebMode = !window.electron?.isElectron;
         if (isWebMode) {
-          console.warn('[TaskPlanner] Project structure detection failed in web mode. Using default structure.');
-          console.warn('[TaskPlanner] For full filesystem access, use the Electron desktop application.');
+          logger.warn('[TaskPlanner] Project structure detection failed in web mode. Using default structure.');
+          logger.warn('[TaskPlanner] For full filesystem access, use the Electron desktop application.');
         } else {
-          console.error('[TaskPlanner] Failed to detect project structure:', error);
+          logger.error('[TaskPlanner] Failed to detect project structure:', error);
         }
       }
     }
@@ -98,12 +99,12 @@ export class TaskPlanner {
       conversationHistory: [],
     };
 
-    console.log('[TaskPlanner] Calling aiService.sendContextualMessage()');
+    logger.debug('[TaskPlanner] Calling aiService.sendContextualMessage()');
     const aiResponse = await this.aiService.sendContextualMessage(aiContextRequest);
 
-    console.log('[TaskPlanner] Received aiResponse:', aiResponse);
-    console.log('[TaskPlanner] aiResponse.content:', aiResponse?.content);
-    console.log('[TaskPlanner] Type of aiResponse.content:', typeof aiResponse?.content);
+    logger.debug('[TaskPlanner] Received aiResponse:', aiResponse);
+    logger.debug('[TaskPlanner] aiResponse.content:', aiResponse?.content);
+    logger.debug('[TaskPlanner] Type of aiResponse.content:', typeof aiResponse?.content);
 
     // Parse AI response into structured task
     const task = this.parseTaskPlan(aiResponse.content, userRequest, options);
@@ -125,7 +126,7 @@ export class TaskPlanner {
    * This solves the "understand full project before making changes" requirement
    */
   private async analyzeProjectBeforePlanning(workspaceRoot: string): Promise<string> {
-    console.log(`[TaskPlanner] 📊 Analyzing project at: ${workspaceRoot}`);
+    logger.debug(`[TaskPlanner] 📊 Analyzing project at: ${workspaceRoot}`);
 
     const analysis: string[] = [];
     analysis.push('=== PROJECT ANALYSIS ===\n');
@@ -163,7 +164,7 @@ export class TaskPlanner {
           }
           analysis.push('');
         } catch (error) {
-          console.log('[TaskPlanner] No package.json found or error reading it');
+          logger.debug('[TaskPlanner] No package.json found or error reading it');
         }
 
         // 2. Read README for project context
@@ -175,7 +176,7 @@ export class TaskPlanner {
           analysis.push(firstLines);
           analysis.push('');
         } catch (error) {
-          console.log('[TaskPlanner] No README.md found');
+          logger.debug('[TaskPlanner] No README.md found');
         }
 
         // 3. Scan workspace for ALL source files (like Cursor does)
@@ -224,7 +225,7 @@ export class TaskPlanner {
             analysis.push(`💡 **When user says "review 3 files", pick the 3 most relevant from this list**\n`);
           }
         } catch (error) {
-          console.log('[TaskPlanner] Error scanning workspace files:', error);
+          logger.debug('[TaskPlanner] Error scanning workspace files:', error);
         }
 
         // 4. Detect actual entry point file locations
@@ -253,7 +254,7 @@ export class TaskPlanner {
             analysis.push('');
           }
         } catch (error) {
-          console.log('[TaskPlanner] Error detecting file locations:', error);
+          logger.debug('[TaskPlanner] Error detecting file locations:', error);
         }
 
         // 5. Check for tests
@@ -263,18 +264,18 @@ export class TaskPlanner {
           analysis.push(`- Test patterns to look for: ${testPatterns.join(', ')}`);
           analysis.push('');
         } catch (error) {
-          console.log('[TaskPlanner] Error checking tests');
+          logger.debug('[TaskPlanner] Error checking tests');
         }
       }
 
       analysis.push('=== END ANALYSIS ===\n');
       const result = analysis.join('\n');
-      console.log('[TaskPlanner] ✅ Project analysis complete');
-      console.log(result);
+      logger.debug('[TaskPlanner] ✅ Project analysis complete');
+      logger.debug(result);
       return result;
 
     } catch (error) {
-      console.error('[TaskPlanner] Error during project analysis:', error);
+      logger.error('[TaskPlanner] Error during project analysis:', error);
       return 'Project analysis failed. Proceeding with minimal context.';
     }
   }
@@ -555,11 +556,11 @@ Generate the task plan now:`;
     try {
       // Validate aiResponse exists
       if (!aiResponse || typeof aiResponse !== 'string') {
-        console.error('Invalid AI response:', aiResponse);
+        logger.error('Invalid AI response:', aiResponse);
         throw new Error('AI response is empty or invalid');
       }
 
-      console.log('[TaskPlanner] Raw AI response (first 500 chars):', aiResponse.substring(0, 500));
+      logger.debug('[TaskPlanner] Raw AI response (first 500 chars):', aiResponse.substring(0, 500));
 
       // Extract JSON from various formats (like Cursor does)
       let jsonStr = aiResponse;
@@ -567,20 +568,20 @@ Generate the task plan now:`;
       // Try 1: Extract from markdown code blocks
       const codeBlockMatch = aiResponse.match(/```(?:json)?\s*\n([\s\S]*?)\n```/);
       if (codeBlockMatch) {
-        console.log('[TaskPlanner] Found JSON in markdown code block');
+        logger.debug('[TaskPlanner] Found JSON in markdown code block');
         jsonStr = codeBlockMatch[1];
       } else {
         // Try 2: Find JSON object between { and } (handle conversational text)
         const jsonObjectMatch = aiResponse.match(/\{[\s\S]*"taskId"[\s\S]*\}/);
         if (jsonObjectMatch) {
-          console.log('[TaskPlanner] Found JSON object in text');
+          logger.debug('[TaskPlanner] Found JSON object in text');
           jsonStr = jsonObjectMatch[0];
         } else {
           // Try 3: Look for any valid JSON structure
           const startIndex = aiResponse.indexOf('{');
           const endIndex = aiResponse.lastIndexOf('}');
           if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-            console.log('[TaskPlanner] Extracting JSON by brace positions');
+            logger.debug('[TaskPlanner] Extracting JSON by brace positions');
             jsonStr = aiResponse.substring(startIndex, endIndex + 1);
           }
         }
@@ -590,14 +591,14 @@ Generate the task plan now:`;
       jsonStr = jsonStr.trim();
 
       if (!jsonStr || (!jsonStr.startsWith('{') && !jsonStr.startsWith('['))) {
-        console.error('[TaskPlanner] Could not extract valid JSON from response');
-        console.error('[TaskPlanner] Cleaned string:', jsonStr.substring(0, 200));
+        logger.error('[TaskPlanner] Could not extract valid JSON from response');
+        logger.error('[TaskPlanner] Cleaned string:', jsonStr.substring(0, 200));
         throw new Error('Could not extract JSON from AI response');
       }
 
-      console.log('[TaskPlanner] Attempting to parse JSON (first 300 chars):', jsonStr.substring(0, 300));
+      logger.debug('[TaskPlanner] Attempting to parse JSON (first 300 chars):', jsonStr.substring(0, 300));
       const parsed = JSON.parse(jsonStr);
-      console.log('[TaskPlanner] Successfully parsed JSON');
+      logger.debug('[TaskPlanner] Successfully parsed JSON');
 
       // Create task ID
       const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -629,7 +630,7 @@ Generate the task plan now:`;
 
       return task;
     } catch (error) {
-      console.error('Failed to parse task plan:', error);
+      logger.error('Failed to parse task plan:', error);
 
       // Fallback: create a simple single-step task
       const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -833,7 +834,7 @@ Generate the task plan now:`;
    * ```typescript
    * const confidence = await planner.calculateStepConfidence(step, memory);
    * if (confidence.riskLevel === 'high') {
-   *   console.log('Step has low confidence, generating fallbacks...');
+   *   logger.debug('Step has low confidence, generating fallbacks...');
    * }
    * ```
    */
@@ -931,7 +932,7 @@ Generate the task plan now:`;
    * @example
    * ```typescript
    * const fallbacks = await planner.generateFallbackPlans(step, confidence);
-   * console.log(`Generated ${fallbacks.length} fallback plans`);
+   * logger.debug(`Generated ${fallbacks.length} fallback plans`);
    * // Fallback 1: Search workspace
    * // Fallback 2: Create default
    * // Fallback 3: Ask user
@@ -1053,9 +1054,9 @@ Generate the task plan now:`;
    * @example
    * ```typescript
    * const result = await planner.planTaskWithConfidence(request, memory);
-   * console.log(`Overall confidence: ${result.insights.overallConfidence}%`);
-   * console.log(`Success rate estimate: ${result.insights.estimatedSuccessRate}%`);
-   * console.log(`Generated ${result.insights.fallbacksGenerated} fallback plans`);
+   * logger.debug(`Overall confidence: ${result.insights.overallConfidence}%`);
+   * logger.debug(`Success rate estimate: ${result.insights.estimatedSuccessRate}%`);
+   * logger.debug(`Generated ${result.insights.fallbacksGenerated} fallback plans`);
    * ```
    */
   async planTaskWithConfidence(
@@ -1136,12 +1137,12 @@ Generate the task plan now:`;
    *
    * // Check insights before execution
    * if (result.insights.highRiskSteps > 0) {
-   *   console.warn('Task has high-risk steps, proceed with caution');
+   *   logger.warn('Task has high-risk steps, proceed with caution');
    * }
    * ```
    */
   async planTaskEnhanced(request: TaskPlanRequest): Promise<TaskPlanResponse & { insights: PlanningInsights }> {
-    console.log('[TaskPlanner] 🎯 Using Phase 6 enhanced planning with confidence scores...');
+    logger.debug('[TaskPlanner] 🎯 Using Phase 6 enhanced planning with confidence scores...');
     return this.planTaskWithConfidence(request, this.strategyMemory);
   }
 

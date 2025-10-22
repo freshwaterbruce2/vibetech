@@ -1,0 +1,13 @@
+.editor-core {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--editor-bg, #1e1e1e);
+}
+
+.editor-monaco-container {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}

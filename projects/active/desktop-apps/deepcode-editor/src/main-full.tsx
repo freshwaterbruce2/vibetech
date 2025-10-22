@@ -1,10 +1,11 @@
+import { logger } from './services/Logger';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import Editor from '@monaco-editor/react';
 
 import './index.css';
 
-console.log('Loading DeepCode Editor Full Version...');
+logger.debug('Loading DeepCode Editor Full Version...');
 
 // Simple types
 interface FileItem {
@@ -57,7 +58,7 @@ function DeepCodeEditor() {
     const newFile: FileItem = {
       id: Date.now().toString(),
       name,
-      content: `// Welcome to DeepCode Editor!\n// Start coding with AI assistance...\n\nconsole.log('Hello from ${name}!');\n`,
+      content: `// Welcome to DeepCode Editor!\n// Start coding with AI assistance...\n\nlogger.debug('Hello from ${name}!');\n`,
       language: languageMap[ext] || 'javascript',
     };
 
@@ -546,5 +547,5 @@ function DeepCodeEditor() {
 const root = document.getElementById('root');
 if (root) {
   ReactDOM.createRoot(root).render(<DeepCodeEditor />);
-  console.log('DeepCode Editor mounted successfully!');
+  logger.debug('DeepCode Editor mounted successfully!');
 }

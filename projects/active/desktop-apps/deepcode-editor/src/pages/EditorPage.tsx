@@ -35,6 +35,11 @@ const EditorPage: React.FC = () => {
     openFile(file);
   };
 
+  const handleShowSettings = () => {
+    // TODO: Implement settings modal
+    console.log('Settings clicked - to be implemented');
+  };
+
   return (
     <PageContainer>
       {sidebarOpen && (
@@ -43,6 +48,7 @@ const EditorPage: React.FC = () => {
           onOpenFile={handleOpenFile}
           onToggleAIChat={toggleAIChat}
           aiChatOpen={aiChatOpen}
+          onShowSettings={handleShowSettings}
         />
       )}
 

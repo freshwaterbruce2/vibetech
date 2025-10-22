@@ -1,0 +1,500 @@
+
+> @vibetech/workspace@0.0.0 test:unit:coverage
+> vitest run --coverage
+
+
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/dev[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+[90mstderr[2m | src/lib/feature-detection.test.ts[2m > [22m[2mfeatures.webP[2m > [22m[2mshould detect WebP support
+[22m[39mNot implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+ [32m✓[39m src/tests/accessibility/colorContrast.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/lib/feature-detection.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/lib/utils.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m src/hooks/use-toast.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32m✓[39m src/hooks/use-mobile.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[32m 214[2mms[22m[39m
+ [32m✓[39m src/hooks/useAnalytics.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m src/components/ui/button.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 602[2mms[22m[39m
+ [32m✓[39m src/components/NavBar.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 530[2mms[22m[39m
+ [32m✓[39m src/components/tools/ToolCard.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 303[2mms[22m[39m
+ [32m✓[39m src/components/Footer.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 662[2mms[22m[39m
+   [33m[2m✓[22m[39m Footer[2m > [22mquick links have correct hrefs [33m 313[2mms[22m[39m
+[90mstderr[2m | src/components/layout/PageLayout.test.tsx
+[22m[39mWARNING: Multiple instances of Three.js being imported.
+
+ [31m❯[39m src/components/layout/PageLayout.test.tsx [2m([22m[2m8 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[32m 46[2mms[22m[39m
+[31m   [31m×[31m PageLayout[2m > [22mrenders children correctly[39m[32m 28[2mms[22m[39m
+[31m     → A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+[31m   [31m×[31m PageLayout[2m > [22msets default title when no title prop provided[39m[32m 2[2mms[22m[39m
+[31m     → A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+[31m   [31m×[31m PageLayout[2m > [22msets custom title when title prop provided[39m[32m 2[2mms[22m[39m
+[31m     → A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+[31m   [31m×[31m PageLayout[2m > [22mrenders navigation bar[39m[32m 2[2mms[22m[39m
+[31m     → A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+[31m   [31m×[31m PageLayout[2m > [22mrenders footer[39m[32m 3[2mms[22m[39m
+[31m     → A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+[31m   [31m×[31m PageLayout[2m > [22mrenders background decorations[39m[32m 2[2mms[22m[39m
+[31m     → A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+[31m   [31m×[31m PageLayout[2m > [22maccepts particleOpacity prop[39m[32m 2[2mms[22m[39m
+[31m     → A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+[31m   [31m×[31m PageLayout[2m > [22maccepts auroraIntensity prop[39m[32m 2[2mms[22m[39m
+[31m     → A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/simple-cli.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/storage/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/utils/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/utils/credentials.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/examples/message-handler-example.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/interactive.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/version-control.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/universal-ai-builders.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/missing-functions.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/deepseek-config.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/service-worker.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/deepseek-ai-production.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/missing-builders.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/deepseek-api-server.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/clean-landing-builder.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/export-manager.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/database-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/content-generators.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/server-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/jest.setup.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/analytics-engine.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/accessibility-fixes.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/ab-testing.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/sdk/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/utils/validation/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/ToolManager.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/storage/sqlite/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/utils/errors/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/storage/interfaces/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/storage/file/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/types.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/utils/logging/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/SessionSearch.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/SessionPersistence.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/SessionIntelligence.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/SessionManager.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/SessionAnalytics.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/ml/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/performance/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/plugins/types.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/plugins/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/SessionCollaboration.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/performance/PerformanceMonitor.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/examples.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/types.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/queue.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/session/ContextManager.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/models/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/types.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/enhanced-handler.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/integrations/types.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/extensions/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/context/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/integrations/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/collaboration/types.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/file/FileOperations.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/extensions/types.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/database/OptimizedDatabase.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/collaboration/WorkspaceOrganizer.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/file/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/context/ContextBuilder.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/handler.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/collaboration/NotificationSystem.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/collaboration/RealTimeEngine.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/collaboration/TeamWorkspaceManager.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/collaboration/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/collaboration/EnterpriseFeatures.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/automation/types.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/cache/ResponseCache.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/async/AsyncQueue.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/collaboration/CollaborationFeatures.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/ChatInterface.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/commands/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/automation/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/EnhancedChatInterface.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/commands/auth.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/tests/test-runner.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/services/usage-service.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/tests/security.test.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/services/subscription-service.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/services/cache-manager.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/services/billing-service.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/services/stripe-service.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/services/analytics-service.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/scripts/quality-check.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/middleware/auth.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/coverage/sorter.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/frontend-examples/subscription-integration.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/coverage/prettify.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/middleware/security.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/coverage/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/models/database.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/integration/SessionIntegration.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/BuiltInToolRegistry.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/registry/ToolCache.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/workflow/WorkflowEngine.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/registry/ToolRegistry.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/security/SecurityManager.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/sdk/generator/PluginGenerator.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/registry/ToolAnalytics.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/plugins/loader/PluginLoader.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/client/MCPClient.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/plugins/sandbox/PluginSandbox.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/utils/retry.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/plugins/registry/PluginRegistry.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/ml/optimizer/AutomationOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/utils/tokens.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/providers/base.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/providers/openai.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/providers/google.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/providers/ollama.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/utils/metrics.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/providers/deepseek.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/providers/anthropic.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/providers/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/utils/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/examples/usage-examples.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/messages/providers/factory.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/routing/classifier.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/routing/ensemble.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/routing/router.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/optimization/cache.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/analytics/tracker.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/automation/engine/WorkflowEngine.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/StatusBar.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/KeyboardShortcuts.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/MessageDisplay.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/LoadingSpinner.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/themes/ThemeProvider.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/InputBox.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/MarkdownRenderer.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/intelligence/assessment/provider-intelligence.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/wordpress-plugin/assets/admin.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/src/utils/math.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/src/utils/validation.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/tests/unit/math.test.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/tests/unit/validation.test.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/tests/unit/basic.test.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/prettify.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/sorter.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/security-config.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/web/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/system/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/database/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/system/SystemTools.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/git/GitTools.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/git/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/filesystem/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/web/WebTools.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/database/DatabaseTools.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/filesystem/FileSystemTools.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/analysis/index.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/core/tools/builtin/analysis/AnalysisTools.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/productivity/ProductivityFeatures.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/enhanced/VisualEnhancements.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/optimization/QueryOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/caching/CacheManager.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/accessibility/AccessibilityProvider.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/enhanced/SessionTabs.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase4-quality/testing/TestFramework.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/enhanced/InteractiveElements.js" points to missing source files
+Sourcemap for "C:/dev/projects/cli/chatbox/dist/cli/ui/components/enhanced/AdvancedInputBox.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/bundler/AssetOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/dependency-injection/Container.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/services/BaseService.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/controllers/BaseController.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/middleware/security-middleware.js" points to missing source files
+Sourcemap for "C:/dev/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/config/database.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/service-worker.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/version-control.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/universal-ai-builders.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/missing-functions.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/server-ultimate.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/deepseek-api-server.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/missing-builders.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/deepseek-ai-production.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/deepseek-config.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/export-manager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/clean-landing-builder.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/database-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/accessibility-fixes.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/content-generators.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/analytics-engine.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/ab-testing.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/jest.setup.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/server-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/version-control.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/service-worker.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/universal-ai-builders.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/missing-functions.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/server-ultimate.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/export-manager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/deepseek-api-server.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/deepseek-config.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/missing-builders.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/deepseek-ai-production.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/database-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/analytics-engine.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/content-generators.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/clean-landing-builder.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/accessibility-fixes.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/jest.setup.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/ab-testing.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/server-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/version-control.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/server-ultimate.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/service-worker.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/universal-ai-builders.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/export-manager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/missing-functions.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/missing-builders.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/deepseek-config.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/deepseek-api-server.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/deepseek-ai-production.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/content-generators.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/database-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/server-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/jest.setup.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/ab-testing.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/clean-landing-builder.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/analytics-engine.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/universal-ai-builders.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/accessibility-fixes.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/service-worker.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/missing-functions.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/version-control.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/server-ultimate.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/deepseek-config.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/missing-builders.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/export-manager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/server-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/jest.setup.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/database-enhanced.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/deepseek-ai-production.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/content-generators.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/deepseek-api-server.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/ab-testing.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/analytics-engine.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/clean-landing-builder.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/accessibility-fixes.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/services/usage-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/tests/security.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/services/cache-manager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/services/stripe-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/services/billing-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/tests/test-runner.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/services/subscription-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/scripts/quality-check.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/services/analytics-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/frontend-examples/subscription-integration.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/coverage/sorter.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/middleware/auth.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/middleware/security.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/tests/test-runner.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/tests/security.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/coverage/prettify.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/coverage/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/services/subscription-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/services/usage-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/models/database.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/services/cache-manager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/scripts/quality-check.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/services/stripe-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/services/billing-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/services/analytics-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/middleware/security.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/middleware/auth.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/coverage/prettify.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/coverage/sorter.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/frontend-examples/subscription-integration.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/coverage/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/tests/test-runner.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/models/database.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/services/cache-manager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/services/usage-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/services/subscription-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/services/stripe-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/tests/security.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/services/billing-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/scripts/quality-check.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/services/analytics-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/middleware/security.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/coverage/sorter.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/coverage/prettify.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/middleware/auth.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/frontend-examples/subscription-integration.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/models/database.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/coverage/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/tests/test-runner.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/tests/security.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/services/usage-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/services/subscription-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/services/billing-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/services/analytics-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/services/cache-manager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/scripts/quality-check.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/middleware/security.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/services/stripe-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/coverage/sorter.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/middleware/auth.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/models/database.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/frontend-examples/subscription-integration.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/coverage/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/coverage/prettify.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/tests/unit/validation.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/src/utils/math.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/tests/unit/math.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/src/utils/validation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/tests/unit/basic.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/wordpress-plugin/assets/admin.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/security-config.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/sorter.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/prettify.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/tests/unit/basic.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/tests/unit/math.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/wordpress-plugin/assets/admin.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/tests/unit/validation.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/src/utils/validation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/src/utils/math.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/sorter.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/security-config.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/wordpress-plugin/assets/admin.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/prettify.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/tests/unit/math.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/tests/unit/validation.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/src/utils/math.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/tests/unit/basic.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/src/utils/validation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/tests/unit/validation.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/prettify.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/tests/unit/math.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/sorter.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/tests/unit/basic.test.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/security-config.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/src/utils/math.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/wordpress-plugin/assets/admin.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/auth-service.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/src/utils/validation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/block-navigation.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/sorter.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/coverage/lcov-report/prettify.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/security-config.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase4-quality/testing/TestFramework.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/optimization/QueryOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/caching/CacheManager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/services/BaseService.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/dependency-injection/Container.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/controllers/BaseController.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/bundler/AssetOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase4-quality/testing/TestFramework.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/caching/CacheManager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/middleware/security-middleware.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/services/BaseService.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/optimization/QueryOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/dependency-injection/Container.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase4-quality/testing/TestFramework.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/middleware/security-middleware.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/dependency-injection/Container.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/services/BaseService.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/controllers/BaseController.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/controllers/BaseController.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/5605635116202094312/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/config/database.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/config/database.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/17056338684519211226/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/bundler/AssetOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/config/database.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/middleware/security-middleware.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/controllers/BaseController.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/optimization/QueryOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/services/BaseService.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/caching/CacheManager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/dependency-injection/Container.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase4-quality/testing/TestFramework.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase1-security/middleware/security-middleware.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/caching/CacheManager.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/optimization/QueryOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/14752029279562593992/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/bundler/AssetOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase3-performance/bundler/AssetOptimizer.js" points to missing source files
+Sourcemap for "C:/dev/.nx/cache/13709753368579199180/projects/active/web-apps/digital-content-builder/dist/refactor/phase2-architecture/config/database.js" points to missing source files
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/layout/PageLayout.test.tsx[2m > [22mPageLayout[2m > [22mrenders children correctly
+[41m[1m FAIL [22m[49m src/components/layout/PageLayout.test.tsx[2m > [22mPageLayout[2m > [22msets default title when no title prop provided
+[41m[1m FAIL [22m[49m src/components/layout/PageLayout.test.tsx[2m > [22mPageLayout[2m > [22msets custom title when title prop provided
+[41m[1m FAIL [22m[49m src/components/layout/PageLayout.test.tsx[2m > [22mPageLayout[2m > [22mrenders navigation bar
+[41m[1m FAIL [22m[49m src/components/layout/PageLayout.test.tsx[2m > [22mPageLayout[2m > [22mrenders footer
+[41m[1m FAIL [22m[49m src/components/layout/PageLayout.test.tsx[2m > [22mPageLayout[2m > [22mrenders background decorations
+[41m[1m FAIL [22m[49m src/components/layout/PageLayout.test.tsx[2m > [22mPageLayout[2m > [22maccepts particleOpacity prop
+[41m[1m FAIL [22m[49m src/components/layout/PageLayout.test.tsx[2m > [22mPageLayout[2m > [22maccepts auroraIntensity prop
+[31m[1mError[22m: A React Element from an older version of React was rendered. This is not supported. It can happen if:
+- Multiple copies of the "react" package is used.
+- A library pre-bundled an old copy of "react" or "react/jsx-runtime".
+- A compiler tries to "inline" JSX instead of using the runtime.[39m
+[90m [2m❯[22m throwOnInvalidObjectTypeImpl node_modules/react-dom/cjs/react-dom-client.development.js:[2m6095:15[22m[39m
+[90m [2m❯[22m throwOnInvalidObjectType node_modules/react-dom/cjs/react-dom-client.development.js:[2m6113:11[22m[39m
+[90m [2m❯[22m reconcileChildFibersImpl node_modules/react-dom/cjs/react-dom-client.development.js:[2m7058:11[22m[39m
+[90m [2m❯[22m node_modules/react-dom/cjs/react-dom-client.development.js:[2m7098:33[22m[39m
+[90m [2m❯[22m reconcileChildren node_modules/react-dom/cjs/react-dom-client.development.js:[2m9701:13[22m[39m
+[90m [2m❯[22m updateClassComponent node_modules/react-dom/cjs/react-dom-client.development.js:[2m10743:13[22m[39m
+[90m [2m❯[22m beginWork node_modules/react-dom/cjs/react-dom-client.development.js:[2m11792:13[22m[39m
+[90m [2m❯[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:[2m874:13[22m[39m
+[90m [2m❯[22m performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:[2m17641:22[22m[39m
+[90m [2m❯[22m workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:[2m17469:41[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m138 passed[39m[22m[90m (146)[39m
+[2m   Start at [22m 16:48:48
+[2m   Duration [22m 45.43s[2m (transform 994ms, setup 14.12s, collect 4.48s, tests 2.61s, environment 34.64s, prepare 4.02s)[22m
+

@@ -1,0 +1,8 @@
+/* VibePilot App Styles */
+
+#root {
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Custom CSS overrides if needed */

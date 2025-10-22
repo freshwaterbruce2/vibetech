@@ -1,0 +1,25 @@
+# Android
+android/build/
+android/.gradle/
+android/local.properties
+android/.idea/
+android/*.iml
+android/captures/
+android/.externalNativeBuild/
+android/.cxx/
+*.apk
+*.aab
+
+# Gradle wrapper (keeping for now, but typically ignored)
+# android/gradle/
+
+# IDE
+.vscode/
+.DS_Store
+
+# Testing
+test-results/
+coverage/
+
+# Documentation builds
+docs/.build/

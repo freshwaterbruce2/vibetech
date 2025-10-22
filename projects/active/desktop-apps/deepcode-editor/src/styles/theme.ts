@@ -33,9 +33,13 @@ export const vibeTheme = {
 
     // Text colors - WCAG AA compliant
     text: '#f5f5f7',           // Primary text (94% white)
+    textPrimary: '#f5f5f7',    // Alias for primary text
     textSecondary: '#a8a9ad',  // Secondary text (66% opacity)
     textMuted: '#6e6f73',      // Muted text (44% opacity)
     textDisabled: '#48494d',   // Disabled text (28% opacity)
+
+    // Border colors
+    border: 'rgba(255, 255, 255, 0.1)', // Subtle border color
 
     // Interactive states - subtle and refined
     hover: 'rgba(139, 92, 246, 0.08)',
@@ -53,6 +57,13 @@ export const vibeTheme = {
     errorLight: '#f87171',
     info: '#3b82f6',           // Blue
     infoLight: '#60a5fa',
+
+    // Additional color aliases for compatibility
+    green: '#10b981',          // Alias for success
+    orange: '#f59e0b',         // Alias for warning
+    red: '#ef4444',            // Alias for error
+    danger: '#ef4444',         // Alias for error
+    background: '#0d0d12',     // Alias for primary background
   },
   
   gradients: {

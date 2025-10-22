@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { useCallback, useState, startTransition } from 'react';
 
 import { UnifiedAIService } from '../services/ai/UnifiedAIService';
@@ -180,7 +181,7 @@ Let's build something amazing together!`,
 
         // Response is complete (no need to mark anything since we don't have isTyping)
       } catch (error) {
-        console.error('AI chat error:', error);
+        logger.error('AI chat error:', error);
 
         // Add error message
         const errorMessage: AIMessage = {

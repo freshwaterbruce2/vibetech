@@ -1,0 +1,58 @@
+
+@layer components {
+  /* Neon highlight for hover effects */
+  .neon-highlight-hover {
+    @apply transition-all duration-300;
+  }
+  
+  .neon-highlight-hover:hover {
+    @apply bg-[rgba(0,255,255,0.1)] shadow-neon-blue-soft;
+  }
+  
+  .neon-highlight-hover-purple:hover {
+    @apply bg-[rgba(185,51,255,0.1)] shadow-neon-purple-soft;
+  }
+
+  .neon-highlight-hover-pink:hover {
+    @apply bg-[rgba(255,0,170,0.1)] shadow-neon-pink-soft;
+  }
+  
+  .neon-highlight-hover-teal:hover {
+    @apply bg-[rgba(0,255,204,0.1)] shadow-neon-teal-soft;
+  }
+  
+  /* Enhanced card hover effects with neon glow */
+  .neon-card-hover {
+    @apply transition-all duration-300;
+  }
+  
+  .neon-card-hover:hover {
+    @apply transform -translate-y-1;
+    box-shadow: 0 0 20px 3px rgba(0,255,255,1);
+  }
+  
+  .neon-card-hover-purple:hover {
+    @apply transform -translate-y-1;
+    box-shadow: 0 0 20px 3px rgba(185,51,255,1);
+  }
+
+  .neon-card-hover-pink:hover {
+    @apply transform -translate-y-1;
+    box-shadow: 0 0 20px 3px rgba(255,0,170,1);
+  }
+  
+  .neon-card-hover-teal:hover {
+    @apply transform -translate-y-1;
+    box-shadow: 0 0 20px 3px rgba(0,255,204,1);
+  }
+  
+  /* Glass card hover */
+  .glass-card-hover {
+    @apply transition-all duration-500;
+  }
+  
+  .glass-card-hover:hover::after {
+    opacity: 1;
+    animation: neon-sweep 3s infinite;
+  }
+}

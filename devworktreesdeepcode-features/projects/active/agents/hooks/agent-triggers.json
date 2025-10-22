@@ -1,0 +1,67 @@
+{
+  "triggers": [
+    {
+      "name": "typescript-error-detector",
+      "pattern": "TypeScript error|type error|TS\\d{4}",
+      "agent": "type-guardian",
+      "auto_launch": true,
+      "priority": "high"
+    },
+    {
+      "name": "test-failure-detector",
+      "pattern": "test failed|failing test|test error",
+      "agent": "test-commander",
+      "auto_launch": true,
+      "priority": "high"
+    },
+    {
+      "name": "build-error-detector",
+      "pattern": "build failed|build error|compilation error",
+      "agent": "type-guardian",
+      "auto_launch": true,
+      "priority": "critical"
+    },
+    {
+      "name": "performance-issue-detector",
+      "pattern": "slow|performance|lighthouse score",
+      "agent": "performance-optimizer",
+      "auto_launch": false,
+      "priority": "medium"
+    },
+    {
+      "name": "ui-component-request",
+      "pattern": "create component|build UI|add page",
+      "agent": "code-builder",
+      "auto_launch": false,
+      "priority": "medium"
+    },
+    {
+      "name": "state-management-request",
+      "pattern": "state management|zustand|store",
+      "agent": "state-manager",
+      "auto_launch": false,
+      "priority": "medium"
+    },
+    {
+      "name": "api-integration-request",
+      "pattern": "API|endpoint|mock data|integration",
+      "agent": "api-integrator",
+      "auto_launch": false,
+      "priority": "medium"
+    }
+  ],
+  "global_settings": {
+    "enabled": true,
+    "auto_launch_on_error": true,
+    "parallel_execution": true,
+    "max_concurrent_agents": 6,
+    "yolo_mode_by_default": true,
+    "web_search_emphasis": true,
+    "search_year": "2025"
+  },
+  "integration": {
+    "learning_system": "D:\\learning-system",
+    "database": "D:\\learning-system\\agent_learning.db",
+    "monitoring_dashboard": "C:\\dev\\projects\\active\\agents\\monitoring\\dashboard.py"
+  }
+}

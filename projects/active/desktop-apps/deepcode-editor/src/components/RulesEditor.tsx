@@ -7,6 +7,7 @@
  * - Live preview of rules
  * - File targeting visualization
  */
+import { logger } from '../services/Logger';
 
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
@@ -111,7 +112,7 @@ export const RulesEditor: React.FC<RulesEditorProps> = ({
       setParseError(null);
     } catch (error) {
       // File doesn't exist yet - that's OK for new rules
-      console.log('No existing rules file, starting fresh');
+      logger.debug('No existing rules file, starting fresh');
       setContent(getDefaultContent());
       parseRules(getDefaultContent());
     }

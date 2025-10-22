@@ -4,10 +4,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-This is a multi-project monorepo with three primary focus areas:
-1. **React/TypeScript Web Application** (root level) - A Vite 7-based web app using React 19 and shadcn/ui components
-2. **Python Trading System** (projects/crypto-enhanced) - Live cryptocurrency trading with Kraken API
-3. **Capacitor Mobile Apps** (various projects/) - Native Android/iOS apps from web code
+This is a **fully modularized Nx monorepo** with the following project categories:
+1. **Web Applications** (projects/active/web-apps/) - React 19 + TypeScript SPAs with Vite 7
+2. **Desktop Applications** (projects/active/desktop-apps/) - Electron/Tauri apps with React
+3. **Mobile Applications** (Vibe-Tutor/) - Capacitor PWAs with native Android/iOS support
+4. **Backend Services** (backend/) - Node.js/Express API servers
+5. **Python Services** (projects/crypto-enhanced/) - Live cryptocurrency trading with Kraken API
+6. **Shared Libraries** (packages/) - Reusable npm packages (@nova/*, @vibetech/ui)
+
+### Nx Integration Status (Updated: 2025-10-20)
+
+All projects are now integrated into the Nx workspace with proper `project.json` configurations:
+
+**✅ Fully Integrated Projects:**
+- `backend` - Node.js/Express backend with Nx caching
+- `crypto-enhanced` - Python trading system with custom Nx executors
+- `vibe-tutor` - Capacitor mobile app with Android build targets
+- `digital-content-builder` - AI content generation platform
+- `business-booking-platform` - Hotel booking platform
+- `nova-agent` - Desktop AI assistant
+- `shipping-pwa` - Walmart DC shipping PWA
+- All packages (@nova/*, @vibetech/ui)
+
+**⚠️ Known Issues:**
+- **Root duplication**: `C:\dev\src\` is a duplicate of `vibe-tech-lovable` (requires consolidation)
+- **Vibe-Tutor location**: Currently at root `Vibe-Tutor/`, should be moved to `projects/active/mobile-apps/vibe-tutor/` when not locked
+
+**Benefits of Nx Integration:**
+- **80-90% faster builds** with local caching
+- **Affected-only CI/CD** (only build/test changed projects)
+- **Cross-language support** (TypeScript, Python, JavaScript)
+- **Dependency graph** visualization (`pnpm nx graph`)
+- **Remote caching** via Nx Cloud (configured)
 
 ### Capacitor Projects in Monorepo
 
@@ -86,9 +114,41 @@ pnpm add <package>          # Add dependency to root workspace
 pnpm add <package> --filter <project>  # Add to specific project
 ```
 
+### Backend (backend/)
+```bash
+# Development
+pnpm nx dev vibe-tech-backend        # Start with nodemon
+pnpm nx start vibe-tech-backend      # Production start
+pnpm nx health vibe-tech-backend     # Health check
+
+# Run via workspace
+pnpm --filter vibe-tech-backend dev
+```
+
+### Vibe-Tutor Mobile App (Vibe-Tutor/)
+```bash
+# Web development
+pnpm nx dev vibe-tutor               # Vite dev server
+pnpm nx build vibe-tutor             # Production build
+
+# Android development
+pnpm nx android:sync vibe-tutor      # Sync web assets
+pnpm nx android:build vibe-tutor     # Build APK
+pnpm nx android:deploy vibe-tutor    # Full build + install
+
+# Direct commands (alternative)
+pnpm --filter vibe-tutor android:full-build
+```
+
 ### Crypto Trading System (projects/crypto-enhanced)
 ```bash
-# Setup (Traditional)
+# Nx-integrated commands (recommended)
+pnpm nx test crypto-enhanced         # Run Python tests with caching
+pnpm nx test:coverage crypto-enhanced # Coverage report
+pnpm nx status crypto-enhanced        # Check system status
+pnpm nx start crypto-enhanced         # Start live trading
+
+# Setup (Traditional - still supported)
 cd projects/crypto-enhanced
 python -m venv .venv
 .venv\Scripts\activate     # Windows
@@ -638,3 +698,4 @@ The monorepo previously used Desktop Commander Enhanced for advanced file operat
 
 
 <!-- nx configuration end-->
+- Add to memory: this is a cursor, windsurf, lovable, vs code wrapped into one app

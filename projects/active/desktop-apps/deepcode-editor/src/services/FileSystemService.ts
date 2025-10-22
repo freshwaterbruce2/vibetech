@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { FileSystemItem } from '../types';
 
 import { ElectronService } from './ElectronService';
@@ -284,7 +285,7 @@ module.exports = {
         const content = await this.electronService.readFile(path);
         return content;
       } catch (error) {
-        console.error('Tauri readFile error:', error);
+        logger.error('Tauri readFile error:', error);
         throw error;
       }
     }
@@ -308,7 +309,7 @@ module.exports = {
         await this.createDirectory(parentDir);
       } catch (error) {
         // Ignore error if directory already exists
-        console.log('[FileSystemService] Parent directory might already exist:', parentDir);
+        logger.debug('[FileSystemService] Parent directory might already exist:', parentDir);
       }
     }
 
@@ -318,7 +319,7 @@ module.exports = {
         await this.electronService.writeFile(path, content);
         return;
       } catch (error) {
-        console.error('Tauri writeFile error:', error);
+        logger.error('Tauri writeFile error:', error);
         throw error;
       }
     }
@@ -350,32 +351,32 @@ module.exports = {
     if (this.isElectron) {
       try {
         await this.electronService.createDir(path);
-        console.log(`[FileSystemService] Created directory: ${path}`);
+        logger.debug(`[FileSystemService] Created directory: ${path}`);
         return;
       } catch (error) {
-        console.error('[FileSystemService] Tauri createDirectory error:', error);
+        logger.error('[FileSystemService] Tauri createDirectory error:', error);
         throw error;
       }
     }
 
     if (this.electronService.isElectron) {
       await this.electronService.createDirectory(path);
-      console.log(`[FileSystemService] Created directory via Electron: ${path}`);
+      logger.debug(`[FileSystemService] Created directory via Electron: ${path}`);
       return;
     }
 
     // For web/demo mode, just track it (no-op for in-memory filesystem)
-    console.log(`[FileSystemService] Skipping directory creation in web mode: ${path}`);
+    logger.debug(`[FileSystemService] Skipping directory creation in web mode: ${path}`);
   }
 
   async listDirectory(path: string): Promise<FileSystemItem[]> {
     if (this.isElectron && this.electronService.isElectron()) {
       // Use Electron filesystem API (matches preload.cjs)
       try {
-        console.log('[FileSystemService] Listing directory via Electron:', path);
+        logger.debug('[FileSystemService] Listing directory via Electron:', path);
         const entries = await this.electronService.readDir(path);
 
-        console.log('[FileSystemService] Got', entries.length, 'entries from Electron');
+        logger.debug('[FileSystemService] Got', entries.length, 'entries from Electron');
 
         const items: FileSystemItem[] = [];
         for (const entry of entries) {
@@ -391,11 +392,24 @@ module.exports = {
           });
         }
 
-        console.log('[FileSystemService] Returning', items.length, 'items');
+        logger.debug('[FileSystemService] Returning', items.length, 'items');
         return items;
       } catch (error) {
-        console.error('[FileSystemService] Electron listDirectory error:', error);
-        return [];
+
+        // Don't log ENOENT errors as they're expected when checking if directories exist
+
+        const isNotFound = error instanceof Error && error.message.includes('ENOENT');
+
+        if (!isNotFound) {
+
+          logger.error('[FileSystemService] Electron listDirectory error:', error);
+
+        }
+
+        // Re-throw the error so callers can handle it appropriately
+
+        throw error;
+
       }
     }
 
@@ -433,7 +447,7 @@ module.exports = {
       ];
     }
 
-    console.warn('[FileSystemService] Directory listing not available in web mode for path:', path);
+    logger.warn('[FileSystemService] Directory listing not available in web mode for path:', path);
     return [];
   }
 
@@ -442,7 +456,7 @@ module.exports = {
       try {
         return await this.electronService.exists(path);
       } catch (error) {
-        console.error('[FileSystemService] Tauri exists error:', error);
+        logger.error('[FileSystemService] Tauri exists error:', error);
         return false;
       }
     }
@@ -527,13 +541,13 @@ module.exports = {
     // If path is already absolute, just normalize and return
     if (this.isAbsolute(path)) {
       const normalized = path.replace(/\\/g, '/');
-      console.log(`[FileSystemService] Path already absolute: "${path}" → "${normalized}"`);
+      logger.debug(`[FileSystemService] Path already absolute: "${path}" → "${normalized}"`);
       return normalized;
     }
 
     // If no workspace root provided, return path as-is
     if (!workspaceRoot) {
-      console.log(`[FileSystemService] No workspace root, using path as-is: "${path}"`);
+      logger.debug(`[FileSystemService] No workspace root, using path as-is: "${path}"`);
       return path;
     }
 
@@ -544,7 +558,7 @@ module.exports = {
     // Join workspace root with relative path
     const resolved = this.joinPath(normalizedRoot, normalizedPath);
 
-    console.log(`[FileSystemService] Resolved path: "${path}" → "${resolved}" (workspace: ${workspaceRoot})`);
+    logger.debug(`[FileSystemService] Resolved path: "${path}" → "${resolved}" (workspace: ${workspaceRoot})`);
     return resolved;
   }
 

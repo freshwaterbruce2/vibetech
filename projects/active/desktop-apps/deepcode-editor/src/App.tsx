@@ -1,4 +1,5 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from './services/Logger';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import styled from 'styled-components';
@@ -54,13 +55,34 @@ import { getUserFriendlyError } from './utils/errorHandler';
 // Types
 import { AIMessage, EditorFile } from './types';
 
+// Visual no-code features
+import { ScreenshotToCodePanel } from './components/ScreenshotToCodePanel';
+import { ComponentLibrary } from './components/ComponentLibrary';
+import { VisualEditor } from './components/VisualEditor';
+import { DesignTokenManager } from './services/DesignTokenManager';
+
+// Database service
+import { DatabaseService } from './services/DatabaseService';
+import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
+
 // Browser-compatible Mock GitService (git_commit won't work in browser mode)
 class MockGitService {
   async commit(message: string): Promise<void> {
-    console.warn('[MockGitService] Git commits not supported in browser mode. Use Tauri/Electron version for git integration.');
+    logger.warn('[MockGitService] Git commits not supported in browser mode. Use Tauri/Electron version for git integration.');
     throw new Error('Git operations require Tauri/Electron environment');
   }
 }
+
+// Database service singleton (outside component)
+let dbService: DatabaseService | null = null;
+
+const getDatabase = async (): Promise<DatabaseService> => {
+  if (!dbService) {
+    dbService = new DatabaseService();
+    await dbService.initialize();
+  }
+  return dbService;
+};
 
 const AppContainer = styled.div`
   display: flex;
@@ -214,6 +236,14 @@ function App() {
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
   const [backgroundPanelOpen, setBackgroundPanelOpen] = useState(false);
 
+  // Visual panel state
+  const [activeVisualPanel, setActiveVisualPanel] = useState<'none' | 'screenshot' | 'library' | 'visual'>('none');
+
+  // Initialize design tokens (memoized)
+  const designTokens = useMemo(() => {
+    return DesignTokenManager.loadFromLocalStorage() || new DesignTokenManager();
+  }, []);
+
   // Auto-Fix Error Panel state
   const [currentError, setCurrentError] = useState<DetectedError | null>(null);
   const [currentFix, setCurrentFix] = useState<GeneratedFix | null>(null);
@@ -233,19 +263,19 @@ function App() {
 
   // Auto-Fix: Handle editor mount - initialize error detection
   const handleEditorMount = useCallback((editor: any, monaco: any) => {
-    console.log('[AutoFix] Editor mounted, initializing error detection');
+    logger.debug('[AutoFix] Editor mounted, initializing error detection');
     editorRef.current = editor;
 
     // Initialize AutoFixService
     autoFixServiceRef.current = new AutoFixService(aiService);
-    console.log('[AutoFix] AutoFixService initialized');
+    logger.debug('[AutoFix] AutoFixService initialized');
 
     // Initialize ErrorDetector
     errorDetectorRef.current = new ErrorDetector({
       editor,
       monaco,
       onError: (error: DetectedError) => {
-        console.log('[AutoFix] Error detected:', error);
+        logger.debug('[AutoFix] Error detected:', error);
         setCurrentError(error);
         setErrorFixPanelOpen(true);
         setFixLoading(true);
@@ -255,18 +285,18 @@ function App() {
         // Generate fix suggestions
         autoFixServiceRef.current?.generateFix(error, editor)
           .then((fix) => {
-            console.log('[AutoFix] Fix generated:', fix);
+            logger.debug('[AutoFix] Fix generated:', fix);
             setCurrentFix(fix);
             setFixLoading(false);
           })
           .catch((err) => {
-            console.error('[AutoFix] Fix generation failed:', err);
+            logger.error('[AutoFix] Fix generation failed:', err);
             setFixError(err.message || 'Failed to generate fix');
             setFixLoading(false);
           });
       },
       onErrorResolved: (errorId: string) => {
-        console.log('[AutoFix] Error resolved:', errorId);
+        logger.debug('[AutoFix] Error resolved:', errorId);
         // Auto-dismiss panel if error is resolved
         if (currentError?.id === errorId) {
           setErrorFixPanelOpen(false);
@@ -276,7 +306,7 @@ function App() {
       },
     });
 
-    console.log('[AutoFix] ErrorDetector initialized');
+    logger.debug('[AutoFix] ErrorDetector initialized');
 
     // Register Monaco Code Actions Provider for "Fix with AI" in context menu
     if (autoFixServiceRef.current && errorDetectorRef.current) {
@@ -298,18 +328,18 @@ function App() {
       // Register command handlers
       provider.registerCommandHandlers(editor, monaco);
 
-      console.log('[AutoFix] Code Actions Provider registered');
+      logger.debug('[AutoFix] Code Actions Provider registered');
     }
   }, [aiService, currentError, showSuccess, showError]);
 
   // Auto-Fix: Apply suggested fix
   const handleApplyFix = useCallback((suggestion: FixSuggestion) => {
     if (!editorRef.current || !currentError) {
-      console.error('[AutoFix] Cannot apply fix: editor or error not available');
+      logger.error('[AutoFix] Cannot apply fix: editor or error not available');
       return;
     }
 
-    console.log('[AutoFix] Applying fix:', suggestion);
+    logger.debug('[AutoFix] Applying fix:', suggestion);
 
     try {
       const editor = editorRef.current;
@@ -338,9 +368,9 @@ function App() {
       setCurrentError(null);
       setCurrentFix(null);
 
-      console.log('[AutoFix] Fix applied successfully');
+      logger.debug('[AutoFix] Fix applied successfully');
     } catch (error) {
-      console.error('[AutoFix] Failed to apply fix:', error);
+      logger.error('[AutoFix] Failed to apply fix:', error);
       showError('Fix Failed', error instanceof Error ? error.message : 'Unknown error');
     }
   }, [currentError, showSuccess, showError]);
@@ -351,7 +381,7 @@ function App() {
     // TODO: Navigate to specific line/column in editor
     if (line) {
       // Add logic to jump to line in Monaco editor
-      console.log('Navigate to line:', line, 'column:', column);
+      logger.debug('Navigate to line:', line, 'column:', column);
     }
   }, [handleOpenFile]);
 
@@ -384,6 +414,35 @@ function App() {
       showError('Replace Failed', `Failed to replace in ${file}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }, [searchService, fileSystemService, currentFile, handleFileChange, showSuccess, showError]);
+
+  // Visual panel handlers
+  const handleToggleScreenshotPanel = useCallback(() => {
+    setActiveVisualPanel(prev => prev === 'screenshot' ? 'none' : 'screenshot');
+  }, []);
+
+  const handleToggleComponentLibrary = useCallback(() => {
+    setActiveVisualPanel(prev => prev === 'library' ? 'none' : 'library');
+  }, []);
+
+  const handleToggleVisualEditor = useCallback(() => {
+    setActiveVisualPanel(prev => prev === 'visual' ? 'none' : 'visual');
+  }, []);
+
+  // Insert generated code into editor
+  const handleInsertCode = useCallback((code: string) => {
+    if (editorRef.current) {
+      const position = editorRef.current.getPosition();
+      editorRef.current.executeEdits('insert-code', [{
+        range: {
+          startLineNumber: position?.lineNumber || 1,
+          startColumn: position?.column || 1,
+          endLineNumber: position?.lineNumber || 1,
+          endColumn: position?.column || 1,
+        },
+        text: code,
+      }]);
+    }
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -432,43 +491,43 @@ function App() {
   // Handle workspace opening with file picker
   const handleOpenFolderDialog = async () => {
     try {
-      console.log('Opening folder dialog...');
+      logger.debug('Opening folder dialog...');
 
       // Check if Electron API is available
       if (window.electron?.isElectron) {
-        console.log('[App] Using Electron dialog API');
+        logger.debug('[App] Using Electron dialog API');
         const result = await window.electron.dialog.openFolder({});
-        console.log('[App] Electron dialog result:', result);
+        logger.debug('[App] Electron dialog result:', result);
         if (!result.canceled && result.filePaths.length > 0 && result.filePaths[0]) {
           // Normalize path to forward slashes
           const normalizedPath = result.filePaths[0].replace(/\\/g, '/');
-          console.log('[App] Opening folder:', normalizedPath);
+          logger.debug('[App] Opening folder:', normalizedPath);
           await handleOpenFolder(normalizedPath);
         } else {
-          console.log('[App] Folder selection cancelled');
+          logger.debug('[App] Folder selection cancelled');
         }
       } else if ('showDirectoryPicker' in window) {
         // Use browser's File System Access API
-        console.log('Using File System Access API');
+        logger.debug('Using File System Access API');
         const dirHandle = await (window as any).showDirectoryPicker();
-        console.log('Directory handle:', dirHandle);
+        logger.debug('Directory handle:', dirHandle);
 
         // Store the full path if available, otherwise use name
         const folderPath = dirHandle.path || dirHandle.name;
-        console.log('Selected folder path:', folderPath);
+        logger.debug('Selected folder path:', folderPath);
         await handleOpenFolder(folderPath);
       } else {
         // Fallback: prompt for folder path
-        console.log('Using prompt fallback');
+        logger.debug('Using prompt fallback');
         const folderPath = prompt('Enter folder path (e.g., C:\\Users\\YourName\\Projects\\MyProject):');
         if (folderPath) {
           await handleOpenFolder(folderPath);
         }
       }
     } catch (error) {
-      console.error('Error opening folder:', error);
+      logger.error('Error opening folder:', error);
       if (error instanceof Error && error.name === 'AbortError') {
-        console.log('User cancelled folder selection');
+        logger.debug('User cancelled folder selection');
         return; // Don't show error for user cancellation
       }
       showError('Open Folder Failed', `Unable to open the selected folder: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -478,7 +537,7 @@ function App() {
   // Handle workspace opening
   const handleOpenFolder = async (folderPath: string) => {
     try {
-      console.log(`Opening workspace: ${folderPath}`);
+      logger.debug(`Opening workspace: ${folderPath}`);
       setWorkspaceFolder(folderPath);
 
       // Start workspace indexing and get the context
@@ -516,7 +575,7 @@ I'm now your context-aware coding companion! 🎯`,
         throw new Error('Failed to index workspace');
       }
     } catch (error) {
-      console.error('Failed to open workspace:', error);
+      logger.error('Failed to open workspace:', error);
 
       const errorMessage: AIMessage = {
         id: Date.now().toString(),
@@ -735,6 +794,27 @@ I'm now your context-aware coding companion! 🎯`,
     }
   };
 
+  // Initialize database
+  useEffect(() => {
+    const initDatabase = async () => {
+      try {
+        const db = await getDatabase();
+        logger.debug('[App] Database initialized successfully');
+
+        // Log analytics event
+        await db.logEvent('app_start', {
+          platform: navigator.platform,
+          userAgent: navigator.userAgent,
+        });
+      } catch (error) {
+        logger.error('[App] Database initialization failed:', error);
+        // Fallback to localStorage - no error thrown
+      }
+    };
+
+    initDatabase();
+  }, []);
+
   // Initialize the application
   useEffect(() => {
     // Track app initialization
@@ -764,7 +844,7 @@ I'm now your context-aware coding companion! 🎯`,
       }, 1500); // Increased timeout to allow workspace to load
     }
 
-    console.log('App initialization complete');
+    logger.debug('App initialization complete');
   }, [showWarning]);
 
   if (isLoading) {
@@ -796,7 +876,7 @@ I'm now your context-aware coding companion! 🎯`,
   return (
     <ModernErrorBoundary
       onError={(error, errorInfo) => {
-        console.error('App Error:', error, errorInfo);
+        logger.error('App Error:', error, errorInfo);
         showError('Application Error', 'An unexpected error occurred. Please refresh the page.');
       }}
       onReset={() => {
@@ -832,6 +912,7 @@ I'm now your context-aware coding companion! 🎯`,
                 fileSystemService={fileSystemService}
                 onDeleteFile={handleDeleteFile}
                 onOpenFolder={handleOpenFolderDialog}
+                onShowSettings={() => setSettingsOpen(true)}
               />
             )}
 
@@ -899,7 +980,7 @@ I'm now your context-aware coding companion! 🎯`,
                   onAddMessage={addAiMessage}
                   onUpdateMessage={updateAiMessage}
                   onFileChanged={(filePath, action) => {
-                    console.log('[App] Agent file changed:', filePath, action);
+                    logger.debug('[App] Agent file changed:', filePath, action);
                     if (action === 'created' || action === 'modified') {
                       // Open the file in editor
                       handleOpenFile(filePath);
@@ -921,7 +1002,7 @@ I'm now your context-aware coding companion! 🎯`,
               <BackgroundTaskPanel
                 backgroundAgent={backgroundAgentSystem}
                 onTaskClick={(task) => {
-                  console.log('[App] Background task clicked:', task);
+                  logger.debug('[App] Background task clicked:', task);
                   // Optional: Show task details in a modal or expand inline
                 }}
               />
@@ -944,6 +1025,9 @@ I'm now your context-aware coding companion! 🎯`,
               setChatMode('composer');
             }}
             onOpenTerminal={() => {/* Terminal disabled */}}
+            onToggleScreenshot={handleToggleScreenshotPanel}
+            onToggleLibrary={handleToggleComponentLibrary}
+            onToggleVisualEditor={handleToggleVisualEditor}
           />
 
           <NotificationContainer notifications={notifications} onClose={removeNotification} />
@@ -952,11 +1036,11 @@ I'm now your context-aware coding companion! 🎯`,
           <EditorStreamPanel
             isStreaming={liveStream.isCurrentlyStreaming()}
             onApprove={(filePath) => {
-              console.log(`[App] Approved changes for: ${filePath}`);
+              logger.debug(`[App] Approved changes for: ${filePath}`);
               showSuccess('Changes Approved', `Applied changes to ${filePath}`);
             }}
             onReject={(filePath) => {
-              console.log(`[App] Rejected changes for: ${filePath}`);
+              logger.debug(`[App] Rejected changes for: ${filePath}`);
               showWarning('Changes Rejected', `Discarded changes to ${filePath}`);
             }}
           />
@@ -1069,11 +1153,79 @@ I'm now your context-aware coding companion! 🎯`,
               isNew: false,
             }))}
           />
-          
+
+          {/* Visual No-Code Panels */}
+          <AnimatePresence>
+            {activeVisualPanel === 'screenshot' && (
+              <motion.div
+                initial={{ opacity: 0, x: 300 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 300 }}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: '450px',
+                  zIndex: 100,
+                  boxShadow: '-4px 0 20px rgba(0,0,0,0.3)',
+                }}
+              >
+                <ScreenshotToCodePanel
+                  apiKey={SecureApiKeyManager.getInstance().getApiKey('deepseek') || ''}
+                  onInsertCode={handleInsertCode}
+                />
+              </motion.div>
+            )}
+
+            {activeVisualPanel === 'library' && (
+              <motion.div
+                initial={{ opacity: 0, x: 300 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 300 }}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: '450px',
+                  zIndex: 100,
+                  boxShadow: '-4px 0 20px rgba(0,0,0,0.3)',
+                }}
+              >
+                <ComponentLibrary onInsertComponent={handleInsertCode} />
+              </motion.div>
+            )}
+
+            {activeVisualPanel === 'visual' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 200,
+                  background: 'rgba(0,0,0,0.95)',
+                }}
+              >
+                <VisualEditor
+                  onSave={(elements, code) => {
+                    handleInsertCode(code);
+                    setActiveVisualPanel('none');
+                  }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Terminal (disabled for now) */}
           {/* <EnhancedTerminal
             isOpen={terminalOpen}
-            onClose={() => console.log('Terminal disabled')}
+            onClose={() => logger.debug('Terminal disabled')}
             workingDirectory={workspaceFolder || '/'}
           /> */}
         </AppContainer>
