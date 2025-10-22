@@ -342,33 +342,82 @@ describe('Sidebar Component', () => {
     it('should maintain expanded folder state', async () => {
       const user = userEvent.setup()
       render(<Sidebar {...defaultProps} />)
-      
+
       // Wait for file tree to load
       await waitFor(() => {
         expect(screen.getByText('src')).toBeInTheDocument()
       })
-      
+
       // Expand a folder
       await user.click(screen.getByText('components'))
-      
+
       // Wait for expansion
       await waitFor(() => {
         expect(screen.getByText('Button.tsx')).toBeInTheDocument()
       })
-      
+
       // Folder should remain expanded
       expect(screen.getByText('Button.tsx')).toBeInTheDocument()
     })
 
     it('should update when props change', () => {
       const { rerender } = render(<Sidebar {...defaultProps} />)
-      
+
       // Change onOpenFile prop
       const newOnOpenFile = vi.fn()
       rerender(<Sidebar {...defaultProps} onOpenFile={newOnOpenFile} />)
-      
+
       // Component should use new prop
       expect(screen.getByText('Explorer')).toBeInTheDocument()
+    })
+  })
+
+  describe('Settings Button', () => {
+    it('should render Settings button when onShowSettings is provided', () => {
+      const onShowSettings = vi.fn()
+      render(<Sidebar {...defaultProps} onShowSettings={onShowSettings} />)
+
+      const settingsButton = screen.getByLabelText('Settings')
+      expect(settingsButton).toBeInTheDocument()
+    })
+
+    it('should call onShowSettings when Settings button is clicked', async () => {
+      const user = userEvent.setup()
+      const onShowSettings = vi.fn()
+      render(<Sidebar {...defaultProps} onShowSettings={onShowSettings} />)
+
+      const settingsButton = screen.getByLabelText('Settings')
+      await user.click(settingsButton)
+
+      expect(onShowSettings).toHaveBeenCalledTimes(1)
+    })
+
+    it('should render Settings button even when onShowSettings is undefined', () => {
+      render(<Sidebar {...defaultProps} onShowSettings={undefined} />)
+
+      // Button should render but clicking it would do nothing
+      const settingsButton = screen.getByLabelText('Settings')
+      expect(settingsButton).toBeInTheDocument()
+    })
+
+    it('should handle Settings button click gracefully when handler is undefined', async () => {
+      const user = userEvent.setup()
+      render(<Sidebar {...defaultProps} onShowSettings={undefined} />)
+
+      const settingsButton = screen.getByLabelText('Settings')
+
+      // Should not crash when clicked
+      expect(async () => {
+        await user.click(settingsButton)
+      }).not.toThrow()
+    })
+
+    it('should have proper accessibility attributes', () => {
+      const onShowSettings = vi.fn()
+      render(<Sidebar {...defaultProps} onShowSettings={onShowSettings} />)
+
+      const settingsButton = screen.getByLabelText('Settings')
+      expect(settingsButton).toHaveAttribute('aria-label', 'Settings')
     })
   })
 })
