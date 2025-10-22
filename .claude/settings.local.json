@@ -10,7 +10,10 @@
       "Bash(Measure-Object -Line)",
       "Bash(Select-Object -First 30)",
       "Bash(git add:*)",
-      "Bash(Remove-Item -Path \"C:\\dev\\.git\\index.lock\" -Force -ErrorAction SilentlyContinue)"
+      "Bash(Remove-Item -Path \"C:\\dev\\.git\\index.lock\" -Force -ErrorAction SilentlyContinue)",
+      "Bash(idar@latest concurrently@latest cross-env@latest --save-dev)",
+      "Bash(timeout 60 pnpm typecheck)",
+      "Bash(timeout 90 pnpm typecheck)"
     ],
     "deny": [],
     "ask": [],
