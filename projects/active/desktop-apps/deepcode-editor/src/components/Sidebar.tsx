@@ -239,6 +239,8 @@ interface SidebarProps {
   fileSystemService?: FileSystemService;
   onDeleteFile?: (path: string) => Promise<void>;
   onOpenFolder?: () => void;
+  /** Settings handler - required for core UI functionality */
+  onShowSettings: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -249,6 +251,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   fileSystemService,
   onDeleteFile,
   onOpenFolder,
+  onShowSettings,
 }) => {
   const [fileTree, setFileTree] = useState<FileSystemItem[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
@@ -488,6 +491,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           size="md"
           icon={<Settings size={18} />}
           aria-label="Settings"
+          onClick={onShowSettings}
         />
       </ActionButtons>
 
