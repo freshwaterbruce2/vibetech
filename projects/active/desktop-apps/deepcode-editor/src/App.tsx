@@ -22,7 +22,7 @@ import { BackgroundTaskPanel } from './components/BackgroundTaskPanel';
 import { EditorStreamPanel } from './components/EditorStreamPanel';
 import { ErrorFixPanel } from './components/ErrorFixPanel';
 import StatusBar from './components/StatusBar';
-// import { EnhancedTerminal } from './components/Terminal/EnhancedTerminal';
+import { TerminalPanel } from './components/TerminalPanel';
 // Components - Using lazy loading for heavy components
 import TitleBar from './components/TitleBar';
 import WelcomeScreen from './components/WelcomeScreen';
@@ -250,6 +250,7 @@ function App() {
   const [errorFixPanelOpen, setErrorFixPanelOpen] = useState(false);
   const [fixLoading, setFixLoading] = useState(false);
   const [fixError, setFixError] = useState<string>('');
+  const [terminalOpen, setTerminalOpen] = useState(false);
 
   // Auto-Fix refs
   const editorRef = useRef<any>(null); // Monaco editor instance
@@ -479,14 +480,17 @@ function App() {
         e.preventDefault();
         // Command palette is handled by useCommandPalette hook
       }
+
+      // Toggle Terminal: Ctrl+`
+      if (e.ctrlKey && e.key === '`') {
+        e.preventDefault();
+        setTerminalOpen(prev => !prev);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-  
-  // Terminal state
-  // const [terminalOpen, setTerminalOpen] = useState(false);
 
   // Handle workspace opening with file picker
   const handleOpenFolderDialog = async () => {
@@ -1222,12 +1226,11 @@ I'm now your context-aware coding companion! 🎯`,
             )}
           </AnimatePresence>
 
-          {/* Terminal (disabled for now) */}
-          {/* <EnhancedTerminal
+          {/* Terminal Panel */}
+          <TerminalPanel
             isOpen={terminalOpen}
-            onClose={() => logger.debug('Terminal disabled')}
-            workingDirectory={workspaceFolder || '/'}
-          /> */}
+            onClose={() => setTerminalOpen(false)}
+          />
         </AppContainer>
       </Router>
     </ModernErrorBoundary>
