@@ -13,7 +13,8 @@
       "Bash(Remove-Item -Path \"C:\\dev\\.git\\index.lock\" -Force -ErrorAction SilentlyContinue)",
       "Bash(idar@latest concurrently@latest cross-env@latest --save-dev)",
       "Bash(timeout 60 pnpm typecheck)",
-      "Bash(timeout 90 pnpm typecheck)"
+      "Bash(timeout 90 pnpm typecheck)",
+      "Bash(timeout 120 pnpm run build)"
     ],
     "deny": [],
     "ask": [],

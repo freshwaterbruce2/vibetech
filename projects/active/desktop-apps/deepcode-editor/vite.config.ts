@@ -36,6 +36,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      'crypto': 'crypto-js',
     },
   },
   
@@ -103,7 +104,9 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
       },
-      
+
+      external: ['sql.js', 'better-sqlite3', 'electron'],
+
       output: {
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')
