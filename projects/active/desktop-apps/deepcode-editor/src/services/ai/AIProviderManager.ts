@@ -2,6 +2,7 @@
  * AIProviderManager - Manages multiple AI providers and model selection
  * Browser-compatible version without Node.js dependencies
  */
+import { logger } from '../../services/Logger';
 
 import {
   IAIProvider,
@@ -15,6 +16,7 @@ import {
 import { OpenAIProvider } from './providers/OpenAIProvider';
 import { AnthropicProvider } from './providers/AnthropicProvider';
 import { DeepSeekProvider } from './providers/DeepSeekProvider';
+import { GoogleProvider } from './providers/GoogleProvider';
 
 export class AIProviderManager {
   private providers: Map<AIProvider, IAIProvider> = new Map();
@@ -36,7 +38,7 @@ export class AIProviderManager {
       }
     } catch (error) {
       // Environment variables not available, skip initialization
-      console.log('Environment variables not available, skipping auto-initialization');
+      logger.debug('Environment variables not available, skipping auto-initialization');
     }
   }
 
@@ -55,6 +57,9 @@ export class AIProviderManager {
         break;
       case AIProvider.DEEPSEEK:
         providerInstance = new DeepSeekProvider();
+        break;
+      case AIProvider.GOOGLE:
+        providerInstance = new GoogleProvider();
         break;
       default:
         throw new Error(`Unknown provider: ${provider}`);
@@ -98,13 +103,18 @@ export class AIProviderManager {
     if (!modelInfo) {
       throw new Error(`Unknown model: ${model}`);
     }
-    
+
     const provider = this.providers.get(modelInfo.provider);
     if (!provider) {
       throw new Error(`Provider ${modelInfo.provider} not configured`);
     }
-    
-    return provider.complete(model, options);
+
+    logger.debug('[AIProviderManager] Calling provider.complete() with model:', model);
+    const result = await provider.complete(model, options);
+    logger.debug('[AIProviderManager] Received result:', result);
+    logger.debug('[AIProviderManager] Result choices:', result.choices);
+
+    return result;
   }
 
   async *streamComplete(model: string, options: CompletionOptions): AsyncGenerator<StreamCompletionResponse> {
@@ -127,5 +137,38 @@ export class AIProviderManager {
 
   getConfiguredProviders(): AIProvider[] {
     return Array.from(this.providers.keys());
+  }
+
+  /**
+   * Initialize the manager (for compatibility with services expecting this method)
+   */
+  async initialize(): Promise<void> {
+    logger.debug('[AIProviderManager] Initialized');
+    // Initialization already happens in constructor
+    // This method is here for interface compatibility
+  }
+
+  /**
+   * Configure a provider (alias for setProvider for compatibility)
+   */
+  async configureProvider(provider: AIProvider, config: AIProviderConfig): Promise<void> {
+    await this.setProvider(provider, config);
+  }
+
+  /**
+   * Set the model for the current provider
+   */
+  setModel(model: string): void {
+    const modelInfo = MODEL_REGISTRY[model];
+    if (!modelInfo) {
+      throw new Error(`Unknown model: ${model}`);
+    }
+
+    // Set the provider for this model as current
+    if (this.providers.has(modelInfo.provider)) {
+      this.currentProvider = modelInfo.provider;
+    } else {
+      throw new Error(`Provider ${modelInfo.provider} not configured for model ${model}`);
+    }
   }
 }

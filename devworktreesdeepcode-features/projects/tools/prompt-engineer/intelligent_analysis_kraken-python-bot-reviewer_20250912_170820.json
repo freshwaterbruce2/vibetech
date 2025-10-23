@@ -1,0 +1,146 @@
+{
+  "project_path": "C:\\dev\\projects\\active\\kraken-python-bot-reviewer",
+  "analysis_timestamp": "2025-09-12T17:08:16.453044",
+  "project_type": "react",
+  "health_score": 100,
+  "critical_issues": [],
+  "high_priority_issues": [
+    {
+      "type": "security",
+      "severity": "high",
+      "title": "eval() function detected",
+      "description": "eval() function usage (security risk)",
+      "file_path": "services\\analyticsService.ts",
+      "line_number": 614,
+      "suggested_action": "Consider safer alternatives to eval() for dynamic code execution",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "high",
+      "title": "eval() function detected",
+      "description": "eval() function usage (security risk)",
+      "file_path": "services\\analyticsService.ts",
+      "line_number": 618,
+      "suggested_action": "Consider safer alternatives to eval() for dynamic code execution",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "high",
+      "title": "eval() function detected",
+      "description": "eval() function usage (security risk)",
+      "file_path": "services\\analyticsService.ts",
+      "line_number": 620,
+      "suggested_action": "Consider safer alternatives to eval() for dynamic code execution",
+      "context": null
+    }
+  ],
+  "medium_priority_issues": [
+    {
+      "type": "todo",
+      "severity": "medium",
+      "title": "NOTE comment found",
+      "description": "contains \"password\" but safe usage",
+      "file_path": "tests\\analyticsService.test.ts",
+      "line_number": 717,
+      "suggested_action": "Review and address the note comment",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "medium",
+      "title": "NOTE comment found",
+      "description": "contains \"api_key\" but safe usage",
+      "file_path": "tests\\analyticsService.test.ts",
+      "line_number": 718,
+      "suggested_action": "Review and address the note comment",
+      "context": null
+    },
+    {
+      "type": "empty_file",
+      "severity": "medium",
+      "title": "Empty or stub file: constants.ts",
+      "description": "File is only 2 bytes and appears to be empty or a stub",
+      "file_path": "constants.ts",
+      "line_number": null,
+      "suggested_action": "Implement the constants component/module",
+      "context": null
+    }
+  ],
+  "low_priority_issues": [
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "innerHTML usage detected",
+      "description": "Potential XSS vulnerability with innerHTML",
+      "file_path": "components\\Background.tsx",
+      "line_number": 9,
+      "suggested_action": "Use textContent or DOM manipulation methods instead of innerHTML for user data",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "eval() function detected",
+      "description": "eval() usage in test code",
+      "file_path": "tests\\analyticsService.test.ts",
+      "line_number": 622,
+      "suggested_action": "Consider safer alternatives to eval() for dynamic code execution",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "eval() function detected",
+      "description": "eval() usage in test code",
+      "file_path": "tests\\analyticsService.test.ts",
+      "line_number": 631,
+      "suggested_action": "Consider safer alternatives to eval() for dynamic code execution",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "eval() function detected",
+      "description": "eval() usage in test code",
+      "file_path": "tests\\analyticsService.test.ts",
+      "line_number": 634,
+      "suggested_action": "Consider safer alternatives to eval() for dynamic code execution",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "eval() function detected",
+      "description": "eval() usage in test code",
+      "file_path": "tests\\analyticsService.test.ts",
+      "line_number": 693,
+      "suggested_action": "Consider safer alternatives to eval() for dynamic code execution",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "eval() function detected",
+      "description": "eval() usage in test code",
+      "file_path": "tests\\analyticsService.test.ts",
+      "line_number": 742,
+      "suggested_action": "Consider safer alternatives to eval() for dynamic code execution",
+      "context": null
+    }
+  ],
+  "suggestions": [
+    "⚠️ Fix 3 high-priority issue(s)",
+    "✅ Project is in good health - focus on new features"
+  ],
+  "tech_stack": [
+    "React",
+    "TypeScript",
+    "Vite",
+    "Express.js",
+    "Testing Framework"
+  ],
+  "missing_features": [],
+  "code_quality_metrics": {}
+}

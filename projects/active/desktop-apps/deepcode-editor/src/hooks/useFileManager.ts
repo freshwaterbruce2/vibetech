@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { useCallback, useState } from 'react';
 
 import { FileSystemService } from '../services/FileSystemService';
@@ -11,6 +12,7 @@ export interface UseFileManagerReturn {
   handleFileChange: (content: string) => void;
   handleSaveFile: () => Promise<void>;
   setCurrentFile: (file: EditorFile | null) => void;
+  setOpenFiles: (files: EditorFile[] | ((prev: EditorFile[]) => EditorFile[])) => void;
 }
 
 export interface UseFileManagerProps {
@@ -77,7 +79,10 @@ export function useFileManager({
   const handleOpenFile = useCallback(
     async (filePath: string) => {
       try {
+        logger.debug('[useFileManager] Opening file:', filePath);
         const content = await fileSystemService.readFile(filePath);
+        logger.debug('[useFileManager] File content length:', content?.length || 0);
+
         const file: EditorFile = {
           id: filePath,
           name: filePath.split('/').pop() || filePath,
@@ -87,17 +92,27 @@ export function useFileManager({
           isModified: false,
         };
 
+        logger.debug('[useFileManager] Created EditorFile:', {
+          name: file.name,
+          path: file.path,
+          language: file.language,
+          contentLength: file.content.length
+        });
+
         // Add to open files if not already open
         setOpenFiles((prev) => {
           if (!prev.find((f) => f.path === filePath)) {
+            logger.debug('[useFileManager] Adding file to openFiles');
             return [...prev, file];
           }
+          logger.debug('[useFileManager] File already in openFiles');
           return prev;
         });
 
+        logger.debug('[useFileManager] Setting as currentFile');
         setCurrentFile(file);
       } catch (error) {
-        console.error('Failed to open file:', error);
+        logger.error('[useFileManager] Failed to open file:', error);
         throw error;
       }
     },
@@ -140,7 +155,7 @@ export function useFileManager({
         setOpenFiles((prev) => prev.map((f) => (f.path === currentFile.path ? savedFile : f)));
         onSaveSuccess?.(currentFile.name);
       } catch (error) {
-        console.error('Failed to save file:', error);
+        logger.error('Failed to save file:', error);
         onSaveError?.(currentFile.name, error as Error);
         throw error;
       }
@@ -155,5 +170,6 @@ export function useFileManager({
     handleFileChange,
     handleSaveFile,
     setCurrentFile,
+    setOpenFiles,
   };
 }

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeTech NOVA AI Assistant</title>
+    <meta name="description" content="Neural Omnipresent Virtual Assistant by VibeTech - Modern AI with your actual brand colors">
+    <meta name="theme-color" content="#0A0A0F">
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VibeTech NOVA">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/styles/globals.css">
+
+    <!-- VibeTech UI Components -->
+    <script type="module" src="/components/ui/index.js"></script>
+
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet">
+
+    <style>
+        /* Your ACTUAL VibeTech colors from website */
+        :root {
+            --vt-black: #05050E;    /* Ultra-dark space black */
+            --vt-dark: #0A0A18;     /* Dark purple-black */
+            --vt-darker: #0F0F22;   /* Midnight purple */
+            --vt-cyan: #00FFFF;     /* Pure neon cyan */
+            --vt-purple: #B933FF;   /* Vibrant neon purple */
+            --vt-pink: #FF00AA;     /* Hot neon pink */
+            --vt-teal: #00FFCC;     /* Neon teal */
+            --vt-glass: rgba(10, 12, 24, 0.65); /* Glass overlay */
+            --vt-text: #FFFFFF;     /* Pure white */
+            --vt-text-muted: #9BA1CC; /* Light purple-gray */
+        }
+
+        body {
+            background: var(--vt-black);
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--vt-purple) 0%, var(--vt-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .neon-glow {
+            box-shadow:
+                0 0 10px var(--vt-cyan),
+                0 0 20px var(--vt-cyan),
+                0 0 30px var(--vt-cyan);
+        }
+
+        .glass {
+            background: var(--vt-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        /* Solid card style (reduce glass morphism) */
+        .card-solid {
+            background: var(--vt-dark);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Advanced Framer Motion-style animations */
+        .slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .fade-in-scale {
+            animation: fadeInScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .glow-pulse-advanced {
+            animation: glowPulseAdvanced 3s ease-in-out infinite;
+        }
+
+        .float-gentle {
+            animation: floatGentle 4s ease-in-out infinite;
+        }
+
+        .shimmer {
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes glowPulseAdvanced {
+            0%, 100% {
+                box-shadow:
+                    0 0 20px var(--vt-cyan),
+                    0 0 40px var(--vt-cyan),
+                    inset 0 0 20px rgba(0, 212, 212, 0.1);
+            }
+            50% {
+                box-shadow:
+                    0 0 30px var(--vt-cyan),
+                    0 0 60px var(--vt-cyan),
+                    0 0 80px var(--vt-cyan),
+                    inset 0 0 30px rgba(0, 212, 212, 0.2);
+            }
+        }
+
+        @keyframes floatGentle {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-8px) rotate(1deg);
+            }
+            66% {
+                transform: translateY(4px) rotate(-1deg);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+
+        /* Interactive hover animations */
+        .hover-lift:hover {
+            transform: translateY(-4px) scale(1.02);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .hover-glow:hover {
+            box-shadow: 0 0 30px var(--vt-cyan), 0 0 60px var(--vt-cyan);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .hover-rotate:hover {
+            transform: rotate(5deg) scale(1.05);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .loading-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--vt-cyan);
+            margin: 0 2px;
+            animation: loading 1.4s infinite both;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: 0s; }
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes loading {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white overflow-x-hidden">
+    <!-- Main App Container -->
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Top Header -->
+        <header class="glass sticky top-0 z-50 px-4 sm:px-6 py-4">
+            <div class="flex items-center justify-between max-w-7xl mx-auto">
+                <!-- Logo and Brand -->
+                <div class="flex items-center space-x-3 slide-in-left">
+                    <div class="w-10 h-10 relative float-gentle hover-rotate">
+                        <img src="/assets/logos/vibetech-logo.svg" alt="VibeTech" class="w-full h-full glow-pulse-advanced rounded-lg">
+                    </div>
+                    <div class="fade-in-scale">
+                        <h1 class="text-xl font-bold gradient-text shimmer">VibeTech NOVA</h1>
+                        <p class="text-xs text-gray-400">Neural AI Assistant</p>
+                    </div>
+                </div>
+
+                <!-- Connection Status -->
+                <div class="flex items-center space-x-2">
+                    <div class="pulse-dot w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span id="connectionStatus" class="text-sm text-green-400">Connected</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
+            <!-- Status Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="card-solid rounded-xl p-4 text-center bounce-in hover-lift" style="animation-delay: 0.2s">
+                    <h3 class="text-sm font-medium" style="color: var(--vt-text-muted)">Server Status</h3>
+                    <div id="serverStatus" class="text-green-400 font-semibold mt-2">● Online</div>
+                </div>
+                <div class="card-solid rounded-xl p-4 text-center bounce-in hover-lift" style="animation-delay: 0.4s">
+                    <h3 class="text-sm font-medium" style="color: var(--vt-text-muted)">Active Plugins</h3>
+                    <div id="pluginCount" class="gradient-text font-semibold mt-2">3/3 Active</div>
+                </div>
+                <div class="card-solid rounded-xl p-4 text-center bounce-in hover-lift" style="animation-delay: 0.6s">
+                    <h3 class="text-sm font-medium" style="color: var(--vt-text-muted)">Memory System</h3>
+                    <div id="memoryCount" class="font-semibold mt-2" style="color: var(--vt-cyan)">● Available</div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="flex-1 flex flex-col min-h-0">
+                <!-- Messages Container -->
+                <div id="chatContainer" class="card-solid rounded-xl flex-1 p-6 mb-4 overflow-y-auto min-h-[400px]">
+                    <div id="chatMessages" class="space-y-4">
+                        <!-- Welcome Message -->
+                        <div class="flex space-x-3 slide-up">
+                            <div class="w-8 h-8 bg-gradient-to-r rounded-full flex items-center justify-center text-sm font-bold text-black" style="background: linear-gradient(135deg, var(--vt-purple) 0%, var(--vt-cyan) 100%);">
+                                N
+                            </div>
+                            <div class="flex-1">
+                                <div class="card-solid rounded-lg p-4">
+                                    <p style="color: var(--vt-text)" class="leading-relaxed">
+                                        Welcome to <span class="gradient-text font-semibold">VibeTech NOVA</span>!
+                                        I'm your Neural AI Assistant with ultra-vibrant neon colors and professional design.
+                                    </p>
+                                    <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-cyan-400">🧠</span>
+                                            <span>Smart Conversations</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-purple-400">💻</span>
+                                            <span>Code Execution</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-green-400">📊</span>
+                                            <span>Project Management</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-yellow-400">🔍</span>
+                                            <span>Web Search</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Input -->
+                <div class="card-solid rounded-xl p-4 slide-up hover-lift" style="animation-delay: 0.8s">
+                    <div class="flex space-x-3">
+                        <textarea
+                            id="messageInput"
+                            placeholder="Ask me anything... (Press Enter to send)"
+                            rows="1"
+                            class="flex-1 bg-transparent border rounded-lg px-4 py-3 resize-none focus:outline-none transition-all duration-300"
+                            style="color: var(--vt-text); border-color: rgba(0, 255, 255, 0.3); background: var(--vt-darker);"
+                            onfocus="this.style.borderColor='var(--vt-cyan)'; this.style.boxShadow='0 0 10px rgba(0, 255, 255, 0.3)'"
+                            onblur="this.style.borderColor='rgba(0, 255, 255, 0.3)'; this.style.boxShadow='none'"
+                        ></textarea>
+                        <button
+                            id="sendButton"
+                            class="px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none bounce-in"
+                            style="background: linear-gradient(135deg, var(--vt-purple) 0%, var(--vt-cyan) 100%); color: #000; animation-delay: 1s"
+                            onmouseover="this.style.boxShadow='0 0 20px rgba(0, 255, 255, 0.5)'"
+                            onmouseout="this.style.boxShadow='0 0 10px rgba(0, 255, 255, 0.3)'"
+                        >
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation (Mobile-First) -->
+        <nav class="glass border-t border-gray-700 px-4 py-3 sm:hidden">
+            <div class="flex justify-around">
+                <button class="quick-action flex flex-col items-center space-y-1 p-2 rounded-lg hover:bg-gray-700" data-message="Show me the weather in London">
+                    <span class="text-lg">🌤️</span>
+                    <span class="text-xs text-gray-400">Weather</span>
+                </button>
+                <button class="quick-action flex flex-col items-center space-y-1 p-2 rounded-lg hover:bg-gray-700" data-message="Execute JavaScript: console.log('Hello VibeTech!');">
+                    <span class="text-lg">💻</span>
+                    <span class="text-xs text-gray-400">Code</span>
+                </button>
+                <button class="quick-action flex flex-col items-center space-y-1 p-2 rounded-lg hover:bg-gray-700" data-message="Hello NOVA! What makes VibeTech special?">
+                    <span class="text-lg">🤖</span>
+                    <span class="text-xs text-gray-400">Chat</span>
+                </button>
+                <button class="quick-action flex flex-col items-center space-y-1 p-2 rounded-lg hover:bg-gray-700" data-message="Show me my projects and tasks">
+                    <span class="text-lg">📊</span>
+                    <span class="text-xs text-gray-400">Projects</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Desktop Quick Actions -->
+        <div class="hidden sm:block card-solid mx-4 sm:mx-6 mb-6 rounded-xl p-4 slide-up hover-lift" style="animation-delay: 1.2s">
+            <h4 class="text-sm font-medium mb-3 gradient-text">Quick Actions</h4>
+            <div class="flex flex-wrap gap-2">
+                <button class="quick-action px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 fade-in-scale"
+                        style="background: var(--vt-darker); color: var(--vt-text); border: 1px solid rgba(0, 255, 255, 0.3); animation-delay: 1.3s"
+                        onmouseover="this.style.borderColor='var(--vt-cyan)'; this.style.boxShadow='0 0 10px rgba(0, 255, 255, 0.3)'"
+                        onmouseout="this.style.borderColor='rgba(0, 255, 255, 0.3)'; this.style.boxShadow='none'"
+                        data-message="Show me the weather in London">
+                    🌤️ Weather
+                </button>
+                <button class="quick-action px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 fade-in-scale"
+                        style="background: var(--vt-darker); color: var(--vt-text); border: 1px solid rgba(185, 51, 255, 0.3); animation-delay: 1.4s"
+                        onmouseover="this.style.borderColor='var(--vt-purple)'; this.style.boxShadow='0 0 10px rgba(185, 51, 255, 0.3)'"
+                        onmouseout="this.style.borderColor='rgba(185, 51, 255, 0.3)'; this.style.boxShadow='none'"
+                        data-message="Execute JavaScript: console.log('Hello VibeTech!'); alert('Modern 2025 UI!');">
+                    💻 Execute Code
+                </button>
+                <button class="quick-action px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 fade-in-scale"
+                        style="background: var(--vt-darker); color: var(--vt-text); border: 1px solid rgba(0, 255, 255, 0.3); animation-delay: 1.5s"
+                        onmouseover="this.style.borderColor='var(--vt-cyan)'; this.style.boxShadow='0 0 10px rgba(0, 255, 255, 0.3)'"
+                        onmouseout="this.style.borderColor='rgba(0, 255, 255, 0.3)'; this.style.boxShadow='none'"
+                        data-message="Hello NOVA! What makes VibeTech special?">
+                    🤖 Chat with AI
+                </button>
+                <button class="quick-action px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 fade-in-scale"
+                        style="background: var(--vt-darker); color: var(--vt-text); border: 1px solid rgba(255, 0, 170, 0.3); animation-delay: 1.6s"
+                        onmouseover="this.style.borderColor='var(--vt-pink)'; this.style.boxShadow='0 0 10px rgba(255, 0, 170, 0.3)'"
+                        onmouseout="this.style.borderColor='rgba(255, 0, 170, 0.3)'; this.style.boxShadow='none'"
+                        data-message="Show me my projects and tasks">
+                    📊 View Projects
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="glass rounded-xl p-6 text-center">
+            <div class="loading-dots mb-3">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <p class="text-gray-400">Thinking...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Modern NOVA App with your actual VibeTech colors
+        class NovaApp {
+            constructor() {
+                this.API_BASE = 'http://localhost:4000';
+                this.messageContainer = document.getElementById('chatMessages');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.checkServerStatus();
+                this.setupAutoResize();
+                console.log('🚀 VibeTech NOVA 2025 - Loaded with your actual brand colors');
+            }
+
+            bindEvents() {
+                // Send button
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+
+                // Enter key to send
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Quick actions
+                document.querySelectorAll('.quick-action').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const message = btn.dataset.message;
+                        if (message) {
+                            this.messageInput.value = message;
+                            this.sendMessage();
+                        }
+                    });
+                });
+            }
+
+            setupAutoResize() {
+                this.messageInput.addEventListener('input', () => {
+                    this.messageInput.style.height = 'auto';
+                    this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 120) + 'px';
+                });
+            }
+
+            async checkServerStatus() {
+                try {
+                    const response = await fetch('/plugins');
+                    const data = await response.json();
+
+                    document.getElementById('serverStatus').textContent = 'Online';
+                    document.getElementById('pluginCount').textContent = `${data.enabled}/${data.total} Active`;
+                    document.getElementById('connectionStatus').textContent = 'Connected';
+
+                } catch (error) {
+                    console.error('Status check failed:', error);
+                    document.getElementById('serverStatus').textContent = 'Offline';
+                    document.getElementById('connectionStatus').textContent = 'Disconnected';
+                }
+            }
+
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message) return;
+
+                // Clear input
+                this.messageInput.value = '';
+                this.messageInput.style.height = 'auto';
+
+                // Add user message
+                this.addMessage(message, 'user');
+
+                // Show loading
+                this.showLoading(true);
+
+                try {
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message })
+                    });
+
+                    const data = await response.json();
+
+                    // Add NOVA response
+                    const responseText = data.content || data.response || data.message || 'No response received.';
+                    this.addMessage(responseText, 'assistant');
+
+                } catch (error) {
+                    console.error('Send message failed:', error);
+                    this.addMessage('❌ Connection error. Please check if the server is running.', 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            addMessage(content, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex space-x-3 slide-up';
+
+                let avatar, bgClass, textClass;
+
+                if (type === 'user') {
+                    avatar = '<div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-sm font-bold">You</div>';
+                    bgClass = 'bg-gradient-to-r from-purple-500 to-cyan-400';
+                    textClass = 'text-black';
+                } else if (type === 'error') {
+                    avatar = '<div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-sm">⚠️</div>';
+                    bgClass = 'bg-red-900 border border-red-500';
+                    textClass = 'text-red-200';
+                } else {
+                    avatar = '<div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-cyan-400 rounded-full flex items-center justify-center text-sm font-bold text-black">N</div>';
+                    bgClass = 'glass';
+                    textClass = 'text-white';
+                }
+
+                messageDiv.innerHTML = `
+                    ${avatar}
+                    <div class="flex-1">
+                        <div class="${bgClass} rounded-lg p-4">
+                            <p class="${textClass} leading-relaxed">${this.formatMessage(content)}</p>
+                        </div>
+                    </div>
+                `;
+
+                this.messageContainer.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            formatMessage(content) {
+                return content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code class="bg-gray-700 px-2 py-1 rounded">$1</code>')
+                    .replace(/\n/g, '<br>');
+            }
+
+            showLoading(show) {
+                this.loadingOverlay.classList.toggle('hidden', !show);
+                this.sendButton.disabled = show;
+            }
+
+            scrollToBottom() {
+                const container = document.getElementById('chatContainer');
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.novaApp = new NovaApp();
+        });
+    </script>
+
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>

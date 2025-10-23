@@ -78,10 +78,10 @@ class Config:
                 # Load XLM-specific settings
                 xlm = config_data.get('xlm_specific', {})
                 self.xlm_min_order_size = xlm.get('min_order_size', 20)
-                self.xlm_price_range_min = xlm.get('price_range_min', 0.33)
-                self.xlm_price_range_max = xlm.get('price_range_max', 0.43)
-                self.xlm_stop_loss_price = xlm.get('stop_loss_price', 0.35)
-                self.xlm_take_profit_price = xlm.get('take_profit_price', 0.41)
+                self.xlm_price_range_min = xlm.get('price_range_min', 0.30)
+                self.xlm_price_range_max = xlm.get('price_range_max', 0.45)
+                self.xlm_stop_loss_pct = xlm.get('stop_loss_pct', 0.015)
+                self.xlm_take_profit_pct = xlm.get('take_profit_pct', 0.015)
                 self.xlm_cooldown_minutes = xlm.get('cooldown_minutes', 5)
         else:
             # Fallback to environment variables if no config file
@@ -135,10 +135,10 @@ class Config:
 
         # XLM-specific defaults
         self.xlm_min_order_size = 20
-        self.xlm_price_range_min = 0.33
-        self.xlm_price_range_max = 0.43
-        self.xlm_stop_loss_price = 0.35
-        self.xlm_take_profit_price = 0.41
+        self.xlm_price_range_min = 0.30
+        self.xlm_price_range_max = 0.45
+        self.xlm_stop_loss_pct = 0.015
+        self.xlm_take_profit_pct = 0.015
         self.xlm_cooldown_minutes = 5
 
         # Trading Fees

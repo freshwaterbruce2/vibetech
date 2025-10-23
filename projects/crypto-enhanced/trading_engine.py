@@ -438,10 +438,27 @@ class TradingEngine:
             try:
                 current_price = await self._get_current_price(position['pair'])
                 entry = position.get('entry_price')
+                entry_price = float(entry) if entry else 0
+                
                 logger.debug(
                     f"Position {position_id}: {position['pair']} "
                     f"entry={entry}, current={current_price}"
                 )
+                
+                # CRITICAL FIX: Auto-set stop-loss/take-profit if missing
+                if not position.get('stop_loss') and entry_price > 0:
+                    # Set 1.5% stop-loss below entry
+                    stop_loss = entry_price * 0.985
+                    position['stop_loss'] = stop_loss
+                    self.open_positions[position_id]['stop_loss'] = stop_loss
+                    logger.info(f"[AUTO-SET] Stop-loss for {position_id}: ${stop_loss:.4f} (-1.5% from ${entry_price:.4f})")
+                
+                if not position.get('take_profit') and entry_price > 0:
+                    # Set 1.5% take-profit above entry
+                    take_profit = entry_price * 1.015
+                    position['take_profit'] = take_profit
+                    self.open_positions[position_id]['take_profit'] = take_profit
+                    logger.info(f"[AUTO-SET] Take-profit for {position_id}: ${take_profit:.4f} (+1.5% from ${entry_price:.4f})")
 
                 # Enhanced XLM-specific monitoring
                 if 'XLM' in position.get('pair', ''):
@@ -725,10 +742,20 @@ class TradingEngine:
         IMPROVEMENTS:
         - Added data validation
         - Optimized synthetic trade generation
+        - WebSocket V2 format support (unwraps 'data' array)
         """
+        # Handle WebSocket V2 format: {'channel': 'ticker', 'type': 'update', 'data': [{...}]}
+        if 'data' in data and isinstance(data['data'], list):
+            for ticker_data in data['data']:
+                await self._process_ticker_data(ticker_data)
+        else:
+            # Direct format (for tests and backward compatibility)
+            await self._process_ticker_data(data)
+
+    async def _process_ticker_data(self, data: Dict):
+        """Process individual ticker data item"""
         # Validate incoming data
         if not self._validate_ticker_data(data):
-            logger.warning(f"Invalid ticker data received: {data}")
             return
 
         symbol = data.get('symbol')
@@ -761,10 +788,20 @@ class TradingEngine:
         IMPROVEMENTS:
         - Added data validation
         - Uses centralized trade pruning
+        - WebSocket V2 format support (unwraps 'data' array)
         """
+        # Handle WebSocket V2 format: {'channel': 'trade', 'type': 'update', 'data': [{...}]}
+        if 'data' in data and isinstance(data['data'], list):
+            for trade_data in data['data']:
+                await self._process_trade_data(trade_data)
+        else:
+            # Direct format (for tests and backward compatibility)
+            await self._process_trade_data(data)
+
+    async def _process_trade_data(self, data: Dict):
+        """Process individual trade data item"""
         # Validate incoming data
         if not self._validate_trade_data(data):
-            logger.warning(f"Invalid trade data received: {data}")
             return
 
         symbol = data.get('symbol')
@@ -785,6 +822,7 @@ class TradingEngine:
         - Added data validation
         - Better error handling
         - Uses centralized trade management
+        - Creates positions when orders fill
         """
         if not self._validate_execution_data(data):
             logger.warning(f"Invalid execution data received: {data}")
@@ -795,6 +833,44 @@ class TradingEngine:
         # Extract execution trades for market data
         if 'data' in data and isinstance(data['data'], list):
             for exec_data in data['data']:
+                # Handle filled orders - create positions
+                if exec_data.get('order_status') == 'filled' or exec_data.get('exec_type') == 'filled':
+                    order_id = exec_data.get('order_id')
+                    side = exec_data.get('side', '')
+
+                    # Only create position for BUY orders (sell orders close positions)
+                    if order_id and side == 'buy':
+                        # Get pending order data for stop-loss/take-profit
+                        pending_order = self.pending_orders.get(order_id, {})
+
+                        # Create position from actual fill data
+                        self.open_positions[order_id] = {
+                            'pair': exec_data.get('symbol', 'XLM/USD'),
+                            'side': 'buy',
+                            'volume': exec_data.get('cum_qty', exec_data.get('last_qty', 0)),
+                            'entry_price': exec_data.get('avg_price', exec_data.get('last_price', 0)),
+                            'stop_loss': pending_order.get('stop_loss'),
+                            'take_profit': pending_order.get('take_profit'),
+                            'created_at': exec_data.get('timestamp', datetime.now().isoformat())
+                        }
+
+                        # Remove from pending orders
+                        self.pending_orders.pop(order_id, None)
+
+                        # Invalidate exposure cache
+                        self.exposure_cache.invalidate()
+
+                        # Update XLM trade time
+                        if 'XLM' in exec_data.get('symbol', ''):
+                            self.last_xlm_trade_time = datetime.now()
+
+                        logger.info(
+                            f"[POSITION OPENED] {order_id}: "
+                            f"{self.open_positions[order_id]['volume']} {self.open_positions[order_id]['pair']} "
+                            f"@ ${self.open_positions[order_id]['entry_price']}"
+                        )
+
+                # Extract trade data for market analysis
                 if exec_data.get('exec_type') == 'trade':
                     symbol = exec_data.get('symbol')
                     if symbol:
@@ -945,8 +1021,8 @@ class TradingEngine:
 
         # Apply XLM-specific logic
         if 'XLM' in pair and risk_check_price:
-            # Check cooldown period
-            if self.last_xlm_trade_time:
+            # Check cooldown period (only for BUY orders - SELL orders close positions and shouldn't be blocked)
+            if side == OrderSide.BUY and self.last_xlm_trade_time:
                 now = datetime.now()
                 time_since = now - self.last_xlm_trade_time
                 cooldown_period = timedelta(minutes=self.config.xlm_cooldown_minutes)
@@ -965,7 +1041,7 @@ class TradingEngine:
         # Get current balance from market data for risk check
         current_balance = self.market_data.get('balance', {})
         if not await self.risk_manager.approve_order(
-            pair, volume, self.open_positions, risk_check_price, current_balance
+            pair, side, volume, self.open_positions, risk_check_price, current_balance
         ):
             logger.warning(f"Order rejected by risk manager: {pair} {side} {volume}")
             return {"error": "Risk limit exceeded"}
@@ -1033,29 +1109,19 @@ class TradingEngine:
                 post_only=True if order_type == OrderType.LIMIT else False
             )
 
-            # FIXED: Store in open_positions (not pending_orders)
+            # Store in pending_orders until filled
             if result.get('order_id'):
                 order_id = result['order_id']
-                self.open_positions[order_id] = {
+                self.pending_orders[order_id] = {
                     'pair': pair,
                     'side': side.value,
                     'volume': volume,
-                    'entry_price': price or risk_check_price,
+                    'price': price or risk_check_price,
                     'stop_loss': stop_loss,
                     'take_profit': take_profit,
-                    'created_at': datetime.now().isoformat()
+                    'created_at': datetime.now().isoformat(),
+                    'status': 'pending'
                 }
-
-                # Invalidate exposure cache
-                self.exposure_cache.invalidate()
-
-                # Update last XLM trade time
-                if 'XLM' in pair:
-                    self.last_xlm_trade_time = datetime.now()
-                    logger.info(
-                        f"XLM trade executed, cooldown started for "
-                        f"{self.config.xlm_cooldown_minutes} minutes"
-                    )
 
             # Log to database
             log_entry = {
@@ -1084,7 +1150,17 @@ class TradingEngine:
                 volume=volume,
                 price=price
             )
-            await self.db.log_order({**result, "method": "rest_fallback"})
+            # Log to database with all required fields
+            log_entry = {
+                **result,
+                "symbol": symbol,
+                "side": side.value,
+                "order_type": order_type.value,
+                "volume": volume,
+                "price": price,
+                "method": "rest_fallback"
+            }
+            await self.db.log_order(log_entry)
             return result
 
         # Use optimized fallback pattern
@@ -1149,6 +1225,10 @@ class TradingEngine:
                 logger.error(f"[CLOSE POSITION] FAILED - {position_id}: {error_msg}")
                 await self.db.log_order({
                     'position_id': position_id,
+                    'pair': position['pair'],
+                    'side': side.value,
+                    'order_type': 'market',
+                    'volume': position['volume'],
                     'action': 'close_failed',
                     'reason': reason,
                     'error': error_msg,
@@ -1161,6 +1241,10 @@ class TradingEngine:
             )
             await self.db.log_order({
                 'position_id': position_id,
+                'pair': position.get('pair', 'UNKNOWN'),
+                'side': side.value if side else 'unknown',
+                'order_type': 'market',
+                'volume': position.get('volume', 0),
                 'action': 'close_exception',
                 'reason': reason,
                 'error': str(e),
@@ -1237,6 +1321,7 @@ class RiskManager:
     async def approve_order(
         self,
         pair: str,
+        side: OrderSide,
         volume: str,
         positions: Dict,
         price: Optional[float] = None,
@@ -1262,15 +1347,15 @@ class RiskManager:
             )
             position_value = volume_decimal
 
-        # Check position size in USD
-        if position_value > self.max_position_size:
+        # Check position size in USD (only for BUY orders - SELL orders close existing positions)
+        if side == OrderSide.BUY and position_value > self.max_position_size:
             logger.warning(
                 f"Position size ${position_value} exceeds max ${self.max_position_size}"
             )
             return False
 
-        # Check sufficient balance
-        if self.current_balance:
+        # Check sufficient balance (only for BUY orders - SELL orders don't require USD funds)
+        if side == OrderSide.BUY and self.current_balance:
             usd_balance = float(
                 self.current_balance.get('ZUSD', self.current_balance.get('USD', 0))
             )
@@ -1299,17 +1384,17 @@ class RiskManager:
                     f"(alert threshold: ${self.config.min_balance_alert})"
                 )
 
-        # Check number of positions
-        if len(positions) >= self.max_positions:
+        # Check number of positions (only for BUY orders - SELL orders reduce positions)
+        if side == OrderSide.BUY and len(positions) >= self.max_positions:
             logger.warning(
                 f"Already have {len(positions)} positions, max is {self.max_positions}"
             )
             return False
 
-        # Check total exposure in USD
+        # Check total exposure in USD (only for BUY orders - SELL orders reduce exposure)
         total_exposure = self._calculate_total_exposure(positions)
 
-        if total_exposure + position_value > self.max_total_exposure:
+        if side == OrderSide.BUY and total_exposure + position_value > self.max_total_exposure:
             logger.warning(
                 f"Total exposure ${total_exposure + position_value} "
                 f"would exceed max ${self.max_total_exposure}"

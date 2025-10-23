@@ -1,3 +1,4 @@
+import { logger } from '../../../services/Logger';
 import { useCallback, useState } from 'react';
 
 import { EditorService } from '../services/EditorService';
@@ -31,7 +32,7 @@ export function useEditorState() {
           activeFile: file,
         }));
       } catch (error) {
-        console.error('Failed to open file:', error);
+        logger.error('Failed to open file:', error);
       }
     },
     [state.openFiles, editorService]
@@ -84,7 +85,7 @@ export function useEditorState() {
               : prev.activeFile,
         }));
       } catch (error) {
-        console.error('Failed to save file:', error);
+        logger.error('Failed to save file:', error);
       }
     },
     [state.openFiles, editorService]

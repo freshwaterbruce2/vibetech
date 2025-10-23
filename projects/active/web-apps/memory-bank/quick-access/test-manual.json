@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-10-09T19:30:56.125Z",
+  "size": 40,
+  "storage": "localMemory",
+  "metadata": {
+    "type": "session_state"
+  },
+  "data": {
+    "test": "data",
+    "timestamp": "2025-10-09"
+  },
+  "checksum": "f3b48e170a6497210359f39407feb772"
+}

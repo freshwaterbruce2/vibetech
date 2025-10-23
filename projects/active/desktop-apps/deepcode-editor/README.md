@@ -22,6 +22,8 @@ A modern, intelligent code editor powered by DeepSeek AI - built as a compelling
 - **Real-time Code Completion**: Smart suggestions as you type
 - **AI Chat Assistant**: Get help with code explanation, generation, and debugging
 - **Context-Aware Suggestions**: AI understands your entire codebase
+- **Live Editor Streaming**: Watch code changes appear in real-time (Cursor/Windsurf-style)
+- **Advanced Agent Mode**: 7-phase autonomous coding system with self-correction and learning
 
 ### 💻 **Modern Editor Experience**
 
@@ -210,10 +212,17 @@ For detailed architecture documentation, see [ARCHITECTURE.md](./ARCHITECTURE.md
 - [x] File management
 - [x] AI chat interface
 - [x] Beautiful UI/UX
+- [x] Agent Mode 2025 Enhancement (7 phases complete)
+- [x] Live Editor Streaming
+- [x] Multi-agent orchestration system
 
 ### Phase 2: Advanced Features 🚧
 
-- [ ] Git integration
+- [x] Git integration
+- [ ] Tab completion / inline suggestions
+- [ ] Auto-fix error detection
+- [ ] Multi-file editing with diff preview
+- [ ] Background task execution
 - [ ] Plugin system
 - [ ] Collaborative editing
 - [ ] Advanced debugging
@@ -221,10 +230,12 @@ For detailed architecture documentation, see [ARCHITECTURE.md](./ARCHITECTURE.md
 
 ### Phase 3: Distribution 📦
 
-- [ ] Electron desktop app
+- [x] Electron desktop app
 - [ ] VS Code extension
 - [ ] Web deployment
 - [ ] Docker containers
+
+**See**: [FEATURE_ROADMAP_2025.md](./FEATURE_ROADMAP_2025.md) and [AGENT_MODE_2025_ROADMAP.md](./AGENT_MODE_2025_ROADMAP.md) for detailed implementation plans.
 
 ## 💰 Business Model
 

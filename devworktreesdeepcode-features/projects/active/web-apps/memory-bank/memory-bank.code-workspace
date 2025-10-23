@@ -1,0 +1,97 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.env.windows": {
+      "PROJECT_ROOT": "${workspaceFolder}",
+      "MEMORY_BANK_PATH": "${workspaceFolder}"
+    },
+
+    // JavaScript/Node.js settings
+    "javascript.preferences.importModuleSpecifier": "relative",
+    "javascript.suggest.autoImports": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+
+    // Formatters
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "explicit"
+      }
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+      "editor.wordWrap": "on"
+    },
+
+    // Editor settings
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+
+    // File associations for memory management
+    "files.associations": {
+      "*.js": "javascript",
+      "*.json": "json",
+      "*.md": "markdown",
+      "memory_config.json": "json",
+      "memory_*.js": "javascript",
+      ".env*": "dotenv"
+    },
+
+    // File watching
+    "files.watcherExclude": {
+      "**/.git/**": true,
+      "**/node_modules/**": true,
+      "**/sessions/**": true,
+      "**/projects/**": true,
+      "**/context/**": true,
+      "**/*.log": true,
+      "**/quick-access/**": true
+    },
+
+    // Search exclusions for memory data
+    "search.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/sessions": true,
+      "**/projects": false,
+      "**/context": false,
+      "**/*.log": true
+    },
+
+    // Jest configuration
+    "jest.autoRun": {
+      "watch": false,
+      "onStartup": []
+    },
+
+    // Theme
+    "workbench.colorCustomizations": {
+      "activityBar.background": "#1a1a1a",
+      "titleBar.activeBackground": "#9333ea",
+      "titleBar.activeForeground": "#ffffff"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-vscode.vscode-json",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "yzhang.markdown-all-in-one",
+      "eamodio.gitlens",
+      "orta.vscode-jest",
+      "formulahendry.code-runner"
+    ]
+  }
+}

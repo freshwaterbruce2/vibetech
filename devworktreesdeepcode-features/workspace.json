@@ -1,0 +1,148 @@
+{
+  "name": "dev-monorepo",
+  "version": "1.0.0",
+  "workspaces": {
+    "root": {
+      "type": "react-typescript",
+      "path": ".",
+      "package": "package.json",
+      "framework": "vite",
+      "port": 5173,
+      "startCommand": "npm run dev"
+    },
+    "projects": {
+      "crypto-enhanced": {
+        "type": "python",
+        "path": "projects/crypto-enhanced",
+        "framework": "custom",
+        "description": "Live cryptocurrency trading system with Kraken API",
+        "main": "start_live_trading.py",
+        "requirements": "requirements.txt",
+        "port": 8000,
+        "startCommand": ".venv\\Scripts\\python.exe start_live_trading.py"
+      },
+      "vibe-tech-lovable": {
+        "type": "react-node",
+        "path": "projects/active/web-apps/vibe-tech-lovable",
+        "frontend": {
+          "package": "package.json",
+          "framework": "vite",
+          "port": 8080,
+          "startCommand": "npm run dev"
+        },
+        "backend": {
+          "package": "backend/package.json",
+          "framework": "express",
+          "port": 9001,
+          "startCommand": "npm run dev"
+        }
+      },
+      "memory-bank": {
+        "type": "python",
+        "path": "projects/active/web-apps/memory-bank",
+        "framework": "custom",
+        "description": "Enhanced memory system with monitoring",
+        "main": "monitoring_service.py",
+        "port": 8765,
+        "startCommand": "python monitoring_service.py"
+      },
+      "nova-agent": {
+        "type": "tauri-react",
+        "path": "projects/active/desktop-apps/nova-agent-current",
+        "framework": "tauri",
+        "port": 3000,
+        "startCommand": "npm run dev"
+      },
+      "hotel-booking": {
+        "type": "react-typescript",
+        "path": "projects/active/web-apps/hotel-booking",
+        "framework": "vite",
+        "port": 5174,
+        "startCommand": "npm run dev"
+      },
+      "shipping-pwa": {
+        "type": "react-pwa",
+        "path": "projects/active/web-apps/shipping-pwa",
+        "framework": "vite",
+        "port": 5175,
+        "startCommand": "npm run dev"
+      }
+    }
+  },
+  "groups": {
+    "full-stack": {
+      "description": "Full-stack development with backend and memory system",
+      "projects": ["root", "backend", "memory-bank"],
+      "dependencies": {
+        "backend": []
+      }
+    },
+    "trading": {
+      "description": "Cryptocurrency trading with monitoring",
+      "projects": ["crypto-enhanced", "memory-bank"],
+      "dependencies": {}
+    },
+    "desktop": {
+      "description": "Desktop applications",
+      "projects": ["nova-agent"],
+      "dependencies": {}
+    },
+    "web-apps": {
+      "description": "All web applications",
+      "projects": ["hotel-booking", "shipping-pwa", "vibe-tech-lovable"],
+      "dependencies": {}
+    },
+    "testing": {
+      "description": "Testing environment for all projects",
+      "projects": ["root", "crypto-enhanced", "vibe-tech-lovable"],
+      "testCommands": {
+        "root": "npm run test",
+        "crypto-enhanced": ".venv\\Scripts\\python.exe run_tests.py",
+        "vibe-tech-lovable": "npm run test"
+      }
+    },
+    "dev": {
+      "description": "Default development environment",
+      "projects": ["root", "crypto-enhanced", "vibe-tech-lovable"],
+      "dependencies": {}
+    }
+  },
+  "parallelExecution": {
+    "maxConcurrent": 5,
+    "startupDelay": 1000,
+    "healthCheckInterval": 30000,
+    "autoRestart": true,
+    "portAllocation": {
+      "strategy": "predefined",
+      "rangeStart": 3000,
+      "rangeEnd": 9999
+    }
+  },
+  "monitoring": {
+    "enabled": true,
+    "dashboardPort": 8765,
+    "logAggregation": true,
+    "performanceMetrics": true,
+    "alertThresholds": {
+      "cpuUsage": 80,
+      "memoryUsage": 85,
+      "errorRate": 0.1
+    }
+  },
+  "scripts": {
+    "setup": "npm run workspace:install",
+    "clean": "npm run workspace:clean",
+    "health": "npm run monorepo:health",
+    "parallel:dev": "powershell -ExecutionPolicy Bypass -File scripts\\Start-ParallelMonorepo.ps1 -Group dev",
+    "parallel:full-stack": "powershell -ExecutionPolicy Bypass -File scripts\\Start-ParallelMonorepo.ps1 -Group full-stack",
+    "parallel:trading": "powershell -ExecutionPolicy Bypass -File scripts\\Start-ParallelMonorepo.ps1 -Group trading",
+    "parallel:test": "powershell -ExecutionPolicy Bypass -File scripts\\Start-ParallelMonorepo.ps1 -Group testing",
+    "parallel:watch": "powershell -ExecutionPolicy Bypass -File scripts\\Start-ParallelMonorepo.ps1 -Group dev -Watch",
+    "parallel:dashboard": "powershell -ExecutionPolicy Bypass -File scripts\\Start-ParallelMonorepo.ps1 -Group dev -Dashboard"
+  },
+  "optimizations": {
+    "sharedDependencies": ["typescript", "eslint", "@types/node"],
+    "cachePaths": [".nx", ".turbo", "node_modules/.cache"],
+    "cleanupPatterns": ["**/*.log", "**/__pycache__", "**/dist"]
+  }
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crypto Trading Dashboard</title>
+  <script type="module" crossorigin src="/dist/assets/index-s08o5soT.js"></script>
+  <link rel="stylesheet" crossorigin href="/dist/assets/index-BsSD3YBn.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0118;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    // Force navigation to /trading route
+    if (window.location.pathname === '/dashboard-standalone.html' || window.location.pathname === '/') {
+      window.history.pushState({}, '', '/trading');
+    }
+  </script>
+</body>
+</html>

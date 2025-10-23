@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "nx-mcp": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\fresh_zxae3v6\\AppData\\Roaming\\npm\\node_modules\\nx-mcp\\main.js"
+      ]
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\fresh_zxae3v6\\AppData\\Roaming\\npm\\node_modules\\@modelcontextprotocol\\server-filesystem\\dist\\index.js",
+        "C:\\dev",
+        "C:\\dev\\projects",
+        "D:\\"
+      ]
+    },
+    "sqlite": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\fresh_zxae3v6\\AppData\\Roaming\\npm\\node_modules\\mcp-server-sqlite-npx\\dist\\index.js",
+        "C:\\dev\\projects\\crypto-enhanced\\trading.db"
+      ]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\fresh_zxae3v6\\AppData\\Roaming\\npm\\node_modules\\@playwright\\mcp\\index.js"
+      ]
+    }
+  }
+}

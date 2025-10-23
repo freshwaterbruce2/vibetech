@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-08-23T20:01:05.713Z",
+  "size": 107,
+  "storage": "localMemory",
+  "metadata": {
+    "type": "test_data"
+  },
+  "data": {
+    "test": "vs-code-integration-test",
+    "timestamp": "2025-08-23T20:01:05.712Z",
+    "source": "playwright-automation"
+  },
+  "checksum": "da922bf26e424ae884cd517d8711156e"
+}

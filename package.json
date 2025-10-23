@@ -10,7 +10,8 @@
     "packages/*",
     "projects/active/web-apps/*",
     "projects/active/desktop-apps/*",
-    "projects/Vibe-Subscription-Guard"
+    "projects/Vibe-Subscription-Guard",
+    "Vibe-Tutor"
   ],
   "resolutions": {
     "react": "19.2.0",
@@ -109,6 +110,9 @@
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "@tanstack/react-query": "^5.90.2",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-search": "^0.15.0",
+    "@xterm/xterm": "^5.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

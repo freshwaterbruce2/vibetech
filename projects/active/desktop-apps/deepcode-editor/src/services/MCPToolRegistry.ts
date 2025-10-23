@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 export interface MCPTool {
   id: string;
   name: string;
@@ -200,7 +201,7 @@ export class MCPToolRegistry {
     this.logUsage(agentId, toolId, parameters);
 
     // In real implementation, this would call the actual MCP server
-    console.log(`Executing tool ${toolId} for agent ${agentId}`, parameters);
+    logger.debug(`Executing tool ${toolId} for agent ${agentId}`, parameters);
 
     return { success: true, result: 'Mock result' };
   }

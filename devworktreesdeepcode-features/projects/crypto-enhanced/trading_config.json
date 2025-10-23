@@ -1,0 +1,149 @@
+{
+  "_comment_pairs": "Trading pairs in V2 format (symbol with slash)",
+  "trading_pairs": ["XLM/USD"],
+  
+  "_comment_risk": "Risk limits protect capital - all values in USD",
+  "risk_management": {
+    "_max_position_size": "Maximum USD per single position",
+    "max_position_size": 10,
+    
+    "_max_total_exposure": "Maximum total USD across all positions",
+    "max_total_exposure": 10,
+    
+    "_max_positions": "Maximum concurrent positions",
+    "max_positions": 1,
+    
+    "_max_risk_score": "Threshold (0.0-1.0) to trigger exposure reduction",
+    "max_risk_score": 0.6,
+    
+    "_min_balance_required": "System stops trading below this USD balance",
+    "min_balance_required": 15
+  },
+  
+  "_comment_trading": "Core trading engine parameters",
+  "trading_parameters": {
+    "_engine_loop_interval": "Seconds between strategy evaluations (30-60 for production)",
+    "engine_loop_interval": 30,
+    
+    "_slippage_tolerance": "Maximum acceptable slippage (0.001 = 0.1%)",
+    "slippage_tolerance": 0.001,
+    
+    "_default_order_type": "Default order type: 'limit' (maker) or 'market' (taker)",
+    "default_order_type": "limit"
+  },
+  
+  "_comment_fees": "Kraken fee structure (as of 2025)",
+  "fees": {
+    "_maker_fee": "Limit orders that provide liquidity",
+    "maker_fee": 0.0016,
+    
+    "_taker_fee": "Market orders that take liquidity",
+    "taker_fee": 0.0026
+  },
+  
+  "_comment_monitoring": "System health and alerting",
+  "monitoring": {
+    "_enable_monitoring": "Enable health monitoring",
+    "enable_monitoring": true,
+    
+    "_monitoring_interval": "Seconds between health checks",
+    "monitoring_interval": 60,
+    
+    "_min_balance_alert": "USD balance to trigger WARNING log",
+    "min_balance_alert": 50
+  },
+  
+  "_comment_websocket": "WebSocket connection parameters",
+  "websocket": {
+    "_reconnect_interval": "Seconds to wait before reconnection attempt",
+    "reconnect_interval": 5,
+    
+    "_heartbeat_interval": "Seconds between heartbeat checks",
+    "heartbeat_interval": 30
+  },
+  
+  "_comment_xlm": "XLM/USD specific trading parameters",
+  "xlm_specific": {
+    "_min_order_size": "Kraken minimum: 20 XLM (verify current requirements)",
+    "min_order_size": 20,
+    
+    "_price_range": "Acceptable price bounds - orders outside range rejected",
+    "price_range_min": 0.33,
+    "price_range_max": 0.43,
+    
+    "_stop_loss_price": "Auto-applied stop-loss if not specified per order",
+    "stop_loss_price": 0.35,
+    
+    "_take_profit_price": "Auto-applied take-profit if not specified per order",
+    "take_profit_price": 0.41,
+    
+    "_cooldown_minutes": "Minimum minutes between XLM trades",
+    "cooldown_minutes": 5,
+    
+    "_max_accumulation_xlm": "Maximum XLM to accumulate at one price level (prevents Sept 26 over-accumulation)",
+    "max_accumulation_xlm": 100
+  },
+  
+  "_comment_strategies": "Strategy-specific optimization parameters",
+  "strategies": {
+    "mean_reversion": {
+      "_enabled": "Enable mean reversion strategy",
+      "enabled": true,
+      
+      "_min_profit_target": "Minimum profit target percentage (0.004 = 0.4%)",
+      "min_profit_target": 0.004,
+      
+      "_max_position_accumulation_xlm": "Stop accumulating after this many XLM",
+      "max_position_accumulation_xlm": 100,
+      
+      "_entry_levels": "Maximum number of entry points per setup",
+      "entry_levels": 3,
+      
+      "_stop_loss_pct": "Stop loss percentage (0.015 = 1.5%)",
+      "stop_loss_pct": 0.015,
+      
+      "_rsi_oversold": "RSI level considered oversold (buy signal)",
+      "rsi_oversold": 35,
+      
+      "_rsi_overbought": "RSI level considered overbought (sell signal)",
+      "rsi_overbought": 65
+    },
+    
+    "scalping": {
+      "_enabled": "Enable scalping strategy",
+      "enabled": true,
+      
+      "_min_spread_pct": "Minimum spread percentage required (0.003 = 0.3%)",
+      "min_spread_pct": 0.003,
+      
+      "_max_hold_time_seconds": "Maximum hold time for scalp trades",
+      "max_hold_time_seconds": 300,
+      
+      "_take_profit_pct": "Take profit percentage (0.005 = 0.5%)",
+      "take_profit_pct": 0.005,
+      
+      "_min_volume_threshold": "Minimum USD volume to consider scalping",
+      "min_volume_threshold": 1000
+    },
+    
+    "global": {
+      "_force_maker_only": "Only place maker orders (reject taker orders)",
+      "force_maker_only": true,
+      
+      "_max_daily_trades": "Maximum trades per day per strategy",
+      "max_daily_trades": 10,
+      
+      "_require_confirmation": "Require multiple signals before trading",
+      "require_confirmation": false
+    }
+  },
+  
+  "_production_notes": [
+    "SECURITY: Never commit this file with sensitive data",
+    "TESTING: Validate all parameters with dry-run first",
+    "MONITORING: Watch first 5-10 trades manually",
+    "RISK: Start with minimum viable position sizes",
+    "REVIEW: Update xlm_specific values based on current market",
+    "BACKUP: Keep config history for rollback capability"
+  ]
+}

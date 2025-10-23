@@ -1,0 +1,66 @@
+# Example .deepcoderules for Python Projects
+# Copy to your Python project root as .deepcoderules
+
+version: "1.0"
+description: "Python project with Flask and SQLAlchemy"
+
+global:
+  language: "python"
+  framework: "flask"
+
+  style:
+    indentation: "spaces"
+    indentSize: 4
+    lineLength: 88  # Black formatter default
+
+    naming:
+      variables: "snake_case"
+      functions: "snake_case"
+      classes: "PascalCase"
+      constants: "SCREAMING_SNAKE_CASE"
+      files: "snake_case"
+
+  conventions:
+    errorHandling: "try-catch"
+    preferredPatterns:
+      - "Use type hints for function parameters and return values"
+      - "Follow PEP 8 style guide"
+      - "Use dataclasses for data structures"
+    avoidedPatterns:
+      - "Bare except clauses"
+      - "Mutable default arguments"
+
+  comments:
+    style: "docstring"
+    requireForFunctions: true
+    requireForClasses: true
+    includeTypeInfo: true
+
+patterns:
+  - name: "Routes"
+    match:
+      directories: ["app/routes"]
+    rules:
+      conventions:
+        preferredPatterns:
+          - "Use Blueprint for route organization"
+          - "Include input validation"
+          - "Return JSON responses with proper status codes"
+
+  - name: "Models"
+    match:
+      directories: ["app/models"]
+    rules:
+      conventions:
+        preferredPatterns:
+          - "Use SQLAlchemy declarative base"
+          - "Include __repr__ method"
+          - "Add validation methods"
+
+aiConfig:
+  systemPrompt: "Generate Python code following PEP 8 guidelines. Use type hints and include comprehensive docstrings."
+  contextInstructions:
+    - "Always include type hints"
+    - "Use f-strings for string formatting"
+    - "Prefer list/dict comprehensions where appropriate"
+    - "Include docstrings with parameter and return type descriptions"

@@ -1,3 +1,4 @@
+import { logger } from '../../services/Logger';
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, Home, Mail, RefreshCw } from 'lucide-react';
 import styled from 'styled-components';
@@ -163,8 +164,8 @@ export class ProductionErrorBoundary extends Component<Props, State> {
 
     // Log to console in development
     if (import.meta.env['VITE_DEBUG_MODE'] === 'true') {
-      console.error('Error caught by boundary:', error);
-      console.error('Error info:', errorInfo);
+      logger.error('Error caught by boundary:', error);
+      logger.error('Error info:', errorInfo);
     }
   }
 

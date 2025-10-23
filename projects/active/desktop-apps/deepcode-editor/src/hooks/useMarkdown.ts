@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
@@ -110,7 +111,7 @@ export function useMarkdown(options: UseMarkdownOptions = {}) {
       };
 
       workerRef.current.onerror = (error) => {
-        console.error('Markdown worker error:', error);
+        logger.error('Markdown worker error:', error);
         setState((prev) => ({
           ...prev,
           isProcessing: false,
@@ -119,7 +120,7 @@ export function useMarkdown(options: UseMarkdownOptions = {}) {
         onError?.(new Error(`Worker error: ${error.message}`));
       };
     } catch (error) {
-      console.error('Failed to create markdown worker:', error);
+      logger.error('Failed to create markdown worker:', error);
       setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error : new Error('Failed to create worker'),
@@ -214,7 +215,7 @@ export function useMarkdown(options: UseMarkdownOptions = {}) {
         setState((prev) => ({ ...prev, html }));
         return html;
       } catch (error) {
-        console.error('Parse error:', error);
+        logger.error('Parse error:', error);
         throw error;
       }
     },
@@ -233,7 +234,7 @@ export function useMarkdown(options: UseMarkdownOptions = {}) {
           const preview = await sendRequest<string>('preview', content);
           setState((prev) => ({ ...prev, preview }));
         } catch (error) {
-          console.error('Preview error:', error);
+          logger.error('Preview error:', error);
         }
       }, debounceDelay);
     },
@@ -248,7 +249,7 @@ export function useMarkdown(options: UseMarkdownOptions = {}) {
         setState((prev) => ({ ...prev, toc }));
         return toc;
       } catch (error) {
-        console.error('TOC error:', error);
+        logger.error('TOC error:', error);
         return [];
       }
     },
@@ -263,7 +264,7 @@ export function useMarkdown(options: UseMarkdownOptions = {}) {
         setState((prev) => ({ ...prev, readingTime }));
         return readingTime;
       } catch (error) {
-        console.error('Reading time error:', error);
+        logger.error('Reading time error:', error);
         return null;
       }
     },
@@ -285,7 +286,7 @@ export function useMarkdown(options: UseMarkdownOptions = {}) {
 
         return { html, toc, readingTime };
       } catch (error) {
-        console.error('Process markdown error:', error);
+        logger.error('Process markdown error:', error);
         throw error;
       }
     },

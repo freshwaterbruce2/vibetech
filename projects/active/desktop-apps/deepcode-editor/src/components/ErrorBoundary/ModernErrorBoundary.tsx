@@ -1,3 +1,4 @@
+import { logger } from '../../services/Logger';
 import React, { ErrorInfo, useCallback, useEffect, useState } from 'react';
 import {
   ErrorBoundary as ReactErrorBoundary,
@@ -188,7 +189,7 @@ const StatusBar = styled.div`
 const logErrorToService = (error: Error, errorInfo: ErrorInfo) => {
   if (import.meta.env.PROD) {
     // In production, send to error tracking service
-    console.error('Production error:', {
+    logger.error('Production error:', {
       message: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,

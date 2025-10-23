@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React from 'react';
 import { FileCode, Lightbulb, RefreshCw, Wrench } from 'lucide-react';
 import styled from 'styled-components';
@@ -143,7 +144,7 @@ export const CodeActions: React.FC<CodeActionsProps> = ({ actions, position, onC
       await action.execute();
       onClose();
     } catch (error) {
-      console.error('Failed to execute code action:', error);
+      logger.error('Failed to execute code action:', error);
     }
   };
 

@@ -1,25 +1,31 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { builtinModules } from 'module'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
+  // Electron: No base path needed (uses file:// protocol)
+  // @monaco-editor/react handles workers automatically - NO plugin needed
+  base: process.env.NODE_ENV === 'production' ? './' : '/',
+
   plugins: [
     react(),
-    
-    
+
+    // @monaco-editor/react handles Monaco workers internally - no plugin needed
+
     viteCompression({
       algorithm: 'gzip',
       threshold: 10240
     }),
-    
+
     viteCompression({
       algorithm: 'brotliCompress',
       threshold: 10240,
       ext: '.br'
     }),
-    
+
     process.env.ANALYZE && visualizer({
       filename: './dist/stats.html',
       open: true,
@@ -36,6 +42,7 @@ export default defineConfig({
   
   define: {
     global: 'globalThis',
+    'process.env': '{}',
   },
   
   optimizeDeps: {
@@ -47,11 +54,30 @@ export default defineConfig({
       'zustand',
       'framer-motion'
     ],
-    
+
     exclude: [
       'monaco-editor',
-      '@monaco-editor/react'
+      '@monaco-editor/react',
+      'sql.js',
+      'better-sqlite3',
+      'chromium-bidi',
+      'pac-proxy-agent',
+      'get-uri',
+      ...builtinModules,
+      ...builtinModules.map(m => `node:${m}`)
     ]
+  },
+
+  worker: {
+    format: 'es',
+    plugins: () => [
+      react()
+    ],
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+      }
+    }
   },
   
   build: {
@@ -80,7 +106,15 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
       },
-      
+
+      external: [
+        'electron',
+        'sql.js',
+        'better-sqlite3',
+        ...builtinModules,
+        ...builtinModules.map(m => `node:${m}`)
+      ],
+
       output: {
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')
@@ -143,11 +177,11 @@ export default defineConfig({
   },
   
   server: {
-    port: 3001,
+    port: 5174,
     strictPort: true,
-    
+
     cors: true,
-    
+
     warmup: {
       clientFiles: [
         './src/App.tsx',

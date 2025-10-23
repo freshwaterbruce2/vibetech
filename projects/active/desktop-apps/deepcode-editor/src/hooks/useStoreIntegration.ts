@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import { useCallback, useEffect } from 'react';
 
 import { useAIActions, useAIStore } from '../stores/useAIStore';
@@ -237,7 +238,7 @@ export function useStorePerformance() {
       const unsubscribe = useEditorStore.subscribe(
         (state) => state,
         (state, prevState) => {
-          console.log('[Store Update]', {
+          logger.debug('[Store Update]', {
             changed: Object.keys(state).filter(
               (key) => state[key as keyof typeof state] !== prevState[key as keyof typeof state]
             ),

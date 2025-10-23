@@ -2,6 +2,7 @@
  * TestRunner - Production-ready service for running tests and validating code quality
  * Supports Jest, Vitest, Mocha, and other popular test frameworks
  */
+import { logger } from '../services/Logger';
 
 import { spawn, ChildProcess } from 'child_process';
 import { promises as fs } from 'fs';
@@ -124,7 +125,7 @@ export class TestRunner {
   private defaultLogger(message: string, level: 'info' | 'warn' | 'error' = 'info'): void {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}] [TestRunner] [${level.toUpperCase()}]`;
-    console.log(`${prefix} ${message}`);
+    logger.debug(`${prefix} ${message}`);
   }
 
   private async cleanup(): Promise<void> {

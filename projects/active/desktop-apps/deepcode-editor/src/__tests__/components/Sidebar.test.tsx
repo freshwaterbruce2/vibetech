@@ -1,14 +1,29 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest'
 import Sidebar from '../../components/Sidebar'
 
 const defaultProps = {
   workspaceFolder: '/test/workspace',
   onOpenFile: vi.fn(),
   onToggleAIChat: vi.fn(),
-  aiChatOpen: false
+  aiChatOpen: false,
+  onShowSettings: vi.fn(), // Add default handler
 }
+
+// Mock clipboard to prevent "Cannot redefine property" errors
+beforeAll(() => {
+  if (!navigator.clipboard) {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: vi.fn(() => Promise.resolve()),
+        readText: vi.fn(() => Promise.resolve('')),
+      },
+      writable: true,
+      configurable: true,
+    })
+  }
+})
 
 describe('Sidebar Component', () => {
   beforeEach(() => {
@@ -342,33 +357,61 @@ describe('Sidebar Component', () => {
     it('should maintain expanded folder state', async () => {
       const user = userEvent.setup()
       render(<Sidebar {...defaultProps} />)
-      
+
       // Wait for file tree to load
       await waitFor(() => {
         expect(screen.getByText('src')).toBeInTheDocument()
       })
-      
+
       // Expand a folder
       await user.click(screen.getByText('components'))
-      
+
       // Wait for expansion
       await waitFor(() => {
         expect(screen.getByText('Button.tsx')).toBeInTheDocument()
       })
-      
+
       // Folder should remain expanded
       expect(screen.getByText('Button.tsx')).toBeInTheDocument()
     })
 
     it('should update when props change', () => {
       const { rerender } = render(<Sidebar {...defaultProps} />)
-      
+
       // Change onOpenFile prop
       const newOnOpenFile = vi.fn()
       rerender(<Sidebar {...defaultProps} onOpenFile={newOnOpenFile} />)
-      
+
       // Component should use new prop
       expect(screen.getByText('Explorer')).toBeInTheDocument()
+    })
+  })
+
+  describe('Settings Button', () => {
+    it('should render Settings button when onShowSettings is provided', () => {
+      const onShowSettings = vi.fn()
+      render(<Sidebar {...defaultProps} onShowSettings={onShowSettings} />)
+
+      const settingsButton = screen.getByLabelText('Settings')
+      expect(settingsButton).toBeInTheDocument()
+    })
+
+    it('should call onShowSettings when Settings button is clicked', () => {
+      const onShowSettings = vi.fn()
+      render(<Sidebar {...defaultProps} onShowSettings={onShowSettings} />)
+
+      const settingsButton = screen.getByLabelText('Settings')
+      settingsButton.click()
+
+      expect(onShowSettings).toHaveBeenCalledTimes(1)
+    })
+
+    it('should have proper accessibility attributes', () => {
+      const onShowSettings = vi.fn()
+      render(<Sidebar {...defaultProps} onShowSettings={onShowSettings} />)
+
+      const settingsButton = screen.getByLabelText('Settings')
+      expect(settingsButton).toHaveAttribute('aria-label', 'Settings')
     })
   })
 })

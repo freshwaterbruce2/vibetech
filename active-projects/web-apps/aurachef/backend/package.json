@@ -1,0 +1,36 @@
+{
+  "name": "@aurachef/backend",
+  "version": "1.0.0",
+  "description": "AuraChef Backend API - DeepSeek Proxy Server",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["meal-planner", "deepseek", "api"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "openai": "^4.71.0",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "express-rate-limit": "^7.4.1",
+    "dotenv": "^16.4.7",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^22.14.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.2",
+    "vitest": "^2.1.8",
+    "eslint": "^9.18.0"
+  }
+}

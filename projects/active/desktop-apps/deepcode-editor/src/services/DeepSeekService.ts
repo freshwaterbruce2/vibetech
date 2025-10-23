@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import {
   AICodeCompletion,
   AICodeGenerationRequest,
@@ -100,7 +101,7 @@ export class DeepSeekService {
         return response;
       }
 
-      const systemPrompt = PromptBuilder.buildContextualSystemPrompt(request, this.config.model);
+      const systemPrompt = await PromptBuilder.buildContextualSystemPrompt(request, this.config.model);
       const conversationHistory = this.conversationManager.getHistory();
 
       const messages: AIChatMessage[] = [
@@ -132,7 +133,7 @@ export class DeepSeekService {
     } catch (error) {
       // Handle API errors properly
       const errorInfo = handleApiError(error);
-      console.error('DeepSeek API error:', errorInfo);
+      logger.error('DeepSeek API error:', errorInfo);
 
       // If it's an auth error, throw it to be handled by the UI
       if (errorInfo.code === 'AUTH_ERROR') {
@@ -166,7 +167,7 @@ export class DeepSeekService {
         return;
       }
 
-      const systemPrompt = PromptBuilder.buildContextualSystemPrompt(request, this.config.model);
+      const systemPrompt = await PromptBuilder.buildContextualSystemPrompt(request, this.config.model);
       const conversationHistory = this.conversationManager.getHistory();
 
       const messages: AIChatMessage[] = [
@@ -191,7 +192,7 @@ export class DeepSeekService {
       this.conversationManager.addAssistantMessage(fullResponse);
     } catch (error) {
       const errorInfo = handleApiError(error);
-      console.error('DeepSeek streaming error:', errorInfo);
+      logger.error('DeepSeek streaming error:', errorInfo);
 
       if (errorInfo.code === 'AUTH_ERROR') {
         throw new ApiError(errorInfo.message, errorInfo.code, errorInfo.details);
@@ -237,7 +238,7 @@ export class DeepSeekService {
         },
       ];
     } catch (error) {
-      console.error('Code completion error:', error);
+      logger.error('Code completion error:', error);
       return DemoResponseProvider.getCodeCompletion(code, language, position);
     }
   }
@@ -280,7 +281,7 @@ Provide the code and a brief explanation of the implementation.`;
         explanation: response.content,
       };
     } catch (error) {
-      console.error('Code generation error:', error);
+      logger.error('Code generation error:', error);
       return {
         code: '',
         language: 'typescript',

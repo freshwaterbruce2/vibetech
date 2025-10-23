@@ -1,0 +1,52 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- VibeTech Gradient -->
+    <radialGradient id="novaGradientSimple" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Glow Effect -->
+    <filter id="glowSimple">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#novaGradientSimple)" filter="url(#glowSimple)"/>
+
+  <!-- Simplified Neural Network -->
+  <g transform="translate(256,256)" fill="rgba(255,255,255,0.95)">
+
+    <!-- Central Node -->
+    <circle cx="0" cy="0" r="32" fill="rgba(255,255,255,1)"/>
+
+    <!-- Primary Nodes -->
+    <circle cx="-80" cy="-80" r="16"/>
+    <circle cx="80" cy="-80" r="16"/>
+    <circle cx="-80" cy="80" r="16"/>
+    <circle cx="80" cy="80" r="16"/>
+
+    <!-- Connection Lines -->
+    <g stroke="rgba(255,255,255,0.8)" stroke-width="4" fill="none">
+      <line x1="0" y1="0" x2="-80" y2="-80"/>
+      <line x1="0" y1="0" x2="80" y2="-80"/>
+      <line x1="0" y1="0" x2="-80" y2="80"/>
+      <line x1="0" y1="0" x2="80" y2="80"/>
+
+      <!-- Cross connections -->
+      <line x1="-80" y1="-80" x2="80" y2="80"/>
+      <line x1="80" y1="-80" x2="-80" y2="80"/>
+    </g>
+  </g>
+
+  <!-- Large N for NOVA (visible at small sizes) -->
+  <text x="256" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="rgba(255,255,255,0.9)">
+    N
+  </text>
+</svg>

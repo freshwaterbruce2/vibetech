@@ -1,0 +1,833 @@
+{
+  "timestamp": "2025-10-13T00:57:12.959964",
+  "performance_data": [
+    {
+      "agent_name": "auto_fixer_001",
+      "agent_type": "fixer",
+      "total_executions": 2528,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.1696725643619889,
+      "successes": 2527,
+      "failures": 0,
+      "success_rate": 0.9996044303797469
+    },
+    {
+      "agent_name": "crypto-enhanced-trading",
+      "agent_type": "monitor",
+      "total_executions": 1277,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.16712786243253366,
+      "successes": 1276,
+      "failures": 0,
+      "success_rate": 0.9992169146436961
+    },
+    {
+      "agent_name": "general-purpose",
+      "agent_type": "general_purpose",
+      "total_executions": 725,
+      "avg_success_score": 0.8500000000000001,
+      "avg_execution_time": 123.15,
+      "successes": 2,
+      "failures": 0,
+      "success_rate": 0.002758620689655172
+    },
+    {
+      "agent_name": "crypto_auto_fixer",
+      "agent_type": "fixer",
+      "total_executions": 428,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.1954354681510836,
+      "successes": 427,
+      "failures": 0,
+      "success_rate": 0.9976635514018691
+    },
+    {
+      "agent_name": "enhanced_market_001",
+      "agent_type": "detector",
+      "total_executions": 129,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.16947868838906288,
+      "successes": 128,
+      "failures": 0,
+      "success_rate": 0.9922480620155039
+    },
+    {
+      "agent_name": "test-maestro",
+      "agent_type": "test_maestro",
+      "total_executions": 15,
+      "avg_success_score": 0.53,
+      "avg_execution_time": 56.88,
+      "successes": 6,
+      "failures": 9,
+      "success_rate": 0.4
+    },
+    {
+      "agent_name": "documentation-dragon",
+      "agent_type": "documentation_dragon",
+      "total_executions": 8,
+      "avg_success_score": 0.6662821851554935,
+      "avg_execution_time": 22.797367907513973,
+      "successes": 5,
+      "failures": 3,
+      "success_rate": 0.625
+    },
+    {
+      "agent_name": "grokbot-trading",
+      "agent_type": "trading_agent",
+      "total_executions": 8,
+      "avg_success_score": 0.665273820876509,
+      "avg_execution_time": 13.695717487580136,
+      "successes": 5,
+      "failures": 3,
+      "success_rate": 0.625
+    },
+    {
+      "agent_name": "polyglot-code-translator",
+      "agent_type": "polyglot_code_translator",
+      "total_executions": 7,
+      "avg_success_score": 0.8897670030512855,
+      "avg_execution_time": 26.636111254559996,
+      "successes": 7,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "pattern-analyzer",
+      "agent_type": "analysis_agent",
+      "total_executions": 5,
+      "avg_success_score": 0.878696238402088,
+      "avg_execution_time": 25.999310853816876,
+      "successes": 5,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "test_learning_agent",
+      "agent_type": "detector",
+      "total_executions": 4,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.5905177593231201,
+      "successes": 3,
+      "failures": 0,
+      "success_rate": 0.75
+    },
+    {
+      "agent_name": "anomaly_detector_001",
+      "agent_type": "detector",
+      "total_executions": 3,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 30.064462900161743,
+      "successes": 1,
+      "failures": 0,
+      "success_rate": 0.3333333333333333
+    },
+    {
+      "agent_name": "code-guardian",
+      "agent_type": "code_guardian",
+      "total_executions": 2,
+      "avg_success_score": 0.925,
+      "avg_execution_time": 25.450000000000003,
+      "successes": 2,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "desktop-development-specialist",
+      "agent_type": "specialist",
+      "total_executions": 2,
+      "avg_success_score": 9.5,
+      "avg_execution_time": 2.5,
+      "successes": 2,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "devops-infrastructure-agent",
+      "agent_type": "specialist",
+      "total_executions": 2,
+      "avg_success_score": 9.5,
+      "avg_execution_time": 2.5,
+      "successes": 2,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "mistake-analyzer",
+      "agent_type": "analyzer",
+      "total_executions": 2,
+      "avg_success_score": 9.5,
+      "avg_execution_time": 2.5,
+      "successes": 2,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "performance-optimizer",
+      "agent_type": "optimizer",
+      "total_executions": 2,
+      "avg_success_score": 9.5,
+      "avg_execution_time": 2.5,
+      "successes": 2,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "web-development-specialist",
+      "agent_type": "specialist",
+      "total_executions": 2,
+      "avg_success_score": 9.5,
+      "avg_execution_time": 2.5,
+      "successes": 2,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "advanced_trading_001",
+      "agent_type": "fixer",
+      "total_executions": 1,
+      "avg_success_score": 0.0,
+      "avg_execution_time": 0.0,
+      "successes": 0,
+      "failures": 0,
+      "success_rate": 0.0
+    },
+    {
+      "agent_name": "crypto-expert",
+      "agent_type": "specialist",
+      "total_executions": 1,
+      "avg_success_score": 0.95,
+      "avg_execution_time": 1.5,
+      "successes": 1,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "crypto_bridge_001",
+      "agent_type": "monitor",
+      "total_executions": 1,
+      "avg_success_score": 0.0,
+      "avg_execution_time": 0.3947944641113281,
+      "successes": 0,
+      "failures": 1,
+      "success_rate": 0.0
+    },
+    {
+      "agent_name": "demo_agent",
+      "agent_type": "monitor",
+      "total_executions": 1,
+      "avg_success_score": 0.0,
+      "avg_execution_time": 0.0,
+      "successes": 0,
+      "failures": 0,
+      "success_rate": 0.0
+    },
+    {
+      "agent_name": "devops-sidekick",
+      "agent_type": "devops_sidekick",
+      "total_executions": 1,
+      "avg_success_score": 0.85,
+      "avg_execution_time": 25.3,
+      "successes": 1,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "intelligent_controller_001",
+      "agent_type": "monitor",
+      "total_executions": 1,
+      "avg_success_score": 0.0,
+      "avg_execution_time": 0.0,
+      "successes": 0,
+      "failures": 0,
+      "success_rate": 0.0
+    },
+    {
+      "agent_name": "market_data_sim",
+      "agent_type": "monitor",
+      "total_executions": 1,
+      "avg_success_score": 0.0,
+      "avg_execution_time": 0.0,
+      "successes": 0,
+      "failures": 0,
+      "success_rate": 0.0
+    },
+    {
+      "agent_name": "master-coder",
+      "agent_type": "fixer",
+      "total_executions": 1,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.0016896724700927734,
+      "successes": 1,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "prompt-engineer-assistant",
+      "agent_type": "development_agent",
+      "total_executions": 1,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 60.0,
+      "successes": 1,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "prompt-optimization-agent",
+      "agent_type": "learning_integration",
+      "total_executions": 1,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.0,
+      "successes": 0,
+      "failures": 0,
+      "success_rate": 0.0
+    },
+    {
+      "agent_name": "system_monitor",
+      "agent_type": "monitor",
+      "total_executions": 1,
+      "avg_success_score": 0.0,
+      "avg_execution_time": 0.0,
+      "successes": 0,
+      "failures": 0,
+      "success_rate": 0.0
+    },
+    {
+      "agent_name": "test-agent",
+      "agent_type": "test",
+      "total_executions": 1,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.1001274585723877,
+      "successes": 1,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "test_integration",
+      "agent_type": "test",
+      "total_executions": 1,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.03798961639404297,
+      "successes": 1,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "test_verification_agent",
+      "agent_type": "test_agent",
+      "total_executions": 1,
+      "avg_success_score": 1.0,
+      "avg_execution_time": 0.11118578910827637,
+      "successes": 1,
+      "failures": 0,
+      "success_rate": 1.0
+    },
+    {
+      "agent_name": "trading_sim",
+      "agent_type": "monitor",
+      "total_executions": 1,
+      "avg_success_score": 0.0,
+      "avg_execution_time": 0.0,
+      "successes": 0,
+      "failures": 0,
+      "success_rate": 0.0
+    }
+  ],
+  "pattern_count": 0,
+  "agent_insights": {
+    "auto_fixer_001": {
+      "performance": {
+        "agent_name": "auto_fixer_001",
+        "agent_type": "fixer",
+        "total_executions": 2528,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.1696725643619889,
+        "successes": 2527,
+        "failures": 0,
+        "success_rate": 0.9996044303797469
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "crypto-enhanced-trading": {
+      "performance": {
+        "agent_name": "crypto-enhanced-trading",
+        "agent_type": "monitor",
+        "total_executions": 1277,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.16712786243253366,
+        "successes": 1276,
+        "failures": 0,
+        "success_rate": 0.9992169146436961
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "general-purpose": {
+      "performance": {
+        "agent_name": "general-purpose",
+        "agent_type": "general_purpose",
+        "total_executions": 725,
+        "avg_success_score": 0.8500000000000001,
+        "avg_execution_time": 123.15,
+        "successes": 2,
+        "failures": 0,
+        "success_rate": 0.002758620689655172
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "crypto_auto_fixer": {
+      "performance": {
+        "agent_name": "crypto_auto_fixer",
+        "agent_type": "fixer",
+        "total_executions": 428,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.1954354681510836,
+        "successes": 427,
+        "failures": 0,
+        "success_rate": 0.9976635514018691
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "enhanced_market_001": {
+      "performance": {
+        "agent_name": "enhanced_market_001",
+        "agent_type": "detector",
+        "total_executions": 129,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.16947868838906288,
+        "successes": 128,
+        "failures": 0,
+        "success_rate": 0.9922480620155039
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "test-maestro": {
+      "performance": {
+        "agent_name": "test-maestro",
+        "agent_type": "test_maestro",
+        "total_executions": 15,
+        "avg_success_score": 0.53,
+        "avg_execution_time": 56.88,
+        "successes": 6,
+        "failures": 9,
+        "success_rate": 0.4
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "documentation-dragon": {
+      "performance": {
+        "agent_name": "documentation-dragon",
+        "agent_type": "documentation_dragon",
+        "total_executions": 8,
+        "avg_success_score": 0.6662821851554935,
+        "avg_execution_time": 22.797367907513973,
+        "successes": 5,
+        "failures": 3,
+        "success_rate": 0.625
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "grokbot-trading": {
+      "performance": {
+        "agent_name": "grokbot-trading",
+        "agent_type": "trading_agent",
+        "total_executions": 8,
+        "avg_success_score": 0.665273820876509,
+        "avg_execution_time": 13.695717487580136,
+        "successes": 5,
+        "failures": 3,
+        "success_rate": 0.625
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "polyglot-code-translator": {
+      "performance": {
+        "agent_name": "polyglot-code-translator",
+        "agent_type": "polyglot_code_translator",
+        "total_executions": 7,
+        "avg_success_score": 0.8897670030512855,
+        "avg_execution_time": 26.636111254559996,
+        "successes": 7,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "pattern-analyzer": {
+      "performance": {
+        "agent_name": "pattern-analyzer",
+        "agent_type": "analysis_agent",
+        "total_executions": 5,
+        "avg_success_score": 0.878696238402088,
+        "avg_execution_time": 25.999310853816876,
+        "successes": 5,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "test_learning_agent": {
+      "performance": {
+        "agent_name": "test_learning_agent",
+        "agent_type": "detector",
+        "total_executions": 4,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.5905177593231201,
+        "successes": 3,
+        "failures": 0,
+        "success_rate": 0.75
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "anomaly_detector_001": {
+      "performance": {
+        "agent_name": "anomaly_detector_001",
+        "agent_type": "detector",
+        "total_executions": 3,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 30.064462900161743,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 0.3333333333333333
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "code-guardian": {
+      "performance": {
+        "agent_name": "code-guardian",
+        "agent_type": "code_guardian",
+        "total_executions": 2,
+        "avg_success_score": 0.925,
+        "avg_execution_time": 25.450000000000003,
+        "successes": 2,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "desktop-development-specialist": {
+      "performance": {
+        "agent_name": "desktop-development-specialist",
+        "agent_type": "specialist",
+        "total_executions": 2,
+        "avg_success_score": 9.5,
+        "avg_execution_time": 2.5,
+        "successes": 2,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "devops-infrastructure-agent": {
+      "performance": {
+        "agent_name": "devops-infrastructure-agent",
+        "agent_type": "specialist",
+        "total_executions": 2,
+        "avg_success_score": 9.5,
+        "avg_execution_time": 2.5,
+        "successes": 2,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "mistake-analyzer": {
+      "performance": {
+        "agent_name": "mistake-analyzer",
+        "agent_type": "analyzer",
+        "total_executions": 2,
+        "avg_success_score": 9.5,
+        "avg_execution_time": 2.5,
+        "successes": 2,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "performance-optimizer": {
+      "performance": {
+        "agent_name": "performance-optimizer",
+        "agent_type": "optimizer",
+        "total_executions": 2,
+        "avg_success_score": 9.5,
+        "avg_execution_time": 2.5,
+        "successes": 2,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "web-development-specialist": {
+      "performance": {
+        "agent_name": "web-development-specialist",
+        "agent_type": "specialist",
+        "total_executions": 2,
+        "avg_success_score": 9.5,
+        "avg_execution_time": 2.5,
+        "successes": 2,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "advanced_trading_001": {
+      "performance": {
+        "agent_name": "advanced_trading_001",
+        "agent_type": "fixer",
+        "total_executions": 1,
+        "avg_success_score": 0.0,
+        "avg_execution_time": 0.0,
+        "successes": 0,
+        "failures": 0,
+        "success_rate": 0.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "crypto-expert": {
+      "performance": {
+        "agent_name": "crypto-expert",
+        "agent_type": "specialist",
+        "total_executions": 1,
+        "avg_success_score": 0.95,
+        "avg_execution_time": 1.5,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "crypto_bridge_001": {
+      "performance": {
+        "agent_name": "crypto_bridge_001",
+        "agent_type": "monitor",
+        "total_executions": 1,
+        "avg_success_score": 0.0,
+        "avg_execution_time": 0.3947944641113281,
+        "successes": 0,
+        "failures": 1,
+        "success_rate": 0.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "demo_agent": {
+      "performance": {
+        "agent_name": "demo_agent",
+        "agent_type": "monitor",
+        "total_executions": 1,
+        "avg_success_score": 0.0,
+        "avg_execution_time": 0.0,
+        "successes": 0,
+        "failures": 0,
+        "success_rate": 0.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "devops-sidekick": {
+      "performance": {
+        "agent_name": "devops-sidekick",
+        "agent_type": "devops_sidekick",
+        "total_executions": 1,
+        "avg_success_score": 0.85,
+        "avg_execution_time": 25.3,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "intelligent_controller_001": {
+      "performance": {
+        "agent_name": "intelligent_controller_001",
+        "agent_type": "monitor",
+        "total_executions": 1,
+        "avg_success_score": 0.0,
+        "avg_execution_time": 0.0,
+        "successes": 0,
+        "failures": 0,
+        "success_rate": 0.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "market_data_sim": {
+      "performance": {
+        "agent_name": "market_data_sim",
+        "agent_type": "monitor",
+        "total_executions": 1,
+        "avg_success_score": 0.0,
+        "avg_execution_time": 0.0,
+        "successes": 0,
+        "failures": 0,
+        "success_rate": 0.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "master-coder": {
+      "performance": {
+        "agent_name": "master-coder",
+        "agent_type": "fixer",
+        "total_executions": 1,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.0016896724700927734,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "prompt-engineer-assistant": {
+      "performance": {
+        "agent_name": "prompt-engineer-assistant",
+        "agent_type": "development_agent",
+        "total_executions": 1,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 60.0,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "prompt-optimization-agent": {
+      "performance": {
+        "agent_name": "prompt-optimization-agent",
+        "agent_type": "learning_integration",
+        "total_executions": 1,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.0,
+        "successes": 0,
+        "failures": 0,
+        "success_rate": 0.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "system_monitor": {
+      "performance": {
+        "agent_name": "system_monitor",
+        "agent_type": "monitor",
+        "total_executions": 1,
+        "avg_success_score": 0.0,
+        "avg_execution_time": 0.0,
+        "successes": 0,
+        "failures": 0,
+        "success_rate": 0.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "test-agent": {
+      "performance": {
+        "agent_name": "test-agent",
+        "agent_type": "test",
+        "total_executions": 1,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.1001274585723877,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "test_integration": {
+      "performance": {
+        "agent_name": "test_integration",
+        "agent_type": "test",
+        "total_executions": 1,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.03798961639404297,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "test_verification_agent": {
+      "performance": {
+        "agent_name": "test_verification_agent",
+        "agent_type": "test_agent",
+        "total_executions": 1,
+        "avg_success_score": 1.0,
+        "avg_execution_time": 0.11118578910827637,
+        "successes": 1,
+        "failures": 0,
+        "success_rate": 1.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    },
+    "trading_sim": {
+      "performance": {
+        "agent_name": "trading_sim",
+        "agent_type": "monitor",
+        "total_executions": 1,
+        "avg_success_score": 0.0,
+        "avg_execution_time": 0.0,
+        "successes": 0,
+        "failures": 0,
+        "success_rate": 0.0
+      },
+      "relevant_patterns": 0,
+      "recommendations": [],
+      "top_patterns": []
+    }
+  }
+}

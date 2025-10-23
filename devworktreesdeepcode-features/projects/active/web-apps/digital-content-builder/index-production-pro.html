@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Studio Pro - AI-Powered Content Creation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Image #2 Inspired Color Scheme */
+            --primary-purple: #6366f1;
+            --secondary-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --dark-bg: #0f0f23;
+            --card-bg: #1a1a2e;
+            --input-bg: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border-color: #374151;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        }
+
+        /* Header Section */
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .model-selector {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .save-btn {
+            background: var(--gradient-accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Content Type Selection */
+        .content-types {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .content-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .content-type-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .content-type-btn:hover {
+            border-color: var(--primary-purple);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+        }
+
+        .content-type-btn.active {
+            border-color: var(--primary-purple);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--text-primary);
+        }
+
+        .content-type-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .content-type-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 0 2rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Content Editor Section */
+        .content-editor {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .editor-icon {
+            color: var(--primary-purple);
+        }
+
+        .editor-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .editor-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        .control-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .control-btn.minimize { background: #fbbf24; }
+        .control-btn.maximize { background: #10b981; }
+        .control-btn.close { background: #ef4444; }
+
+        .editor-content {
+            flex: 1;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .content-input {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: none;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .content-input:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .setting-input {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .generate-btn {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Live Preview Section */
+        .live-preview {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            background: rgba(6, 182, 212, 0.1);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .preview-icon {
+            color: var(--accent-cyan);
+        }
+
+        .preview-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        .preview-size-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preview-size-btn.active,
+        .preview-size-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--text-primary);
+        }
+
+        .preview-content {
+            flex: 1;
+            padding: 1.5rem;
+            background: var(--input-bg);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .preview-placeholder-icon {
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+
+        .loading-spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-purple);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            z-index: 1000;
+        }
+
+        .status-info {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                padding: 0 1rem 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .content-types {
+                padding: 1rem;
+            }
+
+            .content-type-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">📝</div>
+            <div class="logo-text">CONTENT STUDIO PRO</div>
+        </div>
+        <div class="header-controls">
+            <select class="model-selector" id="modelSelect">
+                <option value="auto">🤖 Auto (Best for task)</option>
+                <option value="deepseek-chat">💬 DeepSeek Chat</option>
+                <option value="deepseek-coder">💻 DeepSeek Coder</option>
+            </select>
+            <button class="save-btn" id="saveProject">💾 SAVE PROJECT</button>
+        </div>
+    </header>
+
+    <!-- Content Type Selection -->
+    <section class="content-types">
+        <div class="content-type-grid">
+            <button class="content-type-btn" data-type="blog" onclick="selectContentType('blog')">
+                <div class="content-type-icon">📝</div>
+                <div class="content-type-title">BLOG/ARTICLE</div>
+            </button>
+            <button class="content-type-btn" data-type="landing" onclick="selectContentType('landing')">
+                <div class="content-type-icon">🌐</div>
+                <div class="content-type-title">LANDING PAGE</div>
+            </button>
+            <button class="content-type-btn" data-type="email" onclick="selectContentType('email')">
+                <div class="content-type-icon">📧</div>
+                <div class="content-type-title">EMAIL CAMPAIGN</div>
+            </button>
+            <button class="content-type-btn" data-type="social" onclick="selectContentType('social')">
+                <div class="content-type-icon">📱</div>
+                <div class="content-type-title">SOCIAL MEDIA</div>
+            </button>
+            <button class="content-type-btn" data-type="ebook" onclick="selectContentType('ebook')">
+                <div class="content-type-icon">📚</div>
+                <div class="content-type-title">EBOOK</div>
+            </button>
+            <button class="content-type-btn" data-type="course" onclick="selectContentType('course')">
+                <div class="content-type-icon">🎓</div>
+                <div class="content-type-title">COURSE</div>
+            </button>
+            <button class="content-type-btn" data-type="video" onclick="selectContentType('video')">
+                <div class="content-type-icon">🎬</div>
+                <div class="content-type-title">VIDEO SCRIPT</div>
+            </button>
+            <button class="content-type-btn" data-type="podcast" onclick="selectContentType('podcast')">
+                <div class="content-type-icon">🎙️</div>
+                <div class="content-type-title">PODCAST</div>
+            </button>
+            <button class="content-type-btn" data-type="newsletter" onclick="selectContentType('newsletter')">
+                <div class="content-type-icon">📰</div>
+                <div class="content-type-title">NEWSLETTER</div>
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Content Editor -->
+        <section class="content-editor">
+            <div class="editor-header">
+                <span class="editor-icon">✨</span>
+                <span class="editor-title">CONTENT EDITOR</span>
+                <div class="editor-controls">
+                    <button class="control-btn minimize">−</button>
+                    <button class="control-btn maximize">□</button>
+                    <button class="control-btn close">×</button>
+                </div>
+            </div>
+            <div class="editor-content">
+                <div class="input-group">
+                    <label class="input-label" for="contentTitle">Content Title/Topic</label>
+                    <input type="text"
+                           id="contentTitle"
+                           class="setting-input"
+                           placeholder="Enter your content topic..."
+                           value="10 best marketing strategies">
+                </div>
+
+                <div class="settings-grid">
+                    <div class="input-group">
+                        <label class="input-label" for="wordCount">Word Count</label>
+                        <select id="wordCount" class="setting-input">
+                            <option value="short">Short (300-500 words)</option>
+                            <option value="medium" selected>Medium (500-1000 words)</option>
+                            <option value="long">Long (1000+ words)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label" for="contentStyle">Content Style</label>
+                        <select id="contentStyle" class="setting-input">
+                            <option value="professional" selected>Professional</option>
+                            <option value="casual">Casual</option>
+                            <option value="technical">Technical</option>
+                            <option value="creative">Creative</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" for="targetKeywords">Target Keywords</label>
+                    <input type="text"
+                           id="targetKeywords"
+                           class="setting-input"
+                           placeholder="marketing, strategy, business growth"
+                           value="start free trial">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" for="mainContent">Main Content</label>
+                    <textarea id="mainContent"
+                              class="content-input"
+                              placeholder="Describe what you want to create..."># 10 best marketing strategies
+
+## Transform Your Technology Business Today
+
+Discover the power of 10 best marketing strategies and join thousands of companies already seeing incredible results.
+
+### Why Choose Us?
+
+✅ **Proven Results**: 95% customer satisfaction rate
+✅ **Industry Expertise**: 10+ years in technology
+✅ **24/7 Support**: Always here when you need us
+✅ **Risk-Free Trial**: 30-day money-back guarantee
+
+### Features That Matter
+
+- **Advanced Analytics**: Make data-driven decisions
+- **Seamless Integration**: Works with your existing tools
+- **Scalable Solution**: Grows with your business
+- **Security First**: Enterprise-grade protection</textarea>
+                </div>
+
+                <button class="generate-btn" id="generateContent">
+                    <span id="generateText">✨ Generate Content</span>
+                    <div id="generateSpinner" class="loading-spinner" style="display: none;"></div>
+                </button>
+            </div>
+        </section>
+
+        <!-- Live Preview -->
+        <section class="live-preview">
+            <div class="preview-header">
+                <span class="preview-icon">👁️</span>
+                <span class="preview-title">LIVE PREVIEW</span>
+                <div class="preview-controls">
+                    <button class="preview-size-btn active" data-size="desktop">🖥️ Desktop</button>
+                    <button class="preview-size-btn" data-size="tablet">📱 Tablet</button>
+                    <button class="preview-size-btn" data-size="mobile">📱 Mobile</button>
+                </div>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <div class="preview-placeholder">
+                    <div class="preview-placeholder-icon">📄</div>
+                    <h3>Preview your content here</h3>
+                    <p>Generate content to see live preview</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-info">
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>Connected</span>
+            </div>
+            <div class="status-item">
+                <span>Published on 9/28/2025 • 5 min read</span>
+            </div>
+        </div>
+        <div class="status-info">
+            <div class="status-item">
+                <span id="lastSaved">Auto-saved 2 min ago</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentContentType = 'blog';
+        let isGenerating = false;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            // Set default content type
+            selectContentType('blog');
+
+            // Load any saved content
+            loadSavedContent();
+
+            console.log('✅ Content Studio Pro initialized successfully');
+        }
+
+        function setupEventListeners() {
+            // Content generation
+            document.getElementById('generateContent').addEventListener('click', generateContent);
+
+            // Preview size buttons
+            document.querySelectorAll('.preview-size-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    setPreviewSize(this.dataset.size);
+                });
+            });
+
+            // Save project
+            document.getElementById('saveProject').addEventListener('click', saveProject);
+
+            // Auto-save on content change
+            const inputs = ['contentTitle', 'targetKeywords', 'mainContent'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', debounce(autoSave, 2000));
+                }
+            });
+        }
+
+        function selectContentType(type) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.content-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to selected button
+            const selectedBtn = document.querySelector(`[data-type="${type}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+                currentContentType = type;
+
+                // Update UI based on content type
+                updateUIForContentType(type);
+
+                console.log(`✅ Selected content type: ${type}`);
+            }
+        }
+
+        function updateUIForContentType(type) {
+            const titleInput = document.getElementById('contentTitle');
+            const keywordsInput = document.getElementById('targetKeywords');
+            const contentArea = document.getElementById('mainContent');
+
+            // Update placeholders and examples based on content type
+            switch(type) {
+                case 'social':
+                    titleInput.placeholder = 'Social media campaign topic...';
+                    keywordsInput.placeholder = 'hashtags, engagement, viral';
+                    contentArea.placeholder = 'Describe your social media content strategy...';
+                    break;
+                case 'landing':
+                    titleInput.placeholder = 'Landing page headline...';
+                    keywordsInput.placeholder = 'conversion, CTA, benefits';
+                    contentArea.placeholder = 'Describe your product/service and target audience...';
+                    break;
+                case 'email':
+                    titleInput.placeholder = 'Email subject line...';
+                    keywordsInput.placeholder = 'open rate, click through, conversion';
+                    contentArea.placeholder = 'Describe your email campaign goals...';
+                    break;
+                case 'blog':
+                default:
+                    titleInput.placeholder = 'Blog article topic...';
+                    keywordsInput.placeholder = 'SEO keywords, topics';
+                    contentArea.placeholder = 'Describe what you want to write about...';
+            }
+        }
+
+        async function generateContent() {
+            if (isGenerating) return;
+
+            const button = document.getElementById('generateContent');
+            const buttonText = document.getElementById('generateText');
+            const spinner = document.getElementById('generateSpinner');
+
+            // Validate inputs
+            const title = document.getElementById('contentTitle').value.trim();
+            const content = document.getElementById('mainContent').value.trim();
+
+            if (!title || !content) {
+                alert('Please fill in the title and main content fields.');
+                return;
+            }
+
+            // Update UI for generating state
+            isGenerating = true;
+            button.disabled = true;
+            buttonText.textContent = 'Generating...';
+            spinner.style.display = 'inline-block';
+
+            try {
+                // Prepare request data
+                const requestData = {
+                    prompt: `Title: ${title}\n\nContent Brief: ${content}`,
+                    contentType: currentContentType,
+                    model: document.getElementById('modelSelect').value,
+                    temperature: 0.7,
+                    maxTokens: getMaxTokensForType(currentContentType),
+                    stream: false
+                };
+
+                console.log('🚀 Generating content:', requestData);
+
+                // Make API request
+                const response = await fetch('/api/deepseek/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                // Display the generated content
+                displayGeneratedContent(result);
+
+                console.log('✅ Content generated successfully');
+
+            } catch (error) {
+                console.error('❌ Generation error:', error);
+                alert(`Failed to generate content: ${error.message}`);
+            } finally {
+                // Reset UI
+                isGenerating = false;
+                button.disabled = false;
+                buttonText.textContent = '✨ Generate Content';
+                spinner.style.display = 'none';
+            }
+        }
+
+        function displayGeneratedContent(result) {
+            const previewContent = document.getElementById('previewContent');
+
+            if (result.content || result.rawContent) {
+                const content = result.rawContent || result.content;
+
+                // For HTML content types, render as HTML
+                if (['landing', 'email', 'newsletter'].includes(currentContentType)) {
+                    previewContent.innerHTML = content;
+                } else {
+                    // For text content, format as readable text
+                    previewContent.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(content)}</div>`;
+                }
+
+                // Update status
+                updateStatus(`Generated ${currentContentType} content • ${result.metadata?.tokensUsed || 'N/A'} tokens`);
+            } else {
+                previewContent.innerHTML = `
+                    <div class="preview-placeholder">
+                        <div class="preview-placeholder-icon">❌</div>
+                        <h3>Generation Failed</h3>
+                        <p>No content was generated. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function getMaxTokensForType(type) {
+            const tokenLimits = {
+                'social': 500,
+                'email': 1000,
+                'blog': 2000,
+                'landing': 1500,
+                'newsletter': 1500,
+                'ebook': 4000,
+                'course': 3000,
+                'video': 1000,
+                'podcast': 2000
+            };
+            return tokenLimits[type] || 1500;
+        }
+
+        function setPreviewSize(size) {
+            document.querySelectorAll('.preview-size-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-size="${size}"]`).classList.add('active');
+
+            const previewContent = document.getElementById('previewContent');
+            previewContent.className = `preview-content preview-${size}`;
+        }
+
+        function saveProject() {
+            const projectData = {
+                contentType: currentContentType,
+                title: document.getElementById('contentTitle').value,
+                keywords: document.getElementById('targetKeywords').value,
+                content: document.getElementById('mainContent').value,
+                wordCount: document.getElementById('wordCount').value,
+                style: document.getElementById('contentStyle').value,
+                timestamp: new Date().toISOString()
+            };
+
+            localStorage.setItem('contentStudioProject', JSON.stringify(projectData));
+            updateStatus('Project saved successfully');
+
+            console.log('💾 Project saved:', projectData);
+        }
+
+        function loadSavedContent() {
+            const saved = localStorage.getItem('contentStudioProject');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    document.getElementById('contentTitle').value = data.title || '';
+                    document.getElementById('targetKeywords').value = data.keywords || '';
+                    document.getElementById('mainContent').value = data.content || '';
+                    document.getElementById('wordCount').value = data.wordCount || 'medium';
+                    document.getElementById('contentStyle').value = data.style || 'professional';
+
+                    if (data.contentType) {
+                        selectContentType(data.contentType);
+                    }
+
+                    console.log('📂 Loaded saved project');
+                } catch (error) {
+                    console.error('Failed to load saved content:', error);
+                }
+            }
+        }
+
+        function autoSave() {
+            saveProject();
+            updateLastSaved();
+        }
+
+        function updateLastSaved() {
+            document.getElementById('lastSaved').textContent = 'Auto-saved just now';
+            setTimeout(() => {
+                document.getElementById('lastSaved').textContent = 'Auto-saved 1 min ago';
+            }, 60000);
+        }
+
+        function updateStatus(message) {
+            // Update status indicator or show notification
+            console.log('📊 Status:', message);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Initialize ASAP
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>

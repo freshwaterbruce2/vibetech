@@ -1,0 +1,270 @@
+{
+  "project_path": "C:\\dev\\projects\\trading-tools\\Grokbot",
+  "analysis_timestamp": "2025-09-13T10:44:27.570322",
+  "project_type": "python",
+  "health_score": 87,
+  "critical_issues": [],
+  "high_priority_issues": [],
+  "medium_priority_issues": [
+    {
+      "type": "todo",
+      "severity": "medium",
+      "title": "TODO comment found",
+      "description": "Re-enable this test after fixing environment variable handling in Pydantic",
+      "file_path": "tests\\test_rest_client.py",
+      "line_number": 342,
+      "suggested_action": "Review and address the todo comment",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "medium",
+      "title": "NOTE comment found",
+      "description": "In real scenario, this might need time-based checks",
+      "file_path": "tests\\test_risk_integration.py",
+      "line_number": 297,
+      "suggested_action": "Review and address the note comment",
+      "context": null
+    },
+    {
+      "type": "todo",
+      "severity": "medium",
+      "title": "NOTE comment found",
+      "description": "Signal handlers are managed by the main application",
+      "file_path": "src\\trading\\engine.py",
+      "line_number": 43,
+      "suggested_action": "Review and address the note comment",
+      "context": null
+    },
+    {
+      "type": "empty_file",
+      "severity": "medium",
+      "title": "Empty or stub file: __init__.py",
+      "description": "File is only 47 bytes and appears to be empty or a stub",
+      "file_path": "tests\\__init__.py",
+      "line_number": null,
+      "suggested_action": "Implement the __init__ component/module",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "debug_config.py",
+      "line_number": 32,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "debug_config.py",
+      "line_number": 50,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "demo.py",
+      "line_number": 114,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "setup_api_keys.py",
+      "line_number": 160,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "setup_api_keys.py",
+      "line_number": 233,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "setup_api_keys.py",
+      "line_number": 237,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "setup_trading.py",
+      "line_number": 56,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "update_api_keys.py",
+      "line_number": 60,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "docs\\quick_setup.py",
+      "line_number": 29,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "docs\\quick_setup.py",
+      "line_number": 30,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "docs\\quick_setup.py",
+      "line_number": 36,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "medium",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "docs\\quick_setup.py",
+      "line_number": 416,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    }
+  ],
+  "low_priority_issues": [
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "quick_test.py",
+      "line_number": 35,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "test_api_integration.py",
+      "line_number": 154,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "test_api_keys.py",
+      "line_number": 39,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "test_api_keys.py",
+      "line_number": 55,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "test_environment_config.py",
+      "line_number": 85,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "test_environment_config.py",
+      "line_number": 87,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "test_kraken_connection.py",
+      "line_number": 39,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Password logging detected",
+      "description": "Password or secret may be logged",
+      "file_path": "test_kraken_connection.py",
+      "line_number": 115,
+      "suggested_action": "Remove password/secret from logging statements",
+      "context": null
+    },
+    {
+      "type": "security",
+      "severity": "low",
+      "title": "Potential hardcoded secret",
+      "description": "Potential API key or secret in test_configuration.py",
+      "file_path": "tests\\test_configuration.py",
+      "line_number": 203,
+      "suggested_action": "Move secret to environment variables or secure key management",
+      "context": null
+    }
+  ],
+  "suggestions": [
+    "✅ Project is in good health - focus on new features"
+  ],
+  "tech_stack": [
+    "Python"
+  ],
+  "missing_features": [],
+  "code_quality_metrics": {}
+}
