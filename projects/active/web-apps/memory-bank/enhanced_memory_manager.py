@@ -6,7 +6,7 @@ September 2025 Architecture
 """
 
 import json
-import sqlite3
+import aiosqlite
 import hashlib
 import asyncio
 import logging
@@ -71,8 +71,8 @@ class EnhancedMemoryManager:
         )
         self.logger = logging.getLogger(__name__)
 
-        # Initialize databases
-        self._init_databases()
+        # Database connection (will be initialized async)
+        self.learning_conn = None
 
     def _load_config(self) -> Dict:
         """Load enhanced configuration"""
@@ -113,18 +113,18 @@ class EnhancedMemoryManager:
                 return {**default_config, **loaded}
         return default_config
 
-    def _init_databases(self):
-        """Initialize memory and learning databases"""
+    async def _init_databases(self):
+        """Initialize memory and learning databases with async connection"""
         # Create directories if needed
         self.local_memory.mkdir(parents=True, exist_ok=True)
         self.bulk_storage.mkdir(parents=True, exist_ok=True)
 
         # Initialize learning database connection
-        self.learning_conn = sqlite3.connect(str(self.learning_db))
-        self.learning_conn.execute("PRAGMA journal_mode=WAL")
+        self.learning_conn = await aiosqlite.connect(str(self.learning_db))
+        await self.learning_conn.execute("PRAGMA journal_mode=WAL")
 
         # Create memory tracking tables
-        self.learning_conn.execute("""
+        await self.learning_conn.execute("""
             CREATE TABLE IF NOT EXISTS memory_usage (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
@@ -141,7 +141,7 @@ class EnhancedMemoryManager:
             )
         """)
 
-        self.learning_conn.execute("""
+        await self.learning_conn.execute("""
             CREATE TABLE IF NOT EXISTS context_patterns (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 pattern_hash TEXT UNIQUE,
@@ -155,7 +155,7 @@ class EnhancedMemoryManager:
             )
         """)
 
-        self.learning_conn.execute("""
+        await self.learning_conn.execute("""
             CREATE TABLE IF NOT EXISTS memory_performance (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -169,7 +169,7 @@ class EnhancedMemoryManager:
             )
         """)
 
-        self.learning_conn.commit()
+        await self.learning_conn.commit()
 
     async def store_memory(self,
                           key: str,
@@ -219,7 +219,10 @@ class EnhancedMemoryManager:
             self.kv_cache[key] = data
 
         # Track in database
-        self.learning_conn.execute("""
+        if not self.learning_conn:
+            await self._init_databases()
+
+        await self.learning_conn.execute("""
             INSERT INTO memory_usage
             (session_id, memory_type, key, size_bytes, compression_strategy, storage_location, metadata)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -232,7 +235,7 @@ class EnhancedMemoryManager:
             str(file_path),
             json.dumps(metadata or {})
         ))
-        self.learning_conn.commit()
+        await self.learning_conn.commit()
 
         # Update metrics
         storage_time_ms = (datetime.now() - start_time).total_seconds() * 1000
@@ -299,13 +302,16 @@ class EnhancedMemoryManager:
                 self.kv_cache[key] = data
 
                 # Update access tracking
-                self.learning_conn.execute("""
+                if not self.learning_conn:
+                    await self._init_databases()
+
+                await self.learning_conn.execute("""
                     UPDATE memory_usage
                     SET access_count = access_count + 1,
                         last_accessed = CURRENT_TIMESTAMP
                     WHERE key = ?
                 """, (key,))
-                self.learning_conn.commit()
+                await self.learning_conn.commit()
 
                 # Update metrics
                 retrieval_time_ms = (datetime.now() - start_time).total_seconds() * 1000
@@ -441,14 +447,18 @@ class EnhancedMemoryManager:
 
     async def sync_with_learning(self):
         """Synchronize memory patterns with learning system"""
+        if not self.learning_conn:
+            await self._init_databases()
+
         # Analyze access patterns
-        patterns = self.learning_conn.execute("""
+        cursor = await self.learning_conn.execute("""
             SELECT memory_type, COUNT(*) as frequency, AVG(access_count) as avg_access
             FROM memory_usage
             WHERE last_accessed > datetime('now', '-7 days')
             GROUP BY memory_type
             HAVING frequency > ?
-        """, (self.config["learning"]["pattern_threshold"],)).fetchall()
+        """, (self.config["learning"]["pattern_threshold"],))
+        patterns = await cursor.fetchall()
 
         for pattern in patterns:
             memory_type, frequency, avg_access = pattern
@@ -463,7 +473,7 @@ class EnhancedMemoryManager:
 
             pattern_hash = hashlib.md5(json.dumps(pattern_data).encode()).hexdigest()
 
-            self.learning_conn.execute("""
+            await self.learning_conn.execute("""
                 INSERT OR REPLACE INTO context_patterns
                 (pattern_hash, pattern_type, frequency, context_data, last_used)
                 VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
@@ -476,15 +486,16 @@ class EnhancedMemoryManager:
         avg_retrieval = np.mean(self.metrics["retrieval_latency_ms"]) if self.metrics["retrieval_latency_ms"] else 0
         avg_storage = np.mean(self.metrics["storage_latency_ms"]) if self.metrics["storage_latency_ms"] else 0
 
-        memory_stats = self.learning_conn.execute("""
+        cursor = await self.learning_conn.execute("""
             SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN memory_type = 'short_term' THEN 1 ELSE 0 END) as active,
                 SUM(CASE WHEN storage_location LIKE '%bulk%' THEN 1 ELSE 0 END) as archived
             FROM memory_usage
-        """).fetchone()
+        """)
+        memory_stats = await cursor.fetchone()
 
-        self.learning_conn.execute("""
+        await self.learning_conn.execute("""
             INSERT INTO memory_performance
             (kv_cache_hit_rate, avg_retrieval_ms, avg_storage_ms, compression_ratio,
              total_memories, active_memories, archived_memories)
@@ -492,7 +503,7 @@ class EnhancedMemoryManager:
         """, (kv_hit_rate, avg_retrieval, avg_storage, self.metrics["compression_ratio"],
               memory_stats[0], memory_stats[1], memory_stats[2]))
 
-        self.learning_conn.commit()
+        await self.learning_conn.commit()
 
         self.logger.info(f"Memory sync complete - KV hit rate: {kv_hit_rate:.2%}, "
                         f"Avg retrieval: {avg_retrieval:.2f}ms")
@@ -504,15 +515,19 @@ class EnhancedMemoryManager:
 
     async def cleanup_old_memories(self):
         """Archive or remove old memories based on retention policy"""
+        if not self.learning_conn:
+            await self._init_databases()
+
         cutoff_short = datetime.now() - timedelta(hours=self.config["retention"]["short_term_hours"])
         cutoff_long = datetime.now() - timedelta(days=self.config["retention"]["long_term_days"])
         cutoff_archive = datetime.now() - timedelta(days=self.config["retention"]["archive_days"])
 
         # Move short-term to long-term
-        old_short = self.learning_conn.execute("""
+        cursor = await self.learning_conn.execute("""
             SELECT key, storage_location FROM memory_usage
             WHERE memory_type = 'short_term' AND last_accessed < ?
-        """, (cutoff_short.isoformat(),)).fetchall()
+        """, (cutoff_short.isoformat(),))
+        old_short = await cursor.fetchall()
 
         for key, location in old_short:
             # Move file from short-term to long-term
@@ -523,17 +538,18 @@ class EnhancedMemoryManager:
                 old_path.rename(new_path)
 
                 # Update database
-                self.learning_conn.execute("""
+                await self.learning_conn.execute("""
                     UPDATE memory_usage
                     SET memory_type = 'long_term', storage_location = ?
                     WHERE key = ?
                 """, (str(new_path), key))
 
         # Archive old long-term memories
-        old_long = self.learning_conn.execute("""
+        cursor = await self.learning_conn.execute("""
             SELECT key, storage_location FROM memory_usage
             WHERE memory_type = 'long_term' AND last_accessed < ?
-        """, (cutoff_long.isoformat(),)).fetchall()
+        """, (cutoff_long.isoformat(),))
+        old_long = await cursor.fetchall()
 
         for key, location in old_long:
             path = Path(location)
@@ -542,32 +558,36 @@ class EnhancedMemoryManager:
                 archive_path.parent.mkdir(parents=True, exist_ok=True)
                 path.rename(archive_path)
 
-                self.learning_conn.execute("""
+                await self.learning_conn.execute("""
                     UPDATE memory_usage
                     SET memory_type = 'archive', storage_location = ?
                     WHERE key = ?
                 """, (str(archive_path), key))
 
         # Delete very old archives
-        very_old = self.learning_conn.execute("""
+        cursor = await self.learning_conn.execute("""
             SELECT key, storage_location FROM memory_usage
             WHERE last_accessed < ?
-        """, (cutoff_archive.isoformat(),)).fetchall()
+        """, (cutoff_archive.isoformat(),))
+        very_old = await cursor.fetchall()
 
         for key, location in very_old:
             path = Path(location)
             if path.exists():
                 path.unlink()
 
-            self.learning_conn.execute("DELETE FROM memory_usage WHERE key = ?", (key,))
+            await self.learning_conn.execute("DELETE FROM memory_usage WHERE key = ?", (key,))
 
-        self.learning_conn.commit()
+        await self.learning_conn.commit()
 
         self.logger.info(f"Cleanup complete: Moved {len(old_short)} to long-term, "
                         f"archived {len(old_long)}, deleted {len(very_old)}")
 
-    def get_performance_report(self) -> Dict:
+    async def get_performance_report(self) -> Dict:
         """Generate performance report"""
+        if not self.learning_conn:
+            await self._init_databases()
+
         kv_hit_rate = (self.metrics["kv_cache_hits"] /
                       max(1, self.metrics["kv_cache_hits"] + self.metrics["kv_cache_misses"]))
 
@@ -583,14 +603,15 @@ class EnhancedMemoryManager:
         }
 
         # Get database stats
-        db_stats = self.learning_conn.execute("""
+        cursor = await self.learning_conn.execute("""
             SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN memory_type = 'short_term' THEN 1 ELSE 0 END) as short_term,
                 SUM(CASE WHEN memory_type = 'long_term' THEN 1 ELSE 0 END) as long_term,
                 SUM(size_bytes) as total_bytes
             FROM memory_usage
-        """).fetchone()
+        """)
+        db_stats = await cursor.fetchone()
 
         report["memory_stats"] = {
             "total_memories": db_stats[0],
@@ -605,6 +626,7 @@ class EnhancedMemoryManager:
 async def main():
     """Test the enhanced memory manager"""
     manager = EnhancedMemoryManager()
+    await manager._init_databases()
 
     # Test storing different memory types
     test_data = {
@@ -631,7 +653,7 @@ async def main():
     await manager.sync_with_learning()
 
     # Get performance report
-    report = manager.get_performance_report()
+    report = await manager.get_performance_report()
     print(f"Performance Report: {json.dumps(report, indent=2)}")
 
     # Cleanup

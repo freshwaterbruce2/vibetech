@@ -7,7 +7,7 @@ Enables agents to store and retrieve context across sessions
 
 import asyncio
 import json
-import sqlite3
+import aiosqlite
 import logging
 import sys
 from datetime import datetime, timedelta
@@ -324,30 +324,28 @@ class AgentMemoryBridge:
             return MemoryType.EPISODIC
 
     async def _get_agent_history(self, agent_name: str, limit: int = 5) -> List[Dict]:
-        """Get recent execution history for an agent"""
+        """Get recent execution history for an agent with async connection"""
         try:
-            conn = sqlite3.connect(self.learning_db_path)
-            cursor = conn.cursor()
+            async with aiosqlite.connect(self.learning_db_path) as conn:
+                cursor = await conn.execute("""
+                    SELECT task_description, success_score, executed_at, execution_time_seconds
+                    FROM agent_executions
+                    WHERE agent_id = (SELECT id FROM agent_registry WHERE name = ?)
+                    ORDER BY executed_at DESC
+                    LIMIT ?
+                """, (agent_name, limit))
 
-            cursor.execute("""
-                SELECT task_description, success_score, executed_at, execution_time_seconds
-                FROM agent_executions
-                WHERE agent_id = (SELECT id FROM agent_registry WHERE name = ?)
-                ORDER BY executed_at DESC
-                LIMIT ?
-            """, (agent_name, limit))
+                rows = await cursor.fetchall()
+                history = []
+                for row in rows:
+                    history.append({
+                        "task": row[0],
+                        "success_score": row[1],
+                        "executed_at": row[2],
+                        "execution_time_seconds": row[3]
+                    })
 
-            history = []
-            for row in cursor.fetchall():
-                history.append({
-                    "task": row[0],
-                    "success_score": row[1],
-                    "executed_at": row[2],
-                    "execution_time_seconds": row[3]
-                })
-
-            conn.close()
-            return history
+                return history
 
         except Exception as e:
             logger.error(f"Error getting agent history: {e}")
@@ -438,55 +436,52 @@ class AgentMemoryBridge:
         stats["last_execution"] = execution.timestamp.isoformat()
 
     async def _store_in_learning_db(self, execution: AgentExecution):
-        """Store execution in learning database"""
+        """Store execution in learning database with async connection"""
         try:
-            conn = sqlite3.connect(self.learning_db_path)
-            cursor = conn.cursor()
+            async with aiosqlite.connect(self.learning_db_path) as conn:
+                # Get or create agent_id from agent_registry
+                cursor = await conn.execute("SELECT id FROM agent_registry WHERE name = ?", (execution.agent_name,))
+                agent_row = await cursor.fetchone()
 
-            # Get or create agent_id from agent_registry
-            cursor.execute("SELECT id FROM agent_registry WHERE name = ?", (execution.agent_name,))
-            agent_row = cursor.fetchone()
+                if agent_row:
+                    agent_id = agent_row[0]
+                else:
+                    # Register new agent if not found
+                    cursor = await conn.execute("""
+                        INSERT INTO agent_registry (name, agent_type, description, created_at)
+                        VALUES (?, ?, ?, ?)
+                    """, (
+                        execution.agent_name,
+                        'specialist',
+                        f'Specialist agent: {execution.agent_name}',
+                        datetime.now()
+                    ))
+                    agent_id = cursor.lastrowid
 
-            if agent_row:
-                agent_id = agent_row[0]
-            else:
-                # Register new agent if not found
-                cursor.execute("""
-                    INSERT INTO agent_registry (name, agent_type, description, created_at)
-                    VALUES (?, ?, ?, ?)
+                # Store in agent_executions table with actual schema
+                await conn.execute("""
+                    INSERT INTO agent_executions
+                    (agent_id, task_type, task_description, user_request,
+                     status, execution_time_seconds, success_score,
+                     execution_context, executed_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    execution.agent_name,
-                    'specialist',
-                    f'Specialist agent: {execution.agent_name}',
-                    datetime.now()
+                    agent_id,
+                    self._determine_intent_category(execution.task_description),
+                    execution.task_description,
+                    execution.task_description,
+                    'success' if execution.success_score > 0.7 else 'failure',
+                    execution.execution_time_ms / 1000.0,  # Convert ms to seconds
+                    execution.success_score,
+                    json.dumps({
+                        'input_data': execution.input_data,
+                        'output_data': execution.output_data,
+                        'memory_context_size': len(execution.memory_context) if execution.memory_context else 0
+                    }),
+                    execution.timestamp
                 ))
-                agent_id = cursor.lastrowid
 
-            # Store in agent_executions table with actual schema
-            cursor.execute("""
-                INSERT INTO agent_executions
-                (agent_id, task_type, task_description, user_request,
-                 status, execution_time_seconds, success_score,
-                 execution_context, executed_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                agent_id,
-                self._determine_intent_category(execution.task_description),
-                execution.task_description,
-                execution.task_description,
-                'success' if execution.success_score > 0.7 else 'failure',
-                execution.execution_time_ms / 1000.0,  # Convert ms to seconds
-                execution.success_score,
-                json.dumps({
-                    'input_data': execution.input_data,
-                    'output_data': execution.output_data,
-                    'memory_context_size': len(execution.memory_context) if execution.memory_context else 0
-                }),
-                execution.timestamp
-            ))
-
-            conn.commit()
-            conn.close()
+                await conn.commit()
 
         except Exception as e:
             logger.error(f"Error storing in learning DB: {e}")
@@ -592,6 +587,7 @@ class AgentMemoryBridge:
 async def main():
     """Test the agent-memory bridge"""
     bridge = AgentMemoryBridge()
+    await bridge.memory_manager._init_databases()
 
     print("Agent-Memory Bridge Test")
     print("=" * 50)
