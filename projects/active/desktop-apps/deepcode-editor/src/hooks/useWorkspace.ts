@@ -1,7 +1,28 @@
-import { useCallback, useEffect, useState } from 'react';
+import { logger } from '../services/Logger';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { WorkspaceService } from '../services/WorkspaceService';
 import { ContextualFile, EditorFile, WorkspaceContext } from '../types';
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
+
+  return function executedFunction(...args: Parameters<T>) {
+    const later = () => {
+      timeout = null;
+      func(...args);
+    };
+
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(later, wait);
+  };
+}
 
 export interface UseWorkspaceReturn {
   workspaceService: WorkspaceService;
@@ -11,7 +32,7 @@ export interface UseWorkspaceReturn {
   error: string | null;
 
   // Actions
-  indexWorkspace: (rootPath: string) => Promise<void>;
+  indexWorkspace: (rootPath: string) => Promise<WorkspaceContext | null>;
   getRelatedFiles: (filePath: string, maxResults?: number) => ContextualFile[];
   searchFiles: (query: string, maxResults?: number) => any[];
   getFileContext: (file: EditorFile) => ContextualFile[];
@@ -27,10 +48,10 @@ export const useWorkspace = (): UseWorkspaceReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const indexWorkspace = useCallback(
-    async (rootPath: string) => {
+    async (rootPath: string): Promise<WorkspaceContext | null> => {
       if (isIndexing) {
-        console.warn('Indexing already in progress');
-        return;
+        logger.warn('Indexing already in progress');
+        return null;
       }
 
       try {
@@ -49,20 +70,23 @@ export const useWorkspace = (): UseWorkspaceReturn => {
           });
         }, 200);
 
-        console.log(`Starting workspace indexing for: ${rootPath}`);
+        logger.debug(`Starting workspace indexing for: ${rootPath}`);
         const context = await workspaceService.indexWorkspace(rootPath);
 
         clearInterval(progressInterval);
         setIndexingProgress(100);
         setWorkspaceContext(context);
 
-        console.log('Workspace indexing completed:', context);
+        logger.debug('Workspace indexing completed:', context);
 
         // Reset progress after a brief delay
         setTimeout(() => setIndexingProgress(0), 1000);
+
+        return context;
       } catch (err) {
-        console.error('Workspace indexing failed:', err);
+        logger.error('Workspace indexing failed:', err);
         setError(err instanceof Error ? err.message : 'Indexing failed');
+        return null;
       } finally {
         setIsIndexing(false);
       }
@@ -171,6 +195,25 @@ export const useWorkspace = (): UseWorkspaceReturn => {
     await indexWorkspace(workspaceContext.rootPath);
   }, [indexWorkspace, workspaceContext]);
 
+  // Debounced version of refreshIndex (5 second delay to prevent rapid re-indexing)
+  // FIX: Use ref to store workspace context to prevent infinite loop from dependency changes
+  const workspaceContextRef = useRef(workspaceContext);
+  useEffect(() => {
+    workspaceContextRef.current = workspaceContext;
+  }, [workspaceContext]);
+
+  const debouncedRefreshIndex = useMemo(
+    () =>
+      debounce(() => {
+        const ctx = workspaceContextRef.current;
+        if (ctx && !isIndexing) {
+          logger.debug('[useWorkspace] Debounced refresh triggered');
+          indexWorkspace(ctx.rootPath);
+        }
+      }, 5000),
+    [indexWorkspace, isIndexing] // Removed workspaceContext and refreshIndex to prevent loop
+  );
+
   const clearWorkspace = useCallback(() => {
     setWorkspaceContext(null);
     setError(null);
@@ -178,23 +221,37 @@ export const useWorkspace = (): UseWorkspaceReturn => {
   }, []);
 
   // Auto-refresh index periodically (every 5 minutes)
+  // Uses debounced version to prevent performance issues from rapid refreshes
+  // FIX: Added stability check to prevent refresh during active indexing
   useEffect(() => {
     if (!workspaceContext) {
       return;
     }
 
+    // Only set up auto-refresh if not currently indexing
+    if (isIndexing) {
+      logger.debug('[useWorkspace] Skipping auto-refresh setup - indexing in progress');
+      return;
+    }
+
+    logger.debug('[useWorkspace] Setting up auto-refresh interval (5 minutes)');
     const interval = setInterval(
       () => {
         if (!isIndexing) {
-          console.log('Auto-refreshing workspace index...');
-          refreshIndex();
+          logger.debug('[useWorkspace] Auto-refresh scheduled (debounced)');
+          debouncedRefreshIndex();
+        } else {
+          logger.debug('[useWorkspace] Skipping auto-refresh - indexing in progress');
         }
       },
       5 * 60 * 1000
     ); // 5 minutes
 
-    return () => clearInterval(interval);
-  }, [workspaceContext, isIndexing, refreshIndex]);
+    return () => {
+      logger.debug('[useWorkspace] Cleaning up auto-refresh interval');
+      clearInterval(interval);
+    };
+  }, [workspaceContext?.rootPath, isIndexing]); // FIX: Removed debouncedRefreshIndex to prevent loop!
 
   return {
     workspaceService,

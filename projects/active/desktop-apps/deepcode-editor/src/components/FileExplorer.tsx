@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ChevronDown,
@@ -11,7 +12,6 @@ import {
 } from 'lucide-react';
 import styled from 'styled-components';
 
-import { useEditorStore } from '../stores/useEditorStore';
 import { vibeTheme } from '../styles/theme';
 
 import { VirtualList } from './VirtualList';
@@ -175,9 +175,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
-  // Zustand store integration
-  const { openFile } = useEditorStore((state) => state.actions);
-
   // Toggle directory expansion
   const toggleDirectory = useCallback((path: string) => {
     setExpandedPaths((prev) => {
@@ -198,20 +195,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         toggleDirectory(node.path);
       } else {
         setSelectedPath(node.path);
+        // Let parent handle file loading with proper content reading
         onFileSelect?.(node.path);
-
-        // Open file in editor using Zustand
-        openFile({
-          id: node.path,
-          name: node.name,
-          path: node.path,
-          content: '', // Would be loaded from file system
-          language: 'typescript',
-          isModified: false,
-        });
       }
     },
-    [toggleDirectory, onFileSelect, openFile]
+    [toggleDirectory, onFileSelect]
   );
 
   // Flatten file tree for virtual list
@@ -352,7 +340,7 @@ export const FileExplorerDemo: React.FC = () => {
       rootPath="/"
       files={mockFiles}
       height={600}
-      onFileSelect={(path) => console.log('Selected:', path)}
+      onFileSelect={(path) => logger.debug('Selected:', path)}
     />
   );
 };

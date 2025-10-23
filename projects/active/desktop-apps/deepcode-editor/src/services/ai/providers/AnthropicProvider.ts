@@ -1,6 +1,7 @@
 /**
  * Anthropic Provider - Implementation for Claude API integration
  */
+import { logger } from '../../../services/Logger';
 
 import {
   IAIProvider,
@@ -130,7 +131,7 @@ export class AnthropicProvider implements IAIProvider {
         created: Date.now() / 1000
       };
     } catch (error) {
-      console.error('Anthropic completion error:', error);
+      logger.error('Anthropic completion error:', error);
       throw error;
     }
   }
@@ -223,7 +224,7 @@ export class AnthropicProvider implements IAIProvider {
                           return;
               }
             } catch (e) {
-              console.error('Error parsing stream chunk:', e);
+              logger.error('Error parsing stream chunk:', e);
             }
           }
         }
@@ -231,9 +232,9 @@ export class AnthropicProvider implements IAIProvider {
 
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
-        console.log('Stream cancelled');
+        logger.debug('Stream cancelled');
       } else {
-        console.error('Anthropic stream error:', error);
+        logger.error('Anthropic stream error:', error);
         throw error;
       }
     }
@@ -266,7 +267,7 @@ export class AnthropicProvider implements IAIProvider {
       // If we get a 200 or even a 400 (bad request), the key is valid
       return response.status !== 401;
     } catch (error) {
-      console.error('Anthropic connection validation failed:', error);
+      logger.error('Anthropic connection validation failed:', error);
       return false;
     }
   }

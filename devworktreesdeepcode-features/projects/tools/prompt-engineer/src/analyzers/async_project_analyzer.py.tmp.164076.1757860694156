@@ -1,0 +1,540 @@
+#!/usr/bin/env python3
+"""
+Async Project Performance Analyzer
+
+High-performance async analyzer with caching, incremental analysis, and parallel processing.
+Optimized for large codebases with intelligent caching and resource management.
+"""
+
+import asyncio
+import aiofiles
+import json
+import time
+import hashlib
+import re
+from concurrent.futures import ThreadPoolExecutor
+from typing import List, Dict, Any, Optional, Callable
+from pathlib import Path
+import multiprocessing as mp
+from dataclasses import asdict
+from datetime import datetime
+
+# Import existing analyzer components
+from .project_intelligence import (
+    ProjectIntelligenceAnalyzer,
+    ProjectAnalysisResult,
+    ProjectIssue
+)
+
+
+class AsyncProjectAnalyzer:
+    """High-performance async analyzer with caching and incremental analysis."""
+
+    def __init__(self,
+                 cache_dir: str = ".prompt_engineer_cache",
+                 max_workers: Optional[int] = None):
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(exist_ok=True)
+        self.max_workers = max_workers or min(mp.cpu_count(), 8)  # Cap at 8 for memory
+        self._file_cache = {}
+        self._analysis_cache = {}
+        self._sync_analyzer = ProjectIntelligenceAnalyzer()
+
+    async def analyze_project_async(self,
+                                    project_path: str,
+                                    max_files: int = 1000,
+                                    use_cache: bool = True,
+                                    incremental: bool = True,
+                                    progress_callback: Optional[Callable] = None) -> ProjectAnalysisResult:
+        """
+        Async project analysis with caching and incremental updates.
+
+        Strategy:
+        1. Check cache for previous analysis
+        2. Identify changed files if incremental
+        3. Parallelize file scanning
+        4. Use process pool for CPU-intensive tasks
+        5. Cache results for future runs
+        """
+        start_time = time.time()
+        project_path = Path(project_path)
+        cache_key = self._get_cache_key(project_path)
+        
+        if progress_callback:
+            await self._safe_callback(progress_callback, "Initializing analysis...", 0)
+        
+        # Check cache
+        if use_cache and await self._has_valid_cache(cache_key, project_path):
+            if incremental:
+                changed_files = await self._get_changed_files(project_path, cache_key)
+                if not changed_files:
+                    if progress_callback:
+                        await self._safe_callback(progress_callback, "Using cached results", 100)
+                    return await self._load_cached_analysis(cache_key)
+                
+                # Incremental update
+                if progress_callback:
+                    await self._safe_callback(progress_callback, f"Analyzing {len(changed_files)} changed files...", 10)
+                return await self._incremental_analysis(
+                    project_path, changed_files, cache_key, progress_callback
+                )
+            
+            cached_result = await self._load_cached_analysis(cache_key)
+            if cached_result:
+                if progress_callback:
+                    await self._safe_callback(progress_callback, "Using cached results", 100)
+                return cached_result
+        
+        # Full analysis with parallelization
+        if progress_callback:
+            await self._safe_callback(progress_callback, "Discovering files...", 5)
+        
+        files = await self._discover_files_async(project_path, max_files)
+        
+        if progress_callback:
+            await self._safe_callback(progress_callback, f"Analyzing {len(files)} files...", 15)
+        
+        # Split work into chunks for parallel processing
+        chunk_size = max(1, len(files) // self.max_workers)
+        chunks = [files[i:i+chunk_size] for i in range(0, len(files), chunk_size)]
+        
+        # Process chunks in parallel with progress tracking
+        results = []
+        total_chunks = len(chunks)
+        
+        for i, chunk in enumerate(chunks):
+            if progress_callback:
+                progress = 15 + (i / total_chunks) * 70  # 15% to 85%
+                await self._safe_callback(progress_callback, f"Processing chunk {i+1}/{total_chunks}...", progress)
+            
+            chunk_result = await self._analyze_chunk(chunk)
+            results.append(chunk_result)
+        
+        if progress_callback:
+            await self._safe_callback(progress_callback, "Merging results...", 85)
+        
+        # Merge results and create final analysis
+        final_result = await self._merge_analysis_results(results, project_path)
+        
+        if progress_callback:
+            await self._safe_callback(progress_callback, "Caching results...", 95)
+        
+        # Cache results
+        if use_cache:
+            await self._persist_cache(cache_key, final_result, project_path)
+        
+        analysis_time = time.time() - start_time
+        final_result.code_quality_metrics['analysis_time'] = analysis_time
+        final_result.code_quality_metrics['files_analyzed'] = len(files)
+        final_result.code_quality_metrics['cache_used'] = False
+        
+        if progress_callback:
+            await self._safe_callback(progress_callback, f"Analysis complete! ({analysis_time:.2f}s)", 100)
+        
+        return final_result
+    
+    async def _analyze_chunk(self, files: List[Path]) -> Dict[str, Any]:
+        """Analyze a chunk of files using thread pool for I/O operations."""
+        loop = asyncio.get_event_loop()
+        
+        # Use thread pool for I/O-bound operations
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            tasks = []
+            for file in files:
+                task = loop.run_in_executor(
+                    executor, 
+                    self._analyze_file_sync, 
+                    file
+                )
+                tasks.append(task)
+            
+            # Gather results with error handling
+            results = []
+            for task in asyncio.as_completed(tasks):
+                try:
+                    result = await task
+                    if result:
+                        results.append(result)
+                except Exception as e:
+                    # Log error but continue processing
+                    print(f"Error analyzing file: {e}")
+        
+        return self._aggregate_chunk_results(results)
+    
+    def _analyze_file_sync(self, file_path: Path) -> Optional[Dict[str, Any]]:
+        """Synchronous file analysis for thread pool execution."""
+        try:
+            if not file_path.exists() or file_path.stat().st_size > 10 * 1024 * 1024:  # Skip files > 10MB
+                return None
+            
+            # Use existing sync analyzer logic
+            file_info = {
+                'path': str(file_path),
+                'size': file_path.stat().st_size,
+                'modified': file_path.stat().st_mtime,
+                'extension': file_path.suffix.lower()
+            }
+            
+            # Basic file content analysis
+            if file_path.suffix.lower() in {'.py', '.js', '.ts', '.tsx', '.jsx', '.java', '.cpp', '.c', '.h'}:
+                try:
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                        file_info['lines'] = content.count('\n') + 1
+                        file_info['chars'] = len(content)
+                        
+                        # Basic quality checks
+                        issues = []
+                        if len(content.strip()) == 0:
+                            issues.append(ProjectIssue(
+                                type='empty_file',
+                                severity='medium',
+                                title='Empty file',
+                                description=f'File {file_path.name} is empty',
+                                file_path=str(file_path),
+                                suggested_action='Add content or remove file'
+                            ))
+                        
+                        # Check for TODO comments
+                        todo_pattern = r'(?i)(TODO|FIXME|XXX|HACK):\s*(.+)'
+                        for line_num, line in enumerate(content.split('\n'), 1):
+                            match = re.search(todo_pattern, line)
+                            if match:
+                                issues.append(ProjectIssue(
+                                    type='todo',
+                                    severity='low',
+                                    title=f'{match.group(1).upper()} comment',
+                                    description=match.group(2).strip(),
+                                    file_path=str(file_path),
+                                    line_number=line_num,
+                                    suggested_action='Address the TODO item'
+                                ))
+                        
+                        file_info['issues'] = issues
+                
+                except Exception as e:
+                    file_info['error'] = str(e)
+            
+            return file_info
+            
+        except Exception as e:
+            return {'path': str(file_path), 'error': str(e)}
+    
+    async def _discover_files_async(self, project_path: Path, max_files: int) -> List[Path]:
+        """Asynchronously discover files to analyze."""
+        loop = asyncio.get_event_loop()
+        
+        def _discover_sync():
+            files = []
+            skip_dirs = {'.git', 'node_modules', '__pycache__', '.next', 'dist', 'build', '.venv', 'venv'}
+            
+            for file_path in project_path.rglob('*'):
+                if len(files) >= max_files:
+                    break
+                
+                if file_path.is_file() and not any(skip_dir in file_path.parts for skip_dir in skip_dirs):
+                    # Only include code files and documentation
+                    if file_path.suffix.lower() in {
+                        '.py', '.js', '.ts', '.tsx', '.jsx', '.java', '.cpp', '.c', '.h', 
+                        '.css', '.scss', '.html', '.json', '.md', '.txt', '.yml', '.yaml'
+                    }:
+                        files.append(file_path)
+            
+            return files
+        
+        # Run file discovery in thread pool to avoid blocking
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            files = await loop.run_in_executor(executor, _discover_sync)
+        
+        return files
+    
+    def _aggregate_chunk_results(self, results: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Aggregate results from a chunk of files."""
+        aggregated = {
+            'files': [],
+            'issues': [],
+            'total_lines': 0,
+            'total_size': 0,
+            'file_types': {},
+            'error_count': 0
+        }
+        
+        for result in results:
+            if not result:
+                continue
+                
+            aggregated['files'].append(result)
+            
+            if 'error' in result:
+                aggregated['error_count'] += 1
+                continue
+            
+            # Aggregate metrics
+            aggregated['total_lines'] += result.get('lines', 0)
+            aggregated['total_size'] += result.get('size', 0)
+            
+            ext = result.get('extension', '')
+            aggregated['file_types'][ext] = aggregated['file_types'].get(ext, 0) + 1
+            
+            # Collect issues
+            if 'issues' in result:
+                aggregated['issues'].extend(result['issues'])
+        
+        return aggregated
+    
+    async def _merge_analysis_results(self, chunk_results: List[Dict[str, Any]], project_path: Path) -> ProjectAnalysisResult:
+        """Merge results from all chunks into final analysis."""
+        all_issues = []
+        total_files = 0
+        total_lines = 0
+        total_size = 0
+        file_types = {}
+        
+        for chunk in chunk_results:
+            all_issues.extend(chunk.get('issues', []))
+            total_files += len(chunk.get('files', []))
+            total_lines += chunk.get('total_lines', 0)
+            total_size += chunk.get('total_size', 0)
+            
+            for ext, count in chunk.get('file_types', {}).items():
+                file_types[ext] = file_types.get(ext, 0) + count
+        
+        # Categorize issues by severity
+        critical_issues = [issue for issue in all_issues if issue.severity == 'critical']
+        high_priority_issues = [issue for issue in all_issues if issue.severity == 'high']
+        medium_priority_issues = [issue for issue in all_issues if issue.severity == 'medium']
+        low_priority_issues = [issue for issue in all_issues if issue.severity == 'low']
+        
+        # Calculate health score
+        health_score = self._calculate_health_score(
+            len(critical_issues), len(high_priority_issues), 
+            len(medium_priority_issues), len(low_priority_issues),
+            total_files
+        )
+        
+        # Detect project type
+        project_type = self._detect_project_type(file_types)
+        tech_stack = self._identify_tech_stack(file_types)
+        
+        return ProjectAnalysisResult(
+            project_path=str(project_path),
+            analysis_timestamp=datetime.now().isoformat(),
+            project_type=project_type,
+            health_score=health_score,
+            critical_issues=critical_issues,
+            high_priority_issues=high_priority_issues,
+            medium_priority_issues=medium_priority_issues,
+            low_priority_issues=low_priority_issues,
+            suggestions=self._generate_suggestions(all_issues, project_type),
+            tech_stack=tech_stack,
+            missing_features=[],  # Could be enhanced
+            code_quality_metrics={
+                'total_files': total_files,
+                'total_lines': total_lines,
+                'total_size': total_size,
+                'file_types': file_types,
+                'issue_density': len(all_issues) / max(total_files, 1)
+            }
+        )
+    
+    def _calculate_health_score(self, critical: int, high: int, medium: int, low: int, total_files: int) -> int:
+        """Calculate project health score (0-100)."""
+        if total_files == 0:
+            return 100
+        
+        # Weighted penalty system
+        penalty = (critical * 20) + (high * 10) + (medium * 5) + (low * 1)
+        max_penalty = total_files * 5  # Assume average 5 points penalty per file
+        
+        health = max(0, 100 - min(100, (penalty / max_penalty) * 100))
+        return int(health)
+    
+    def _detect_project_type(self, file_types: Dict[str, int]) -> str:
+        """Detect primary project type from file extensions."""
+        if '.py' in file_types and file_types['.py'] > 5:
+            return 'python'
+        elif any(ext in file_types for ext in ['.js', '.ts', '.jsx', '.tsx']):
+            return 'javascript'
+        elif '.java' in file_types:
+            return 'java'
+        elif any(ext in file_types for ext in ['.cpp', '.c', '.h']):
+            return 'cpp'
+        else:
+            return 'mixed'
+    
+    def _identify_tech_stack(self, file_types: Dict[str, int]) -> List[str]:
+        """Identify technologies used in the project."""
+        stack = []
+        
+        if '.py' in file_types:
+            stack.append('Python')
+        if '.js' in file_types:
+            stack.append('JavaScript')
+        if '.ts' in file_types:
+            stack.append('TypeScript')
+        if '.jsx' in file_types or '.tsx' in file_types:
+            stack.append('React')
+        if '.java' in file_types:
+            stack.append('Java')
+        if '.cpp' in file_types or '.c' in file_types:
+            stack.append('C/C++')
+        if '.css' in file_types or '.scss' in file_types:
+            stack.append('CSS')
+        if '.html' in file_types:
+            stack.append('HTML')
+        
+        return stack
+    
+    def _generate_suggestions(self, issues: List[ProjectIssue], project_type: str) -> List[str]:
+        """Generate actionable suggestions based on issues found."""
+        suggestions = []
+        
+        todo_count = len([i for i in issues if i.type == 'todo'])
+        empty_files = len([i for i in issues if i.type == 'empty_file'])
+        
+        if todo_count > 10:
+            suggestions.append(f"Consider addressing {todo_count} TODO items to improve code completion")
+        
+        if empty_files > 0:
+            suggestions.append(f"Remove or populate {empty_files} empty files")
+        
+        critical_count = len([i for i in issues if i.severity == 'critical'])
+        if critical_count > 0:
+            suggestions.append(f"Address {critical_count} critical issues immediately")
+        
+        return suggestions
+    
+    # Cache management methods
+    def _get_cache_key(self, project_path: Path) -> str:
+        """Generate cache key for project."""
+        return hashlib.md5(str(project_path.absolute()).encode()).hexdigest()
+    
+    async def _has_valid_cache(self, cache_key: str, project_path: Path) -> bool:
+        """Check if valid cache exists."""
+        cache_file = self.cache_dir / f"{cache_key}.json"
+        meta_file = self.cache_dir / f"{cache_key}.meta"
+        
+        return cache_file.exists() and meta_file.exists()
+    
+    async def _load_cached_analysis(self, cache_key: str) -> Optional[ProjectAnalysisResult]:
+        """Load analysis from cache."""
+        cache_file = self.cache_dir / f"{cache_key}.json"
+        
+        try:
+            async with aiofiles.open(cache_file, 'r') as f:
+                data = json.loads(await f.read())
+                
+            # Reconstruct ProjectAnalysisResult
+            # Convert issue dictionaries back to ProjectIssue objects
+            for issue_list_key in ['critical_issues', 'high_priority_issues', 'medium_priority_issues', 'low_priority_issues']:
+                if issue_list_key in data:
+                    data[issue_list_key] = [
+                        ProjectIssue(**issue_data) for issue_data in data[issue_list_key]
+                    ]
+            
+            return ProjectAnalysisResult(**data)
+            
+        except Exception as e:
+            print(f"Error loading cache: {e}")
+            return None
+    
+    async def _persist_cache(self, cache_key: str, result: ProjectAnalysisResult, project_path: Path):
+        """Persist analysis results to cache."""
+        cache_file = self.cache_dir / f"{cache_key}.json"
+        meta_file = self.cache_dir / f"{cache_key}.meta"
+        
+        try:
+            # Convert result to dict for JSON serialization
+            result_dict = asdict(result)
+            
+            async with aiofiles.open(cache_file, 'w') as f:
+                await f.write(json.dumps(result_dict, indent=2, default=str))
+            
+            # Store metadata
+            meta = {
+                'timestamp': time.time(),
+                'project_path': str(project_path),
+                'file_count': result.code_quality_metrics.get('total_files', 0)
+            }
+            
+            async with aiofiles.open(meta_file, 'w') as f:
+                await f.write(json.dumps(meta, indent=2))
+                
+        except Exception as e:
+            print(f"Error persisting cache: {e}")
+    
+    async def _get_changed_files(self, project_path: Path, cache_key: str) -> List[Path]:
+        """Detect files changed since last analysis."""
+        meta_file = self.cache_dir / f"{cache_key}.meta"
+        
+        if not meta_file.exists():
+            return []
+        
+        try:
+            async with aiofiles.open(meta_file, 'r') as f:
+                meta = json.loads(await f.read())
+            
+            last_analysis_time = meta.get('timestamp', 0)
+            changed_files = []
+            
+            # Check for files modified after last analysis
+            for file_path in project_path.rglob('*'):
+                if file_path.is_file() and file_path.stat().st_mtime > last_analysis_time:
+                    changed_files.append(file_path)
+            
+            return changed_files
+            
+        except Exception as e:
+            print(f"Error checking changed files: {e}")
+            return []
+    
+    async def _incremental_analysis(self, project_path: Path, changed_files: List[Path], 
+                                   cache_key: str, progress_callback: Optional[Callable] = None) -> ProjectAnalysisResult:
+        """Perform incremental analysis on changed files only."""
+        # Load existing analysis
+        existing_result = await self._load_cached_analysis(cache_key)
+        if not existing_result:
+            # Fall back to full analysis
+            return await self.analyze_project_async(project_path, use_cache=False, incremental=False, progress_callback=progress_callback)
+        
+        if progress_callback:
+            await self._safe_callback(progress_callback, f"Analyzing {len(changed_files)} changed files...", 20)
+        
+        # Analyze only changed files
+        chunk_result = await self._analyze_chunk(changed_files)
+        
+        # Merge with existing results (simplified merge)
+        # In a full implementation, you'd want to update specific files in the analysis
+        new_issues = chunk_result.get('issues', [])
+        
+        # For simplicity, append new issues (in production, you'd want to replace issues from updated files)
+        existing_result.low_priority_issues.extend([i for i in new_issues if i.severity == 'low'])
+        existing_result.medium_priority_issues.extend([i for i in new_issues if i.severity == 'medium'])
+        existing_result.high_priority_issues.extend([i for i in new_issues if i.severity == 'high'])
+        existing_result.critical_issues.extend([i for i in new_issues if i.severity == 'critical'])
+        
+        # Update timestamp
+        existing_result.analysis_timestamp = datetime.now().isoformat()
+        existing_result.code_quality_metrics['incremental_update'] = True
+        existing_result.code_quality_metrics['updated_files'] = len(changed_files)
+        
+        if progress_callback:
+            await self._safe_callback(progress_callback, "Incremental analysis complete", 100)
+        
+        return existing_result
+    
+    async def _safe_callback(self, callback: Callable, message: str, progress: int):
+        """Safely execute progress callback."""
+        try:
+            if asyncio.iscoroutinefunction(callback):
+                await callback(message, progress)
+            else:
+                callback(message, progress)
+        except Exception as e:
+            print(f"Progress callback error: {e}")
+
+# Factory function for easy integration
+async def create_async_analyzer(cache_dir: str = ".prompt_engineer_cache") -> AsyncProjectAnalyzer:
+    """Create and initialize async project analyzer."""
+    analyzer = AsyncProjectAnalyzer(cache_dir=cache_dir)
+    return analyzer

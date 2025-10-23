@@ -1,0 +1,33 @@
+
+# Vibe Tech - robots.txt
+# Updated: 2025-05-14
+
+# Allow all web crawlers
+User-agent: *
+Allow: /
+Disallow: /dashboard # Exclude dashboard pages from indexing
+Disallow: /palette-preview # Exclude dev/preview pages
+Disallow: /futuristic-demo # Exclude dev/preview pages
+
+# Google specific rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Bing specific rules  
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+# Social media bots
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Sitemap location
+Sitemap: https://vibetech.com/sitemap.xml

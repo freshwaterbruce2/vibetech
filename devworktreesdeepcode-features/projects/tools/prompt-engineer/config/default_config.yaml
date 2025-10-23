@@ -1,0 +1,101 @@
+# Comprehensive configuration for prompt-engineer
+version: "1.0.0"
+
+analysis:
+  max_files_default: 200
+  timeout_seconds: 30
+  enable_caching: true
+  cache_ttl_hours: 24
+  incremental_analysis: true
+  
+  ignore_patterns:
+    - node_modules
+    - .git
+    - dist
+    - build
+    - __pycache__
+    - .pytest_cache
+    - venv
+    - .venv
+    
+  file_extensions:
+    code:
+      - .py
+      - .js
+      - .jsx
+      - .ts
+      - .tsx
+      - .go
+      - .rs
+      - .java
+    config:
+      - .json
+      - .yaml
+      - .yml
+      - .toml
+    docs:
+      - .md
+      - .rst
+      - .txt
+
+security:
+  enabled: true
+  check_secrets: true
+  check_eval: true
+  check_xss: true
+  check_sql_injection: true
+  
+  secret_patterns:
+    - pattern: 'api[_-]?key'
+      severity: critical
+    - pattern: 'password'
+      severity: high
+    - pattern: 'token'
+      severity: high
+      
+  severity_weights:
+    critical: 15
+    high: 3
+    medium: 1
+    low: 0.5
+
+performance:
+  async_enabled: true
+  max_workers: null  # Auto-detect CPU count
+  chunk_size: 50
+  use_process_pool: true
+  memory_limit_mb: 1024
+
+ui:
+  theme_default: auto
+  enable_animations: true
+  chart_export_formats:
+    - png
+    - pdf
+    - html
+  max_chart_data_points: 1000
+
+features:
+  ai_integration:
+    enabled: false
+    provider: openai
+    model: gpt-4
+    max_tokens: 2000
+    
+  ci_cd_integration:
+    enabled: false
+    platforms:
+      - github_actions
+      - gitlab_ci
+      
+  plugin_system:
+    enabled: false
+    plugin_dir: plugins/
+    auto_load: true
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/prompt_engineer.log
+  max_bytes: 10485760  # 10MB
+  backup_count: 5

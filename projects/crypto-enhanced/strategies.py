@@ -167,13 +167,33 @@ class Strategy(ABC):
                 logger.warning(f"{self.name}: Order size {xlm_volume:.2f} XLM below minimum {self.config.xlm_min_order_size}")
                 return {"error": f"Order below minimum size"}
 
+            # CRITICAL FIX: Calculate stop-loss and take-profit
+            stop_loss = None
+            take_profit = None
+            
+            if side.lower() == 'buy':
+                # For BUY orders: set stop-loss below and take-profit above
+                stop_loss_price = current_price * 0.985  # -1.5% stop-loss
+                take_profit_price = current_price * 1.015  # +1.5% take-profit
+                
+                stop_loss = str(stop_loss_price)
+                take_profit = str(take_profit_price)
+                
+                logger.info(
+                    f"{self.name}: Setting exits - "
+                    f"Stop-loss: ${stop_loss_price:.4f} (-1.5%), "
+                    f"Take-profit: ${take_profit_price:.4f} (+1.5%)"
+                )
+
             # Place the order
             result = await self.engine.place_order(
                 pair="XLM/USD",
                 side=order_side,
                 order_type=order_type_enum,
                 volume=str(xlm_volume),
-                price=round_price(price, 6) if price else None
+                price=round_price(price, 6) if price else None,
+                stop_loss=stop_loss,
+                take_profit=take_profit
             )
 
             if 'error' not in result:
@@ -212,11 +232,11 @@ class RSIMeanReversionStrategy(Strategy):
 
     def sync_accumulation(self):
         """Sync accumulated_xlm with actual engine positions"""
-        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions if pos.get('pair') == 'XLM/USD')
+        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions.values() if pos.get('pair') == 'XLM/USD')
         if abs(total_xlm - self.accumulated_xlm) > 0.1:  # Threshold to avoid float precision issues
             logger.info(f"{self.name}: Syncing accumulation from {self.accumulated_xlm:.2f} to {total_xlm:.2f} XLM")
             self.accumulated_xlm = total_xlm
-            self.entry_count = len([p for p in self.engine.positions if p.get('pair') == 'XLM/USD'])
+            self.entry_count = len([p for p in self.engine.positions.values() if p.get('pair') == 'XLM/USD'])
 
     async def evaluate(self) -> Optional[Dict]:
         """Evaluate RSI strategy"""
@@ -313,7 +333,7 @@ class RangeTradingStrategy(Strategy):
 
     def sync_accumulation(self):
         """Sync accumulated_xlm with actual engine positions"""
-        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions if pos.get('pair') == 'XLM/USD')
+        total_xlm = sum(pos.get('volume', 0) for pos in self.engine.positions.values() if pos.get('pair') == 'XLM/USD')
         if abs(total_xlm - self.accumulated_xlm) > 0.1:
             logger.info(f"{self.name}: Syncing accumulation from {self.accumulated_xlm:.2f} to {total_xlm:.2f} XLM")
             self.accumulated_xlm = total_xlm

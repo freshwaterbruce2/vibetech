@@ -1,0 +1,139 @@
+{
+  "project_agents": {
+    "crypto-enhanced": "crypto-expert",
+    "iconforge": "webapp-expert",
+    "digital-content-builder": "webapp-expert",
+    "business-booking-platform": "webapp-expert",
+    "shipping-pwa": "webapp-expert",
+    "taskmaster": "desktop-expert",
+    "deepcode-editor": "desktop-expert",
+    "nova-agent-current": "desktop-expert",
+    "nova-agent-snapshots": "desktop-expert",
+    "productivity-dashboard": "desktop-expert",
+    "desktop-commander-v2-final": "desktop-expert",
+    "vibe-tech-lovable": "webapp-expert",
+    "Vibe-Tutor": "mobile-expert",
+    "Vibe-Subscription-Guard": "mobile-expert",
+    "memory-bank": "backend-expert",
+    "agents": "backend-expert"
+  },
+  "agent_definitions": {
+    "crypto-expert": {
+      "display_name": "Crypto Trading Expert",
+      "file": "agents/crypto-expert.md",
+      "expertise": ["Python", "AsyncIO", "Kraken API", "WebSocket V2", "Trading Algorithms", "Performance Optimization", "Memory Management", "Circuit Breaker Pattern"],
+      "primary_directive": "Anti-Duplication & Performance-First Design",
+      "description": "Expert in cryptocurrency trading systems with focus on performance optimization, memory management, and production reliability. Specializes in WebSocket V2 integration, circuit breaker patterns, data pruning strategies, and singleton instance management.",
+      "recent_achievements": [
+        "Implemented DataPruner for automatic 15-min cleanup cycles",
+        "Added ExposureCache with 5-second TTL for expensive calculations",
+        "Deployed CircuitBreaker pattern for API failure protection",
+        "Refactored trading engine with backward-compatible @property decorators",
+        "Achieved 74/74 test pass rate with comprehensive coverage"
+      ],
+      "optimization_techniques": [
+        "Time-based data pruning",
+        "TTL caching for expensive operations",
+        "Circuit breaker for fault tolerance",
+        "Singleton instance management",
+        "Hourly memory monitoring"
+      ],
+      "inherited_patterns": {
+        "from_agents": ["auto_fixer_001", "crypto-enhanced-trading", "crypto_auto_fixer", "enhanced_market_001"],
+        "total_executions": 4362,
+        "proven_task_types": {
+          "auto_fix_cycle": {
+            "executions": 2954,
+            "success_rate": 1.0,
+            "avg_time": 0.17
+          },
+          "monitoring_cycle": {
+            "executions": 1276,
+            "success_rate": 1.0,
+            "avg_time": 0.17
+          },
+          "market_analysis": {
+            "executions": 128,
+            "success_rate": 1.0,
+            "avg_time": 0.17
+          }
+        },
+        "performance_targets": {
+          "success_rate": 0.9996,
+          "execution_time": 0.17
+        }
+      }
+    },
+    "webapp-expert": {
+      "display_name": "Web Application Expert",
+      "file": "agents/webapp-expert.md",
+      "expertise": ["React", "TypeScript", "Vite", "Tailwind CSS", "shadcn/ui"],
+      "primary_directive": "Anti-Duplication & Component Reusability",
+      "description": "Expert in modern web application development with React and TypeScript",
+      "inherited_patterns": {
+        "from_agents": ["auto_fixer_001"],
+        "total_executions": 2528,
+        "proven_task_types": {
+          "auto_fix_cycle": {
+            "executions": 2527,
+            "success_rate": 1.0,
+            "avg_time": 0.17
+          }
+        },
+        "performance_targets": {
+          "success_rate": 0.9996,
+          "execution_time": 0.17
+        }
+      }
+    },
+    "desktop-expert": {
+      "display_name": "Desktop Application Expert",
+      "file": "agents/desktop-expert.md",
+      "expertise": ["React", "TypeScript", "Tauri", "Electron"],
+      "primary_directive": "Anti-Duplication & Performance Optimization",
+      "description": "Expert in cross-platform desktop application development"
+    },
+    "mobile-expert": {
+      "display_name": "Mobile Application Expert",
+      "file": "agents/mobile-expert.md",
+      "expertise": ["Capacitor", "React Native", "PWA", "iOS", "Android"],
+      "primary_directive": "Anti-Duplication & Native Performance",
+      "description": "Expert in cross-platform mobile development with Capacitor and React Native"
+    },
+    "backend-expert": {
+      "display_name": "Backend API Expert",
+      "file": "agents/backend-expert.md",
+      "expertise": ["Node.js", "TypeScript", "Python", "REST API", "Databases"],
+      "primary_directive": "Anti-Duplication & Security",
+      "description": "Expert in backend API development, databases, and server-side architecture",
+      "inherited_patterns": {
+        "from_agents": ["auto_fixer_001"],
+        "total_executions": 2528,
+        "proven_task_types": {
+          "auto_fix_cycle": {
+            "executions": 2527,
+            "success_rate": 1.0,
+            "avg_time": 0.17
+          }
+        },
+        "performance_targets": {
+          "success_rate": 0.9996,
+          "execution_time": 0.17
+        }
+      }
+    },
+    "devops-expert": {
+      "display_name": "DevOps & Infrastructure Expert",
+      "file": "agents/devops-expert.md",
+      "expertise": ["Docker", "GitHub Actions", "CI/CD", "Deployment", "Monitoring"],
+      "primary_directive": "Anti-Duplication & Automation",
+      "description": "Expert in DevOps practices, containerization, and deployment automation"
+    }
+  },
+  "anti_duplication_settings": {
+    "enabled": true,
+    "scan_before_create": true,
+    "similarity_threshold": 0.7,
+    "auto_refactor_suggestions": true
+  }
+}

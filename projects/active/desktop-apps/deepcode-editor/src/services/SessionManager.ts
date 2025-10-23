@@ -1,5 +1,6 @@
 // import { AgentTask, TaskResult as AgentResult } from './AutonomousAgent';
 // Fallback interfaces
+import { logger } from '../services/Logger';
 interface AgentTask {
   id: string;
   description: string;
@@ -196,17 +197,17 @@ export class SessionManager {
   private persistSession(session: Session) {
     // In a real implementation, this would save to disk
     // For now, just keeping in memory
-    console.log('Persisting session:', session.id);
+    logger.debug('Persisting session:', session.id);
   }
 
   private persistCheckpoint(checkpoint: SessionCheckpoint) {
     // In a real implementation, this would save to disk
-    console.log('Persisting checkpoint:', checkpoint.checkpointId);
+    logger.debug('Persisting checkpoint:', checkpoint.checkpointId);
   }
 
   private loadSessions() {
     // In a real implementation, this would load from disk
-    console.log('Loading sessions from:', this.persistencePath);
+    logger.debug('Loading sessions from:', this.persistencePath);
   }
 
   exportSession(sessionId: string): string {

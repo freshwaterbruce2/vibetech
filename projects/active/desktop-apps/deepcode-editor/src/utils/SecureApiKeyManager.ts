@@ -2,6 +2,7 @@
  * Secure API Key Manager
  * Provides validation, encryption, and secure storage for API keys
  */
+import { logger } from '../services/Logger';
 
 import * as CryptoJS from 'crypto-js';
 
@@ -10,6 +11,7 @@ const API_KEY_PATTERNS = {
   DEEPSEEK: /^sk-[a-f0-9]{32,}$/i,
   OPENAI: /^sk-[a-zA-Z0-9]{48,}$/,
   ANTHROPIC: /^sk-ant-[a-zA-Z0-9\-_]{95,}$/,
+  GOOGLE: /^AIza[a-zA-Z0-9\-_]{35}$/,
   GITHUB: /^ghp_[a-zA-Z0-9]{36}$|^github_pat_[a-zA-Z0-9_]{82}$/
 };
 
@@ -31,9 +33,10 @@ export class SecureApiKeyManager {
   private storage: Storage;
 
   private constructor() {
+    // Initialize storage first, then get encryption key
+    this.storage = window.localStorage;
     // Generate or retrieve encryption key from secure storage
     this.encryptionKey = this.getOrCreateEncryptionKey();
-    this.storage = window.localStorage;
   }
 
   public static getInstance(): SecureApiKeyManager {
@@ -81,7 +84,7 @@ export class SecureApiKeyManager {
       const encrypted = CryptoJS.AES.encrypt(key, this.encryptionKey).toString();
       return encrypted;
     } catch (error) {
-      console.error('Failed to encrypt API key:', error);
+      logger.error('Failed to encrypt API key:', error);
       throw new Error('Encryption failed');
     }
   }
@@ -100,7 +103,7 @@ export class SecureApiKeyManager {
       
       return decrypted;
     } catch (error) {
-      console.error('Failed to decrypt API key:', error);
+      logger.error('Failed to decrypt API key:', error);
       throw new Error('Decryption failed');
     }
   }
@@ -140,7 +143,7 @@ export class SecureApiKeyManager {
 
       return true;
     } catch (error) {
-      console.error('Failed to store API key:', error);
+      logger.error('Failed to store API key:', error);
       return false;
     }
   }
@@ -162,7 +165,7 @@ export class SecureApiKeyManager {
       
       // Verify metadata
       if (!storedKey.metadata.encrypted) {
-        console.warn('API key not encrypted, removing...');
+        logger.warn('API key not encrypted, removing...');
         this.removeApiKey(provider);
         return null;
       }
@@ -172,14 +175,14 @@ export class SecureApiKeyManager {
       
       // Validate decrypted key
       if (!this.validateApiKey(decryptedKey, provider)) {
-        console.warn('Stored API key is invalid, removing...');
+        logger.warn('Stored API key is invalid, removing...');
         this.removeApiKey(provider);
         return null;
       }
 
       return decryptedKey;
     } catch (error) {
-      console.error('Failed to retrieve API key:', error);
+      logger.error('Failed to retrieve API key:', error);
       this.removeApiKey(provider); // Remove corrupted key
       return null;
     }
@@ -198,7 +201,7 @@ export class SecureApiKeyManager {
       
       return true;
     } catch (error) {
-      console.error('Failed to remove API key:', error);
+      logger.error('Failed to remove API key:', error);
       return false;
     }
   }
@@ -226,7 +229,7 @@ export class SecureApiKeyManager {
         }
       }
     } catch (error) {
-      console.error('Failed to list providers:', error);
+      logger.error('Failed to list providers:', error);
     }
 
     return providers;
@@ -249,13 +252,15 @@ export class SecureApiKeyManager {
           return await this.testOpenAIKey(apiKey);
         case 'anthropic':
           return await this.testAnthropicKey(apiKey);
+        case 'google':
+          return await this.testGoogleKey(apiKey);
         case 'github':
           return await this.testGitHubKey(apiKey);
         default:
           return false;
       }
     } catch (error) {
-      console.error(`Failed to test ${provider} API key:`, error);
+      logger.error(`Failed to test ${provider} API key:`, error);
       return false;
     }
   }
@@ -361,6 +366,15 @@ export class SecureApiKeyManager {
         })
       });
       return response.status !== 401;
+    } catch {
+      return false;
+    }
+  }
+
+  private async testGoogleKey(key: string): Promise<boolean> {
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+      return response.ok;
     } catch {
       return false;
     }

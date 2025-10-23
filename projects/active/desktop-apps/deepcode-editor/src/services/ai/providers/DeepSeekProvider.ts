@@ -1,6 +1,7 @@
 /**
  * DeepSeek Provider - Implementation for DeepSeek API integration
  */
+import { logger } from '../../../services/Logger';
 
 import {
   IAIProvider,
@@ -67,7 +68,7 @@ export class DeepSeekProvider implements IAIProvider {
     if (config.apiKey && config.apiKey !== secureKeyManager.getApiKey('deepseek')) {
       const stored = secureKeyManager.storeApiKey('deepseek', config.apiKey);
       if (!stored) {
-        console.warn('Failed to store DeepSeek API key securely');
+        logger.warn('Failed to store DeepSeek API key securely');
       }
     }
 
@@ -106,7 +107,11 @@ export class DeepSeekProvider implements IAIProvider {
       }
 
       const data = await response.json();
-      
+
+      // DEBUG: Log raw API response
+      logger.debug('[DeepSeekProvider] Raw API response:', data);
+      logger.debug('[DeepSeekProvider] First choice content:', data.choices?.[0]?.message?.content);
+
       // Update usage stats
       if (data.usage) {
         this.usageStats.tokensUsed += data.usage.total_tokens;
@@ -121,7 +126,7 @@ export class DeepSeekProvider implements IAIProvider {
         }
       }
 
-      return {
+      const result = {
         id: data.id,
         choices: data.choices.map((choice: any) => ({
           message: {
@@ -140,8 +145,14 @@ export class DeepSeekProvider implements IAIProvider {
         model: data.model,
         created: data.created
       };
+
+      // DEBUG: Log formatted response
+      logger.debug('[DeepSeekProvider] Formatted CompletionResponse:', result);
+      logger.debug('[DeepSeekProvider] First choice message:', result.choices[0]?.message);
+
+      return result;
     } catch (error) {
-      console.error('DeepSeek completion error:', error);
+      logger.error('DeepSeek completion error:', error);
       throw error;
     }
   }
@@ -224,7 +235,7 @@ export class DeepSeekProvider implements IAIProvider {
 
               yield streamResponse;
             } catch (e) {
-              console.error('Error parsing stream chunk:', e);
+              logger.error('Error parsing stream chunk:', e);
             }
           }
         }
@@ -232,9 +243,9 @@ export class DeepSeekProvider implements IAIProvider {
 
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
-        console.log('Stream cancelled');
+        logger.debug('Stream cancelled');
       } else {
-        console.error('DeepSeek stream error:', error);
+        logger.error('DeepSeek stream error:', error);
         throw error;
       }
     }
@@ -255,7 +266,7 @@ export class DeepSeekProvider implements IAIProvider {
 
       return response.ok;
     } catch (error) {
-      console.error('DeepSeek connection validation failed:', error);
+      logger.error('DeepSeek connection validation failed:', error);
       return false;
     }
   }

@@ -1,5 +1,6 @@
 module.exports = {
-  // TypeScript files
+  // TypeScript files (general)
+  // Fast operations only - tests run on pre-push hook
   '*.{ts,tsx}': [
     // Run import sorting with ESLint with zero tolerance for warnings
     'eslint --fix --max-warnings 0',

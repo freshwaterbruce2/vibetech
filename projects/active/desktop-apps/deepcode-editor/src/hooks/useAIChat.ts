@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react';
+import { logger } from '../services/Logger';
+import { useCallback, useState, startTransition } from 'react';
 
-import { DeepSeekService } from '../services/DeepSeekService';
+import { UnifiedAIService } from '../services/ai/UnifiedAIService';
 import { AIContextRequest, AIMessage, EditorFile, WorkspaceContext } from '../types';
 
 export interface UseAIChatReturn {
@@ -11,20 +12,29 @@ export interface UseAIChatReturn {
   handleSendMessage: (message: string, contextRequest?: Partial<AIContextRequest>) => Promise<void>;
   clearAiMessages: () => void;
   addAiMessage: (message: AIMessage) => void;
+  updateAiMessage: (messageId: string, updater: (msg: AIMessage) => AIMessage) => void;
 }
 
 export interface UseAIChatProps {
-  deepSeekService: DeepSeekService;
+  aiService: UnifiedAIService;
   currentFile?: EditorFile | null | undefined;
   workspaceContext?: WorkspaceContext | undefined;
   onError?: ((error: Error) => void) | undefined;
+  openFiles?: EditorFile[];
+  workspaceFolder?: string | null;
+  sidebarOpen?: boolean;
+  previewOpen?: boolean;
 }
 
 export function useAIChat({
-  deepSeekService,
+  aiService,
   currentFile,
   workspaceContext,
   onError,
+  openFiles = [],
+  workspaceFolder = null,
+  sidebarOpen = true,
+  previewOpen = false,
 }: UseAIChatProps): UseAIChatReturn {
   const [aiMessages, setAiMessages] = useState<AIMessage[]>([
     {
@@ -32,7 +42,7 @@ export function useAIChat({
       role: 'assistant',
       content: `Welcome to DeepCode Editor! 🚀
 
-I'm your AI coding assistant powered by DeepSeek. I can help you with:
+I'm your AI coding assistant. I can help you with:
 
 • **Code completion** - Smart suggestions as you type
 • **Code generation** - Write functions, classes, and more
@@ -53,7 +63,26 @@ Let's build something amazing together!`,
   const [isAiResponding, setIsAiResponding] = useState(false);
 
   const addAiMessage = useCallback((message: AIMessage) => {
-    setAiMessages((prev) => [...prev, message]);
+    // Use startTransition for non-urgent message additions (e.g., agent task updates)
+    // Urgent messages (e.g., user messages) will skip this and update immediately
+    const isUrgent = message.role === 'user';
+
+    if (isUrgent) {
+      setAiMessages((prev) => [...prev, message]);
+    } else {
+      startTransition(() => {
+        setAiMessages((prev) => [...prev, message]);
+      });
+    }
+  }, []);
+
+  const updateAiMessage = useCallback((messageId: string, updater: (msg: AIMessage) => AIMessage) => {
+    // Use startTransition for non-urgent message updates (agent task step progress)
+    startTransition(() => {
+      setAiMessages((prev) =>
+        prev.map((msg) => (msg.id === messageId ? updater(msg) : msg))
+      );
+    });
   }, []);
 
   const clearAiMessages = useCallback(() => {
@@ -74,7 +103,7 @@ Let's build something amazing together!`,
       setIsAiResponding(true);
 
       try {
-        // Build context request
+        // Build context request with enhanced user activity
         const fullContextRequest: AIContextRequest = {
           userQuery: message,
           relatedFiles: [],
@@ -92,6 +121,14 @@ Let's build something amazing together!`,
           },
           conversationHistory: [],
           currentFile: currentFile || undefined,
+          userActivity: {
+            openFiles: openFiles,
+            sidebarOpen: sidebarOpen,
+            previewOpen: previewOpen,
+            aiChatOpen: aiChatOpen,
+            recentFiles: openFiles.slice(0, 5).map(f => f.name),
+            workspaceFolder: workspaceFolder,
+          },
           ...contextRequest,
         };
 
@@ -111,7 +148,7 @@ Let's build something amazing together!`,
         addAiMessage(aiMessage);
 
         // Stream the response
-        for await (const chunk of deepSeekService.sendContextualMessageStream(fullContextRequest)) {
+        for await (const chunk of aiService.sendContextualMessageStream(fullContextRequest)) {
           // Check if this is reasoning content
           if (chunk.startsWith('[REASONING] ')) {
             isCollectingReasoning = true;
@@ -124,30 +161,37 @@ Let's build something amazing together!`,
             aiResponseContent += chunk;
           }
 
-          setAiMessages((prev) => {
-            return prev.map((msg) => {
-              if (msg.id === aiResponseId) {
-                const updatedMsg: AIMessage = {
-                  ...msg,
-                  content: aiResponseContent,
-                  ...(aiReasoningContent ? { reasoning_content: aiReasoningContent } : {}),
-                };
-                return updatedMsg;
-              }
-              return msg;
+          // Use startTransition to mark streaming updates as non-urgent (improves performance)
+          startTransition(() => {
+            setAiMessages((prev) => {
+              return prev.map((msg) => {
+                if (msg.id === aiResponseId) {
+                  const updatedMsg: AIMessage = {
+                    ...msg,
+                    content: aiResponseContent,
+                    ...(aiReasoningContent ? { reasoning_content: aiReasoningContent } : {}),
+                  };
+                  return updatedMsg;
+                }
+                return msg;
+              });
             });
           });
         }
 
         // Response is complete (no need to mark anything since we don't have isTyping)
       } catch (error) {
-        console.error('AI chat error:', error);
+        logger.error('AI chat error:', error);
 
         // Add error message
         const errorMessage: AIMessage = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Sorry, I encountered an error while processing your request. Please try again.',
+          content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. ${
+            error instanceof Error && error.message.includes('API key')
+              ? 'Please add your API key in Settings > API Keys.'
+              : 'Please try again.'
+          }`,
           timestamp: new Date(),
         };
         addAiMessage(errorMessage);
@@ -157,7 +201,7 @@ Let's build something amazing together!`,
         setIsAiResponding(false);
       }
     },
-    [deepSeekService, currentFile, workspaceContext, addAiMessage, onError]
+    [aiService, currentFile, workspaceContext, addAiMessage, onError, openFiles, workspaceFolder, sidebarOpen, previewOpen]
   );
 
   return {
@@ -168,5 +212,6 @@ Let's build something amazing together!`,
     handleSendMessage,
     clearAiMessages,
     addAiMessage,
+    updateAiMessage,
   };
 }

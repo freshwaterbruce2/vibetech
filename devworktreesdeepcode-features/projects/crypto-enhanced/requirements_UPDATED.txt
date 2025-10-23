@@ -1,0 +1,178 @@
+# ============================================================================
+# CRYPTO TRADING BOT DEPENDENCIES - UPDATED October 2025
+# ============================================================================
+# Live trading system for Kraken Exchange (XLM/USD)
+# Python 3.11+ recommended for optimal asyncio performance
+# ============================================================================
+
+# ============================================================================
+# CORE ASYNC I/O (CRITICAL - DO NOT DOWNGRADE)
+# ============================================================================
+# aiohttp 3.12.15 (July 2025) - Latest stable with Python 3.13 support
+# UPGRADE: 3.9.1 -> 3.12.15 (security fixes, performance improvements)
+aiohttp>=3.12.15
+
+# websockets 15.0.1 (March 2025) - Latest stable with enhanced reliability
+# UPGRADE: 12.0 -> 15.0.1 (better reconnection, Python 3.13 support)
+# CRITICAL: Kraken WebSocket v2 requires stable connection handling
+websockets>=15.0.1
+
+# aiosqlite - Database async operations
+# KEEP: Current version is stable for SQLite WAL mode
+aiosqlite>=0.19.0
+
+# python-dotenv - Environment configuration
+# KEEP: Stable for .env file management
+python-dotenv>=1.0.0
+
+
+# ============================================================================
+# CONFIGURATION & VALIDATION (CRITICAL FOR TYPE SAFETY)
+# ============================================================================
+# Pydantic 2.11.9 (October 2025) - Latest stable v2 release
+# UPGRADE: 2.11.0 -> 2.11.9 (2x faster schema builds, bug fixes)
+# Features: Improved performance, better PEP 695 support, validation fixes
+pydantic>=2.11.9
+
+# pydantic-settings - Environment-based configuration management
+# UPGRADE: 2.11.0 -> 2.6.1 (aligned with pydantic 2.11.9)
+pydantic-settings>=2.6.1
+
+
+# ============================================================================
+# HTTP & API SUPPORT
+# ============================================================================
+# urllib3 - HTTP client for REST API calls
+# UPGRADE: 2.1.0 -> 2.2.3 (security patches)
+urllib3>=2.2.3
+
+
+# ============================================================================
+# DATA PROCESSING
+# ============================================================================
+# pandas - Time series analysis for trading signals
+# UPGRADE: 2.0.3 -> 2.2.3 (performance improvements, Python 3.13 support)
+pandas>=2.2.3
+
+# numpy - Numerical computations (implicit dependency via pandas)
+# Note: Installed separately, pandas will pull compatible version
+
+
+# ============================================================================
+# UTILITIES
+# ============================================================================
+# colorlog - Colored logging for better debugging
+# KEEP: Stable version
+colorlog>=6.8.2
+
+# pyyaml - YAML configuration parsing
+# UPGRADE: 6.0.1 -> 6.0.2 (security fix)
+pyyaml>=6.0.2
+
+# psutil - System resource monitoring
+# KEEP: Stable for process management
+psutil>=5.9.0
+
+# filelock - Process instance locking (CRITICAL for preventing dual runs)
+# UPGRADE: 3.15.4 -> 3.16.1 (latest stable)
+filelock>=3.16.1
+
+
+# ============================================================================
+# TESTING FRAMEWORK
+# ============================================================================
+# pytest - Test framework
+# UPGRADE: 7.4.3 -> 8.3.3 (latest stable)
+pytest>=8.3.3
+
+# pytest-asyncio - Async test support
+# CRITICAL UPGRADE: 0.21.1 -> 1.2.0 (BREAKING CHANGES - see migration notes below)
+# v1.0+ removes event_loop fixture, simplifies async testing
+# MIGRATION REQUIRED: Update test fixtures to use asyncio.get_running_loop()
+pytest-asyncio>=1.2.0
+
+# pytest-cov - Code coverage reporting
+# UPGRADE: 4.1.0 -> 6.0.0 (latest)
+pytest-cov>=6.0.0
+
+
+# ============================================================================
+# DEVELOPMENT TOOLS
+# ============================================================================
+# black - Code formatter
+# UPGRADE: 23.12.0 -> 24.10.0 (latest stable, Python 3.13 support)
+black>=24.10.0
+
+# pylint - Static code analysis
+# UPGRADE: 3.0.3 -> 3.3.1 (latest)
+pylint>=3.3.1
+
+# mypy - Type checking
+# UPGRADE: 1.7.1 -> 1.13.0 (better async support, performance improvements)
+mypy>=1.13.0
+
+
+# ============================================================================
+# MIGRATION NOTES - CRITICAL
+# ============================================================================
+# 
+# pytest-asyncio 1.0+ BREAKING CHANGES:
+# -------------------------------------
+# 1. event_loop fixture is REMOVED
+#    OLD: def test_something(event_loop):
+#         event_loop.run_until_complete(coro())
+#    
+#    NEW: Use asyncio.get_running_loop() inside async tests
+#    
+# 2. All async tests MUST use @pytest.mark.asyncio
+#    Set in pytest.ini: asyncio_mode = auto (for convenience)
+#    
+# 3. Async fixtures use @pytest_asyncio.fixture
+#    from pytest_asyncio import fixture as async_fixture
+#
+# See: https://pytest-asyncio.readthedocs.io/en/stable/reference/changelog.html
+#
+#
+# Kraken WebSocket v2 Compatibility:
+# -----------------------------------
+# - websockets 15.0.1 provides better reconnection handling
+# - Ensure heartbeat timeout logic is updated
+# - Test subscription/unsubscription flows after upgrade
+#
+#
+# Pydantic 2.11.9 Features:
+# -------------------------
+# - 2x faster schema build times (critical for startup performance)
+# - Improved PEP 695 generics support (type[T] syntax)
+# - Better validation error messages
+# - Memory optimizations (1.5-2x reduction)
+#
+#
+# aiohttp 3.12.15 Updates:
+# ------------------------
+# - Enhanced WebSocket client stability
+# - Better connection pool management
+# - Security fixes for HTTP parsing
+# - Python 3.13 support
+#
+# ============================================================================
+
+
+# ============================================================================
+# INSTALLATION INSTRUCTIONS
+# ============================================================================
+# 
+# 1. Backup current environment:
+#    pip freeze > requirements_backup.txt
+#
+# 2. Install updated dependencies:
+#    pip install -r requirements_UPDATED.txt
+#
+# 3. Run tests to verify compatibility:
+#    pytest tests/ -v
+#
+# 4. Update test fixtures for pytest-asyncio 1.0+
+#
+# 5. Test live trading in paper mode first
+#
+# ============================================================================

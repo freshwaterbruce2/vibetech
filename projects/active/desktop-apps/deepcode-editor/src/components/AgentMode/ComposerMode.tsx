@@ -1,6 +1,7 @@
 /**
  * Composer Mode - Multi-file editing interface inspired by Cursor's Composer
  */
+import { logger } from '../../services/Logger';
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,7 +23,7 @@ import {
   FileSearch,
 } from 'lucide-react';
 import { vibeTheme } from '../../styles/theme';
-import { DeepSeekService } from '../../services/DeepSeekService';
+import { UnifiedAIService } from '../../services/ai/UnifiedAIService';
 
 interface ComposerFile {
   id: string;
@@ -45,7 +46,7 @@ interface ComposerModeProps {
     gitBranch?: string;
   };
   currentModel?: string;
-  deepSeekService?: DeepSeekService;
+  aiService?: UnifiedAIService;
 }
 
 const ComposerBackdrop = styled(motion.div)`
@@ -355,7 +356,7 @@ export const ComposerMode: React.FC<ComposerModeProps> = ({
   initialFiles = [],
   workspaceContext,
   // currentModel,
-  deepSeekService,
+  aiService,
 }) => {
   const [files, setFiles] = useState<ComposerFile[]>(initialFiles);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
@@ -423,26 +424,44 @@ export const ComposerMode: React.FC<ComposerModeProps> = ({
   };
 
   const handleSendPrompt = async () => {
-    if (!prompt.trim() || !deepSeekService) return;
-    
+    if (!prompt.trim() || !aiService) return;
+
     setIsProcessing(true);
-    
+
     try {
       // Build context from current files
-      // const fileContext = files.map(f => `File: ${f.path}\n\`\`\`${f.language}\n${f.content}\n\`\`\``).join('\n\n');
-      
-      // const systemPrompt = `You are an AI assistant helping with multi-file code editing. 
-      // The user will describe changes they want to make across multiple files.
-      // Analyze the request and generate the modified code for each file.
-      // Current files context:\n${fileContext}`;
+      const fileContext = files.map(f => `File: ${f.path}\n\`\`\`${f.language}\n${f.content}\n\`\`\``).join('\n\n');
 
-      // const messages = [
-      //   { role: 'system' as const, content: systemPrompt },
-      //   { role: 'user' as const, content: prompt }
-      // ];
+      const enhancedPrompt = `You are an AI assistant helping with multi-file code editing.
+The user will describe changes they want to make across multiple files.
+Analyze the request and generate the modified code for each file.
 
-      // Get AI response
-      const response = await deepSeekService.sendMessage(prompt);
+Current files context:
+${fileContext}
+
+User request: ${prompt}
+
+Please provide the updated code for each file in separate code blocks with the language specified.`;
+
+      // Get AI response using UnifiedAIService
+      const response = await aiService.sendContextualMessage({
+        userQuery: enhancedPrompt,
+        currentFile: undefined,
+        relatedFiles: [],
+        workspaceContext: {
+          rootPath: '',
+          totalFiles: files.length,
+          languages: [...new Set(files.map(f => f.language))],
+          testFiles: 0,
+          projectStructure: {},
+          dependencies: {},
+          exports: {},
+          symbols: {},
+          lastIndexed: new Date(),
+          summary: `Composer Mode: ${files.length} files being edited`
+        },
+        conversationHistory: []
+      });
       
       // Parse response to extract file changes
       // Simple parsing - in production would use more sophisticated parsing
@@ -474,7 +493,7 @@ export const ComposerMode: React.FC<ComposerModeProps> = ({
       }
       
     } catch (error) {
-      console.error('Error processing AI request:', error);
+      logger.error('Error processing AI request:', error);
     } finally {
       setIsProcessing(false);
       setPrompt('');

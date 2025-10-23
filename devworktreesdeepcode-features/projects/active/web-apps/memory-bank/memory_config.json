@@ -1,0 +1,68 @@
+{
+  "memorySystem": {
+    "version": "1.0",
+    "created": "2025-08-23T14:13:00Z",
+    "description": "Optimized Claude Code memory system with intelligent data routing"
+  },
+  "storageConfiguration": {
+    "localMemory": {
+      "path": "C:\\dev\\projects\\memory-bank",
+      "purpose": "Fast access session data, active projects, current context",
+      "maxSize": "500MB",
+      "types": ["session_state", "project_context", "quick_access", "recent_files"]
+    },
+    "bulkStorage": {
+      "path": "D:\\dev-memory\\claude-code",
+      "purpose": "Large data storage, historical data, database files, archived sessions",
+      "maxSize": "10GB",
+      "types": ["historical_data", "large_datasets", "database_files", "archived_sessions", "backups"]
+    }
+  },
+  "dataRouting": {
+    "rules": [
+      {
+        "condition": "size > 10MB",
+        "destination": "bulkStorage",
+        "description": "Route large files to D drive"
+      },
+      {
+        "condition": "type === 'database' || extension === '.db' || extension === '.sqlite'",
+        "destination": "bulkStorage",
+        "description": "Route database files to D drive"
+      },
+      {
+        "condition": "age > 30 days",
+        "destination": "bulkStorage",
+        "description": "Archive old data to D drive"
+      },
+      {
+        "condition": "type === 'session_state' || type === 'project_context'",
+        "destination": "localMemory",
+        "description": "Keep active session data on C drive for speed"
+      }
+    ]
+  },
+  "directories": {
+    "localMemory": {
+      "sessions": "C:\\dev\\projects\\memory-bank\\sessions",
+      "projects": "C:\\dev\\projects\\memory-bank\\projects",
+      "context": "C:\\dev\\projects\\memory-bank\\context",
+      "quickAccess": "C:\\dev\\projects\\memory-bank\\quick-access",
+      "config": "C:\\dev\\projects\\memory-bank\\config"
+    },
+    "bulkStorage": {
+      "databases": "D:\\dev-memory\\claude-code\\databases",
+      "archives": "D:\\dev-memory\\claude-code\\archives",
+      "history": "D:\\dev-memory\\claude-code\\history",
+      "backups": "D:\\dev-memory\\claude-code\\backups",
+      "largeSessions": "D:\\dev-memory\\claude-code\\large-sessions"
+    }
+  },
+  "maintenance": {
+    "cleanupSchedule": "daily",
+    "archiveThreshold": "30 days",
+    "compressionEnabled": true,
+    "maxLocalFiles": 1000,
+    "autoSync": true
+  }
+}

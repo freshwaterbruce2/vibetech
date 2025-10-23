@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useCallback, useState } from 'react';
 import {
   AlertCircle,
@@ -317,7 +318,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
       await commit(commitMessage);
       setCommitMessage('');
     } catch (err) {
-      console.error('Commit failed:', err);
+      logger.error('Commit failed:', err);
     } finally {
       setIsCommitting(false);
     }
@@ -328,7 +329,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
       try {
         await add(file);
       } catch (err) {
-        console.error('Failed to stage file:', err);
+        logger.error('Failed to stage file:', err);
       }
     },
     [add]
@@ -339,7 +340,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
       try {
         await reset(file);
       } catch (err) {
-        console.error('Failed to unstage file:', err);
+        logger.error('Failed to unstage file:', err);
       }
     },
     [reset]
@@ -351,7 +352,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
         try {
           await discardChanges(file);
         } catch (err) {
-          console.error('Failed to discard changes:', err);
+          logger.error('Failed to discard changes:', err);
         }
       }
     },

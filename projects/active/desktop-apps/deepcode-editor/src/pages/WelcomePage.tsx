@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React from 'react';
 
 import WelcomeScreen from '../components/WelcomeScreen';
@@ -17,7 +18,7 @@ const WelcomePage: React.FC = () => {
 
   const handleCreateFile = (name: string) => {
     // Handle file creation
-    console.log('Create file:', name);
+    logger.debug('Create file:', name);
   };
 
   return (

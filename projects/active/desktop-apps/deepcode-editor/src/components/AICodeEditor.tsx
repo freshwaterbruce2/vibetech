@@ -231,8 +231,7 @@ export const AICodeEditor: React.FC<AICodeEditorProps> = ({
           ],
         };
       },
-      freeInlineCompletions: () => {},
-    });
+    } as any);
 
     // Add keybindings
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space, () => {

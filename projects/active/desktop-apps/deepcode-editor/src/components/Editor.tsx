@@ -1,11 +1,16 @@
+import { logger } from '../services/Logger';
 import React, { useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Editor as MonacoEditor } from '@monaco-editor/react';
 import { motion } from 'framer-motion';
-import { editor, languages, Range } from 'monaco-editor';
+import { editor, languages  } from 'monaco-editor';
 import styled, { keyframes } from 'styled-components';
 
 import { DeepSeekService } from '../services/DeepSeekService';
+import { UnifiedAIService } from '../services/ai/UnifiedAIService';
+import { registerInlineCompletionProviderV2 } from '../services/ai/completion/InlineCompletionProviderV2';
+import CompletionIndicator, { CompletionStats } from './CompletionIndicator';
+import PrefetchIndicator from './PrefetchIndicator';
 import { vibeTheme } from '../styles/theme';
 import { EditorFile, EditorSettings, WorkspaceContext } from '../types';
 // import { useMultiCursor } from '../hooks/useMultiCursor';
@@ -98,10 +103,15 @@ interface EditorProps {
   onCloseFile: (path: string) => void;
   onSaveFile: () => void;
   onFileSelect: (file: EditorFile) => void;
-  deepSeekService: DeepSeekService;
+  deepSeekService?: DeepSeekService; // Optional - legacy completion provider
+  aiService?: UnifiedAIService; // Primary AI service for inline completions
   workspaceContext?: WorkspaceContext | undefined;
   getFileContext?: ((file: EditorFile) => any[]) | undefined;
   settings?: EditorSettings | undefined;
+  liveStream?: any; // PHASE 7: LiveEditorStream instance for live code streaming
+  onEditorMount?: (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => void; // Callback when editor mounts (for Auto-Fix)
+  modelStrategy?: 'fast' | 'balanced' | 'accurate' | 'adaptive'; // Multi-model strategy
+  currentAIModel?: string; // Current AI model being used
 }
 
 const Editor: React.FC<EditorProps> = ({
@@ -112,9 +122,14 @@ const Editor: React.FC<EditorProps> = ({
   onSaveFile,
   onFileSelect,
   deepSeekService,
+  aiService,
   workspaceContext: _workspaceContext,
   getFileContext: _getFileContext,
   settings,
+  liveStream, // PHASE 7: Live editor streaming
+  onEditorMount, // Callback when editor mounts (for Auto-Fix integration)
+  modelStrategy = 'fast', // Default to fast strategy
+  currentAIModel = 'deepseek-chat', // Default to DeepSeek
 }) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [aiSuggestion, setAiSuggestion] = useState<string>('');
@@ -126,6 +141,28 @@ const Editor: React.FC<EditorProps> = ({
     total: 0,
   });
   const decorationsRef = useRef<string[]>([]);
+
+  // Completion tracking state for Week 3
+  const [hasActiveCompletion, setHasActiveCompletion] = useState(false);
+  const [showCompletionStats, setShowCompletionStats] = useState(false);
+  const [completionStats, setCompletionStats] = useState({
+    totalSuggestions: 0,
+    accepted: 0,
+    rejected: 0,
+    avgLatency: 0,
+  });
+
+  // Week 4: Prefetch tracking state
+  const [showPrefetchIndicator, setShowPrefetchIndicator] = useState(true);
+  const [prefetchStats, setPrefetchStats] = useState({
+    cacheSize: 0,
+    queueSize: 0,
+    activeCount: 0,
+    hitRate: 0,
+    avgLatency: 0,
+    memoryUsageMB: 0,
+  });
+  const [prefetchStatus, setPrefetchStatus] = useState<'idle' | 'active' | 'learning'>('idle');
 
   // Multi-cursor functionality (disabled for now)
   // const {
@@ -221,7 +258,7 @@ const Editor: React.FC<EditorProps> = ({
     // if (cursors.length > 1) {
     //   e.preventDefault();
     //   clearSecondaryCursors();
-    // } else 
+    // } else
     if (findReplaceOpen) {
       e.preventDefault();
       setFindReplaceOpen(false);
@@ -229,8 +266,19 @@ const Editor: React.FC<EditorProps> = ({
     }
   });
 
-  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
+  // Week 3: Toggle completion stats
+  useHotkeys('ctrl+shift+s, cmd+shift+s', (e) => {
+    e.preventDefault();
+    setShowCompletionStats(prev => !prev);
+  });
+
+  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: typeof import('monaco-editor')) => {
     editorRef.current = editor;
+
+    // Notify parent component (for Auto-Fix integration)
+    if (onEditorMount) {
+      onEditorMount(editor, monaco);
+    }
 
     // Configure editor settings with Vibe Tech theme
     editor.updateOptions({
@@ -282,8 +330,66 @@ const Editor: React.FC<EditorProps> = ({
       mouseWheelZoom: true,
     });
 
-    // Set up AI completion provider
-    setupAiCompletionProvider(editor);
+    // Set up AI completion provider (legacy DeepSeek - if available)
+    if (deepSeekService) {
+      setupAiCompletionProvider(editor);
+    }
+
+    // Register enhanced inline completion provider V2 (multi-model support)
+    if (aiService) {
+      const completionDisposable = registerInlineCompletionProviderV2(aiService, editor);
+      logger.debug('✨ Inline completion provider V2 registered (multi-model support)');
+
+      // Store provider for control
+      (editor as any).completionProvider = (completionDisposable as any).provider;
+
+      // Set default strategy
+      if ((completionDisposable as any).provider) {
+        (completionDisposable as any).provider.setModelStrategy(modelStrategy || 'fast');
+      }
+
+      // Track completion events for Week 3 analytics
+      editor.onDidChangeModelContent(() => {
+        // Check if provider has active completions
+        const provider = (completionDisposable as any).provider;
+        if (provider) {
+          const status = provider.getStatus();
+          setHasActiveCompletion(status.hasGhostText);
+
+          // Update stats (simplified tracking)
+          setCompletionStats(prev => ({
+            ...prev,
+            totalSuggestions: prev.totalSuggestions + (status.hasGhostText ? 1 : 0),
+          }));
+
+          // Week 4: Update prefetch stats
+          if (provider.getPrefetchStats) {
+            const pStats = provider.getPrefetchStats();
+            setPrefetchStats(pStats);
+
+            // Update status based on activity
+            if (pStats.activeCount > 0) {
+              setPrefetchStatus('active');
+            } else if (pStats.queueSize > 0) {
+              setPrefetchStatus('learning');
+            } else {
+              setPrefetchStatus('idle');
+            }
+          }
+        }
+      });
+
+      // Week 4: Periodically update prefetch stats
+      const statsInterval = setInterval(() => {
+        const provider = (completionDisposable as any).provider;
+        if (provider && provider.getPrefetchStats) {
+          setPrefetchStats(provider.getPrefetchStats());
+        }
+      }, 2000); // Every 2 seconds
+
+      // Cleanup interval on unmount
+      return () => clearInterval(statsInterval);
+    }
 
     // Track cursor position
     editor.onDidChangeCursorPosition((e) => {
@@ -299,14 +405,24 @@ const Editor: React.FC<EditorProps> = ({
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => {
         if (file.isModified) {
-          console.log('Auto-saving file...');
+          logger.debug('Auto-saving file...');
           // Could auto-save here if enabled in settings
         }
       }, 2000);
     });
+
+    // PHASE 7: Connect live editor stream
+    if (liveStream) {
+      liveStream.setEditor(editor);
+      logger.debug('✨ Live editor streaming connected');
+    }
   };
 
   const setupAiCompletionProvider = (_editor: editor.IStandaloneCodeEditor) => {
+    if (!deepSeekService) {
+      return;
+    }
+
     // Custom completion provider for AI suggestions
     const disposable = languages.registerCompletionItemProvider(file.language, {
       triggerCharacters: ['.', ' ', '(', '\n'],
@@ -335,7 +451,7 @@ const Editor: React.FC<EditorProps> = ({
             }),
           };
         } catch (error) {
-          console.error('AI completion error:', error);
+          logger.error('AI completion error:', error);
           return { suggestions: [] };
         }
       },
@@ -346,7 +462,7 @@ const Editor: React.FC<EditorProps> = ({
   };
 
   const triggerAiCompletion = async () => {
-    if (!editorRef.current) {
+    if (!editorRef.current || !deepSeekService) {
       return;
     }
 
@@ -370,23 +486,35 @@ const Editor: React.FC<EditorProps> = ({
             setAiSuggestion('AI suggestion ready (Tab to accept)');
 
             // Insert the suggestion
-            editorRef.current.executeEdits('ai-completion', [
-              {
-                range: new Range(
-                  suggestion.range.startLineNumber,
-                  suggestion.range.startColumn,
-                  suggestion.range.endLineNumber,
-                  suggestion.range.endColumn
-                ),
-                text: suggestion.text,
-              },
-            ]);
+            // Use monaco.Range from the monaco instance available in handleEditorDidMount
+            const monaco = (editorRef.current as any)._codeEditorService?._modelService?._configurationService?.constructor?.prototype?.monaco;
+            if (monaco?.Range) {
+              editorRef.current.executeEdits('ai-completion', [
+                {
+                  range: new monaco.Range(
+                    suggestion.range.startLineNumber,
+                    suggestion.range.startColumn,
+                    suggestion.range.endLineNumber,
+                    suggestion.range.endColumn
+                  ),
+                  text: suggestion.text,
+                },
+              ]);
+            } else {
+              // Fallback: use range object directly
+              editorRef.current.executeEdits('ai-completion', [
+                {
+                  range: suggestion.range,
+                  text: suggestion.text,
+                },
+              ]);
+            }
           }
         }
       }
     } catch (error) {
       setAiSuggestion('AI completion failed');
-      console.error('AI completion error:', error);
+      logger.error('AI completion error:', error);
     }
 
     setTimeout(() => setShowAiStatus(false), 3000);
@@ -546,6 +674,13 @@ const Editor: React.FC<EditorProps> = ({
     editorRef.current.getAction('editor.action.previousMatchFindAction')?.run();
   };
 
+  // Monaco workers handled by vite-plugin-monaco-editor
+  const handleBeforeMount = (monaco: typeof import('monaco-editor')) => {
+    // Let vite-plugin-monaco-editor handle all worker configuration
+    // No manual MonacoEnvironment setup needed - it interferes with the plugin
+    logger.debug('[Editor] Monaco editor initialized');
+  };
+
   return (
     <EditorContainer>
       <FileTabs
@@ -557,9 +692,11 @@ const Editor: React.FC<EditorProps> = ({
 
       <MonacoContainer>
         <MonacoEditor
+          key={file.path}
           language={file.language}
           value={file.content}
           onChange={(value) => onFileChange(value || '')}
+          beforeMount={handleBeforeMount}
           onMount={handleEditorDidMount}
           theme={settings?.theme === 'light' ? 'vs' : 'vs-dark'}
           options={{
@@ -647,17 +784,51 @@ const Editor: React.FC<EditorProps> = ({
         {/* Multi-cursor indicator */}
         {/* Multi-cursor indicator disabled for now */}
         {/* {cursors.length > 1 && (
-          <div style={{ 
-            position: 'absolute', 
-            bottom: '10px', 
+          <div style={{
+            position: 'absolute',
+            bottom: '10px',
             right: '10px',
             zIndex: 1000
           }}>
-            <MultiCursorIndicator 
+            <MultiCursorIndicator
               cursorCount={cursors.length}
             />
           </div>
         )} */}
+
+        {/* Week 3: Inline Completion Indicator */}
+        <CompletionIndicator
+          isActive={true}
+          model={currentAIModel}
+          strategy={modelStrategy}
+          hasCompletion={hasActiveCompletion}
+          onDismiss={() => setHasActiveCompletion(false)}
+        />
+
+        {/* Optional: Completion Stats Widget (toggle with Ctrl+Shift+S) */}
+        {showCompletionStats && (
+          <CompletionStats
+            totalSuggestions={completionStats.totalSuggestions}
+            accepted={completionStats.accepted}
+            rejected={completionStats.rejected}
+            avgLatency={completionStats.avgLatency}
+            currentModel={currentAIModel}
+          />
+        )}
+
+        {/* Week 4: Predictive Prefetch Indicator */}
+        {showPrefetchIndicator && (
+          <PrefetchIndicator
+            stats={prefetchStats}
+            isActive={prefetchStatus === 'active'}
+            status={prefetchStatus}
+            predictions={[]}
+            learningStats={{
+              patternsLearned: 0,
+              accuracy: prefetchStats.hitRate,
+            }}
+          />
+        )}
       </MonacoContainer>
     </EditorContainer>
   );

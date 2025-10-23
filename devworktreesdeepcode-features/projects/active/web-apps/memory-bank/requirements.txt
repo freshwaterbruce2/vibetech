@@ -1,0 +1,80 @@
+# Enhanced Memory System Dependencies
+# Production-grade requirements for 2025
+
+# Core async framework
+asyncio-throttle==1.0.2
+aiofiles==24.1.0
+uvloop==0.21.0  # High-performance event loop replacement
+aiodns==3.2.0  # Async DNS resolution
+
+# Data processing and analysis
+numpy==2.2.0
+pandas==2.2.3
+
+# Vector Database & Embeddings
+faiss-cpu==1.9.0  # Facebook AI Similarity Search
+chromadb==0.6.0  # Vector database with persistence
+sentence-transformers==3.3.0  # For generating embeddings
+
+# Database and storage
+aiosqlite==0.20.0
+sqlalchemy==2.0.36
+alembic==1.15.0  # Database migrations
+
+# Caching & Performance
+redis==5.2.0  # Distributed caching
+aiocache==0.12.3  # Async caching with multiple backends
+diskcache==5.6.3  # Persistent disk-based cache
+cachetools==5.5.0  # Memory caching utilities
+
+# Web and real-time communication
+websockets==14.1
+aiohttp==3.12.15
+httpx==0.28.0  # Modern async HTTP client
+
+# System monitoring and metrics
+psutil==6.1.0
+prometheus-client==0.21.0
+opentelemetry-api==1.29.0
+opentelemetry-sdk==1.29.0
+opentelemetry-instrumentation-aiohttp==0.51b0
+opentelemetry-exporter-otlp==1.29.0
+
+# CLI framework
+click==8.1.8
+
+# Compression and serialization
+lz4==4.3.3
+zstandard==0.23.0
+orjson==3.10.12  # Fast JSON serialization
+msgpack==1.1.0  # Binary serialization
+
+# Logging and observability
+structlog==24.4.0
+
+# Error Handling & Resilience
+tenacity==9.0.0  # Retry logic with backoff
+circuit-breaker==2.0.0  # Circuit breaker pattern
+aioretry==5.0.2  # Async retry decorators
+
+# Testing framework
+pytest==8.4.2
+pytest-asyncio==0.25.0
+pytest-cov==6.0.0
+pytest-benchmark==5.1.0
+locust==2.32.0  # Load testing
+hypothesis==6.122.0  # Property-based testing
+faker==30.8.0  # Test data generation
+
+# Type hints and validation
+typing-extensions==4.12.2
+pydantic==2.10.5
+
+# Development tools
+black==24.10.0
+ruff==0.8.6  # Fast linter
+mypy==1.13.0
+
+# Documentation
+mkdocs==1.6.1
+mkdocs-material==9.5.49

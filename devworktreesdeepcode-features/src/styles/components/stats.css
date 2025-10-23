@@ -1,0 +1,45 @@
+
+@layer components {
+  /* New animations for stats and pricing bars */
+  @keyframes grow-left {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  .stat-bar {
+    @apply h-2 rounded-full bg-gradient-to-r from-futuristic-neonBlue via-futuristic-neonPurple to-futuristic-neonTeal relative overflow-hidden;
+  }
+
+  .stat-bar::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-futuristic-neonBlue via-futuristic-neonPurple to-futuristic-neonTeal;
+    width: 0;
+    animation: none;
+  }
+
+  .stat-bar.animate::before {
+    animation: grow-left 1s forwards ease-out;
+  }
+  
+  /* Progress bars with consistent styling */
+  .progress-bar {
+    @apply h-2 rounded-full bg-aura-backgroundLight overflow-hidden;
+  }
+  
+  .progress-bar-fill {
+    @apply h-full bg-gradient-to-r from-futuristic-neonBlue to-futuristic-neonPurple;
+  }
+  
+  .progress-bar-fill-teal {
+    @apply h-full bg-gradient-to-r from-futuristic-neonTeal to-futuristic-neonBlue;
+  }
+  
+  /* Value display with label */
+  .stat-value {
+    @apply text-2xl font-bold text-aura-text;
+  }
+  
+  .stat-label {
+    @apply text-sm text-aura-textSecondary;
+  }
+}

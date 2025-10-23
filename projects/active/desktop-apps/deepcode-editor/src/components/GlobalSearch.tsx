@@ -1,3 +1,4 @@
+import { logger } from '../services/Logger';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Search, Replace, ChevronDown, ChevronRight, FileText, X } from 'lucide-react';
@@ -29,10 +30,10 @@ interface GlobalSearchProps {
   workspaceFiles: string[];
 }
 
-const SearchContainer = styled.div<{ isOpen: boolean }>`
+const SearchContainer = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
-  right: ${props => props.isOpen ? '0' : '-500px'};
+  right: ${props => props.$isOpen ? '0' : '-500px'};
   width: 500px;
   height: 100vh;
   background: ${props => props.theme.background};
@@ -122,17 +123,17 @@ const OptionsRow = styled.div`
   margin-bottom: 12px;
 `;
 
-const OptionButton = styled.button<{ active: boolean }>`
+const OptionButton = styled.button<{ $active: boolean }>`
   padding: 4px 8px;
   border: 1px solid ${props => props.theme.border};
   border-radius: 3px;
-  background: ${props => props.active ? props.theme.accent : props.theme.background};
-  color: ${props => props.active ? 'white' : props.theme.text};
+  background: ${props => props.$active ? props.theme.accent : props.theme.background};
+  color: ${props => props.$active ? 'white' : props.theme.text};
   font-size: 12px;
   cursor: pointer;
-  
+
   &:hover {
-    background: ${props => props.active ? props.theme.accent : props.theme.hover};
+    background: ${props => props.$active ? props.theme.accent : props.theme.hover};
   }
 `;
 
@@ -165,25 +166,25 @@ const ActionButtons = styled.div`
   gap: 8px;
 `;
 
-const ActionButton = styled.button<{ variant?: 'primary' | 'danger' }>`
+const ActionButton = styled.button<{ $variant?: 'primary' | 'danger' }>`
   padding: 6px 12px;
   border: 1px solid ${props => props.theme.border};
   border-radius: 3px;
-  background: ${props => 
-    props.variant === 'primary' ? props.theme.accent :
-    props.variant === 'danger' ? '#dc3545' :
+  background: ${props =>
+    props.$variant === 'primary' ? props.theme.accent :
+    props.$variant === 'danger' ? '#dc3545' :
     props.theme.background
   };
-  color: ${props => 
-    props.variant === 'primary' || props.variant === 'danger' ? 'white' : props.theme.text
+  color: ${props =>
+    props.$variant === 'primary' || props.$variant === 'danger' ? 'white' : props.theme.text
   };
   font-size: 12px;
   cursor: pointer;
-  
+
   &:hover {
     opacity: 0.9;
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -376,7 +377,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
       setExpandedFiles(new Set(fileNames.slice(0, 3)));
       
     } catch (error) {
-      console.error('Search failed:', error);
+      logger.error('Search failed:', error);
     } finally {
       setIsSearching(false);
     }
@@ -419,7 +420,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
       // Refresh search after replace
       await performSearch();
     } catch (error) {
-      console.error('Replace failed:', error);
+      logger.error('Replace failed:', error);
     } finally {
       setIsReplacing(false);
     }
@@ -429,7 +430,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
   const fileCount = Object.keys(results).length;
 
   return (
-    <SearchContainer isOpen={isOpen}>
+    <SearchContainer $isOpen={isOpen}>
       <SearchHeader>
         <HeaderTitle>
           <h3>
@@ -472,19 +473,19 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
 
         <OptionsRow>
           <OptionButton
-            active={options.caseSensitive}
+            $active={options.caseSensitive}
             onClick={() => setOptions(prev => ({ ...prev, caseSensitive: !prev.caseSensitive }))}
           >
             Aa
           </OptionButton>
           <OptionButton
-            active={options.wholeWord}
+            $active={options.wholeWord}
             onClick={() => setOptions(prev => ({ ...prev, wholeWord: !prev.wholeWord }))}
           >
             Ab
           </OptionButton>
           <OptionButton
-            active={options.regex}
+            $active={options.regex}
             onClick={() => setOptions(prev => ({ ...prev, regex: !prev.regex }))}
           >
             .*
@@ -506,14 +507,14 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
 
         <ActionButtons>
           <ActionButton
-            variant="primary"
+            $variant="primary"
             onClick={performSearch}
             disabled={isSearching || !searchText.trim()}
           >
             {isSearching ? 'Searching...' : 'Search'}
           </ActionButton>
           <ActionButton
-            variant="danger"
+            $variant="danger"
             onClick={handleReplaceAll}
             disabled={isReplacing || !searchText.trim() || !replaceText.trim() || totalResults === 0}
           >

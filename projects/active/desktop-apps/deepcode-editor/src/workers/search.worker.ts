@@ -10,6 +10,7 @@
  * - File indexing
  * - Search result ranking
  */
+import { logger } from '../services/Logger';
 
 interface SearchRequest {
   id: string;
@@ -251,7 +252,7 @@ function regexSearch(
       });
     });
   } catch (error) {
-    console.error('Invalid regex pattern:', error);
+    logger.error('Invalid regex pattern:', error);
     return [];
   }
 

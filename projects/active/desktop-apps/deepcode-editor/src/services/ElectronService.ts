@@ -1,421 +1,347 @@
-interface ElectronAPI {
-  windowMinimize: () => Promise<void>;
-  windowMaximize: () => Promise<void>;
-  windowClose: () => Promise<void>;
-  windowIsMaximized: () => Promise<boolean>;
-  showOpenDialog: (options: DialogOptions) => Promise<DialogResult | null>;
-  showSaveDialog: (options: DialogOptions) => Promise<DialogResult | null>;
-  showMessageBox: (options: any) => Promise<any>;
-  fs: {
-    readFile: (path: string) => Promise<{ success: boolean; content?: string }>;
-    writeFile: (path: string, content: string) => Promise<{ success: boolean }>;
-    readdir: (path: string) => Promise<{ success: boolean; items: Array<{ name: string; path: string; isDirectory: boolean }> }>;
-    exists: (path: string) => Promise<{ exists: boolean }>;
-    mkdir: (path: string) => Promise<{ success: boolean }>;
-    unlink: (path: string) => Promise<{ success: boolean }>;
-    rename: (oldPath: string, newPath: string) => Promise<{ success: boolean }>;
-    stat: (path: string) => Promise<any>;
-  };
-  shellOpenExternal: (url: string) => Promise<void>;
-  clipboardWriteText: (text: string) => Promise<void>;
-  clipboardReadText: () => Promise<string>;
-  showNotification: (options: { title: string; body: string; icon?: string }) => Promise<void>;
-  getAppVersion: () => Promise<string>;
-  getPlatform: () => Promise<string>;
-  getNativeTheme: () => Promise<boolean>;
-  setNativeTheme: (theme: 'light' | 'dark' | 'system') => Promise<void>;
-  onMenuNewFile: (callback: () => void) => void;
-  onMenuOpenFile: (callback: (event: unknown, filePath: string) => void) => void;
-  onMenuOpenFolder: (callback: (event: unknown, folderPath: string) => void) => void;
-  onMenuSave: (callback: () => void) => void;
-  onMenuSaveAs: (callback: (event: unknown, filePath: string) => void) => void;
-  onMenuFind: (callback: () => void) => void;
-  onMenuReplace: (callback: () => void) => void;
-  onMenuToggleSidebar: (callback: () => void) => void;
-  onMenuToggleAIChat: (callback: () => void) => void;
-  onMenuAIAssistant: (callback: () => void) => void;
-  onMenuAIGenerate: (callback: () => void) => void;
-  onMenuAIExplain: (callback: () => void) => void;
-  onMenuAIOptimize: (callback: () => void) => void;
-  onGlobalAIAssistant: (callback: () => void) => void;
-  removeAllListeners: (channel: string) => void;
-  app: {
-    restart: () => Promise<void>;
-    getPath: (name: string) => Promise<string>;
-    setLoginItemSettings: (settings: { openAtLogin: boolean; openAsHidden: boolean }) => Promise<void>;
-    getLoginItemSettings: () => Promise<{ openAtLogin: boolean }>;
-  };
-  codeExecutor: {
-    execute: (request: any) => Promise<any>;
-  };
+/**
+ * Electron Service - Matches preload.cjs API structure
+ * Deep Code Editor - Electron IPC Bridge
+ *
+ * This service aligns EXACTLY with the window.electron API exposed
+ * by electron/preload.cjs to ensure proper IPC communication
+ */
+import { logger } from '../services/Logger';
+
+// Types matching preload.cjs exposed API
+interface ElectronFS {
+  readFile: (filePath: string) => Promise<{ success: boolean; content?: string; error?: string }>;
+  writeFile: (filePath: string, content: string) => Promise<{ success: boolean; error?: string }>;
+  readDir: (dirPath: string) => Promise<{ success: boolean; items?: Array<{ name: string; path: string; isDirectory: boolean; isFile: boolean }>; error?: string }>;
+  createDir: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
+  remove: (targetPath: string) => Promise<{ success: boolean; error?: string }>;
+  rename: (oldPath: string, newPath: string) => Promise<{ success: boolean; error?: string }>;
+  exists: (targetPath: string) => Promise<{ success: boolean; exists: boolean }>;
+  stat: (targetPath: string) => Promise<{ success: boolean; stats?: { size: number; isFile: boolean; isDirectory: boolean; created: Date; modified: Date }; error?: string }>;
 }
 
-interface ElectronEnv {
-  isElectron: boolean;
+interface ElectronDialog {
+  openFile: (options?: any) => Promise<{ success: boolean; canceled: boolean; filePaths: string[] }>;
+  openFolder: (options?: any) => Promise<{ success: boolean; canceled: boolean; filePaths: string[] }>;
+  saveFile: (options?: any) => Promise<{ success: boolean; canceled: boolean; filePath?: string }>;
+}
+
+interface ElectronShell {
+  execute: (command: string, cwd?: string) => Promise<{ success: boolean; stdout: string; stderr: string; code: number }>;
+  openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
+}
+
+interface ElectronApp {
+  getPath: (name: string) => Promise<{ success: boolean; path?: string; error?: string }>;
+  getPlatform: () => Promise<{ success: boolean; platform: string; arch: string; version: string; electron: string; node: string }>;
+}
+
+interface ElectronWindow {
+  minimize: () => void;
+  maximize: () => void;
+  close: () => void;
+  isMaximized: () => Promise<boolean>;
+}
+
+interface WindowElectron {
+  fs: ElectronFS;
+  dialog: ElectronDialog;
+  shell: ElectronShell;
+  app: ElectronApp;
+  window?: ElectronWindow;
   platform: string;
+  isElectron: boolean;
 }
 
-interface DialogOptions {
-  properties?: string[];
-  filters?: Array<{ name: string; extensions: string[] }>;
-  defaultPath?: string;
-  buttonLabel?: string;
-  title?: string;
-}
-
-interface DialogResult {
-  canceled: boolean;
-  filePaths?: string[];
-  filePath?: string;
-}
-
-interface ExtendedWindow {
-  electronAPI?: ElectronAPI;
-  electronEnv?: ElectronEnv;
+declare global {
+  interface Window {
+    electron?: WindowElectron;
+    __ELECTRON__?: boolean;
+  }
 }
 
 // Service to handle Electron API integration
 export class ElectronService {
-  private electronAPI: ElectronAPI | undefined;
+  private electron: WindowElectron | undefined;
 
   constructor() {
-    this.electronAPI = (window as unknown as ExtendedWindow).electronAPI;
+    this.electron = window.electron;
   }
 
-  get isElectron(): boolean {
-    return !!(window as unknown as ExtendedWindow).electronEnv?.isElectron;
+  isElectron(): boolean {
+    return !!window.electron?.isElectron || !!window.__ELECTRON__;
   }
 
   get platform(): string {
-    return (window as unknown as ExtendedWindow).electronEnv?.platform || 'web';
+    return this.electron?.platform || 'web';
   }
 
-  // Window controls
-  async minimizeWindow(): Promise<void> {
-    if (this.isElectron) {
-      await this.electronAPI?.windowMinimize();
+  // File System Operations (matches preload.cjs)
+  async readFile(path: string): Promise<string> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
+    }
+
+    const result = await this.electron.fs.readFile(path);
+    if (!result.success || !result.content) {
+      throw new Error(result.error || 'Failed to read file');
+    }
+
+    return result.content;
+  }
+
+  async writeFile(path: string, content: string): Promise<void> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
+    }
+
+    const result = await this.electron.fs.writeFile(path, content);
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to write file');
     }
   }
 
-  async maximizeWindow(): Promise<void> {
-    if (this.isElectron) {
-      await this.electronAPI?.windowMaximize();
+  async readDir(dirPath: string): Promise<Array<{ name: string; path: string; isDirectory: boolean; isFile: boolean }>> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
+    }
+
+    logger.debug('[ElectronService] Reading directory:', dirPath);
+    const result = await this.electron.fs.readDir(dirPath);
+
+    if (!result.success) {
+      logger.error('[ElectronService] readDir failed:', result.error);
+      throw new Error(result.error || 'Failed to read directory');
+    }
+
+    logger.debug('[ElectronService] readDir success, got', result.items?.length || 0, 'items');
+    return result.items || [];
+  }
+
+  async createDir(dirPath: string): Promise<void> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
+    }
+
+    const result = await this.electron.fs.createDir(dirPath);
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to create directory');
     }
   }
 
-  async closeWindow(): Promise<void> {
-    if (this.isElectron) {
-      await this.electronAPI?.windowClose();
+  /**
+   * Alias for createDir (for compatibility)
+   */
+  async createDirectory(dirPath: string): Promise<void> {
+    return this.createDir(dirPath);
+  }
+
+  async remove(targetPath: string): Promise<void> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
+    }
+
+    const result = await this.electron.fs.remove(targetPath);
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to remove file/directory');
     }
   }
 
-  async isWindowMaximized(): Promise<boolean> {
-    if (this.isElectron && this.electronAPI) {
-      return await this.electronAPI.windowIsMaximized();
+  async rename(oldPath: string, newPath: string): Promise<void> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
     }
-    return false;
+
+    const result = await this.electron.fs.rename(oldPath, newPath);
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to rename file/directory');
+    }
   }
 
-  // File operations
-  async showOpenFileDialog(options: Partial<DialogOptions> = {}): Promise<DialogResult | null> {
-    if (this.isElectron && this.electronAPI) {
-      return await this.electronAPI.showOpenDialog({
-        properties: ['openFile'],
-        filters: [
-          { name: 'All Files', extensions: ['*'] },
-          { name: 'JavaScript', extensions: ['js', 'jsx', 'ts', 'tsx'] },
-          { name: 'Python', extensions: ['py'] },
-          { name: 'Text', extensions: ['txt', 'md'] },
-          ...(options.filters || []),
-        ],
-        ...options,
-      });
+  async exists(targetPath: string): Promise<boolean> {
+    if (!this.electron) {
+      return false;
     }
-    return null;
+
+    const result = await this.electron.fs.exists(targetPath);
+    return result.exists;
   }
 
-  async showOpenFolderDialog(): Promise<DialogResult | null> {
-    if (this.isElectron && this.electronAPI) {
-      return await this.electronAPI.showOpenDialog({
-        properties: ['openDirectory'],
-      });
+  async stat(targetPath: string): Promise<{ size: number; isFile: boolean; isDirectory: boolean; birthtime?: Date; mtime?: Date }> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
     }
-    return null;
+
+    const result = await this.electron.fs.stat(targetPath);
+    if (!result.success || !result.stats) {
+      throw new Error(result.error || 'Failed to get file stats');
+    }
+
+    return {
+      size: result.stats.size,
+      isFile: result.stats.isFile,
+      isDirectory: result.stats.isDirectory,
+      birthtime: result.stats.created,
+      mtime: result.stats.modified,
+    };
   }
 
-  async showSaveFileDialog(options: Partial<DialogOptions> = {}): Promise<DialogResult | null> {
-    if (this.isElectron && this.electronAPI) {
-      return await this.electronAPI.showSaveDialog({
-        filters: [
-          { name: 'All Files', extensions: ['*'] },
-          { name: 'JavaScript', extensions: ['js'] },
-          { name: 'TypeScript', extensions: ['ts'] },
-          { name: 'Python', extensions: ['py'] },
-          ...(options.filters || []),
-        ],
-        ...options,
-      });
+  // Dialog Operations
+  async openFileDialog(options?: any): Promise<{ canceled: boolean; filePaths: string[] }> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
     }
-    return null;
+
+    const result = await this.electron.dialog.openFile(options);
+    return {
+      canceled: result.canceled,
+      filePaths: result.filePaths,
+    };
   }
 
-  // File system operations
-  async readFile(path: string): Promise<string | null> {
-    if (this.isElectron && this.electronAPI) {
-      const result = await this.electronAPI.fs.readFile(path);
-      return result?.success && result.content ? result.content : null;
+  async openFolderDialog(options?: any): Promise<{ canceled: boolean; filePaths: string[] }> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
     }
-    return null;
+
+    logger.debug('[ElectronService] Opening folder dialog...');
+    const result = await this.electron.dialog.openFolder(options);
+    logger.debug('[ElectronService] Dialog result:', result);
+
+    return {
+      canceled: result.canceled,
+      filePaths: result.filePaths,
+    };
   }
 
-  async writeFile(path: string, content: string): Promise<boolean> {
-    if (this.isElectron) {
-      const result = await this.electronAPI?.fs.writeFile(path, content);
-      return result?.success || false;
+  async saveFileDialog(options?: any): Promise<{ canceled: boolean; filePath?: string }> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
     }
-    return false;
+
+    const result = await this.electron.dialog.saveFile(options);
+    return {
+      canceled: result.canceled,
+      filePath: result.filePath,
+    };
   }
 
-  async fileExists(path: string): Promise<boolean> {
-    if (this.isElectron) {
-      const result = await this.electronAPI?.fs.exists(path);
-      return result?.exists || false;
+  // Shell Operations (for Agent Mode)
+  async executeCommand(command: string, cwd?: string): Promise<{ stdout: string; stderr: string; code: number }> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
     }
-    return false;
+
+    const result = await this.electron.shell.execute(command, cwd);
+    return {
+      stdout: result.stdout,
+      stderr: result.stderr,
+      code: result.code,
+    };
   }
 
-  async readDirectory(path: string): Promise<Array<{ name: string; path: string; isDirectory: boolean }>> {
-    if (this.isElectron) {
-      const result = await this.electronAPI?.fs.readdir(path);
-      return result?.success ? result.items : [];
-    }
-    return [];
-  }
-
-  async createDirectory(path: string): Promise<boolean> {
-    if (this.isElectron) {
-      const result = await this.electronAPI?.fs.mkdir(path);
-      return result?.success || false;
-    }
-    return false;
-  }
-
-  async deleteFile(path: string): Promise<boolean> {
-    if (this.isElectron) {
-      const result = await this.electronAPI?.fs.unlink(path);
-      return result?.success || false;
-    }
-    return false;
-  }
-
-  async renameFile(oldPath: string, newPath: string): Promise<boolean> {
-    if (this.isElectron) {
-      const result = await this.electronAPI?.fs.rename(oldPath, newPath);
-      return result?.success || false;
-    }
-    return false;
-  }
-
-  // System integration
   async openExternal(url: string): Promise<void> {
-    if (this.isElectron) {
-      await this.electronAPI?.shellOpenExternal(url);
-    } else {
+    if (!this.electron) {
+      // Fallback to window.open for web mode
       window.open(url, '_blank');
+      return;
+    }
+
+    const result = await this.electron.shell.openExternal(url);
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to open external URL');
     }
   }
 
-  async copyToClipboard(text: string): Promise<void> {
-    if (this.isElectron) {
-      await this.electronAPI?.clipboardWriteText(text);
-    } else {
-      await navigator.clipboard.writeText(text);
+  // App Operations
+  async getPath(name: string): Promise<string> {
+    if (!this.electron) {
+      throw new Error('Electron API not available');
     }
+
+    const result = await this.electron.app.getPath(name);
+    if (!result.success || !result.path) {
+      throw new Error(result.error || 'Failed to get path');
+    }
+
+    return result.path;
+  }
+
+  async getPlatform(): Promise<{ platform: string; arch: string; version: string }> {
+    if (!this.electron) {
+      return {
+        platform: navigator.platform,
+        arch: 'web',
+        version: '1.0.0-web',
+      };
+    }
+
+    const result = await this.electron.app.getPlatform();
+    return {
+      platform: result.platform,
+      arch: result.arch,
+      version: result.version,
+    };
+  }
+
+  // Clipboard Operations
+  async copyToClipboard(text: string): Promise<void> {
+    // Use browser API - works in both Electron and web
+    await navigator.clipboard.writeText(text);
   }
 
   async readFromClipboard(): Promise<string> {
-    if (this.isElectron) {
-      return (await this.electronAPI?.clipboardReadText()) || '';
-    } else {
-      return (await navigator.clipboard.readText()) || '';
-    }
+    // Use browser API - works in both Electron and web
+    return await navigator.clipboard.readText();
   }
 
-  // Notifications
-  async showNotification(title: string, body: string, icon?: string): Promise<void> {
-    if (this.isElectron && this.electronAPI) {
-      await this.electronAPI.showNotification({ title, body, ...(icon !== undefined ? { icon } : {}) });
-    } else if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body, ...(icon ? { icon } : {}) });
-    }
-  }
-
-  // App info
-  async getAppVersion(): Promise<string> {
-    if (this.isElectron) {
-      return (await this.electronAPI?.getAppVersion()) || '1.0.0';
-    }
-    return '1.0.0-web';
-  }
-
-  // Theme
-  async getNativeTheme(): Promise<boolean> {
-    if (this.isElectron && this.electronAPI) {
-      return await this.electronAPI.getNativeTheme();
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
-
-  async setNativeTheme(theme: 'light' | 'dark' | 'system'): Promise<void> {
-    if (this.isElectron) {
-      await this.electronAPI?.setNativeTheme(theme);
-    }
-  }
-
-  // Menu event listeners
-  setupMenuListeners(handlers: {
-    onNewFile?: () => void;
-    onOpenFile?: (filePath: string) => void;
-    onOpenFolder?: (folderPath: string) => void;
-    onSave?: () => void;
-    onSaveAs?: (filePath: string) => void;
-    onFind?: () => void;
-    onReplace?: () => void;
-    onToggleSidebar?: () => void;
-    onToggleAIChat?: () => void;
-    onAIAssistant?: () => void;
-    onAIGenerate?: () => void;
-    onAIExplain?: () => void;
-    onAIOptimize?: () => void;
-    onGlobalAIAssistant?: () => void;
-  }): void {
-    if (!this.isElectron) {
+  // Window Control Operations
+  minimizeWindow(): void {
+    if (!this.electron?.window) {
+      logger.warn('[ElectronService] Window controls not available in web mode');
       return;
     }
-
-    if (handlers.onNewFile) {
-      this.electronAPI?.onMenuNewFile(() => handlers.onNewFile?.());
-    }
-    if (handlers.onOpenFile) {
-      this.electronAPI?.onMenuOpenFile((_event: unknown, filePath: string) =>
-        handlers.onOpenFile?.(filePath)
-      );
-    }
-    if (handlers.onOpenFolder) {
-      this.electronAPI?.onMenuOpenFolder((_event: unknown, folderPath: string) =>
-        handlers.onOpenFolder?.(folderPath)
-      );
-    }
-    if (handlers.onSave) {
-      this.electronAPI?.onMenuSave(() => handlers.onSave?.());
-    }
-    if (handlers.onSaveAs) {
-      this.electronAPI?.onMenuSaveAs((_event: unknown, filePath: string) =>
-        handlers.onSaveAs?.(filePath)
-      );
-    }
-    if (handlers.onFind) {
-      this.electronAPI?.onMenuFind(() => handlers.onFind?.());
-    }
-    if (handlers.onReplace) {
-      this.electronAPI?.onMenuReplace(() => handlers.onReplace?.());
-    }
-    if (handlers.onToggleSidebar) {
-      this.electronAPI?.onMenuToggleSidebar(() => handlers.onToggleSidebar?.());
-    }
-    if (handlers.onToggleAIChat) {
-      this.electronAPI?.onMenuToggleAIChat(() => handlers.onToggleAIChat?.());
-    }
-    if (handlers.onAIAssistant) {
-      this.electronAPI?.onMenuAIAssistant(() => handlers.onAIAssistant?.());
-    }
-    if (handlers.onAIGenerate) {
-      this.electronAPI?.onMenuAIGenerate(() => handlers.onAIGenerate?.());
-    }
-    if (handlers.onAIExplain) {
-      this.electronAPI?.onMenuAIExplain(() => handlers.onAIExplain?.());
-    }
-    if (handlers.onAIOptimize) {
-      this.electronAPI?.onMenuAIOptimize(() => handlers.onAIOptimize?.());
-    }
-    if (handlers.onGlobalAIAssistant) {
-      this.electronAPI?.onGlobalAIAssistant(() => handlers.onGlobalAIAssistant?.());
-    }
+    this.electron.window.minimize();
   }
 
-  // Cleanup listeners
-  cleanupListeners(): void {
-    if (!this.isElectron || !this.electronAPI) {
+  maximizeWindow(): void {
+    if (!this.electron?.window) {
+      logger.warn('[ElectronService] Window controls not available in web mode');
       return;
     }
-
-    const channels = [
-      'menu-new-file',
-      'menu-open-file',
-      'menu-open-folder',
-      'menu-save',
-      'menu-save-as',
-      'menu-find',
-      'menu-replace',
-      'menu-toggle-sidebar',
-      'menu-toggle-ai-chat',
-      'menu-ai-assistant',
-      'menu-ai-generate',
-      'menu-ai-explain',
-      'menu-ai-optimize',
-      'global-ai-assistant',
-    ];
-
-    channels.forEach((channel) => {
-      if (this.electronAPI) {
-        this.electronAPI.removeAllListeners(channel);
-      }
-    });
+    this.electron.window.maximize();
   }
 
-  // App settings
-  async setStartOnLogin(enabled: boolean): Promise<void> {
-    if (this.isElectron && this.electronAPI) {
-      await this.electronAPI.app.setLoginItemSettings({
-        openAtLogin: enabled,
-        openAsHidden: false,
-      });
+  closeWindow(): void {
+    if (!this.electron?.window) {
+      logger.warn('[ElectronService] Window controls not available in web mode');
+      return;
     }
+    this.electron.window.close();
   }
 
-  async getStartOnLogin(): Promise<boolean> {
-    if (this.isElectron && this.electronAPI) {
-      const settings = await this.electronAPI.app.getLoginItemSettings();
-      return settings?.openAtLogin || false;
+  async isMaximized(): Promise<boolean> {
+    if (!this.electron?.window) {
+      return false;
     }
-    return false;
+    return await this.electron.window.isMaximized();
   }
 
-  // Generic invoke method for IPC calls
-  async invoke(channel: string, data?: any): Promise<any> {
-    if (this.isElectron && this.electronAPI) {
-      // Handle code execution specifically
-      if (channel === 'code-execute') {
-        return await this.electronAPI.codeExecutor.execute(data);
-      }
-      // Handle other invoke calls generically if needed
-      return null;
+  /**
+   * Generic IPC invoke method for Electron IPC
+   * @param channel - The IPC channel to invoke
+   * @param args - Arguments to pass to the main process
+   */
+  async invoke(channel: string, ...args: any[]): Promise<any> {
+    if (!this.electron) {
+      throw new Error('Electron API not available - invoke method only works in Electron');
     }
-    return null;
-  }
 
-  // Development helpers
-  async openDevTools(): Promise<void> {
-    if (this.isElectron && import.meta.env.DEV) {
-      await (window as unknown as ExtendedWindow & { electronDev?: { openDevTools: () => Promise<void> } }).electronDev?.openDevTools();
+    // Direct invoke via electron object if available
+    if ((this.electron as any).invoke) {
+      return (this.electron as any).invoke(channel, ...args);
     }
-  }
 
-  async reload(): Promise<void> {
-    if (this.isElectron && import.meta.env.DEV) {
-      await (window as unknown as ExtendedWindow & { electronDev?: { reload: () => Promise<void> } }).electronDev?.reload();
-    } else {
-      window.location.reload();
-    }
+    // Otherwise, throw error as invoke is not available
+    throw new Error(`IPC invoke not available for channel: ${channel}`);
   }
 }

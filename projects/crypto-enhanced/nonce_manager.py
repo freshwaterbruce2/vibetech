@@ -17,7 +17,7 @@ class NonceManager:
     # Kraken remembers the highest nonce ever used with each API key
     # For FRESH API keys, set to 0 to start from current timestamp
     # For existing keys with history, set to highest nonce Kraken remembers
-    KRAKEN_REMEMBERED_NONCE = 0  # Fresh API keys - start from current time
+    KRAKEN_REMEMBERED_NONCE = 1760356146471331622  # Last valid nonce from Kraken
 
     def __init__(self, storage_path: str = "nonce_state.json"):
         self.storage_path = Path(storage_path)

@@ -1,5 +1,6 @@
 // Super simple test to see if React loads at all
-console.log('main-simple.tsx loading...');
+import { logger } from './services/Logger';
+logger.debug('main-simple.tsx loading...');
 
 const root = document.getElementById('root');
 if (root) {
@@ -17,7 +18,7 @@ if (root) {
       <button onclick="alert('Click works!')">Test Button</button>
     </div>
   `;
-  console.log('Root element updated successfully');
+  logger.debug('Root element updated successfully');
 } else {
-  console.error('Root element not found!');
+  logger.error('Root element not found!');
 }

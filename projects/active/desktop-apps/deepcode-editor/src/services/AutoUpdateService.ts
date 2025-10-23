@@ -1,6 +1,7 @@
 /**
  * Auto-update service for keeping the application up to date
  */
+import { logger } from '../services/Logger';
 
 // Import electron types
 import '../types/electron.d';
@@ -82,7 +83,7 @@ export class AutoUpdateService {
         context: 'update_check',
         currentVersion: this.currentVersion,
       });
-      console.error('Update check failed:', error);
+      logger.error('Update check failed:', error);
       return null;
     }
   }
@@ -92,7 +93,7 @@ export class AutoUpdateService {
    */
   async downloadAndInstallUpdate(updateInfo: UpdateInfo): Promise<void> {
     if (!window.electronAPI) {
-      console.warn('Updates only available in Electron app');
+      logger.warn('Updates only available in Electron app');
       return;
     }
 
