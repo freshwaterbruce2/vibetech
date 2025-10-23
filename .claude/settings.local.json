@@ -14,7 +14,9 @@
       "Bash(idar@latest concurrently@latest cross-env@latest --save-dev)",
       "Bash(timeout 60 pnpm typecheck)",
       "Bash(timeout 90 pnpm typecheck)",
-      "Bash(timeout 120 pnpm run build)"
+      "Bash(timeout 120 pnpm run build)",
+      "Bash(Select-String -Pattern \"(✓|✗|error|warning|built in|dist/)\")",
+      "Bash(Select-Object -Last 30)"
     ],
     "deny": [],
     "ask": [],
