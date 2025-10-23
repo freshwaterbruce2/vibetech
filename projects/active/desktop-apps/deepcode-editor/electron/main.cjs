@@ -39,22 +39,48 @@ function createWindow() {
       // Monaco Editor requires web workers
       webviewTag: false,
     },
-    show: false, // Don't show until ready
+    show: true, // Show window immediately to debug visibility issues
   });
 
   // Show window when ready to prevent white flash
   mainWindow.once('ready-to-show', () => {
+    console.log('[Electron] Window ready to show');
     mainWindow.show();
+    mainWindow.focus(); // Force focus on the window
     if (isDev) {
       mainWindow.webContents.openDevTools();
     }
+  });
+
+  // Fallback: Force show after 3 seconds if not already visible
+  setTimeout(() => {
+    if (mainWindow && !mainWindow.isVisible()) {
+      console.log('[Electron] Forcing window to show (fallback)');
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  }, 3000);
+
+  // Handle loading errors
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('[Electron] Failed to load:', errorCode, errorDescription);
+  });
+
+  // Log when page finishes loading
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('[Electron] Page loaded successfully');
   });
 
   // Load the app
   if (isDev) {
     mainWindow.loadURL(VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    // In production, load from the dist folder
+    // Use app.getAppPath() for proper ASAR support
+    const appPath = app.getAppPath();
+    const indexPath = path.join(appPath, 'dist', 'index.html');
+    console.log('[Electron] Loading from:', indexPath);
+    mainWindow.loadFile(indexPath);
   }
 
   // Handle window closed
