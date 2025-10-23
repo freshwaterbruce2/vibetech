@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { builtinModules } from 'module'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 
@@ -36,7 +37,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      'crypto': 'crypto-js',
     },
   },
   
@@ -62,7 +62,9 @@ export default defineConfig({
       'better-sqlite3',
       'chromium-bidi',
       'pac-proxy-agent',
-      'get-uri'
+      'get-uri',
+      ...builtinModules,
+      ...builtinModules.map(m => `node:${m}`)
     ]
   },
 
@@ -105,7 +107,13 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
       },
 
-      external: ['sql.js', 'better-sqlite3', 'electron'],
+      external: [
+        'electron',
+        'sql.js',
+        'better-sqlite3',
+        ...builtinModules,
+        ...builtinModules.map(m => `node:${m}`)
+      ],
 
       output: {
         assetFileNames: (assetInfo) => {
