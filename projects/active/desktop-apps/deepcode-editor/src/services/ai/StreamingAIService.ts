@@ -113,7 +113,7 @@ export class DeepSeekStreamingClient extends BaseStreamingClient {
           if (done || !event) {
             break;
           }
-          if (event.type === 'event') {
+          if ('type' in event && event.type === 'event' && 'data' in event) {
             const data = JSON.parse(event.data);
 
             if (data.choices?.[0]?.delta?.content) {

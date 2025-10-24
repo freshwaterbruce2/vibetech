@@ -6,21 +6,6 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
-// Plugin to mark Node.js built-ins as external (prevents bundling in renderer)
-// Based on electron-vite.org/guide/dev best practices
-const nodeBuiltinsPlugin = () => ({
-  name: 'node-builtins-external',
-  enforce: 'pre' as const,
-  resolveId(id: string) {
-    // Handle both 'crypto' and 'node:crypto' formats
-    const cleanId = id.replace('node:', '')
-    if (builtinModules.includes(cleanId)) {
-      // Mark as external so Vite won't try to bundle it
-      return { id, external: true }
-    }
-  }
-})
-
 export default defineConfig({
   // Electron: No base path needed (uses file:// protocol)
   // @monaco-editor/react handles workers automatically - NO plugin needed
@@ -29,15 +14,18 @@ export default defineConfig({
   plugins: [
     react(),
 
+    // Polyfills for Node.js built-ins in browser environment
     nodePolyfills({
-      // Enable polyfills for specific globals and modules
+      // Enable polyfills for specific globals
       globals: {
         Buffer: true,
         global: true,
         process: true,
       },
-      // Enable polyfill for specific modules
+      // Polyfill node: protocol imports
       protocolImports: true,
+      // Include specific modules
+      include: ['crypto', 'stream', 'buffer', 'process'],
     }),
 
     // @monaco-editor/react handles Monaco workers internally - no plugin needed
@@ -89,6 +77,9 @@ export default defineConfig({
       'chromium-bidi',
       'pac-proxy-agent',
       'get-uri',
+      'puppeteer',
+      'puppeteer-core',
+      '@puppeteer/browsers',
       ...builtinModules,
       ...builtinModules.map(m => `node:${m}`)
     ]

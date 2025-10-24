@@ -1,7 +1,7 @@
 /**
  * Agent Performance Optimizer - Enhances agent response times and resource usage
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from '../utils/EventEmitter';
 import { BaseSpecializedAgent, AgentResponse, PerformanceMetrics } from './specialized-agents/BaseSpecializedAgent';
 import { logger } from '../utils/logger';
 

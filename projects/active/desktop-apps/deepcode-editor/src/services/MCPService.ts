@@ -8,7 +8,7 @@
  */
 import { logger } from '../services/Logger';
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from '../utils/EventEmitter';
 
 // MCP SDK imports - these work in both browser and Node.js
 // Note: The stdio transport uses child_process internally, but we handle that gracefully

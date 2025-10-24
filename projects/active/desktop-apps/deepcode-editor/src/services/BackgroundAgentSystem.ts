@@ -6,7 +6,7 @@
  */
 import { logger } from '../services/Logger';
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from '../utils/EventEmitter';
 import type { ExecutionEngine, ExecutionCallbacks } from './ai/ExecutionEngine';
 import type { TaskPlanner } from './ai/TaskPlanner';
 import type { AgentTask } from '../types';

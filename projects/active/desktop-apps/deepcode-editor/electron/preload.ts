@@ -3,9 +3,9 @@
  * Provides secure API access to renderer process
  */
 
-const { contextBridge, ipcRenderer } = require('electron');
-const path = require('path');
-const os = require('os');
+import { contextBridge, ipcRenderer } from 'electron';
+import path from 'node:path';
+import os from 'node:os';
 
 // Expose protected methods that allow the renderer process
 // to use ipcRenderer without exposing the entire object
@@ -49,11 +49,20 @@ contextBridge.exposeInMainWorld('electron', {
     exists: async (filePath) => {
       return await ipcRenderer.invoke('fs:exists', filePath);
     },
-    readdir: async (dirPath) => {
-      return await ipcRenderer.invoke('fs:readdir', dirPath);
+    readDir: async (dirPath) => {
+      return await ipcRenderer.invoke('fs:readDir', dirPath);
     },
-    mkdir: async (dirPath) => {
-      return await ipcRenderer.invoke('fs:mkdir', dirPath);
+    createDir: async (dirPath) => {
+      return await ipcRenderer.invoke('fs:createDir', dirPath);
+    },
+    remove: async (targetPath) => {
+      return await ipcRenderer.invoke('fs:remove', targetPath);
+    },
+    rename: async (oldPath, newPath) => {
+      return await ipcRenderer.invoke('fs:rename', oldPath, newPath);
+    },
+    stat: async (targetPath) => {
+      return await ipcRenderer.invoke('fs:stat', targetPath);
     },
   },
 
@@ -72,6 +81,21 @@ contextBridge.exposeInMainWorld('electron', {
     version: process.version,
     homedir: os.homedir(),
     pathSeparator: path.sep,
+  },
+
+  // Shell operations
+  shell: {
+    execute: async (command, cwd) => {
+      return await ipcRenderer.invoke('shell:execute', command, cwd);
+    },
+    openExternal: async (url) => {
+      return await ipcRenderer.invoke('shell:openExternal', url);
+    },
+  },
+
+  // Get platform info
+  getPlatform: async () => {
+    return await ipcRenderer.invoke('app:getPlatform');
   },
 
   // IPC communication
