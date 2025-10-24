@@ -1,7 +1,7 @@
 /**
  * Agent Reliability Manager - Enhanced error handling, recovery, and system reliability
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from '../utils/EventEmitter';
 import { BaseSpecializedAgent, AgentContext, AgentResponse } from './specialized-agents/BaseSpecializedAgent';
 import { logger } from '../utils/logger';
 

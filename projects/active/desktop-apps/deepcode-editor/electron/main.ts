@@ -5,11 +5,11 @@
  * Architecture: Cursor/VS Code style (Electron + Monaco Editor)
  */
 
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
-const path = require('path');
-const fs = require('fs/promises');
-const { exec } = require('child_process');
-const { promisify } = require('util');
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
+import * as path from 'path';
+import * as fs from 'fs/promises';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
@@ -35,7 +35,7 @@ function createWindow() {
       nodeIntegration: false, // Security: disable Node.js in renderer
       contextIsolation: true, // Security: isolate context
       sandbox: false, // Allow access to Node.js APIs via preload
-      preload: path.join(__dirname, 'preload.cjs'),
+      preload: path.join(__dirname, '../preload/index.mjs'),
       // Monaco Editor requires web workers
       webviewTag: false,
     },

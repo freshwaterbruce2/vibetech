@@ -1,7 +1,6 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+// Use Electron IPC for shell commands instead of child_process
+// This ensures compatibility with both dev and production builds
+// Type is defined in ElectronService.ts
 
 export interface GitStatus {
   branch: string;
@@ -43,15 +42,19 @@ export class GitService {
    * Execute a git command in the working directory
    */
   private async execGit(command: string): Promise<string> {
-    try {
-      const { stdout } = await execAsync(`git ${command}`, {
-        cwd: this.workingDirectory,
-        encoding: 'utf8',
-      });
-      return stdout.trim();
-    } catch (error) {
-      throw new Error(`Git command failed: ${error instanceof Error ? error.message : String(error)}`);
+    // Check if running in Electron
+    if (typeof window !== 'undefined' && window.electron?.shell) {
+      const result = await window.electron.shell.execute(`git ${command}`, this.workingDirectory);
+
+      if (!result.success) {
+        throw new Error(`Git command failed: ${result.stderr || 'Unknown error'}`);
+      }
+
+      return result.stdout.trim();
     }
+
+    // Fallback for web mode (not supported, but graceful)
+    throw new Error('Git operations require Electron environment');
   }
 
   /**
@@ -308,7 +311,15 @@ export class GitService {
    */
   static async clone(url: string, directory?: string): Promise<void> {
     const command = directory ? `git clone ${url} ${directory}` : `git clone ${url}`;
-    await execAsync(command);
+
+    if (typeof window !== 'undefined' && window.electron?.shell) {
+      const result = await window.electron.shell.execute(command);
+      if (!result.success) {
+        throw new Error(`Git clone failed: ${result.stderr || 'Unknown error'}`);
+      }
+    } else {
+      throw new Error('Git operations require Electron environment');
+    }
   }
 
   /**

@@ -198,10 +198,12 @@ print(f"5 + 3 = {result}")
     `, 'javascript');
     logger.debug('File System Access Attempt:', fsAccessResult);
 
-    // Attempt to spawn child process (should be blocked)
+    // Attempt to spawn child process (should be blocked in sandboxed environment)
+    // NOTE: In Electron, use window.electron.shell.execute instead
     const childProcessResult = await this.executor.executeCode(`
-      const { exec } = require('child_process');
-      exec('cat /etc/passwd');
+      // This should be blocked in sandboxed environment
+      // Correct approach: use window.electron.shell.execute('cat /etc/passwd')
+      throw new Error('Direct child_process access blocked - use IPC instead');
     `, 'javascript');
     logger.debug('Child Process Attempt:', childProcessResult);
 

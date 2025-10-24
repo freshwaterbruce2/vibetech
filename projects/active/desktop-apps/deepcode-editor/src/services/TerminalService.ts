@@ -3,7 +3,8 @@
  * Electron integration for real shell access
  */
 
-import { spawn, ChildProcess } from 'child_process';
+// Type-only import to avoid bundling Node.js modules in browser
+import type { ChildProcess } from 'child_process';
 
 export interface TerminalSession {
   id: string;
@@ -45,11 +46,11 @@ export class TerminalService {
   /**
    * Start a shell process for the session
    */
-  startShell(
+  async startShell(
     sessionId: string,
     onData: (data: string) => void,
     onExit: (code: number | null) => void
-  ): void {
+  ): Promise<void> {
     const session = this.sessions.get(sessionId);
     if (!session) {
       throw new Error(`Session ${sessionId} not found`);
@@ -61,6 +62,9 @@ export class TerminalService {
       onData('$ Type "help" for available commands\r\n');
       return;
     }
+
+    // Dynamic import of child_process only when in Electron
+    const { spawn } = await import('child_process');
 
     // Spawn shell process
     const shellProcess = spawn(session.shell, [], {
@@ -160,17 +164,19 @@ export class TerminalService {
     command: string,
     cwd?: string
   ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
-    return new Promise((resolve, reject) => {
-      if (!this.isElectron) {
-        // Browser mode - simulate response
-        resolve({
-          stdout: `Simulated output for: ${command}`,
-          stderr: '',
-          exitCode: 0,
-        });
-        return;
-      }
+    if (!this.isElectron) {
+      // Browser mode - simulate response
+      return {
+        stdout: `Simulated output for: ${command}`,
+        stderr: '',
+        exitCode: 0,
+      };
+    }
 
+    // Dynamic import of child_process only when in Electron
+    const { spawn } = await import('child_process');
+
+    return new Promise((resolve, reject) => {
       const shell = this.getDefaultShell();
       const proc = spawn(shell, ['-c', command], {
         cwd: cwd || process.cwd(),
