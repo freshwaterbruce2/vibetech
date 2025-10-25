@@ -10,11 +10,12 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import * as dbHandler from './database-handler';
 
 const execAsync = promisify(exec);
 
 // Keep a global reference to prevent garbage collection
-let mainWindow = null;
+let mainWindow: BrowserWindow | null = null;
 
 // Development or production mode
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
@@ -45,10 +46,12 @@ function createWindow() {
   // Show window when ready to prevent white flash
   mainWindow.once('ready-to-show', () => {
     console.log('[Electron] Window ready to show');
-    mainWindow.show();
-    mainWindow.focus(); // Force focus on the window
-    if (isDev) {
-      mainWindow.webContents.openDevTools();
+    if (mainWindow) {
+      mainWindow.show();
+      mainWindow.focus(); // Force focus on the window
+      if (isDev) {
+        mainWindow.webContents.openDevTools();
+      }
     }
   });
 
@@ -63,35 +66,46 @@ function createWindow() {
 
   // Handle loading errors
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-    console.error('[Electron] Failed to load:', errorCode, errorDescription);
+  console.error('[Electron] Failed to load:', errorCode, errorDescription);
   });
 
   // Log when page finishes loading
   mainWindow.webContents.on('did-finish-load', () => {
-    console.log('[Electron] Page loaded successfully');
+  console.log('[Electron] Page loaded successfully');
   });
 
   // Load the app
   if (isDev) {
-    mainWindow.loadURL(VITE_DEV_SERVER_URL);
+    if (mainWindow) {
+      mainWindow.loadURL(VITE_DEV_SERVER_URL);
+    }
   } else {
     // In production, load from the dist folder
     // Use app.getAppPath() for proper ASAR support
     const appPath = app.getAppPath();
-    const indexPath = path.join(appPath, 'dist', 'index.html');
+
+    // Try multiple possible paths for the index.html
+    let indexPath = path.join(appPath, 'resources', 'app', 'dist', 'index.html');
+    if (!require('fs').existsSync(indexPath)) {
+      indexPath = path.join(appPath, 'dist', 'index.html');
+    }
     console.log('[Electron] Loading from:', indexPath);
-    mainWindow.loadFile(indexPath);
+    console.log('[Electron] File exists:', require('fs').existsSync(indexPath));
+
+    if (mainWindow) {
+      mainWindow.loadFile(indexPath);
+    }
   }
 
   // Handle window closed
   mainWindow.on('closed', () => {
-    mainWindow = null;
+  mainWindow = null;
   });
 
   // Handle external links
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
-    return { action: 'deny' };
+  shell.openExternal(url);
+  return { action: 'deny' };
   });
 }
 
@@ -99,6 +113,12 @@ function createWindow() {
  * App lifecycle events
  */
 app.whenReady().then(() => {
+  // Initialize database
+  const dbInit = dbHandler.initializeDatabase();
+  if (!dbInit.success) {
+    console.error('[Electron] Database initialization failed:', dbInit.error);
+  }
+
   createWindow();
 
   // macOS: Re-create window when dock icon clicked
@@ -111,6 +131,7 @@ app.whenReady().then(() => {
 
 // Quit when all windows are closed (except macOS)
 app.on('window-all-closed', () => {
+  dbHandler.closeDatabase();
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -126,7 +147,7 @@ ipcMain.handle('fs:readFile', async (event, filePath) => {
     const content = await fs.readFile(filePath, 'utf-8');
     return { success: true, content };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -136,7 +157,7 @@ ipcMain.handle('fs:writeFile', async (event, filePath, content) => {
     await fs.writeFile(filePath, content, 'utf-8');
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -152,7 +173,7 @@ ipcMain.handle('fs:readDir', async (event, dirPath) => {
     }));
     return { success: true, items };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -162,7 +183,7 @@ ipcMain.handle('fs:createDir', async (event, dirPath) => {
     await fs.mkdir(dirPath, { recursive: true });
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -177,7 +198,7 @@ ipcMain.handle('fs:remove', async (event, targetPath) => {
     }
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -187,7 +208,7 @@ ipcMain.handle('fs:rename', async (event, oldPath, newPath) => {
     await fs.rename(oldPath, newPath);
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -216,7 +237,7 @@ ipcMain.handle('fs:stat', async (event, targetPath) => {
       },
     };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -227,6 +248,7 @@ ipcMain.handle('fs:stat', async (event, targetPath) => {
 // Open file dialog
 ipcMain.handle('dialog:openFile', async (event, options = {}) => {
   try {
+    if (!mainWindow) throw new Error('Main window not available');
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openFile'],
       filters: options.filters || [{ name: 'All Files', extensions: ['*'] }],
@@ -234,33 +256,35 @@ ipcMain.handle('dialog:openFile', async (event, options = {}) => {
     });
     return { success: true, canceled: result.canceled, filePaths: result.filePaths };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
 // Open folder dialog
 ipcMain.handle('dialog:openFolder', async (event, options = {}) => {
   try {
+    if (!mainWindow) throw new Error('Main window not available');
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
       ...options,
     });
     return { success: true, canceled: result.canceled, filePaths: result.filePaths };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
 // Save file dialog
 ipcMain.handle('dialog:saveFile', async (event, options = {}) => {
   try {
+    if (!mainWindow) throw new Error('Main window not available');
     const result = await dialog.showSaveDialog(mainWindow, {
       filters: options.filters || [{ name: 'All Files', extensions: ['*'] }],
       ...options,
     });
     return { success: true, canceled: result.canceled, filePath: result.filePath };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -284,10 +308,91 @@ ipcMain.handle('shell:execute', async (event, command, cwd) => {
   } catch (error) {
     return {
       success: false,
-      stdout: error.stdout || '',
-      stderr: error.stderr || error.message,
-      code: error.code || 1,
+      stdout: (error as any).stdout || '',
+      stderr: (error as any).stderr || (error as Error).message,
+      code: (error as any).code || 1,
     };
+  }
+});
+
+/**
+ * IPC Handlers - Secure Storage Operations for API Keys
+ */
+
+// Secure storage file path
+const getSecureStoragePath = () => {
+  const userDataPath = app.getPath('userData');
+  return path.join(userDataPath, 'secure-storage.json');
+};
+
+// Initialize secure storage file if it doesn't exist
+const initSecureStorage = async () => {
+  const storagePath = getSecureStoragePath();
+  try {
+    await fs.access(storagePath);
+  } catch {
+    // File doesn't exist, create it
+    await fs.writeFile(storagePath, JSON.stringify({}), 'utf-8');
+  }
+};
+
+// Get secure storage data
+ipcMain.handle('storage:get', async (event, key) => {
+  try {
+    await initSecureStorage();
+    const storagePath = getSecureStoragePath();
+    const data = await fs.readFile(storagePath, 'utf-8');
+    const storage = JSON.parse(data);
+    return { success: true, value: storage[key] || null };
+  } catch (error) {
+    console.error('[Electron] Failed to get storage:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Set secure storage data
+ipcMain.handle('storage:set', async (event, key, value) => {
+  try {
+    await initSecureStorage();
+    const storagePath = getSecureStoragePath();
+    const data = await fs.readFile(storagePath, 'utf-8');
+    const storage = JSON.parse(data);
+    storage[key] = value;
+    await fs.writeFile(storagePath, JSON.stringify(storage, null, 2), 'utf-8');
+    return { success: true };
+  } catch (error) {
+    console.error('[Electron] Failed to set storage:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Remove secure storage data
+ipcMain.handle('storage:remove', async (event, key) => {
+  try {
+    await initSecureStorage();
+    const storagePath = getSecureStoragePath();
+    const data = await fs.readFile(storagePath, 'utf-8');
+    const storage = JSON.parse(data);
+    delete storage[key];
+    await fs.writeFile(storagePath, JSON.stringify(storage, null, 2), 'utf-8');
+    return { success: true };
+  } catch (error) {
+    console.error('[Electron] Failed to remove storage:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Get all storage keys
+ipcMain.handle('storage:keys', async () => {
+  try {
+    await initSecureStorage();
+    const storagePath = getSecureStoragePath();
+    const data = await fs.readFile(storagePath, 'utf-8');
+    const storage = JSON.parse(data);
+    return { success: true, keys: Object.keys(storage) };
+  } catch (error) {
+    console.error('[Electron] Failed to get storage keys:', error);
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -301,7 +406,7 @@ ipcMain.handle('app:getPath', async (event, name) => {
     const appPath = app.getPath(name);
     return { success: true, path: appPath };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -311,7 +416,7 @@ ipcMain.handle('shell:openExternal', async (event, url) => {
     await shell.openExternal(url);
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 });
 
@@ -327,6 +432,42 @@ ipcMain.handle('app:getPlatform', async () => {
   };
 });
 
+// Get app version
+ipcMain.handle('app:getVersion', async () => {
+  return app.getVersion();
+});
+
+// Check if window is maximized
+ipcMain.handle('window:isMaximized', async () => {
+  return mainWindow ? mainWindow.isMaximized() : false;
+});
+
 console.log('[Electron] Main process initialized');
 console.log('[Electron] Mode:', isDev ? 'development' : 'production');
 console.log('[Electron] Platform:', process.platform);
+
+/**
+ * IPC Handlers - Database Operations
+ */
+
+// Execute database query
+ipcMain.handle('db:query', async (event, sql, params = []) => {
+  try {
+    const result = dbHandler.executeQuery(sql, params);
+    return result;
+  } catch (error) {
+    console.error('[Electron] Database query error:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Initialize database
+ipcMain.handle('db:initialize', async () => {
+  try {
+    const result = dbHandler.initializeDatabase();
+    return result;
+  } catch (error) {
+    console.error('[Electron] Database init error:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
