@@ -13,14 +13,14 @@ contextBridge.exposeInMainWorld('electron', {
   isElectron: true,
 
   // App methods
-  app: {
-    getPath: (name) => {
-      // Get application paths (userData, documents, etc.)
-      return ipcRenderer.sendSync('app:getPath', name);
+    app: {
+      getPath: async (name) => {
+        // Get application paths (userData, documents, etc.)
+        return await ipcRenderer.invoke('app:getPath', name);
+      },
+      getVersion: async () => await ipcRenderer.invoke('app:getVersion'),
+      quit: () => ipcRenderer.send('app:quit'),
     },
-    getVersion: () => ipcRenderer.sendSync('app:getVersion'),
-    quit: () => ipcRenderer.send('app:quit'),
-  },
 
   // Dialog methods
   dialog: {
@@ -71,7 +71,7 @@ contextBridge.exposeInMainWorld('electron', {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close'),
-    isMaximized: () => ipcRenderer.sendSync('window:isMaximized'),
+    isMaximized: async () => await ipcRenderer.invoke('window:isMaximized'),
   },
 
   // Platform information
@@ -90,6 +90,32 @@ contextBridge.exposeInMainWorld('electron', {
     },
     openExternal: async (url) => {
       return await ipcRenderer.invoke('shell:openExternal', url);
+    },
+  },
+
+  // Secure storage operations for API keys
+  storage: {
+    get: async (key) => {
+      return await ipcRenderer.invoke('storage:get', key);
+    },
+
+  // Database operations
+  db: {
+    query: async (sql, params = []) => {
+      return await ipcRenderer.invoke('db:query', sql, params);
+    },
+    initialize: async () => {
+      return await ipcRenderer.invoke('db:initialize');
+    },
+  },
+    set: async (key, value) => {
+      return await ipcRenderer.invoke('storage:set', key, value);
+    },
+    remove: async (key) => {
+      return await ipcRenderer.invoke('storage:remove', key);
+    },
+    keys: async () => {
+      return await ipcRenderer.invoke('storage:keys');
     },
   },
 
@@ -127,5 +153,4 @@ contextBridge.exposeInMainWorld('electron', {
   },
 });
 
-// Add type definitions for TypeScript
-window.electron = window.electron || {};
+// Type definitions added via global declaration above
