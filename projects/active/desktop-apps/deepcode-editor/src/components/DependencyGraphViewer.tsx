@@ -5,7 +5,7 @@ import { AlertCircle, Filter, Maximize2,Network } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import { DependencyGraph } from '../types/multifile';
+import { DependencyGraph } from '@vibetech/types/multifile';
 
 interface GraphNode {
   id: string;

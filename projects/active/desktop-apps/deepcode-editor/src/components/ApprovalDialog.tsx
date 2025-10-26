@@ -12,7 +12,7 @@ import {
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import { FileChange } from '../types/multifile';
+import { FileChange } from '@vibetech/types/multifile';
 
 interface ApprovalDialogProps {
   isOpen: boolean;

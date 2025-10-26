@@ -60,7 +60,7 @@ import { MultiFileEditor } from './services/MultiFileEditor';
 import { SearchService } from './services/SearchService';
 import { telemetry } from './services/TelemetryService';
 import { WorkspaceService } from './services/WorkspaceService';
-import type { FileChange, MultiFileEditPlan } from './types/multifile';
+import type { FileChange, MultiFileEditPlan } from '@vibetech/types/multifile';
 import { getUserFriendlyError } from './utils/errorHandler';
 import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 // Types

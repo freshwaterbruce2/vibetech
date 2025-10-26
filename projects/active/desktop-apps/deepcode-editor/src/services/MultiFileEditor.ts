@@ -6,7 +6,7 @@ import {
   FileChange,
   MultiFileEditPlan,
   MultiFileEditResult,
-} from '../types/multifile';
+} from '@vibetech/types/multifile';
 
 import { UnifiedAIService } from './ai/UnifiedAIService';
 import { DependencyAnalyzer } from './DependencyAnalyzer';
