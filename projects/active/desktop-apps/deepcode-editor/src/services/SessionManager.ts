@@ -1,6 +1,7 @@
 // import { AgentTask, TaskResult as AgentResult } from './AutonomousAgent';
 // Fallback interfaces
 import { logger } from '../services/Logger';
+
 interface AgentTask {
   id: string;
   description: string;

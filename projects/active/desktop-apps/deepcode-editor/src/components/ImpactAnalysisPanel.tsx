@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, AlertTriangle, FileText, TrendingUp, Info } from 'lucide-react';
+import { AlertTriangle, FileText, Info,Target, TrendingUp } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';

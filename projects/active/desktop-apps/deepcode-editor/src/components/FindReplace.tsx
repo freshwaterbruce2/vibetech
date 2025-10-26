@@ -270,7 +270,7 @@ export const FindReplace: React.FC<FindReplaceProps> = ({
     <Container $isOpen={isOpen}>
       <Header>
         <Title>Find {showReplace && '& Replace'}</Title>
-        <CloseButton onClick={onClose}>
+        <CloseButton onClick={onClose} aria-label="Close find and replace">
           <X />
         </CloseButton>
       </Header>
@@ -288,13 +288,13 @@ export const FindReplace: React.FC<FindReplaceProps> = ({
           onKeyDown={handleKeyDown}
         />
         <MatchInfo>{totalMatches > 0 ? `${currentMatch}/${totalMatches}` : 'No results'}</MatchInfo>
-        <IconButton onClick={onFindPrevious} disabled={totalMatches === 0}>
+        <IconButton onClick={onFindPrevious} disabled={totalMatches === 0} aria-label="Previous match (Shift+Enter)">
           <ChevronUp />
         </IconButton>
-        <IconButton onClick={onFindNext} disabled={totalMatches === 0}>
+        <IconButton onClick={onFindNext} disabled={totalMatches === 0} aria-label="Next match (Enter)">
           <ChevronDown />
         </IconButton>
-        <Button onClick={() => setShowReplace(!showReplace)}>
+        <Button onClick={() => setShowReplace(!showReplace)} aria-label="Toggle replace">
           <Replace />
         </Button>
       </InputGroup>

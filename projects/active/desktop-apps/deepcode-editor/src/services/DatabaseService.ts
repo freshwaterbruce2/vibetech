@@ -17,8 +17,9 @@
  * - Graceful fallback to localStorage when database unavailable
  */
 
-import { logger } from './Logger';
 import type { StrategyPattern } from '../types';
+
+import { logger } from './Logger';
 
 // Database path configuration - cross-platform with D: drive preference
 const getDatabasePath = (): string => {
@@ -42,7 +43,7 @@ const getDatabasePath = (): string => {
   } else if (typeof window !== 'undefined' && window.electron?.platform) {
     // Electron platform API available
     const platform = (window.electron.platform as any).os;
-    const homedir = (window.electron.platform as any).homedir;
+    const {homedir} = (window.electron.platform as any);
     const sep = (window.electron.platform as any).pathSeparator;
 
     if (platform === 'win32') {
@@ -123,6 +124,7 @@ export class DatabaseService {
   private db: any = null;
   private isElectron: boolean = false;
   private useFallback: boolean = false;
+  private useIPC: boolean = false;  // Track if using IPC mode (Electron with better-sqlite3 via main process)
   private initialized: boolean = false;
 
   constructor() {
@@ -376,7 +378,7 @@ export class DatabaseService {
         return rows.map(this.parseChatMessage);
       } else {
         const result = this.db.exec(sql, [workspace, limit, offset]);
-        if (!result[0]) return [];
+        if (!result[0]) {return [];}
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -493,7 +495,7 @@ export class DatabaseService {
         return rows.map(this.parseSnippet);
       } else {
         const result = this.db.exec(sql, params);
-        if (!result[0]) return [];
+        if (!result[0]) {return [];}
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -516,7 +518,7 @@ export class DatabaseService {
    * Increment snippet usage count
    */
   async incrementSnippetUsage(id: number): Promise<void> {
-    if (this.useFallback) return;
+    if (this.useFallback) {return;}
 
     try {
       const sql = `
@@ -557,7 +559,7 @@ export class DatabaseService {
         return row ? JSON.parse(row.value) : defaultValue;
       } else {
         const result = this.db.exec(sql, [key]);
-        if (!result[0] || result[0].values.length === 0) return defaultValue;
+        if (!result[0] || result[0].values.length === 0) {return defaultValue;}
         return JSON.parse(result[0].values[0][0]);
       }
     } catch (error) {
@@ -613,7 +615,7 @@ export class DatabaseService {
         }, {});
       } else {
         const result = this.db.exec(sql);
-        if (!result[0]) return {};
+        if (!result[0]) {return {};}
 
         return result[0].values.reduce((acc: any, row: any[]) => {
           acc[row[0]] = JSON.parse(row[1]);
@@ -634,7 +636,7 @@ export class DatabaseService {
    * Log an analytics event
    */
   async logEvent(eventType: string, eventData?: any): Promise<void> {
-    if (this.useFallback) return;
+    if (this.useFallback) {return;}
 
     try {
       const sql = `
@@ -665,7 +667,7 @@ export class DatabaseService {
     endDate?: Date,
     limit: number = 1000
   ): Promise<AnalyticsEvent[]> {
-    if (this.useFallback) return [];
+    if (this.useFallback) {return [];}
 
     try {
       let sql = 'SELECT * FROM deepcode_analytics WHERE 1=1';
@@ -699,7 +701,7 @@ export class DatabaseService {
         }));
       } else {
         const result = this.db.exec(sql, params);
-        if (!result[0]) return [];
+        if (!result[0]) {return [];}
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -831,7 +833,7 @@ export class DatabaseService {
         });
       } else {
         const result = this.db.exec(sql, [limit]);
-        if (!result[0]) return [];
+        if (!result[0]) {return [];}
 
         return result[0].values.map((row: any[]) => {
           const pattern = JSON.parse(row[0]);
@@ -854,7 +856,7 @@ export class DatabaseService {
    * Update pattern success rate
    */
   async updatePatternSuccess(patternHash: string, success: boolean): Promise<void> {
-    if (this.useFallback) return;
+    if (this.useFallback) {return;}
 
     try {
       // Get current pattern
@@ -864,7 +866,7 @@ export class DatabaseService {
 
       if (this.isElectron) {
         const row = this.db.prepare(sql).get(patternHash);
-        if (row) pattern = JSON.parse(row.pattern_data);
+        if (row) {pattern = JSON.parse(row.pattern_data);}
       } else {
         const result = this.db.exec(sql, [patternHash]);
         if (result[0] && result[0].values.length > 0) {
@@ -872,7 +874,7 @@ export class DatabaseService {
         }
       }
 
-      if (!pattern) return;
+      if (!pattern) {return;}
 
       // Update success rate
       pattern.usageCount++;
@@ -946,7 +948,7 @@ export class DatabaseService {
    * Save database to localStorage (for web mode persistence)
    */
   private async saveToLocalStorage(): Promise<void> {
-    if (this.isElectron || !this.db) return;
+    if (this.isElectron || !this.db) {return;}
 
     try {
       const data = this.db.export();

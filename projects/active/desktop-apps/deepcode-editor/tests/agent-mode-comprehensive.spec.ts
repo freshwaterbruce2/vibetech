@@ -15,7 +15,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Agent Mode - Comprehensive Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the app
-    await page.goto('http://localhost:3007');
+    await page.goto('/');
 
     // Wait for app to fully load
     await page.waitForSelector('[data-testid="app-container"]', {
@@ -238,7 +238,7 @@ test.describe('Agent Mode - Comprehensive Tests', () => {
 
 test.describe('Agent Mode - Performance Tests', () => {
   test('should handle large file analysis without freezing UI', async ({ page }) => {
-    await page.goto('http://localhost:3007');
+    await page.goto('/');
     await page.waitForSelector('[data-testid="app-container"]', { state: 'visible' });
 
     // Open Agent Mode
@@ -258,7 +258,7 @@ test.describe('Agent Mode - Performance Tests', () => {
   });
 
   test('should not cause memory leaks after 5 consecutive tasks', async ({ page }) => {
-    await page.goto('http://localhost:3007');
+    await page.goto('/');
     await page.waitForSelector('[data-testid="app-container"]', { state: 'visible' });
 
     await page.keyboard.press('Control+Shift+A');

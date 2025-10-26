@@ -13,18 +13,18 @@
  * @see https://arxiv.org/abs/2210.03629 (ReAct paper)
  */
 import { logger } from '../../services/Logger';
-
-import { UnifiedAIService } from './UnifiedAIService';
 import {
   AgentStep,
   AgentTask,
-  StepAction,
-  StepResult,
-  ReActThought,
+  ReActCycle,
   ReActObservation,
   ReActReflection,
-  ReActCycle,
+  ReActThought,
+  StepAction,
+  StepResult,
 } from '../../types';
+
+import { UnifiedAIService } from './UnifiedAIService';
 
 export class ReActExecutor {
   private cycleHistory: Map<string, ReActCycle[]> = new Map();

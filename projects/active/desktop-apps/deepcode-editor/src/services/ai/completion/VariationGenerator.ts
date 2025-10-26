@@ -9,13 +9,15 @@
 // This file needs runtime monaco for new monaco.Range()
 import * as monaco from 'monaco-editor';
 import { v4 as uuidv4 } from 'uuid';
+
+import type { CompletionLatency, VariationType } from '../../../types/analytics';
 import { getAnalyticsInstance } from '../CompletionAnalytics';
+
 import type {
   CodeContext,
   CompletionVariation,
   VariationConfig,
 } from './types';
-import type { CompletionLatency, VariationType } from '../../../types/analytics';
 
 const DEFAULT_CONFIG: VariationConfig = {
   maxVariations: 3,

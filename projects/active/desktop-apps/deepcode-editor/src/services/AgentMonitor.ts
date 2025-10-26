@@ -145,7 +145,7 @@ export class AgentMonitor {
 
     const change = ((avgSecond - avgFirst) / avgFirst) * 100;
 
-    if (Math.abs(change) < 5) return { direction: 'stable', change };
+    if (Math.abs(change) < 5) {return { direction: 'stable', change };}
     return {
       direction: change > 0 ? 'degrading' : 'improving',
       change: Math.abs(change)
@@ -185,7 +185,7 @@ export class AgentMonitor {
 
   private checkThresholds(agentId: string, record: ExecutionRecord): void {
     const threshold = this.thresholds.get(agentId);
-    if (!threshold) return;
+    if (!threshold) {return;}
 
     const violations: Violation[] = [];
 
@@ -303,9 +303,9 @@ export class AgentMonitor {
     score = Math.max(0, Math.min(100, score));
 
     let status: 'healthy' | 'degraded' | 'unhealthy';
-    if (score >= 80) status = 'healthy';
-    else if (score >= 50) status = 'degraded';
-    else status = 'unhealthy';
+    if (score >= 80) {status = 'healthy';}
+    else if (score >= 50) {status = 'degraded';}
+    else {status = 'unhealthy';}
 
     return { score, status, issues };
   }

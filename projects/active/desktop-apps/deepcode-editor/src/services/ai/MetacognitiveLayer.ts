@@ -11,8 +11,8 @@
  * - ReAct + self-reflection patterns
  */
 import { logger } from '../../services/Logger';
-
 import { AgentStep, AgentTask } from '../../types';
+
 import { UnifiedAIService } from './UnifiedAIService';
 
 export interface StuckPattern {
@@ -188,7 +188,7 @@ export class MetacognitiveLayer {
   // ==================== PRIVATE DETECTION METHODS ====================
 
   private detectRepeatedErrors(step: AgentStep, error?: Error): StuckPattern | null {
-    if (!error) return null;
+    if (!error) {return null;}
 
     const errorKey = `${step.action.type}_${error.message}`;
     const history = this.errorHistory.get(errorKey);
@@ -225,7 +225,7 @@ export class MetacognitiveLayer {
 
   private detectTimeout(step: AgentStep): StuckPattern | null {
     const startTime = this.stepStartTimes.get(step.id);
-    if (!startTime) return null;
+    if (!startTime) {return null;}
 
     const elapsed = Date.now() - startTime;
     if (elapsed > this.STUCK_TIMEOUT_MS) {

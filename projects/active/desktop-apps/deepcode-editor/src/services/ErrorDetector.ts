@@ -91,10 +91,10 @@ export class ErrorDetector {
    * Check for errors in the current editor model
    */
   public checkForErrors(): void {
-    if (this.isDisposed) return;
+    if (this.isDisposed) {return;}
 
     const model = this.editor.getModel();
-    if (!model) return;
+    if (!model) {return;}
 
     // Get all markers (TypeScript and ESLint errors)
     const markers = this.monaco.editor.getModelMarkers({ resource: model.uri });
@@ -148,7 +148,7 @@ export class ErrorDetector {
    * Parse console output for runtime errors
    */
   public parseConsoleOutput(output: string): void {
-    if (this.isDisposed) return;
+    if (this.isDisposed) {return;}
 
     // Pattern to match error stack traces
     const errorPattern = /(Error|TypeError|ReferenceError|SyntaxError):\s*(.+)/;
@@ -272,8 +272,8 @@ export class ErrorDetector {
    */
   private monacoSeverityToString(severity: number): 'error' | 'warning' | 'info' {
     // Monaco.MarkerSeverity: Error = 8, Warning = 4, Info = 2, Hint = 1
-    if (severity >= 8) return 'error';
-    if (severity >= 4) return 'warning';
+    if (severity >= 8) {return 'error';}
+    if (severity >= 4) {return 'warning';}
     return 'info';
   }
 

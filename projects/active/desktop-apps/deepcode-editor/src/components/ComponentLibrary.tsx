@@ -8,24 +8,23 @@
  * - One-click insert into editor
  * - Custom component library support
  */
-import { logger } from '../services/Logger';
-
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useMemo,useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
-  Search,
-  Package,
-  Copy,
   Check,
   ChevronRight,
   Code2,
-  Eye,
+  Copy,
   Download,
-  Star,
+  Eye,
   Filter,
+  Package,
+  Search,
+  Star,
 } from 'lucide-react';
 import styled from 'styled-components';
 
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 
 const LibraryContainer = styled(motion.div)`

@@ -321,7 +321,7 @@ export const Settings: React.FC<SettingsProps> = ({
   };
 
   const getModelPricing = (modelId: string | undefined) => {
-    if (!modelId) return null;
+    if (!modelId) {return null;}
     return MODEL_PRICING[modelId as keyof typeof MODEL_PRICING];
   };
 

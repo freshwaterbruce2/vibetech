@@ -2,8 +2,9 @@
  * Agent Reliability Manager - Enhanced error handling, recovery, and system reliability
  */
 import { EventEmitter } from '../utils/EventEmitter';
-import { BaseSpecializedAgent, AgentContext, AgentResponse } from './specialized-agents/BaseSpecializedAgent';
 import { logger } from '../utils/logger';
+
+import { AgentContext, AgentResponse,BaseSpecializedAgent } from './specialized-agents/BaseSpecializedAgent';
 
 export interface AgentHealthStatus {
   agentId: string;
@@ -453,10 +454,10 @@ export class AgentReliabilityManager extends EventEmitter {
   private categorizeError(error: Error): HealthIssue['type'] {
     const message = error.message.toLowerCase();
     
-    if (message.includes('timeout')) return 'timeout';
-    if (message.includes('memory') || message.includes('heap')) return 'memory_leak';
-    if (message.includes('resource') || message.includes('limit')) return 'resource_exhaustion';
-    if (message.includes('connection') || message.includes('network')) return 'dependency_failure';
+    if (message.includes('timeout')) {return 'timeout';}
+    if (message.includes('memory') || message.includes('heap')) {return 'memory_leak';}
+    if (message.includes('resource') || message.includes('limit')) {return 'resource_exhaustion';}
+    if (message.includes('connection') || message.includes('network')) {return 'dependency_failure';}
     
     return 'high_error_rate';
   }
@@ -482,7 +483,7 @@ export class AgentReliabilityManager extends EventEmitter {
 
   private simplifyRequest(request: string): string {
     // Simplify complex requests for fallback
-    return request.length > 500 ? request.substring(0, 500) + '...' : request;
+    return request.length > 500 ? `${request.substring(0, 500)  }...` : request;
   }
 
   private simplifyContext(context: AgentContext): AgentContext {

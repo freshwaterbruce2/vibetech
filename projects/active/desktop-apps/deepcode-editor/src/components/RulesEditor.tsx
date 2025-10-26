@@ -7,13 +7,13 @@
  * - Live preview of rules
  * - File targeting visualization
  */
-import { logger } from '../services/Logger';
-
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect,useState } from 'react';
 import * as monaco from 'monaco-editor';
-import { RulesParser, type ParsedRules, type Rule } from '../services/RulesParser';
+import styled from 'styled-components';
+
 import { FileSystemService } from '../services/FileSystemService';
+import { logger } from '../services/Logger';
+import { type ParsedRules, type Rule,RulesParser } from '../services/RulesParser';
 
 interface RulesEditorProps {
   workspaceRoot: string;
@@ -42,7 +42,7 @@ export const RulesEditor: React.FC<RulesEditorProps> = ({
   // Initialize Monaco editor
   useEffect(() => {
     const editorElement = document.getElementById('rules-monaco-editor');
-    if (!editorElement || editorInstance) return;
+    if (!editorElement || editorInstance) {return;}
 
     const editor = monaco.editor.create(editorElement, {
       value: content,
@@ -163,7 +163,7 @@ You are an expert developer working on this project.
   };
 
   const handleSave = async () => {
-    if (!onSave) return;
+    if (!onSave) {return;}
 
     try {
       await onSave(content, filename);

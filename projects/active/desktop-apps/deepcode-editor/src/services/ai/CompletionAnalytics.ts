@@ -8,18 +8,18 @@
  * - Privacy-first (100% local)
  * - Industry benchmarks (30% acceptance target)
  */
-import { logger } from '../../services/Logger';
-
 import { v4 as uuidv4 } from 'uuid';
+
+import { logger } from '../../services/Logger';
 import type {
-  CompletionEvent,
-  VariationType,
-  CompletionLatency,
   AnalyticsConfig,
   AnalyticsSummary,
+  CompletionEvent,
+  CompletionLatency,
+  DailyMetrics,
   LanguageMetrics,
   VariationMetrics,
-  DailyMetrics,
+  VariationType,
 } from '../../types/analytics';
 import { AnalyticsStorage } from '../../utils/AnalyticsStorage';
 
@@ -73,7 +73,7 @@ export class CompletionAnalytics {
     latency: CompletionLatency,
     fileType: string
   ): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {return;}
 
     const event: CompletionEvent = {
       id: uuidv4(),
@@ -105,7 +105,7 @@ export class CompletionAnalytics {
    * Track completion accepted
    */
   trackCompletionAccepted(completionId: string, variationType: VariationType): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {return;}
 
     const shownEvent = this.completionMap.get(completionId);
     if (!shownEvent) {
@@ -133,10 +133,10 @@ export class CompletionAnalytics {
    * Track completion rejected (Esc pressed)
    */
   trackCompletionRejected(completionId: string): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {return;}
 
     const shownEvent = this.completionMap.get(completionId);
-    if (!shownEvent) return;
+    if (!shownEvent) {return;}
 
     const event: CompletionEvent = {
       ...shownEvent,
@@ -153,10 +153,10 @@ export class CompletionAnalytics {
    * Track completion dismissed (user kept typing)
    */
   trackCompletionDismissed(completionId: string): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {return;}
 
     const shownEvent = this.completionMap.get(completionId);
-    if (!shownEvent) return;
+    if (!shownEvent) {return;}
 
     const event: CompletionEvent = {
       ...shownEvent,
@@ -173,10 +173,10 @@ export class CompletionAnalytics {
    * Track completion ignored (timeout)
    */
   private trackCompletionIgnored(completionId: string): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) {return;}
 
     const shownEvent = this.completionMap.get(completionId);
-    if (!shownEvent) return;
+    if (!shownEvent) {return;}
 
     const event: CompletionEvent = {
       ...shownEvent,
@@ -213,7 +213,7 @@ export class CompletionAnalytics {
    * Flush event queue to storage
    */
   async flushQueue(): Promise<void> {
-    if (this.eventQueue.length === 0) return;
+    if (this.eventQueue.length === 0) {return;}
 
     const events = [...this.eventQueue];
     this.eventQueue = [];

@@ -5,6 +5,7 @@ import { AlertTriangle, CheckCircle, Info, X, XCircle } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../../styles/theme';
+
 import { Button } from './Button';
 import { IconButton } from './IconButton';
 
@@ -182,7 +183,7 @@ export const Dialog: React.FC<DialogProps> = ({
 }) => {
   // Close on Escape key
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {return;}
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -231,7 +232,7 @@ export const Dialog: React.FC<DialogProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {return null;}
 
   const content = (
     <AnimatePresence>

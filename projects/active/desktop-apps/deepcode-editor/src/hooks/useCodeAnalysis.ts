@@ -1,6 +1,6 @@
-import { logger } from '../services/Logger';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { logger } from '../services/Logger';
 import { useEditorStore } from '../stores/useEditorStore';
 
 /**

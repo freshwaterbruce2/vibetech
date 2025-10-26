@@ -9,9 +9,9 @@
  * - TTL (time-to-live) support
  * - Priority-based retention
  */
-import { logger } from '../../../services/Logger';
-
 import * as monaco from 'monaco-editor';
+
+import { logger } from '../../../services/Logger';
 
 interface CacheEntry {
   id: string;
@@ -176,7 +176,7 @@ export class PrefetchCache {
    * Evict least recently used entry with priority awareness
    */
   private evictLRU(): void {
-    if (this.accessOrder.length === 0) return;
+    if (this.accessOrder.length === 0) {return;}
 
     // Find candidates for eviction (oldest 20%)
     const candidateCount = Math.max(1, Math.floor(this.accessOrder.length * 0.2));
@@ -185,7 +185,7 @@ export class PrefetchCache {
     // Score candidates (lower score = better to evict)
     const scored = candidates.map(id => {
       const entry = this.cache.get(id);
-      if (!entry) return { id, score: 0 };
+      if (!entry) {return { id, score: 0 };}
 
       const age = Date.now() - entry.lastAccessed;
       const accessScore = Math.log(entry.accessCount + 1);
@@ -234,16 +234,16 @@ export class PrefetchCache {
     let priority = 0.5; // Base priority
 
     // Boost for faster completions
-    if (result.latency < 200) priority += 0.2;
-    else if (result.latency < 500) priority += 0.1;
+    if (result.latency < 200) {priority += 0.2;}
+    else if (result.latency < 500) {priority += 0.1;}
 
     // Boost for certain models
-    if (result.model.includes('sonnet')) priority += 0.2;
-    else if (result.model.includes('haiku')) priority += 0.1;
+    if (result.model.includes('sonnet')) {priority += 0.2;}
+    else if (result.model.includes('haiku')) {priority += 0.1;}
 
     // Boost for multi-line completions
     const lineCount = result.completions[0]?.insertText.toString().split('\n').length || 1;
-    if (lineCount > 1) priority += 0.1;
+    if (lineCount > 1) {priority += 0.1;}
 
     return Math.min(priority, 1.0);
   }

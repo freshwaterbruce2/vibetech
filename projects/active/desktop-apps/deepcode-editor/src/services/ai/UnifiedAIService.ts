@@ -3,15 +3,15 @@
  * Provides backward-compatible interface while using the new multi-provider system
  */
 import { logger } from '../../services/Logger';
-
 import {
   AIContextRequest,
   AIResponse,
   WorkspaceContext,
 } from '../../types';
-import { AIProviderManager } from './AIProviderManager';
-import { AIProvider, MODEL_REGISTRY, CompletionOptions } from './AIProviderInterface';
 import SecureApiKeyManager from '../../utils/SecureApiKeyManager';
+
+import { AIProvider, CompletionOptions,MODEL_REGISTRY } from './AIProviderInterface';
+import { AIProviderManager } from './AIProviderManager';
 import { DemoResponseProvider } from './DemoResponseProvider';
 
 export class UnifiedAIService {
@@ -28,9 +28,9 @@ export class UnifiedAIService {
       this.currentModel = initialModel;
     }
 
-    // Check for stored API keys synchronously to avoid race condition
-    const storedProviders = this.keyManager.getStoredProviders();
-    logger.debug('[UnifiedAI] Initializing, found', storedProviders.length, 'stored providers');
+    // Check for stored API keys - will be loaded async by initializeProvidersFromStorage()
+    const storedProviders: any[] = [];
+    logger.debug('[UnifiedAI] Initializing, will load providers async');
 
     // Check if user forced demo mode via toggle (overrides everything)
     const forceDemoMode = typeof localStorage !== 'undefined' && localStorage.getItem('forceDemoMode') === 'true';
@@ -69,7 +69,7 @@ export class UnifiedAIService {
    * Initialize all providers that have API keys stored
    */
   private async initializeProvidersFromStorage(): Promise<void> {
-    const storedProviders = this.keyManager.getStoredProviders();
+    const storedProviders = await this.keyManager.getStoredProviders();
     logger.debug('[UnifiedAI] initializeProvidersFromStorage starting, found:', storedProviders.length, 'providers');
 
     for (const stored of storedProviders) {
@@ -211,7 +211,7 @@ export class UnifiedAIService {
     logger.debug('[UnifiedAIService] Extracted content:', content);
 
     const result = {
-      content: content,
+      content,
       metadata: {
         model: this.currentModel,
         tokens: completion.usage?.totalTokens || 0,
@@ -233,7 +233,7 @@ export class UnifiedAIService {
       // Simulate streaming for demo mode
       const words = response.content.split(' ');
       for (const word of words) {
-        yield word + ' ';
+        yield `${word  } `;
         await new Promise(resolve => setTimeout(resolve, 50));
       }
       return;

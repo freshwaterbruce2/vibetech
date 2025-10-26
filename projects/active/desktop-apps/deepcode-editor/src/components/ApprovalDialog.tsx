@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
-  CheckCircle2,
-  XCircle,
   AlertTriangle,
+  CheckCircle2,
+  Eye,
   FileText,
   GitBranch,
   Shield,
-  Eye,
+  XCircle,
 } from 'lucide-react';
 import styled from 'styled-components';
 
-import { FileChange } from '../types/multifile';
 import { vibeTheme } from '../styles/theme';
+import { FileChange } from '../types/multifile';
 
 interface ApprovalDialogProps {
   isOpen: boolean;

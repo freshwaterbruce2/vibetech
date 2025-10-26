@@ -7,9 +7,11 @@
  */
 
 import * as monaco from 'monaco-editor';
+
 import { LRUCache } from '../../../utils/LRUCache';
 import { StreamingCompletionCache } from '../../../utils/StreamingCompletionCache';
-import type { CodeContext, CacheEntry } from './types';
+
+import type { CacheEntry,CodeContext } from './types';
 
 export class CompletionCache {
   private lruCache: LRUCache<string, CacheEntry>;

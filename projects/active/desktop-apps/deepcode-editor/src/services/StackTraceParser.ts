@@ -49,7 +49,7 @@ export class StackTraceParser {
     // Parse stack frames
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i];
-      if (!line) continue;
+      if (!line) {continue;}
 
       const frame = this.parseFrameLine(line);
       if (frame) {

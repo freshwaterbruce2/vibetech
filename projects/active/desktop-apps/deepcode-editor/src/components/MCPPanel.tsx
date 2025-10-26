@@ -1,12 +1,11 @@
-import { logger } from '../services/Logger';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Check,
   ChevronDown,
   ChevronRight,
-  Plug,
   Play,
+  Plug,
   RefreshCw,
   ServerIcon,
   X,
@@ -14,8 +13,9 @@ import {
 } from 'lucide-react';
 import styled from 'styled-components';
 
+import { logger } from '../services/Logger';
+import type { Prompt,Resource, Tool } from '../services/MCPService';
 import { MCPService } from '../services/MCPService';
-import type { Tool, Resource, Prompt } from '../services/MCPService';
 import { vibeTheme } from '../styles/theme';
 
 const PanelContainer = styled.div`

@@ -9,11 +9,10 @@
  * - Privacy-first (100% local storage)
  */
 import { logger } from '../services/Logger';
-
 import type {
+  AnalyticsConfig,
   CompletionEvent,
   SessionMetrics,
-  AnalyticsConfig,
 } from '../types/analytics';
 
 const DB_NAME = 'DeepCodeAnalytics';
@@ -98,7 +97,7 @@ export class AnalyticsStorage {
   async addEventsBatch(events: CompletionEvent[]): Promise<void> {
     await this.ensureInitialized();
 
-    if (!this.db || events.length === 0) return;
+    if (!this.db || events.length === 0) {return;}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([EVENTS_STORE], 'readwrite');
@@ -127,7 +126,7 @@ export class AnalyticsStorage {
   async addEvent(event: CompletionEvent): Promise<void> {
     await this.ensureInitialized();
 
-    if (!this.db) return;
+    if (!this.db) {return;}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([EVENTS_STORE], 'readwrite');
@@ -148,7 +147,7 @@ export class AnalyticsStorage {
   async getEventsByDateRange(startTime: number, endTime: number): Promise<CompletionEvent[]> {
     await this.ensureInitialized();
 
-    if (!this.db) return [];
+    if (!this.db) {return [];}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([EVENTS_STORE], 'readonly');
@@ -171,7 +170,7 @@ export class AnalyticsStorage {
   async getEventsByLanguage(language: string): Promise<CompletionEvent[]> {
     await this.ensureInitialized();
 
-    if (!this.db) return [];
+    if (!this.db) {return [];}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([EVENTS_STORE], 'readonly');
@@ -193,7 +192,7 @@ export class AnalyticsStorage {
   async getAllEvents(): Promise<CompletionEvent[]> {
     await this.ensureInitialized();
 
-    if (!this.db) return [];
+    if (!this.db) {return [];}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([EVENTS_STORE], 'readonly');
@@ -214,7 +213,7 @@ export class AnalyticsStorage {
   async getEventCount(): Promise<number> {
     await this.ensureInitialized();
 
-    if (!this.db) return 0;
+    if (!this.db) {return 0;}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([EVENTS_STORE], 'readonly');
@@ -235,7 +234,7 @@ export class AnalyticsStorage {
   async saveSessionMetrics(metrics: SessionMetrics): Promise<void> {
     await this.ensureInitialized();
 
-    if (!this.db) return;
+    if (!this.db) {return;}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([SESSIONS_STORE], 'readwrite');
@@ -256,7 +255,7 @@ export class AnalyticsStorage {
   async getSessionMetrics(sessionId: string): Promise<SessionMetrics | null> {
     await this.ensureInitialized();
 
-    if (!this.db) return null;
+    if (!this.db) {return null;}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([SESSIONS_STORE], 'readonly');
@@ -278,7 +277,7 @@ export class AnalyticsStorage {
   async pruneOldData(config: AnalyticsConfig): Promise<number> {
     await this.ensureInitialized();
 
-    if (!this.db) return 0;
+    if (!this.db) {return 0;}
 
     const cutoffTime = Date.now() - config.retentionDays * 24 * 60 * 60 * 1000;
     let deletedCount = 0;
@@ -326,7 +325,7 @@ export class AnalyticsStorage {
    * Delete oldest events
    */
   private async deleteOldestEvents(count: number): Promise<void> {
-    if (!this.db || count <= 0) return;
+    if (!this.db || count <= 0) {return;}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([EVENTS_STORE], 'readwrite');
@@ -360,7 +359,7 @@ export class AnalyticsStorage {
   async clearAllData(): Promise<void> {
     await this.ensureInitialized();
 
-    if (!this.db) return;
+    if (!this.db) {return;}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([EVENTS_STORE, SESSIONS_STORE], 'readwrite');
@@ -386,7 +385,7 @@ export class AnalyticsStorage {
   async getStorageStats(): Promise<{ eventCount: number; sessionCount: number }> {
     await this.ensureInitialized();
 
-    if (!this.db) return { eventCount: 0, sessionCount: 0 };
+    if (!this.db) {return { eventCount: 0, sessionCount: 0 };}
 
     const eventCount = await this.getEventCount();
 

@@ -3,7 +3,7 @@
  * Utilities for interacting with Monaco editor in tests
  */
 
-import { Page } from 'puppeteer';
+import { Page } from '@playwright/test';
 import type * as monaco from 'monaco-editor';
 
 declare global {
@@ -145,7 +145,7 @@ export async function getConsoleLogs(page: Page): Promise<string[]> {
  * Call this before navigating to the page
  */
 export async function setupConsoleCapture(page: Page): Promise<void> {
-  await page.evaluateOnNewDocument(() => {
+  await page.addInitScript(() => {
     window.consoleHistory = [];
     const originalLog = console.log;
     const originalWarn = console.warn;

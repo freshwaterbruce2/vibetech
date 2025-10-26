@@ -2,9 +2,9 @@ import axios, { AxiosInstance } from 'axios';
 
 import { retryWithBackoff } from '../../utils/errorHandler';
 
-import { AIClientConfig, AICompletionRequest, AICompletionResponse } from './types';
-import { AIProviderManager } from './AIProviderManager';
 import { AIProvider, CompletionOptions } from './AIProviderInterface';
+import { AIProviderManager } from './AIProviderManager';
+import { AIClientConfig, AICompletionRequest, AICompletionResponse } from './types';
 
 /**
  * Low-level AI API client for making requests to AI services
@@ -45,7 +45,7 @@ export class AIClient {
       const provider = this.determineProvider(this.config.model);
       if (provider) {
         this.providerManager.setProvider(provider, {
-          provider: provider,
+          provider,
           apiKey: this.config.apiKey,
           baseUrl: this.config.baseUrl,
           model: this.config.model,

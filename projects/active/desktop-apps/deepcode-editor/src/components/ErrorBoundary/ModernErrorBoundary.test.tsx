@@ -76,23 +76,28 @@ describe('ModernErrorBoundary', () => {
   });
 
   it('resets error boundary when Try Again is clicked', () => {
-    const { rerender } = render(
+    let shouldThrow = true;
+
+    const ControlledThrow = () => {
+      if (shouldThrow) {
+        throw new Error('Test error');
+      }
+      return <div>No error</div>;
+    };
+
+    render(
       <ModernErrorBoundary>
-        <ThrowError shouldThrow />
+        <ControlledThrow />
       </ModernErrorBoundary>
     );
 
     expect(screen.getByText('Oops! Something went wrong')).toBeInTheDocument();
 
-    // Click Try Again
-    fireEvent.click(screen.getByText('Try Again'));
+    // Change state before clicking Try Again
+    shouldThrow = false;
 
-    // Rerender with no error
-    rerender(
-      <ModernErrorBoundary>
-        <ThrowError shouldThrow={false} />
-      </ModernErrorBoundary>
-    );
+    // Click Try Again - will re-render children with shouldThrow=false
+    fireEvent.click(screen.getByText('Try Again'));
 
     expect(screen.getByText('No error')).toBeInTheDocument();
   });

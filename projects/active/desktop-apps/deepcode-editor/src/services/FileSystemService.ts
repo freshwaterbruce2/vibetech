@@ -279,20 +279,15 @@ module.exports = {
   }
 
   async readFile(path: string): Promise<string> {
-    if (this.isElectron) {
+    if (this.isElectron || this.electronService.isElectron()) {
       // Use Electron filesystem API
       try {
         const content = await this.electronService.readFile(path);
-        return content;
+        return content || '';
       } catch (error) {
-        logger.error('Tauri readFile error:', error);
+        logger.error('Electron readFile error:', error);
         throw error;
       }
-    }
-
-    if (this.electronService.isElectron) {
-      const content = await this.electronService.readFile(path);
-      return content || '';
     }
 
     // Fallback to in-memory storage for web
@@ -324,7 +319,7 @@ module.exports = {
       }
     }
 
-    if (this.electronService.isElectron) {
+    if (this.electronService.isElectron()) {
       await this.electronService.writeFile(path, content);
       return;
     }
@@ -359,7 +354,7 @@ module.exports = {
       }
     }
 
-    if (this.electronService.isElectron) {
+    if (this.electronService.isElectron()) {
       await this.electronService.createDirectory(path);
       logger.debug(`[FileSystemService] Created directory via Electron: ${path}`);
       return;
@@ -461,7 +456,7 @@ module.exports = {
       }
     }
 
-    if (this.electronService.isElectron) {
+    if (this.electronService.isElectron()) {
       try {
         await this.electronService.readFile(path);
         return true;
@@ -503,7 +498,7 @@ module.exports = {
       }
     }
 
-    if (this.electronService.isElectron) {
+    if (this.electronService.isElectron()) {
       // Electron mode - try to read file to check if it exists
       try {
         const content = await this.electronService.readFile(path);

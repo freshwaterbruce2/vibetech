@@ -8,8 +8,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Agent Mode - Basic Functionality', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the app
-    await page.goto('http://localhost:3007', { waitUntil: 'networkidle' });
+    // Navigate to the app (uses baseURL from playwright.config.ts)
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     // Wait for app to load
     await page.waitForTimeout(2000);
@@ -95,7 +95,7 @@ test.describe('Agent Mode - Basic Functionality', () => {
 
 test.describe('Agent Mode - File Operations', () => {
   test('should handle file creation request', async ({ page }) => {
-    await page.goto('http://localhost:3007', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
 
     // Open Agent Mode
@@ -123,7 +123,7 @@ test.describe('Agent Mode - File Operations', () => {
 
 test.describe('Agent Mode - UI Responsiveness', () => {
   test('should not freeze during long-running task', async ({ page }) => {
-    await page.goto('http://localhost:3007', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
 
     // Open Agent Mode

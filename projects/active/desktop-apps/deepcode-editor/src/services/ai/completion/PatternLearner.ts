@@ -5,9 +5,9 @@
  * October 2025 - Week 4 Implementation
  * Uses machine learning-inspired techniques for pattern recognition
  */
-import { logger } from '../../../services/Logger';
-
 import * as monaco from 'monaco-editor';
+
+import { logger } from '../../../services/Logger';
 
 // Pattern types we track
 enum PatternType {
@@ -442,7 +442,7 @@ export class PatternLearner {
    */
   private applyLanguageBoosts(predictions: PredictedPosition[], language: string): void {
     const patterns = this.languagePatterns.get(language);
-    if (!patterns) return;
+    if (!patterns) {return;}
 
     for (const prediction of predictions) {
       // Boost confidence based on language patterns
@@ -580,14 +580,14 @@ export class PatternLearner {
     const features: string[] = [];
 
     // Extract structural features
-    if (text.includes('function')) features.push('has_function');
-    if (text.includes('class')) features.push('has_class');
-    if (text.includes('return')) features.push('has_return');
-    if (text.includes('=>')) features.push('has_arrow');
-    if (/\{|\}/.test(text)) features.push('has_braces');
-    if (/\(|\)/.test(text)) features.push('has_parens');
-    if (/\[|\]/.test(text)) features.push('has_brackets');
-    if (text.includes('.')) features.push('has_dot');
+    if (text.includes('function')) {features.push('has_function');}
+    if (text.includes('class')) {features.push('has_class');}
+    if (text.includes('return')) {features.push('has_return');}
+    if (text.includes('=>')) {features.push('has_arrow');}
+    if (/\{|\}/.test(text)) {features.push('has_braces');}
+    if (/\(|\)/.test(text)) {features.push('has_parens');}
+    if (/\[|\]/.test(text)) {features.push('has_brackets');}
+    if (text.includes('.')) {features.push('has_dot');}
 
     return features;
   }

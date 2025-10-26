@@ -303,7 +303,7 @@ Respond in JSON format with keys: summary, suggestions (array), strengths (array
    */
   private analyzeLineForIssues(file: string, line: DiffLine): ReviewComment[] {
     const comments: ReviewComment[] = [];
-    const content = line.content;
+    const {content} = line;
 
     // Null reference
     if (content.match(/\bnull\s*\.\s*\w+|\.toString\(\)|\.toUpperCase\(\)/)) {
@@ -421,7 +421,7 @@ Respond in JSON format with keys: summary, suggestions (array), strengths (array
    */
   private getFromCache(key: string): CodeReview | null {
     const cached = this.reviewCache.get(key);
-    if (!cached) return null;
+    if (!cached) {return null;}
 
     if (Date.now() - cached.timestamp > this.cacheTimeout) {
       this.reviewCache.delete(key);

@@ -4,9 +4,46 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CommandPalette } from '../../components/CommandPalette';
 import { FileText, Settings, GitBranch, Search } from 'lucide-react';
 
-// Mock react-hotkeys-hook
+// Mock react-hotkeys-hook with functional implementation
+const keyMap: Record<string, string> = {
+  up: 'ArrowUp',
+  down: 'ArrowDown',
+  enter: 'Enter',
+  escape: 'Escape',
+};
+
+// Track one handler per key to prevent duplicates
+const keyHandlers = new Map<string, (e: KeyboardEvent) => void>();
+let globalListenerAdded = false;
+
+// Global listener that dispatches to the appropriate handler
+const globalKeyHandler = (e: Event) => {
+  const keyEvent = e as KeyboardEvent;
+  keyHandlers.forEach((handler, key) => {
+    if (keyEvent.key === key) {
+      handler(keyEvent);
+    }
+  });
+};
+
 vi.mock('react-hotkeys-hook', () => ({
-  useHotkeys: vi.fn(),
+  useHotkeys: (keys: string, handler: (e: KeyboardEvent) => void, deps?: any[]) => {
+    const keyName = keyMap[keys] || keys;
+
+    // Update the handler for this key (replaces old handler if exists)
+    keyHandlers.set(keyName, handler);
+
+    // Add global listener only once
+    if (!globalListenerAdded) {
+      document.addEventListener('keydown', globalKeyHandler);
+      globalListenerAdded = true;
+    }
+
+    // Cleanup - remove this key's handler
+    return () => {
+      keyHandlers.delete(keyName);
+    };
+  },
 }));
 
 const mockCommands = [
@@ -62,6 +99,9 @@ const defaultProps = {
 describe('CommandPalette Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Clear all key handlers from previous tests
+    keyHandlers.clear();
   });
 
   describe('Rendering', () => {
@@ -106,7 +146,10 @@ describe('CommandPalette Component', () => {
     it('should render command shortcuts', () => {
       render(<CommandPalette {...defaultProps} />);
 
-      expect(screen.getByText('Ctrl')).toBeInTheDocument();
+      // Multiple commands have "Ctrl", so use getAllByText
+      const ctrlKeys = screen.getAllByText('Ctrl');
+      expect(ctrlKeys.length).toBeGreaterThan(0);
+
       expect(screen.getByText('N')).toBeInTheDocument();
       expect(screen.getByText(',')).toBeInTheDocument();
     });
@@ -323,22 +366,25 @@ describe('CommandPalette Component', () => {
     it('should group commands by category', () => {
       render(<CommandPalette {...defaultProps} />);
 
-      expect(screen.getByText('FILE')).toBeInTheDocument();
-      expect(screen.getByText('EDIT')).toBeInTheDocument();
-      expect(screen.getByText('SOURCE CONTROL')).toBeInTheDocument();
+      // Categories are rendered with actual case (CSS text-transform doesn't apply in tests)
+      expect(screen.getByText('File')).toBeInTheDocument();
+      expect(screen.getByText('Edit')).toBeInTheDocument();
+      expect(screen.getByText('Source Control')).toBeInTheDocument();
     });
 
     it('should use default category for commands without category', () => {
       render(<CommandPalette {...defaultProps} />);
 
-      expect(screen.getByText('GENERAL')).toBeInTheDocument();
+      // Default category "General" is used for commands without explicit category
+      expect(screen.getByText('General')).toBeInTheDocument();
       expect(screen.getByText('No Category Command')).toBeInTheDocument();
     });
 
     it('should maintain category order', () => {
       render(<CommandPalette {...defaultProps} />);
 
-      const categories = screen.getAllByText(/^(FILE|EDIT|GENERAL|SEARCH|SOURCE CONTROL)$/);
+      // Categories are rendered with actual case (CSS text-transform doesn't apply in tests)
+      const categories = screen.getAllByText(/^(File|Edit|General|Search|Source Control)$/);
       expect(categories.length).toBeGreaterThan(0);
     });
   });
@@ -364,7 +410,10 @@ describe('CommandPalette Component', () => {
     it('should display keyboard shortcuts properly formatted', () => {
       render(<CommandPalette {...defaultProps} />);
 
-      expect(screen.getByText('Ctrl')).toBeInTheDocument();
+      // Multiple commands have "Ctrl", so use getAllByText
+      const ctrlKeys = screen.getAllByText('Ctrl');
+      expect(ctrlKeys.length).toBeGreaterThan(0);
+
       expect(screen.getByText('N')).toBeInTheDocument();
     });
 

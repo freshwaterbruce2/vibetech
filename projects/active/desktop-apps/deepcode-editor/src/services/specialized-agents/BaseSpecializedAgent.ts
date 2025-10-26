@@ -2,8 +2,8 @@
  * Base class for all specialized agents in the multi-agent system
  * Provides common functionality, standardized interfaces, and learning capabilities
  */
-import { DeepSeekService } from '../DeepSeekService';
 import { logger } from '../../utils/logger';
+import { DeepSeekService } from '../DeepSeekService';
 
 export enum AgentCapability {
   CODE_ANALYSIS = 'code_analysis',
@@ -263,20 +263,20 @@ export abstract class BaseSpecializedAgent {
     return allFiles
       .filter(file => {
         // Same directory files
-        if (file.startsWith(currentDir)) return true;
+        if (file.startsWith(currentDir)) {return true;}
         
         // Files with similar names
         const fileName = file.split('/').pop()?.split('.')[0] || '';
-        if (fileName.includes(currentName) || currentName.includes(fileName)) return true;
+        if (fileName.includes(currentName) || currentName.includes(fileName)) {return true;}
         
         // Test files
         if (file.includes('test') || file.includes('spec')) {
-          if (file.includes(currentName)) return true;
+          if (file.includes(currentName)) {return true;}
         }
         
         // Component/service relationships
-        if (currentFile.includes('component') && file.includes('service')) return true;
-        if (currentFile.includes('service') && file.includes('component')) return true;
+        if (currentFile.includes('component') && file.includes('service')) {return true;}
+        if (currentFile.includes('service') && file.includes('component')) {return true;}
         
         return false;
       })
@@ -347,16 +347,16 @@ export abstract class BaseSpecializedAgent {
     const patterns: string[] = [];
     
     // Request type patterns
-    if (request.toLowerCase().includes('component')) patterns.push('component-creation');
-    if (request.toLowerCase().includes('api')) patterns.push('api-integration');
-    if (request.toLowerCase().includes('test')) patterns.push('testing');
-    if (request.toLowerCase().includes('error')) patterns.push('error-handling');
-    if (request.toLowerCase().includes('performance')) patterns.push('performance-optimization');
+    if (request.toLowerCase().includes('component')) {patterns.push('component-creation');}
+    if (request.toLowerCase().includes('api')) {patterns.push('api-integration');}
+    if (request.toLowerCase().includes('test')) {patterns.push('testing');}
+    if (request.toLowerCase().includes('error')) {patterns.push('error-handling');}
+    if (request.toLowerCase().includes('performance')) {patterns.push('performance-optimization');}
     
     // Context patterns
-    if (context.currentFile?.endsWith('.tsx')) patterns.push('react-component');
-    if (context.currentFile?.endsWith('.ts')) patterns.push('typescript-service');
-    if (context.currentFile?.includes('test')) patterns.push('test-file');
+    if (context.currentFile?.endsWith('.tsx')) {patterns.push('react-component');}
+    if (context.currentFile?.endsWith('.ts')) {patterns.push('typescript-service');}
+    if (context.currentFile?.includes('test')) {patterns.push('test-file');}
     
     // Tech stack patterns
     context.codebaseMetrics?.techStack.forEach(tech => {

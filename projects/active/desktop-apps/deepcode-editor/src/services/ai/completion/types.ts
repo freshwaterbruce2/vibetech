@@ -4,6 +4,7 @@
  */
 
 import * as monaco from 'monaco-editor';
+
 import type { CompletionLatency, VariationType } from '../../../types/analytics';
 
 /**

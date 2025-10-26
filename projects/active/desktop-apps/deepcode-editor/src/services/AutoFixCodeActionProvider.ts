@@ -3,9 +3,10 @@
  * Integrates Auto-Fix with VS Code-style quick fix UI (lightbulb + context menu)
  * Based on 2025 best practices from VS Code and Monaco Editor
  */
+import * as monaco from 'monaco-editor';
+
 import { logger } from '../services/Logger';
 
-import * as monaco from 'monaco-editor';
 import type { AutoFixService } from './AutoFixService';
 import type { ErrorDetector } from './ErrorDetector';
 
@@ -40,7 +41,7 @@ export class AutoFixCodeActionProvider implements monaco.languages.CodeActionPro
     token: monaco.CancellationToken
   ): Promise<monaco.languages.CodeActionList | undefined> {
     // Check if there are any markers (errors) at this position
-    const markers = context.markers;
+    const {markers} = context;
     if (!markers || markers.length === 0) {
       return undefined;
     }
@@ -258,7 +259,7 @@ export class AutoFixCodeActionProvider implements monaco.languages.CodeActionPro
     if (message.length <= maxLength) {
       return message;
     }
-    return message.substring(0, maxLength) + '...';
+    return `${message.substring(0, maxLength)  }...`;
   }
 
   /**

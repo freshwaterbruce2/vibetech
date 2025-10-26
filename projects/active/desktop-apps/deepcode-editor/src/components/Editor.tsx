@@ -1,23 +1,24 @@
-import { logger } from '../services/Logger';
-import React, { useRef, useState } from 'react';
+import React, { useEffect,useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Editor as MonacoEditor } from '@monaco-editor/react';
 import { motion } from 'framer-motion';
 import { editor, languages  } from 'monaco-editor';
+import { type CompletionRegistration,registerCompletion } from 'monacopilot';
 import styled, { keyframes } from 'styled-components';
 
-import { DeepSeekService } from '../services/DeepSeekService';
 import { UnifiedAIService } from '../services/ai/UnifiedAIService';
-import { registerInlineCompletionProviderV2 } from '../services/ai/completion/InlineCompletionProviderV2';
-import CompletionIndicator, { CompletionStats } from './CompletionIndicator';
-import PrefetchIndicator from './PrefetchIndicator';
+import { DeepSeekService } from '../services/DeepSeekService';
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 import { EditorFile, EditorSettings, WorkspaceContext } from '../types';
+
+import CompletionIndicator, { CompletionStats } from './CompletionIndicator';
 // import { useMultiCursor } from '../hooks/useMultiCursor';
 // import { MultiCursorIndicator } from './MultiCursorIndicator';
-
 import FileTabs from './FileTabs';
 import FindReplace, { FindOptions } from './FindReplace';
+import { InlineEditDialog } from './InlineEditDialog';
+import PrefetchIndicator from './PrefetchIndicator';
 
 const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -132,6 +133,7 @@ const Editor: React.FC<EditorProps> = ({
   currentAIModel = 'deepseek-chat', // Default to DeepSeek
 }) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const completionRegistrationRef = useRef<CompletionRegistration | null>(null);
   const [aiSuggestion, setAiSuggestion] = useState<string>('');
   const [showAiStatus, setShowAiStatus] = useState(false);
   const [, setCursorPosition] = useState({ line: 1, column: 1 });
@@ -163,6 +165,24 @@ const Editor: React.FC<EditorProps> = ({
     memoryUsageMB: 0,
   });
   const [prefetchStatus, setPrefetchStatus] = useState<'idle' | 'active' | 'learning'>('idle');
+
+  // Inline edit dialog state (Cmd+K)
+  const [inlineEditOpen, setInlineEditOpen] = useState(false);
+  const [selectedCode, setSelectedCode] = useState('');
+
+  // Cleanup Monacopilot on unmount
+  useEffect(() => {
+    return () => {
+      if (completionRegistrationRef.current) {
+        try {
+          completionRegistrationRef.current.deregister();
+          logger.debug('[Monacopilot] Deregistered on component unmount');
+        } catch (error) {
+          logger.error('[Monacopilot] Deregistration error:', error);
+        }
+      }
+    };
+  }, []);
 
   // Multi-cursor functionality (disabled for now)
   // const {
@@ -222,6 +242,19 @@ const Editor: React.FC<EditorProps> = ({
   useHotkeys('ctrl+h, cmd+h', (e) => {
     e.preventDefault();
     setFindReplaceOpen(true);
+  });
+
+  useHotkeys('ctrl+k, cmd+k', (e) => {
+    e.preventDefault();
+    if (editorRef.current) {
+      const selection = editorRef.current.getSelection();
+      const model = editorRef.current.getModel();
+      if (selection && model && !selection.isEmpty()) {
+        const code = model.getValueInRange(selection);
+        setSelectedCode(code);
+        setInlineEditOpen(true);
+      }
+    }
   });
 
   // Multi-cursor shortcuts (disabled for now)
@@ -335,60 +368,59 @@ const Editor: React.FC<EditorProps> = ({
       setupAiCompletionProvider(editor);
     }
 
-    // Register enhanced inline completion provider V2 (multi-model support)
-    if (aiService) {
-      const completionDisposable = registerInlineCompletionProviderV2(aiService, editor);
-      logger.debug('✨ Inline completion provider V2 registered (multi-model support)');
+    // Register Monacopilot for inline completions (Tab completion)
+    if (deepSeekService) {
+      try {
+        completionRegistrationRef.current = registerCompletion(monaco, editor, {
+          language: file.language || 'typescript',
+          filename: file.name,
+          trigger: 'onIdle', // Trigger after typing stops
+          requestHandler: async ({ body }) => {
+            // Extract metadata from request body
+            const metadata = body.completionMetadata;
+            const { textBeforeCursor, textAfterCursor, language, cursorPosition } = metadata;
 
-      // Store provider for control
-      (editor as any).completionProvider = (completionDisposable as any).provider;
+            try {
+              // Combine text before and after cursor to get full code context
+              const fullCode = (textBeforeCursor || '') + (textAfterCursor || '');
 
-      // Set default strategy
-      if ((completionDisposable as any).provider) {
-        (completionDisposable as any).provider.setModelStrategy(modelStrategy || 'fast');
-      }
+              // Convert cursor position format (Monaco uses lineNumber/column, DeepSeek uses line/column)
+              const position = cursorPosition
+                ? {
+                    line: (cursorPosition as any).lineNumber || (cursorPosition as any).line || 1,
+                    column: (cursorPosition as any).column || 0
+                  }
+                : { line: 1, column: (textBeforeCursor || '').length };
 
-      // Track completion events for Week 3 analytics
-      editor.onDidChangeModelContent(() => {
-        // Check if provider has active completions
-        const provider = (completionDisposable as any).provider;
-        if (provider) {
-          const status = provider.getStatus();
-          setHasActiveCompletion(status.hasGhostText);
+              // Use DeepSeekService for completions
+              const completions = await deepSeekService.getCodeCompletion(
+                fullCode,
+                language || file.language || 'typescript',
+                position
+              );
 
-          // Update stats (simplified tracking)
-          setCompletionStats(prev => ({
-            ...prev,
-            totalSuggestions: prev.totalSuggestions + (status.hasGhostText ? 1 : 0),
-          }));
+              // Extract completion text from first suggestion
+              const completion = completions?.[0]?.text || null;
 
-          // Week 4: Update prefetch stats
-          if (provider.getPrefetchStats) {
-            const pStats = provider.getPrefetchStats();
-            setPrefetchStats(pStats);
-
-            // Update status based on activity
-            if (pStats.activeCount > 0) {
-              setPrefetchStatus('active');
-            } else if (pStats.queueSize > 0) {
-              setPrefetchStatus('learning');
-            } else {
-              setPrefetchStatus('idle');
+              logger.debug('[Monacopilot] Got completion:', completion?.substring(0, 50));
+              return { completion };
+            } catch (error) {
+              logger.error('[Monacopilot] Completion error:', error);
+              return { completion: null, error: String(error) };
             }
-          }
-        }
-      });
+          },
+          onError: (error) => {
+            logger.error('[Monacopilot] Error:', error);
+          },
+          onCompletionAccepted: () => {
+            logger.debug('[Monacopilot] Completion accepted');
+          },
+        });
 
-      // Week 4: Periodically update prefetch stats
-      const statsInterval = setInterval(() => {
-        const provider = (completionDisposable as any).provider;
-        if (provider && provider.getPrefetchStats) {
-          setPrefetchStats(provider.getPrefetchStats());
-        }
-      }, 2000); // Every 2 seconds
-
-      // Cleanup interval on unmount
-      return () => clearInterval(statsInterval);
+        logger.info('✨ Monacopilot registered successfully for inline completions');
+      } catch (error) {
+        logger.error('[Monacopilot] Registration failed:', error);
+      }
     }
 
     // Track cursor position
@@ -674,6 +706,72 @@ const Editor: React.FC<EditorProps> = ({
     editorRef.current.getAction('editor.action.previousMatchFindAction')?.run();
   };
 
+  // Inline edit handlers (Cmd+K)
+  const handleApplyInlineEdit = (modifiedCode: string) => {
+    if (!editorRef.current) {
+      return;
+    }
+
+    const selection = editorRef.current.getSelection();
+    if (selection) {
+      editorRef.current.executeEdits('inline-edit', [
+        {
+          range: selection,
+          text: modifiedCode,
+        },
+      ]);
+    }
+  };
+
+  const handleGenerateEdit = async (instruction: string, code: string, language: string): Promise<string> => {
+    if (!deepSeekService) {
+      throw new Error('AI service not available');
+    }
+
+    try {
+      // Use DeepSeekService to generate modified code based on instruction
+      const prompt = `Given this ${language} code:\n\n${code}\n\nModify it to: ${instruction}\n\nReturn ONLY the modified code, no explanations.`;
+
+      const response = await deepSeekService.generateCode({
+        prompt,
+        context: {
+          currentFile: file || undefined,
+          relatedFiles: [],
+          workspaceContext: {
+            rootPath: '',
+            totalFiles: 0,
+            languages: [language],
+            testFiles: 0,
+            projectStructure: {},
+            dependencies: {},
+            exports: {},
+            symbols: {},
+            lastIndexed: new Date(),
+            summary: ''
+          },
+          userQuery: instruction,
+          conversationHistory: []
+        }
+      });
+
+      // Extract code from response (remove markdown code blocks if present)
+      let modifiedCode = response.code.trim();
+      if (modifiedCode.startsWith('```')) {
+        const lines = modifiedCode.split('\n');
+        lines.shift(); // Remove opening ```
+        if (lines[lines.length - 1]?.trim() === '```') {
+          lines.pop(); // Remove closing ```
+        }
+        modifiedCode = lines.join('\n');
+      }
+
+      return modifiedCode;
+    } catch (error) {
+      logger.error('[InlineEdit] Generation error:', error);
+      throw error;
+    }
+  };
+
   // Monaco workers handled by vite-plugin-monaco-editor
   const handleBeforeMount = (monaco: typeof import('monaco-editor')) => {
     // Let vite-plugin-monaco-editor handle all worker configuration
@@ -830,6 +928,16 @@ const Editor: React.FC<EditorProps> = ({
           />
         )}
       </MonacoContainer>
+
+      {/* Inline Edit Dialog (Cmd+K) */}
+      <InlineEditDialog
+        isOpen={inlineEditOpen}
+        selectedCode={selectedCode}
+        language={file.language || 'typescript'}
+        onClose={() => setInlineEditOpen(false)}
+        onApply={handleApplyInlineEdit}
+        onGenerateEdit={handleGenerateEdit}
+      />
     </EditorContainer>
   );
 };

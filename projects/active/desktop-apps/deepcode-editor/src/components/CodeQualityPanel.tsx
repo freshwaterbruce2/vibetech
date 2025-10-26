@@ -3,12 +3,12 @@
  *
  * Displays code quality metrics and issues for the current file or project
  */
-import { logger } from '../services/Logger';
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
+import { AlertCircle, AlertTriangle, CheckCircle, FileText,Info, TrendingUp } from 'lucide-react';
 import styled from 'styled-components';
-import { AlertCircle, CheckCircle, AlertTriangle, Info, TrendingUp, FileText } from 'lucide-react';
+
 import { CodeQualityAnalyzer, FileQuality, QualityReport } from '../services/CodeQualityAnalyzer';
+import { logger } from '../services/Logger';
 
 interface CodeQualityPanelProps {
   analyzer: CodeQualityAnalyzer;
@@ -39,7 +39,7 @@ export const CodeQualityPanel: React.FC<CodeQualityPanelProps> = ({
   }, [currentFile, view]);
 
   const analyzeCurrentFile = async () => {
-    if (!currentFile) return;
+    if (!currentFile) {return;}
 
     setLoading(true);
     try {
@@ -53,7 +53,7 @@ export const CodeQualityPanel: React.FC<CodeQualityPanelProps> = ({
   };
 
   const analyzeProject = async () => {
-    if (!workspaceRoot) return;
+    if (!workspaceRoot) {return;}
 
     setLoading(true);
     try {
@@ -67,15 +67,15 @@ export const CodeQualityPanel: React.FC<CodeQualityPanelProps> = ({
   };
 
   const getQualityColor = (score: number): string => {
-    if (score >= 80) return '#10b981'; // Green
-    if (score >= 60) return '#f59e0b'; // Orange
+    if (score >= 80) {return '#10b981';} // Green
+    if (score >= 60) {return '#f59e0b';} // Orange
     return '#ef4444'; // Red
   };
 
   const getComplexityColor = (rating: string): string => {
-    if (rating === 'simple') return '#10b981';
-    if (rating === 'moderate') return '#f59e0b';
-    if (rating === 'complex') return '#fb923c';
+    if (rating === 'simple') {return '#10b981';}
+    if (rating === 'moderate') {return '#f59e0b';}
+    if (rating === 'complex') {return '#fb923c';}
     return '#ef4444'; // very-complex
   };
 
@@ -103,7 +103,7 @@ export const CodeQualityPanel: React.FC<CodeQualityPanelProps> = ({
             active={view === 'project'}
             onClick={() => {
               setView('project');
-              if (!projectQuality) analyzeProject();
+              if (!projectQuality) {analyzeProject();}
             }}
           >
             <TrendingUp size={16} />

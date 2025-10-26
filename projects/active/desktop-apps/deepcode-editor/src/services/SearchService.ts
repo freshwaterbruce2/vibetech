@@ -1,4 +1,5 @@
 import { logger } from '../services/Logger';
+
 export interface SearchResult {
   file: string;
   line: number;
@@ -77,7 +78,7 @@ export class SearchService {
   ): Promise<SearchResult[]> {
     try {
       const content = await this.fileSystemService.readFile(filePath);
-      if (!content) return [];
+      if (!content) {return [];}
 
       const lines = content.split('\n');
       const results: SearchResult[] = [];
@@ -286,7 +287,7 @@ export class SearchService {
       pattern = `\\b${pattern}\\b`;
     }
 
-    const flags = 'g' + (options.caseSensitive ? '' : 'i');
+    const flags = `g${  options.caseSensitive ? '' : 'i'}`;
 
     try {
       return new RegExp(pattern, flags);

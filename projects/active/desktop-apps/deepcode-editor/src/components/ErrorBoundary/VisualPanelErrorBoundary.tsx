@@ -4,8 +4,9 @@
  */
 
 import React, { Component, ReactNode } from 'react';
-import styled from 'styled-components';
 import { AlertTriangle, RefreshCw, X } from 'lucide-react';
+import styled from 'styled-components';
+
 import { logger } from '../../services/Logger';
 
 const ErrorContainer = styled.div`

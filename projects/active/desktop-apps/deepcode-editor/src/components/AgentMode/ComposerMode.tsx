@@ -1,29 +1,30 @@
 /**
  * Composer Mode - Multi-file editing interface inspired by Cursor's Composer
  */
-import { logger } from '../../services/Logger';
-import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useRef,useState } from 'react';
 import { Editor as MonacoEditor } from '@monaco-editor/react';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Code,
+  FileSearch,
+  FileText,
+  GitBranch,
+  Layers,
   Plus,
-  X,
   Send,
   Sparkles,
-  Check,
-  FileText,
-  Code,
-  GitBranch,
-  ChevronRight,
-  ChevronDown,
-  Layers,
+  X,
   Zap,
-  Clock,
-  FileSearch,
 } from 'lucide-react';
-import { vibeTheme } from '../../styles/theme';
+import styled from 'styled-components';
+
 import { UnifiedAIService } from '../../services/ai/UnifiedAIService';
+import { logger } from '../../services/Logger';
+import { vibeTheme } from '../../styles/theme';
 
 interface ComposerFile {
   id: string;
@@ -126,7 +127,7 @@ const ActionButton = styled(motion.button)<{ $primary?: boolean }>`
   
   &:hover {
     background: ${props => props.$primary ? 
-      vibeTheme.colors.purple + 'dd' : 
+      `${vibeTheme.colors.purple  }dd` : 
       vibeTheme.colors.hover};
   }
   
@@ -382,7 +383,7 @@ export const ComposerMode: React.FC<ComposerModeProps> = ({
   };
 
   const handleLoadWorkspaceFiles = () => {
-    if (!workspaceContext?.openFiles) return;
+    if (!workspaceContext?.openFiles) {return;}
     
     const workspaceFiles = workspaceContext.openFiles.slice(0, 5).map(filePath => ({
       id: filePath,
@@ -424,7 +425,7 @@ export const ComposerMode: React.FC<ComposerModeProps> = ({
   };
 
   const handleSendPrompt = async () => {
-    if (!prompt.trim() || !aiService) return;
+    if (!prompt.trim() || !aiService) {return;}
 
     setIsProcessing(true);
 

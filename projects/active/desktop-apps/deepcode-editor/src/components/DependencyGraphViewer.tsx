@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Network, AlertCircle, Filter, Maximize2 } from 'lucide-react';
-import styled from 'styled-components';
+import React, { useEffect, useRef,useState } from 'react';
 import { ForceGraph2D } from 'react-force-graph';
+import { motion } from 'framer-motion';
+import { AlertCircle, Filter, Maximize2,Network } from 'lucide-react';
+import styled from 'styled-components';
 
-import { DependencyGraph } from '../types/multifile';
 import { vibeTheme } from '../styles/theme';
+import { DependencyGraph } from '../types/multifile';
 
 interface GraphNode {
   id: string;
@@ -59,8 +59,8 @@ export const DependencyGraphViewer: React.FC<DependencyGraphViewerProps> = ({
       const isHub = degree >= 3;
 
       let color = '#60a5fa'; // Blue for normal
-      if (isCircular) color = '#ef4444'; // Red for circular
-      else if (isHub) color = '#8b5cf6'; // Purple for hubs
+      if (isCircular) {color = '#ef4444';} // Red for circular
+      else if (isHub) {color = '#8b5cf6';} // Purple for hubs
 
       const graphNode: GraphNode = {
         id: path,
@@ -88,8 +88,8 @@ export const DependencyGraphViewer: React.FC<DependencyGraphViewerProps> = ({
   // Filter nodes
   const filteredData = {
     nodes: graphData.nodes.filter((node) => {
-      if (showHubsOnly && !node.isHub) return false;
-      if (showCircularOnly && !node.isCircular) return false;
+      if (showHubsOnly && !node.isHub) {return false;}
+      if (showCircularOnly && !node.isCircular) {return false;}
       return true;
     }),
     links: graphData.links.filter((link) => {

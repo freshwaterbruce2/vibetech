@@ -2,8 +2,7 @@
  * Task Executors - Example implementations for common background tasks
  */
 import { logger } from '../services/Logger';
-
-import { BackgroundTask, TaskExecutor, TaskResult, TaskProgress, TaskType } from '../types/tasks';
+import { BackgroundTask, TaskExecutor, TaskProgress, TaskResult, TaskType } from '../types/tasks';
 
 /**
  * Code Analysis Executor

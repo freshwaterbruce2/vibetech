@@ -1,9 +1,11 @@
 /**
- * AI Tab Completion E2E Tests
+ * AI Tab Completion E2E Tests (Playwright)
  * Verifies that inline AI completions work correctly in Monaco Editor
+ *
+ * Converted from Puppeteer to Playwright for Windows 11 compatibility
  */
 
-import puppeteer, { Browser, Page } from 'puppeteer';
+import { test, expect, type Page } from '@playwright/test';
 import {
   waitForMonacoReady,
   typeInMonaco,
@@ -28,52 +30,34 @@ import {
   MOCK_FUNCTION_COMPLETION
 } from './mocks/deepseek-mock';
 
-describe('AI Tab Completion', () => {
-  let browser: Browser;
-  let page: Page;
-  const DEV_SERVER_URL = 'http://localhost:3001';
-
-  beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: false, // Set to true for CI
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      slowMo: 50 // Slow down for debugging
-    });
-  });
-
-  afterAll(async () => {
-    await browser.close();
-  });
-
-  beforeEach(async () => {
-    page = await browser.newPage();
+test.describe('AI Tab Completion', () => {
+  test.beforeEach(async ({ page }) => {
     await setupConsoleCapture(page);
 
-    // Navigate to app
-    await page.goto(DEV_SERVER_URL, { waitUntil: 'networkidle2' });
+    // Navigate to app (uses baseURL from playwright.config.ts)
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     // Wait for Monaco to be ready
     await waitForMonacoReady(page);
   });
 
-  afterEach(async () => {
+  test.afterEach(async ({ page }) => {
     await clearMocks(page);
-    await page.close();
   });
 
-  describe('Provider Initialization', () => {
-    test('should initialize inline completion provider', async () => {
+  test.describe('Provider Initialization', () => {
+    test('should initialize inline completion provider', async ({ page }) => {
       const registered = await waitForProviderRegistered(page, 10000);
       expect(registered).toBe(true);
     });
 
-    test('should disable streaming mode by default', async () => {
+    test('should disable streaming mode by default', async ({ page }) => {
       await waitForProviderRegistered(page);
       const streamingDisabled = await isStreamingDisabled(page);
       expect(streamingDisabled).toBe(true);
     });
 
-    test('should show activation message', async () => {
+    test('should show activation message', async ({ page }) => {
       const logs = await getConsoleLogs(page);
       const hasActivationMessage = logs.some(log =>
         log.includes('AI Tab Completion activated')
@@ -81,7 +65,7 @@ describe('AI Tab Completion', () => {
       expect(hasActivationMessage).toBe(true);
     });
 
-    test('should disable demo mode when API key exists', async () => {
+    test('should disable demo mode when API key exists', async ({ page }) => {
       const logs = await getConsoleLogs(page);
       const demoModeDisabled = logs.some(log =>
         log.includes('demo mode disabled') || log.includes('isDemoMode: false')
@@ -90,8 +74,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Completion Triggering', () => {
-    test('should trigger provider on keystroke', async () => {
+  test.describe('Completion Triggering', () => {
+    test('should trigger provider on keystroke', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       await typeInMonaco(page, 'function', 100);
@@ -103,7 +87,7 @@ describe('AI Tab Completion', () => {
       expect(providerTriggered).toBe(true);
     });
 
-    test('should use non-streaming path', async () => {
+    test('should use non-streaming path', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       await typeInMonaco(page, 'function calculate(a, b) {', 100);
@@ -115,7 +99,7 @@ describe('AI Tab Completion', () => {
       expect(usedNonStreaming).toBe(true);
     });
 
-    test('should call AI service after debounce', async () => {
+    test('should call AI service after debounce', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       await typeInMonaco(page, 'function sum(a, b) {', 100);
@@ -127,7 +111,7 @@ describe('AI Tab Completion', () => {
       expect(aiServiceCalled).toBe(true);
     });
 
-    test('should not trigger on empty line', async () => {
+    test('should not trigger on empty line', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       // Type spaces only
@@ -145,8 +129,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Ghost Text Display', () => {
-    test('should show ghost text after typing function', async () => {
+  test.describe('Ghost Text Display', () => {
+    test('should show ghost text after typing function', async ({ page }) => {
       await setupContextualMock(page);
 
       await clearMonacoContent(page);
@@ -159,7 +143,7 @@ describe('AI Tab Completion', () => {
       expect(hasGhostText).toBe(true);
     });
 
-    test('should show contextually relevant completion', async () => {
+    test('should show contextually relevant completion', async ({ page }) => {
       await setupDeepSeekMock(page, {
         completionText: MOCK_FUNCTION_COMPLETION
       });
@@ -173,7 +157,7 @@ describe('AI Tab Completion', () => {
       expect(isVisible).toBe(true);
     });
 
-    test('should update ghost text as user continues typing', async () => {
+    test('should update ghost text as user continues typing', async ({ page }) => {
       await setupContextualMock(page);
 
       await clearMonacoContent(page);
@@ -191,8 +175,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Completion Acceptance', () => {
-    test('should accept completion with Tab key', async () => {
+  test.describe('Completion Acceptance', () => {
+    test('should accept completion with Tab key', async ({ page }) => {
       await setupDeepSeekMock(page, {
         completionText: '  return a + b;\n}'
       });
@@ -216,7 +200,7 @@ describe('AI Tab Completion', () => {
       expect(content).toContain('return a + b');
     });
 
-    test('should dismiss completion with Escape key', async () => {
+    test('should dismiss completion with Escape key', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       await clearMonacoContent(page);
@@ -239,8 +223,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Caching', () => {
-    test('should cache completions for identical context', async () => {
+  test.describe('Caching', () => {
+    test('should cache completions for identical context', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       await clearMonacoContent(page);
@@ -270,8 +254,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Debouncing', () => {
-    test('should debounce rapid typing', async () => {
+  test.describe('Debouncing', () => {
+    test('should debounce rapid typing', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       await clearMonacoContent(page);
@@ -304,8 +288,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    test('should handle API errors gracefully', async () => {
+  test.describe('Error Handling', () => {
+    test('should handle API errors gracefully', async ({ page }) => {
       await setupDeepSeekMock(page, {
         shouldFail: true,
         errorMessage: 'Rate limit exceeded'
@@ -332,7 +316,7 @@ describe('AI Tab Completion', () => {
       expect(isMonacoReady).toBe(true);
     });
 
-    test('should continue working after network failure', async () => {
+    test('should continue working after network failure', async ({ page }) => {
       await setupDeepSeekMock(page, { shouldFail: true });
 
       await clearMonacoContent(page);
@@ -354,8 +338,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Settings Integration', () => {
-    test('should respect completion enabled/disabled setting', async () => {
+  test.describe('Settings Integration', () => {
+    test('should respect completion enabled/disabled setting', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       // Disable completions via settings
@@ -379,8 +363,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Multiple File Types', () => {
-    test('should work with JavaScript files', async () => {
+  test.describe('Multiple File Types', () => {
+    test('should work with JavaScript files', async ({ page }) => {
       await setupContextualMock(page);
 
       await clearMonacoContent(page);
@@ -392,7 +376,7 @@ describe('AI Tab Completion', () => {
       expect(hasGhostText).toBe(true);
     });
 
-    test('should work with TypeScript files', async () => {
+    test('should work with TypeScript files', async ({ page }) => {
       await setupContextualMock(page);
 
       await clearMonacoContent(page);
@@ -404,7 +388,7 @@ describe('AI Tab Completion', () => {
       expect(hasGhostText).toBe(true);
     });
 
-    test('should provide context-aware completions', async () => {
+    test('should provide context-aware completions', async ({ page }) => {
       await setupContextualMock(page);
 
       await clearMonacoContent(page);
@@ -417,8 +401,8 @@ describe('AI Tab Completion', () => {
     });
   });
 
-  describe('Performance', () => {
-    test('should respond within acceptable time', async () => {
+  test.describe('Performance', () => {
+    test('should respond within acceptable time', async ({ page }) => {
       await setupDeepSeekMock(page, { delay: 100 });
 
       await clearMonacoContent(page);
@@ -435,7 +419,7 @@ describe('AI Tab Completion', () => {
       expect(totalTime).toBeLessThan(3000);
     });
 
-    test('should not block editor typing', async () => {
+    test('should not block editor typing', async ({ page }) => {
       await setupDeepSeekMock(page);
 
       await clearMonacoContent(page);

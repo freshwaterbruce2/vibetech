@@ -256,7 +256,7 @@ export const InputDialog: React.FC<InputDialogProps> = ({
 
   // Handle keyboard shortcuts
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {return;}
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -306,7 +306,7 @@ export const InputDialog: React.FC<InputDialogProps> = ({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {return null;}
 
   return (
     <Overlay $isOpen={isOpen} onClick={handleOverlayClick}>

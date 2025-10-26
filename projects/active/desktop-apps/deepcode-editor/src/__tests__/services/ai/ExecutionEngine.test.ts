@@ -32,16 +32,30 @@ describe('ExecutionEngine', () => {
       createDirectory: vi.fn(),
       getFileStats: vi.fn(),
       listFiles: vi.fn(),
+      resolveWorkspacePath: vi.fn((path: string, workspaceRoot?: string) => path), // Just return the path as-is
     } as any;
 
     mockAIService = {
       sendMessage: vi.fn(),
+      sendContextualMessage: vi.fn().mockResolvedValue({ content: 'Mock AI response', metadata: {} }),
       setModel: vi.fn().mockResolvedValue(undefined),
     } as any;
 
     mockWorkspaceService = {
       searchFiles: vi.fn(),
       analyzeFile: vi.fn(),
+      getWorkspaceContext: vi.fn().mockResolvedValue({
+        rootPath: '/test/workspace',
+        totalFiles: 0,
+        languages: [],
+        testFiles: 0,
+        projectStructure: {},
+        dependencies: {},
+        exports: {},
+        symbols: {},
+        lastIndexed: new Date(),
+        summary: 'Test workspace'
+      }),
     } as any;
 
     mockGitService = {
