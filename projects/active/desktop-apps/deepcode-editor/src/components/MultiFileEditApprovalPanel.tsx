@@ -8,7 +8,7 @@ import { Check, ChevronRight, FileText, Minus,Plus, X } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import type { FileChange, MultiFileEditPlan } from '../types/multifile';
+import type { FileChange, MultiFileEditPlan } from '@vibetech/types/multifile';
 
 const PanelContainer = styled(motion.div)`
   position: fixed;

@@ -15,7 +15,7 @@ import {
   TaskStats,
   TaskStatus,
   TaskType,
-} from '../types/tasks';
+} from '@vibetech/types/tasks';
 
 const DEFAULT_OPTIONS: TaskQueueOptions = {
   maxConcurrentTasks: 3,

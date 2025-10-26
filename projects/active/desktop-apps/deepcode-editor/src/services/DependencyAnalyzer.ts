@@ -3,7 +3,7 @@
  * Enhanced for multi-file editing with deep import/export analysis
  */
 
-import { DependencyGraph,DependencyNode } from '../types/multifile';
+import { DependencyGraph,DependencyNode } from '@vibetech/types/multifile';
 
 export class DependencyAnalyzer {
   private circularDeps: Set<string> = new Set();

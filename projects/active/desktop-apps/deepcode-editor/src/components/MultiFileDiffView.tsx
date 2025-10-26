@@ -4,7 +4,7 @@ import { AlertTriangle,CheckCircle2, ChevronDown, ChevronRight, FileEdit, XCircl
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import { FileChange } from '../types/multifile';
+import { FileChange } from '@vibetech/types/multifile';
 
 interface MultiFileDiffViewProps {
   changes: FileChange[];

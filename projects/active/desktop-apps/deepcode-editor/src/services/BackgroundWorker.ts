@@ -3,7 +3,7 @@
  * Provides a clean API for offloading work to background threads
  */
 import { logger } from '../services/Logger';
-import { TaskProgress,TaskResult } from '../types/tasks';
+import { TaskProgress,TaskResult } from '@vibetech/types/tasks';
 
 export interface WorkerMessage {
   type: 'execute' | 'progress' | 'result' | 'error' | 'terminate';

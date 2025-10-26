@@ -19,7 +19,7 @@ import {
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import { BackgroundTask, TaskStats,TaskStatus, TaskType } from '../types/tasks';
+import { BackgroundTask, TaskStats,TaskStatus, TaskType } from '@vibetech/types/tasks';
 
 interface TaskMonitorPanelProps {
   tasks: BackgroundTask[];
