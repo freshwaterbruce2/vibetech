@@ -1,4 +1,4 @@
-import { AIContextRequest,AIResponse } from '../../types';
+import { AIResponse } from '../../types';
 
 /**
  * Mock AI responses for testing

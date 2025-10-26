@@ -1,4 +1,3 @@
-import { logger } from './services/Logger';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -6,68 +5,70 @@ import styled from 'styled-components';
 
 // New AI components
 import ComposerMode from './components/AgentMode/ComposerMode';
+import { BackgroundTaskPanel } from './components/BackgroundTaskPanel';
+import { ComponentLibrary } from './components/ComponentLibrary';
 import Editor from './components/Editor';
+import { EditorStreamPanel } from './components/EditorStreamPanel';
 import { ModernErrorBoundary } from './components/ErrorBoundary/index';
+import { ErrorFixPanel } from './components/ErrorFixPanel';
 import GitPanel from './components/GitPanel';
 import { GlobalSearch } from './components/GlobalSearch';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts';
 // Lazy loaded components
 import { LazyAIChat, LazyCommandPalette, LazySettings } from './components/LazyComponents';
 import ModelSelector from './components/ModelSelector/ModelSelector';
+import { MultiFileEditApprovalPanel } from './components/MultiFileEditApprovalPanel';
 // Components
 import { NotificationContainer } from './components/Notification';
-import Sidebar from './components/Sidebar';
 import { PreviewPanel } from './components/PreviewPanel';
-import { BackgroundTaskPanel } from './components/BackgroundTaskPanel';
-import { EditorStreamPanel } from './components/EditorStreamPanel';
-import { ErrorFixPanel } from './components/ErrorFixPanel';
+// Visual no-code features
+import { ScreenshotToCodePanel } from './components/ScreenshotToCodePanel';
+import Sidebar from './components/Sidebar';
 import StatusBar from './components/StatusBar';
 import { TerminalPanel } from './components/TerminalPanel';
 // Components - Using lazy loading for heavy components
 import TitleBar from './components/TitleBar';
+import { VisualEditor } from './components/VisualEditor';
 import WelcomeScreen from './components/WelcomeScreen';
 import { useAIChat } from './hooks/useAIChat';
-import { useAppSettings } from './hooks/useAppSettings';
 import { useAICommandPalette } from './hooks/useAICommandPalette';
+import { useAppSettings } from './hooks/useAppSettings';
+import { useBackgroundTaskNotifications } from './hooks/useBackgroundTaskNotifications';
 import { useFileManager } from './hooks/useFileManager';
 import { useNotifications } from './hooks/useNotifications';
-import { useBackgroundTaskNotifications } from './hooks/useBackgroundTaskNotifications';
 // Custom Hooks
 import { useWorkspace } from './hooks/useWorkspace';
-import { autoUpdater } from './services/AutoUpdateService';
+import { ExecutionEngine } from './services/ai/ExecutionEngine';
+import { TaskPlanner } from './services/ai/TaskPlanner';
 // Services
 import { UnifiedAIService } from './services/ai/UnifiedAIService';
-import { TaskPlanner } from './services/ai/TaskPlanner';
-import { ExecutionEngine } from './services/ai/ExecutionEngine';
-import { BackgroundAgentSystem } from './services/BackgroundAgentSystem';
-import { LiveEditorStream } from './services/LiveEditorStream';
-import { AutoFixService } from './services/AutoFixService';
-import { ErrorDetector } from './services/ErrorDetector';
 import { AutoFixCodeActionProvider } from './services/AutoFixCodeActionProvider';
+import type { FixSuggestion,GeneratedFix } from './services/AutoFixService';
+import { AutoFixService } from './services/AutoFixService';
+import { autoUpdater } from './services/AutoUpdateService';
+import { BackgroundAgentSystem } from './services/BackgroundAgentSystem';
+// Database service
+import { DatabaseService } from './services/DatabaseService';
+import { DesignTokenManager } from './services/DesignTokenManager';
 import type { DetectedError } from './services/ErrorDetector';
-import type { GeneratedFix, FixSuggestion } from './services/AutoFixService';
+import { ErrorDetector } from './services/ErrorDetector';
 import { FileSystemService } from './services/FileSystemService';
-import { WorkspaceService } from './services/WorkspaceService';
+import { LiveEditorStream } from './services/LiveEditorStream';
+import { logger } from './services/Logger';
+import { MultiFileEditor } from './services/MultiFileEditor';
 // import { GitService } from './services/GitService'; // Disabled for browser - uses Node.js child_process
 import { SearchService } from './services/SearchService';
 import { telemetry } from './services/TelemetryService';
+import { WorkspaceService } from './services/WorkspaceService';
+import type { FileChange, MultiFileEditPlan } from './types/multifile';
 import { getUserFriendlyError } from './utils/errorHandler';
+import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
 // Types
 import { AIMessage, EditorFile } from './types';
 
-// Visual no-code features
-import { ScreenshotToCodePanel } from './components/ScreenshotToCodePanel';
-import { ComponentLibrary } from './components/ComponentLibrary';
-import { VisualEditor } from './components/VisualEditor';
-import { DesignTokenManager } from './services/DesignTokenManager';
-
-// Database service
-import { DatabaseService } from './services/DatabaseService';
-import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
-
 // Browser-compatible Mock GitService (git_commit won't work in browser mode)
 class MockGitService {
-  async commit(message: string): Promise<void> {
+  async commit(_message: string): Promise<void> {
     logger.warn('[MockGitService] Git commits not supported in browser mode. Use Tauri/Electron version for git integration.');
     throw new Error('Git operations require Tauri/Electron environment');
   }
@@ -75,11 +76,27 @@ class MockGitService {
 
 // Database service singleton (outside component)
 let dbService: DatabaseService | null = null;
+const _dbInitialized = false;
+let dbInitError: Error | null = null;
 
 const getDatabase = async (): Promise<DatabaseService> => {
   if (!dbService) {
     dbService = new DatabaseService();
-    await dbService.initialize();
+    try {
+      await dbService.initialize();
+      logger.info('[App] Database initialized successfully');
+    } catch (error) {
+      dbInitError = error as Error;
+      logger.warn('[App] Database initialization failed, using localStorage fallback:', error);
+      // Service will automatically use localStorage fallback
+    }
+
+    // Expose to window for debugging (development only)
+    if (process.env.NODE_ENV === 'development') {
+      (window as any).__deepcodeDB = dbService;
+      (window as any).__deepcodeDBStatus = () => dbService?.getStatus();
+      logger.debug('[App] Database service exposed to window.__deepcodeDB for debugging');
+    }
   }
   return dbService;
 };
@@ -134,6 +151,7 @@ function App() {
   const [fileSystemService] = useState(() => new FileSystemService());
   const [workspaceService] = useState(() => new WorkspaceService());
   const [gitService] = useState(() => new MockGitService() as any); // Use MockGitService in browser mode
+  const [multiFileEditor] = useState(() => new MultiFileEditor(aiService, fileSystemService));
 
   // Initialize Agent Mode V2 services
   const [taskPlanner] = useState(() => new TaskPlanner(aiService, fileSystemService));
@@ -179,7 +197,7 @@ function App() {
   const {
     currentFile,
     openFiles,
-    handleOpenFile,
+    handleOpenFile: handleOpenFileRaw,
     handleCloseFile,
     handleFileChange,
     handleSaveFile,
@@ -190,6 +208,17 @@ function App() {
     onSaveSuccess: (fileName) => showSuccess('File Saved', `${fileName} saved successfully`),
     onSaveError: (fileName) => showError('Save Failed', `Unable to save ${fileName}`),
   });
+
+  // Wrap handleOpenFile with error handling
+  const handleOpenFile = useCallback(async (filePath: string) => {
+    try {
+      await handleOpenFileRaw(filePath);
+    } catch (error) {
+      logger.error('[App] Failed to open file:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to open file';
+      showError('Open File Failed', errorMessage);
+    }
+  }, [handleOpenFileRaw, showError]);
 
   // Preview panel state
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -239,8 +268,13 @@ function App() {
   // Visual panel state
   const [activeVisualPanel, setActiveVisualPanel] = useState<'none' | 'screenshot' | 'library' | 'visual'>('none');
 
-  // Initialize design tokens (memoized)
-  const designTokens = useMemo(() => {
+  // Multi-file edit approval state
+  const [multiFileEditPlan, setMultiFileEditPlan] = useState<MultiFileEditPlan | null>(null);
+  const [multiFileChanges, setMultiFileChanges] = useState<FileChange[]>([]);
+  const [multiFileApprovalOpen, setMultiFileApprovalOpen] = useState(false);
+
+  // Initialize design tokens (memoized) - reserved for future use
+  const _designTokens = useMemo(() => {
     return DesignTokenManager.loadFromLocalStorage() || new DesignTokenManager();
   }, []);
 
@@ -261,6 +295,7 @@ function App() {
   // Search service
   const searchService = new SearchService(fileSystemService);
   const [currentModel, setCurrentModel] = useState('deepseek-chat');
+  const [deepseekApiKey, setDeepseekApiKey] = useState<string>('');
 
   // Auto-Fix: Handle editor mount - initialize error detection
   const handleEditorMount = useCallback((editor: any, monaco: any) => {
@@ -443,6 +478,53 @@ function App() {
         text: code,
       }]);
     }
+  }, []);
+
+  // Multi-File Edit handlers
+  const handleApplyMultiFileChanges = useCallback(async (selectedFiles: string[]) => {
+    if (!multiFileEditPlan) {
+      logger.error('[MultiFileEdit] No plan available');
+      return;
+    }
+
+    try {
+      const selectedChanges = multiFileChanges.filter(c => selectedFiles.includes(c.path));
+
+      // Apply changes using MultiFileEditor
+      const result = await multiFileEditor.applyChanges(selectedChanges);
+
+      if (result.success) {
+        showSuccess(
+          'Changes Applied',
+          `Successfully applied changes to ${result.appliedFiles.length} file(s)`
+        );
+
+        // Refresh currently open file if it was changed
+        if (currentFile && selectedFiles.includes(currentFile.path)) {
+          const content = await fileSystemService.readFile(currentFile.path);
+          if (content !== undefined) {
+            handleFileChange(content);
+          }
+        }
+      } else {
+        showError('Apply Failed', result.error || 'Unknown error');
+      }
+
+      // Close panel
+      setMultiFileApprovalOpen(false);
+      setMultiFileEditPlan(null);
+      setMultiFileChanges([]);
+    } catch (error) {
+      logger.error('[MultiFileEdit] Failed to apply changes:', error);
+      showError('Apply Failed', error instanceof Error ? error.message : 'Unknown error');
+    }
+  }, [multiFileEditPlan, multiFileChanges, multiFileEditor, currentFile, fileSystemService, handleFileChange, showSuccess, showError]);
+
+  const handleRejectMultiFileChanges = useCallback(() => {
+    setMultiFileApprovalOpen(false);
+    setMultiFileEditPlan(null);
+    setMultiFileChanges([]);
+    logger.debug('[MultiFileEdit] Changes rejected');
   }, []);
 
   // Keyboard shortcuts
@@ -798,26 +880,78 @@ I'm now your context-aware coding companion! 🎯`,
     }
   };
 
+  // State for database initialization status
+  const [_dbStatus, setDbStatus] = useState<'initializing' | 'ready' | 'fallback'>('initializing');
+
   // Initialize database
   useEffect(() => {
     const initDatabase = async () => {
+      setDbStatus('initializing');
+
       try {
         const db = await getDatabase();
-        logger.debug('[App] Database initialized successfully');
 
-        // Log analytics event
-        await db.logEvent('app_start', {
-          platform: navigator.platform,
-          userAgent: navigator.userAgent,
-        });
+        // Check if we're using fallback (by trying a simple operation)
+        const usingFallback = await db.getSetting('_db_test_key').then(
+          () => false,
+          () => true
+        );
+
+        if (usingFallback || dbInitError) {
+          setDbStatus('fallback');
+          showWarning(
+            'Database Service',
+            'Unable to access database. Using localStorage for data persistence. Some features may be limited.'
+          );
+          logger.info('[App] Database using localStorage fallback mode');
+        } else {
+          setDbStatus('ready');
+          logger.info('[App] Database initialized successfully with full features');
+
+          // Log analytics event only if database is fully functional
+          try {
+            await db.logEvent('app_start', {
+              platform: navigator.platform,
+              userAgent: navigator.userAgent,
+              timestamp: new Date().toISOString(),
+            });
+          } catch (analyticsError) {
+            // Don't fail app startup if analytics fails
+            logger.warn('[App] Failed to log analytics event:', analyticsError);
+          }
+        }
+
+        // Migrate strategy patterns from localStorage if available
+        if (!usingFallback) {
+          try {
+            const migrationResult = await db.migrateStrategyMemory();
+            if (migrationResult.migrated > 0) {
+              logger.info(`[App] Migrated ${migrationResult.migrated} strategy patterns to database`);
+            }
+          } catch (migrationError) {
+            logger.warn('[App] Strategy migration failed:', migrationError);
+          }
+        }
       } catch (error) {
-        logger.error('[App] Database initialization failed:', error);
-        // Fallback to localStorage - no error thrown
+        logger.error('[App] Critical database initialization error:', error);
+        setDbStatus('fallback');
+        showError(
+          'Database Error',
+          'Failed to initialize database service. The application will continue with limited functionality.'
+        );
       }
     };
 
-    initDatabase();
-  }, []);
+    // Initialize database asynchronously to avoid blocking app startup
+    const timer = setTimeout(() => {
+      initDatabase().catch(error => {
+        logger.error('[App] Uncaught database initialization error:', error);
+        setDbStatus('fallback');
+      });
+    }, 100); // Small delay to let the UI render first
+
+    return () => clearTimeout(timer);
+  }, [showWarning, showError]);
 
   // Initialize the application
   useEffect(() => {
@@ -850,6 +984,22 @@ I'm now your context-aware coding companion! 🎯`,
 
     logger.debug('App initialization complete');
   }, [showWarning]);
+
+  // Load DeepSeek API key on mount
+  useEffect(() => {
+    const loadApiKey = async () => {
+      try {
+        const keyManager = SecureApiKeyManager.getInstance();
+        const key = await keyManager.getApiKey('deepseek');
+        if (key) {
+          setDeepseekApiKey(key);
+        }
+      } catch (error) {
+        logger.error('Failed to load DeepSeek API key:', error);
+      }
+    };
+    loadApiKey();
+  }, []);
 
   if (isLoading) {
     return (
@@ -889,16 +1039,18 @@ I'm now your context-aware coding companion! 🎯`,
       }}
     >
       <Router>
-        <AppContainer>
+        <AppContainer data-testid="app-container">
           <TitleBar
             onSettingsClick={() => setSettingsOpen(true)}
             onNewFile={handleNewFile}
             onOpenFolder={handleOpenFolderDialog}
             onSaveAll={handleSaveAll}
             onCloseFolder={handleCloseFolder}
+            onScreenshotToCode={() => setActiveVisualPanel(activeVisualPanel === 'screenshot' ? 'none' : 'screenshot')}
             onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
             onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
             onTogglePreview={() => setPreviewOpen(!previewOpen)}
+            onToggleBackgroundPanel={() => setBackgroundPanelOpen(!backgroundPanelOpen)}
             previewOpen={previewOpen}
           >
             <ModelSelector
@@ -962,6 +1114,7 @@ I'm now your context-aware coding companion! 🎯`,
             {aiChatOpen && (
               <Suspense fallback={<div>Loading AI Chat...</div>}>
                 <LazyAIChat
+                  data-testid="ai-chat"
                   messages={aiMessages}
                   onSendMessage={handleAIMessage}
                   onClose={() => setAiChatOpen(false)}
@@ -1021,11 +1174,11 @@ I'm now your context-aware coding companion! 🎯`,
             onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
             onToggleBackgroundPanel={() => setBackgroundPanelOpen(!backgroundPanelOpen)}
             onOpenAgentMode={() => {
-              if (!aiChatOpen) setAiChatOpen(true);
+              if (!aiChatOpen) {setAiChatOpen(true);}
               setChatMode('agent');
             }}
             onOpenComposerMode={() => {
-              if (!aiChatOpen) setAiChatOpen(true);
+              if (!aiChatOpen) {setAiChatOpen(true);}
               setChatMode('composer');
             }}
             onOpenTerminal={() => {/* Terminal disabled */}}
@@ -1176,7 +1329,7 @@ I'm now your context-aware coding companion! 🎯`,
                 }}
               >
                 <ScreenshotToCodePanel
-                  apiKey={SecureApiKeyManager.getInstance().getApiKey('deepseek') || ''}
+                  apiKey={deepseekApiKey}
                   onInsertCode={handleInsertCode}
                 />
               </motion.div>
@@ -1223,6 +1376,16 @@ I'm now your context-aware coding companion! 🎯`,
                   }}
                 />
               </motion.div>
+            )}
+
+            {/* Multi-File Edit Approval Panel */}
+            {multiFileApprovalOpen && multiFileEditPlan && (
+              <MultiFileEditApprovalPanel
+                plan={multiFileEditPlan}
+                changes={multiFileChanges}
+                onApply={handleApplyMultiFileChanges}
+                onReject={handleRejectMultiFileChanges}
+              />
             )}
           </AnimatePresence>
 

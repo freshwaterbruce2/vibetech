@@ -551,12 +551,6 @@ const ApprovalPromptCompact = styled(motion.div)`
   border-radius: ${vibeTheme.borderRadius.small};
 `;
 
-const ApprovalActionsCompact = styled.div`
-  display: flex;
-  gap: ${vibeTheme.spacing.xs};
-  margin-top: ${vibeTheme.spacing.xs};
-`;
-
 const ApprovalButton = styled(motion.button)<{ $variant: 'approve' | 'reject' }>`
   flex: 1;
   padding: 6px 12px;
