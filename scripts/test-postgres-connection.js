@@ -14,11 +14,12 @@ console.log(`Environment variable POSTGRES_CONNECTION_STRING: ${process.env.POST
 console.log(`Attempting to connect to: ${connectionString}\n`);
 
 // Try using built-in node-postgres if available
-try {
-  const pg = await import('pg');
-  const { Client } = pg.default || pg;
+(async function main() {
+  try {
+    const pg = await import('pg');
+    const { Client } = pg.default || pg;
 
-  async function testConnection() {
+    async function testConnection() {
     const client = new Client({
       connectionString: connectionString
     });
@@ -94,16 +95,16 @@ try {
     }
   }
 
-  testConnection();
+    await testConnection();
 
-} catch (moduleErr) {
-  console.log('pg module not installed.');
-  console.log('To test PostgreSQL connection, install it with:');
-  console.log('  npm install pg\n');
+  } catch (moduleErr) {
+    console.log('pg module not installed.');
+    console.log('To test PostgreSQL connection, install it with:');
+    console.log('  npm install pg\n');
 
-  // Check if any app has pg installed
+    // Check if any app has pg installed
 
-  console.log('Checking for pg module in existing projects...\n');
+    console.log('Checking for pg module in existing projects...\n');
 
   const projectDirs = [
     'C:\\dev\\projects\\active\\web-apps\\vibe-booking-platform',
@@ -126,10 +127,11 @@ try {
     }
   });
 
-  console.log('\nNote: The constraint error IDX_1b101e71abe9ce72d910e95b9f');
-  console.log('is likely coming from:');
-  console.log('1. A cloud PostgreSQL database (Heroku, AWS RDS, etc.)');
-  console.log('2. A remote development/staging server');
-  console.log('3. A Docker container running PostgreSQL');
-  console.log('4. An ORM that generates this constraint name pattern');
-}
+    console.log('\nNote: The constraint error IDX_1b101e71abe9ce72d910e95b9f');
+    console.log('is likely coming from:');
+    console.log('1. A cloud PostgreSQL database (Heroku, AWS RDS, etc.)');
+    console.log('2. A remote development/staging server');
+    console.log('3. A Docker container running PostgreSQL');
+    console.log('4. An ORM that generates this constraint name pattern');
+  }
+})();

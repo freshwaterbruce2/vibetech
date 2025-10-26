@@ -62,7 +62,7 @@ import { telemetry } from './services/TelemetryService';
 import { WorkspaceService } from './services/WorkspaceService';
 import type { FileChange, MultiFileEditPlan } from './types/multifile';
 import { getUserFriendlyError } from './utils/errorHandler';
-import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 // Types
 import { AIMessage, EditorFile } from './types';
 
@@ -989,7 +989,7 @@ I'm now your context-aware coding companion! 🎯`,
   useEffect(() => {
     const loadApiKey = async () => {
       try {
-        const keyManager = SecureApiKeyManager.getInstance();
+        const keyManager = SecureApiKeyManager.getInstance(logger);
         const key = await keyManager.getApiKey('deepseek');
         if (key) {
           setDeepseekApiKey(key);

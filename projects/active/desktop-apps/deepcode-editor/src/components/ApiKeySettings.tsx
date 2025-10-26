@@ -4,7 +4,8 @@ import { AlertTriangle, CheckCircle,Eye, EyeOff, Save, Shield, TestTube, Trash2 
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import SecureApiKeyManager from '../utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+import { logger } from '../services/Logger';
 
 const Container = styled.div`
   padding: ${vibeTheme.spacing.lg};
@@ -327,7 +328,7 @@ const ApiKeySettings: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successes, setSuccesses] = useState<Record<string, string>>({});
 
-  const keyManager = SecureApiKeyManager.getInstance();
+  const keyManager = SecureApiKeyManager.getInstance(logger);
 
   useEffect(() => {
     loadApiKeyStatuses();

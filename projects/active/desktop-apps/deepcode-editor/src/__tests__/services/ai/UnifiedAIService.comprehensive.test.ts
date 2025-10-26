@@ -17,7 +17,7 @@ import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { UnifiedAIService } from '../../../services/ai/UnifiedAIService';
 import { AIProviderManager } from '../../../services/ai/AIProviderManager';
 import { AIProvider, MODEL_REGISTRY } from '../../../services/ai/AIProviderInterface';
-import SecureApiKeyManager from '../../../utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 import { DemoResponseProvider } from '../../../services/ai/DemoResponseProvider';
 import { AIContextRequest } from '../../../types';
 

@@ -1,7 +1,7 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import ApiKeySettings from '../../components/ApiKeySettings';
-import SecureApiKeyManager from '../../utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 
 // Mock SecureApiKeyManager
 vi.mock('../../utils/SecureApiKeyManager', () => {

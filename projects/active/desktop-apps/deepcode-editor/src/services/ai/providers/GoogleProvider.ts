@@ -2,7 +2,7 @@
  * Google Gemini Provider - Implementation for Google Gemini API integration
  */
 import { logger } from '../../../services/Logger';
-import SecureApiKeyManager from '../../../utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 import {
   AIModel,
   AIProvider,
@@ -43,7 +43,7 @@ export class GoogleProvider implements IAIProvider {
     this.config = config;
 
     // Get API key from secure storage or config
-    const secureKeyManager = SecureApiKeyManager.getInstance();
+    const secureKeyManager = SecureApiKeyManager.getInstance(logger);
     this.apiKey = config.apiKey || await secureKeyManager.getApiKey('google') || '';
 
     if (config.baseUrl) {

@@ -8,7 +8,7 @@ import {
   AIResponse,
   WorkspaceContext,
 } from '../../types';
-import SecureApiKeyManager from '../../utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 
 import { AIProvider, CompletionOptions,MODEL_REGISTRY } from './AIProviderInterface';
 import { AIProviderManager } from './AIProviderManager';
