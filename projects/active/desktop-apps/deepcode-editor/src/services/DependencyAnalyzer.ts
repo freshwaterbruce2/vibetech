@@ -3,7 +3,7 @@
  * Enhanced for multi-file editing with deep import/export analysis
  */
 
-import { DependencyNode, DependencyGraph } from '../types/multifile';
+import { DependencyGraph,DependencyNode } from '../types/multifile';
 
 export class DependencyAnalyzer {
   private circularDeps: Set<string> = new Set();
@@ -94,8 +94,8 @@ export class DependencyAnalyzer {
 
       const importParts = importPath.split('/');
       for (const part of importParts) {
-        if (part === '..') parts.pop();
-        else if (part !== '.') parts.push(part);
+        if (part === '..') {parts.pop();}
+        else if (part !== '.') {parts.push(part);}
       }
 
       let resolved = parts.join('/');

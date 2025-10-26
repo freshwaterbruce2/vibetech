@@ -1,31 +1,31 @@
 /**
  * Enhanced Agent Mode with improved UX, real-time feedback, and performance monitoring
  */
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useCallback,useEffect, useRef, useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
-  Play,
-  Square,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-  FileText,
-  Zap,
   Activity,
-  Clock,
-  Users,
-  TrendingUp,
+  AlertCircle,
+  BarChart3,
   Brain,
-  Eye,
+  CheckCircle,
   ChevronDown,
   ChevronUp,
-  BarChart3
-} from 'lucide-react';
-import { vibeTheme } from '../styles/theme';
+  Clock,
+  Eye,
+  FileText,
+  Loader2,
+  Play,
+  Square,
+  TrendingUp,
+  Users,
+  Zap} from 'lucide-react';
+import styled from 'styled-components';
+
+import { AgentPerformanceOptimizer, PerformanceProfile } from '../services/AgentPerformanceOptimizer';
 import { AgentOrchestrator, OrchestratorResponse } from '../services/specialized-agents/AgentOrchestrator';
 import { AgentContext } from '../services/specialized-agents/BaseSpecializedAgent';
-import { AgentPerformanceOptimizer, PerformanceProfile } from '../services/AgentPerformanceOptimizer';
+import { vibeTheme } from '../styles/theme';
 
 interface EnhancedAgentModeProps {
   isOpen: boolean;
@@ -458,7 +458,7 @@ const EnhancedAgentMode: React.FC<EnhancedAgentModeProps> = ({
   };
 
   const executeTask = async () => {
-    if (!task.trim()) return;
+    if (!task.trim()) {return;}
 
     setStatus('analyzing');
     setLogs([]);

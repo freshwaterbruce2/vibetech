@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
-import styled, { css } from 'styled-components';
 import { Check, Minus } from 'lucide-react';
+import styled, { css } from 'styled-components';
 
 import { vibeTheme } from '../../styles/theme';
 

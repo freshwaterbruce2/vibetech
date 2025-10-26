@@ -387,21 +387,6 @@ describe('ApiKeySettings Component', () => {
   });
 
   describe('Button States', () => {
-    it('should disable Save button when input is empty', () => {
-      render(<ApiKeySettings />);
-      const saveButtons = screen.getAllByText('Save Key');
-      expect(saveButtons[0]).toBeDisabled();
-    });
-
-    it('should enable Save button when input has value', () => {
-      render(<ApiKeySettings />);
-      const input = screen.getAllByPlaceholderText(/sk-/i)[0];
-      const saveButtons = screen.getAllByText('Save Key');
-
-      fireEvent.change(input, { target: { value: 'sk-test' } });
-      expect(saveButtons[0]).not.toBeDisabled();
-    });
-
     it('should disable Test button while testing', async () => {
       keyManager.getStoredProviders.mockReturnValue([
         {

@@ -5,28 +5,28 @@
  * Implements 2025 best practices for agentic AI workflows.
  */
 import { logger } from '../../services/Logger';
-
-import { FileSystemService } from '../FileSystemService';
-import { UnifiedAIService } from './UnifiedAIService';
-import { WorkspaceService } from '../WorkspaceService';
-import { TaskPersistence } from './TaskPersistence';
+import {
+  ActionType,
+  AgentStep,
+  AgentTask,
+  ApprovalRequest,
+  RollbackResult,
+  StepAction,
+  StepResult,
+} from '../../types';
 import { CodeQualityAnalyzer } from '../CodeQualityAnalyzer';
-import { MetacognitiveLayer, StuckPattern } from './MetacognitiveLayer'; // PHASE 3: Help-seeking when stuck
-import { ReActExecutor } from './ReActExecutor'; // PHASE 4: Reason-Act-Observe-Reflect pattern
-import { StrategyMemory } from './StrategyMemory'; // PHASE 5: Learning across tasks
-import { LiveEditorStream } from '../LiveEditorStream'; // PHASE 7: Live editor streaming
+import { FileSystemService } from '../FileSystemService';
 // Import GitService conditionally - it uses Node.js child_process
 // In browser mode, a mock GitService will be passed from App.tsx
 import type { GitService } from '../GitService';
-import {
-  AgentTask,
-  AgentStep,
-  StepResult,
-  StepAction,
-  ActionType,
-  ApprovalRequest,
-  RollbackResult,
-} from '../../types';
+import { LiveEditorStream } from '../LiveEditorStream'; // PHASE 7: Live editor streaming
+import { WorkspaceService } from '../WorkspaceService';
+
+import { MetacognitiveLayer, StuckPattern } from './MetacognitiveLayer'; // PHASE 3: Help-seeking when stuck
+import { ReActExecutor } from './ReActExecutor'; // PHASE 4: Reason-Act-Observe-Reflect pattern
+import { StrategyMemory } from './StrategyMemory'; // PHASE 5: Learning across tasks
+import { TaskPersistence } from './TaskPersistence';
+import { UnifiedAIService } from './UnifiedAIService';
 
 /**
  * Custom error for non-retryable failures (e.g., file not found)
@@ -205,7 +205,7 @@ export class ExecutionEngine {
         }
 
         const step = task.steps[i];
-        if (!step) continue; // Safety check
+        if (!step) {continue;} // Safety check
 
         // Check if approval is required (human-in-the-loop pattern)
         if (step.requiresApproval && !step.approved) {
@@ -765,7 +765,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
     // Extract filename from path
     const pathParts = requestedPath.split(/[/\\]/);
     const fileName = pathParts[pathParts.length - 1];
-    const workspaceRoot = this.currentTaskState.workspaceRoot;
+    const {workspaceRoot} = this.currentTaskState;
 
     if (!workspaceRoot) {
       return null;
@@ -1406,8 +1406,8 @@ Keep it concise (3-5 bullet points).`;
   private async detectTestCommand(): Promise<string> {
     // Check if project uses pnpm, yarn, or npm
     try {
-      const workspaceRoot = this.currentTaskState.workspaceRoot;
-      if (!workspaceRoot) return 'npm test';
+      const {workspaceRoot} = this.currentTaskState;
+      if (!workspaceRoot) {return 'npm test';}
 
       // Check for pnpm-lock.yaml (pnpm)
       try {
@@ -1617,7 +1617,7 @@ Be detailed, specific, and actionable. Reference specific files when making poin
       // Reverse the steps
       for (let i = stepResults.length - 1; i >= 0; i--) {
         const result = stepResults[i];
-        if (!result) continue;
+        if (!result) {continue;}
 
         // Attempt to reverse the action
         if (result.filesCreated) {

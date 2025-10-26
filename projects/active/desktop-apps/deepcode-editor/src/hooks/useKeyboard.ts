@@ -15,9 +15,9 @@
  * <div onKeyDown={keyDownHandler}>...</div>
  * ```
  */
-import { logger } from '../services/Logger';
-
 import { useCallback, useEffect, useRef } from 'react';
+
+import { logger } from '../services/Logger';
 
 export interface KeyboardHandlers {
   onEnter?: (event: KeyboardEvent) => void;
@@ -67,7 +67,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
   }, [options]);
 
   const keyDownHandler = useCallback((event: React.KeyboardEvent | KeyboardEvent) => {
-    if (!enabled) return;
+    if (!enabled) {return;}
 
     const handlers = handlersRef.current;
     let handled = false;
@@ -146,8 +146,8 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     }
 
     if (handled) {
-      if (preventDefault) event.preventDefault();
-      if (stopPropagation) event.stopPropagation();
+      if (preventDefault) {event.preventDefault();}
+      if (stopPropagation) {event.stopPropagation();}
     }
   }, [enabled, preventDefault, stopPropagation]);
 
@@ -169,7 +169,7 @@ export function useGlobalKeyboard(handlers: KeyboardHandlers, enabled = true) {
   }, [handlers]);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {return;}
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const currentHandlers = handlersRef.current;

@@ -3,7 +3,7 @@
  * Provides realistic mock responses for AI completion tests
  */
 
-import { Page } from 'puppeteer';
+import { Page, Route } from '@playwright/test';
 
 export interface MockCompletionOptions {
   completionText?: string;
@@ -27,15 +27,13 @@ export async function setupDeepSeekMock(
     errorMessage = 'API Error'
   } = options;
 
-  await page.setRequestInterception(true);
-
-  page.on('request', (request) => {
-    const url = request.url();
+  await page.route('**/*', async (route: Route) => {
+    const url = route.request().url();
 
     // Only intercept DeepSeek API calls
     if (url.includes('api.deepseek.com') || url.includes('/chat/completions')) {
       if (shouldFail) {
-        request.respond({
+        await route.fulfill({
           status: 500,
           contentType: 'application/json',
           body: JSON.stringify({
@@ -46,42 +44,43 @@ export async function setupDeepSeekMock(
           })
         });
       } else {
-        setTimeout(() => {
-          request.respond({
-            status: 200,
-            contentType: 'application/json',
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-            },
-            body: JSON.stringify({
-              id: 'chatcmpl-mock-' + Date.now(),
-              object: 'chat.completion',
-              created: Math.floor(Date.now() / 1000),
-              model: 'deepseek-chat',
-              choices: [
-                {
-                  index: 0,
-                  message: {
-                    role: 'assistant',
-                    content: completionText
-                  },
-                  finish_reason: 'stop'
-                }
-              ],
-              usage: {
-                prompt_tokens: 50,
-                completion_tokens: 15,
-                total_tokens: 65
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, delay));
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+          },
+          body: JSON.stringify({
+            id: 'chatcmpl-mock-' + Date.now(),
+            object: 'chat.completion',
+            created: Math.floor(Date.now() / 1000),
+            model: 'deepseek-chat',
+            choices: [
+              {
+                index: 0,
+                message: {
+                  role: 'assistant',
+                  content: completionText
+                },
+                finish_reason: 'stop'
               }
-            })
-          });
-        }, delay);
+            ],
+            usage: {
+              prompt_tokens: 50,
+              completion_tokens: 15,
+              total_tokens: 65
+            }
+          })
+        });
       }
     } else {
       // Let other requests through
-      request.continue();
+      await route.continue();
     }
   });
 }
@@ -125,16 +124,14 @@ export const MOCK_COMMENT_COMPLETION = ` add error handling here
  * Setup mock with predefined completion based on code context
  */
 export async function setupContextualMock(page: Page): Promise<void> {
-  await page.setRequestInterception(true);
-
-  page.on('request', async (request) => {
-    const url = request.url();
+  await page.route('**/*', async (route: Route) => {
+    const url = route.request().url();
 
     if (url.includes('api.deepseek.com') || url.includes('/chat/completions')) {
       try {
-        const postData = request.postData();
+        const postData = route.request().postData();
         if (!postData) {
-          request.continue();
+          await route.continue();
           return;
         }
 
@@ -156,7 +153,7 @@ export async function setupContextualMock(page: Page): Promise<void> {
           completionText = MOCK_COMMENT_COMPLETION;
         }
 
-        request.respond({
+        await route.fulfill({
           status: 200,
           contentType: 'application/json',
           headers: {
@@ -188,10 +185,10 @@ export async function setupContextualMock(page: Page): Promise<void> {
         });
       } catch (error) {
         console.error('Error parsing request data:', error);
-        request.continue();
+        await route.continue();
       }
     } else {
-      request.continue();
+      await route.continue();
     }
   });
 }
@@ -200,18 +197,15 @@ export async function setupContextualMock(page: Page): Promise<void> {
  * Clear all request interception
  */
 export async function clearMocks(page: Page): Promise<void> {
-  await page.setRequestInterception(false);
-  page.removeAllListeners('request');
+  await page.unroute('**/*');
 }
 
 /**
  * Setup streaming mock (for future streaming tests)
  */
 export async function setupStreamingMock(page: Page): Promise<void> {
-  await page.setRequestInterception(true);
-
-  page.on('request', (request) => {
-    const url = request.url();
+  await page.route('**/*', async (route: Route) => {
+    const url = route.request().url();
 
     if (url.includes('api.deepseek.com') || url.includes('/chat/completions')) {
       // Simulate streaming response with SSE format
@@ -225,7 +219,7 @@ export async function setupStreamingMock(page: Page): Promise<void> {
         'data: [DONE]\n\n'
       ];
 
-      request.respond({
+      await route.fulfill({
         status: 200,
         contentType: 'text/event-stream',
         headers: {
@@ -236,7 +230,7 @@ export async function setupStreamingMock(page: Page): Promise<void> {
         body: chunks.join('')
       });
     } else {
-      request.continue();
+      await route.continue();
     }
   });
 }

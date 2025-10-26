@@ -203,34 +203,34 @@ export class ModelSelector {
     // Factor 1: Code length (0-20 points)
     const prefixLength = context.prefix.length;
     factors.codeLength = prefixLength;
-    if (prefixLength > 500) score += 20;
-    else if (prefixLength > 200) score += 15;
-    else if (prefixLength > 100) score += 10;
-    else score += 5;
+    if (prefixLength > 500) {score += 20;}
+    else if (prefixLength > 200) {score += 15;}
+    else if (prefixLength > 100) {score += 10;}
+    else {score += 5;}
 
     // Factor 2: Nesting level (0-25 points)
     const nestingLevel = this.calculateNestingLevel(context.prefix);
     factors.nestingLevel = nestingLevel;
-    if (nestingLevel > 5) score += 25;
-    else if (nestingLevel > 3) score += 15;
-    else if (nestingLevel > 1) score += 10;
-    else score += 5;
+    if (nestingLevel > 5) {score += 25;}
+    else if (nestingLevel > 3) {score += 15;}
+    else if (nestingLevel > 1) {score += 10;}
+    else {score += 5;}
 
     // Factor 3: Has imports (0-10 points)
     factors.hasImports = /^import\s+/m.test(context.prefix);
-    if (factors.hasImports) score += 10;
+    if (factors.hasImports) {score += 10;}
 
     // Factor 4: Has TypeScript types (0-15 points)
     factors.hasTypes = /<[A-Z]|interface\s|type\s|:\s*\w+/.test(context.prefix);
-    if (factors.hasTypes) score += 15;
+    if (factors.hasTypes) {score += 15;}
 
     // Factor 5: Has async/await (0-10 points)
     factors.hasAsync = /async|await|Promise/.test(context.prefix);
-    if (factors.hasAsync) score += 10;
+    if (factors.hasAsync) {score += 10;}
 
     // Factor 6: Framework-specific code (0-20 points)
     factors.isFrameworkCode = this.isFrameworkCode(context);
-    if (factors.isFrameworkCode) score += 20;
+    if (factors.isFrameworkCode) {score += 20;}
 
     return { score, factors };
   }

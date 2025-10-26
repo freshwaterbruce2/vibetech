@@ -1,21 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
+  Activity,
   AlertCircle,
+  Bot,
+  Brain,
   CheckCircle,
+  Cpu,
+  Gauge,
   GitBranch,
   Layers,
   MessageCircle,
   Sidebar,
   Sparkles,
   Terminal,
-  Zap,
-  Activity,
-  Bot,
-  Cpu,
-  Brain,
-  Gauge
-} from 'lucide-react';
+  Zap} from 'lucide-react';
 import styled from 'styled-components';
 
 import { useGit } from '../hooks/useGit';
@@ -196,9 +195,9 @@ const StatusBarEnhanced: React.FC<StatusBarEnhancedProps> = ({
 
   // Get the model display name based on current model
   const getModelDisplayName = () => {
-    if (currentAIModel.includes('haiku')) return 'Haiku 4.5';
-    if (currentAIModel.includes('sonnet')) return 'Sonnet 4.5';
-    if (currentAIModel.includes('deepseek')) return 'DeepSeek';
+    if (currentAIModel.includes('haiku')) {return 'Haiku 4.5';}
+    if (currentAIModel.includes('sonnet')) {return 'Sonnet 4.5';}
+    if (currentAIModel.includes('deepseek')) {return 'DeepSeek';}
     return currentAIModel;
   };
 

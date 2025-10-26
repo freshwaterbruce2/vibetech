@@ -1,19 +1,20 @@
 /**
  * Agent Mode - Autonomous coding interface inspired by Cursor's Agent Mode
  */
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef,useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
+  AlertCircle,
+  CheckCircle,
+  Code,
+  FileText,
+  Loader2,
   Play,
   Square,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-  FileText,
-  Code,
   Zap,
 } from 'lucide-react';
+import styled from 'styled-components';
+
 import { vibeTheme } from '../../styles/theme';
 
 interface AgentModeProps {
@@ -310,7 +311,7 @@ const AgentMode: React.FC<AgentModeProps> = ({
   };
 
   const executeTask = async () => {
-    if (!task.trim()) return;
+    if (!task.trim()) {return;}
 
     setStatus('running');
     setLogs([]);

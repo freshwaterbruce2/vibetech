@@ -232,9 +232,9 @@ export class CodeQualityAnalyzer {
     let score = 100;
 
     // Penalize based on complexity
-    if (complexity > 20) score -= 30;
-    else if (complexity > 10) score -= 20;
-    else if (complexity > 5) score -= 10;
+    if (complexity > 20) {score -= 30;}
+    else if (complexity > 10) {score -= 20;}
+    else if (complexity > 5) {score -= 10;}
 
     // Penalize based on issues
     const errorCount = issues.filter(i => i.severity === 'error').length;
@@ -246,8 +246,8 @@ export class CodeQualityAnalyzer {
     // Reward documentation
     if (linesOfCode > 0) {
       const docRatio = commentLines / (linesOfCode + commentLines);
-      if (docRatio > 0.2) score += 10; // Good documentation
-      else if (docRatio < 0.05 && linesOfCode > 10) score -= 10; // Poor documentation
+      if (docRatio > 0.2) {score += 10;} // Good documentation
+      else if (docRatio < 0.05 && linesOfCode > 10) {score -= 10;} // Poor documentation
     } else {
       // Empty files get neutral score
       score = 75;
@@ -267,7 +267,7 @@ export class CodeQualityAnalyzer {
       const trimmed = line.trim();
 
       // Skip empty lines
-      if (trimmed.length === 0) continue;
+      if (trimmed.length === 0) {continue;}
 
       // Handle multi-line comments
       if (trimmed.startsWith('/*')) {
@@ -277,10 +277,10 @@ export class CodeQualityAnalyzer {
         inMultiLineComment = false;
         continue;
       }
-      if (inMultiLineComment) continue;
+      if (inMultiLineComment) {continue;}
 
       // Skip single-line comments
-      if (trimmed.startsWith('//')) continue;
+      if (trimmed.startsWith('//')) {continue;}
 
       count++;
     }
@@ -299,7 +299,7 @@ export class CodeQualityAnalyzer {
       const trimmed = line.trim();
 
       // Skip empty lines
-      if (trimmed.length === 0) continue;
+      if (trimmed.length === 0) {continue;}
 
       if (trimmed.startsWith('/*')) {
         inMultiLineComment = true;
@@ -330,9 +330,9 @@ export class CodeQualityAnalyzer {
    * Get complexity rating
    */
   getComplexityRating(complexity: number): string {
-    if (complexity <= 5) return 'simple';
-    if (complexity <= 10) return 'moderate';
-    if (complexity <= 20) return 'complex';
+    if (complexity <= 5) {return 'simple';}
+    if (complexity <= 10) {return 'moderate';}
+    if (complexity <= 20) {return 'complex';}
     return 'very-complex';
   }
 
@@ -340,8 +340,8 @@ export class CodeQualityAnalyzer {
    * Get maintainability rating
    */
   getMaintainabilityRating(qualityScore: number): 'low' | 'medium' | 'high' {
-    if (qualityScore >= 70) return 'high';
-    if (qualityScore >= 50) return 'medium';
+    if (qualityScore >= 70) {return 'high';}
+    if (qualityScore >= 50) {return 'medium';}
     return 'low';
   }
 

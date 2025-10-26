@@ -10,9 +10,8 @@
  *
  * Based on 2025 best practices for multi-project-type support
  */
-import { logger } from '../services/Logger';
-
 import { FileSystemService } from '../services/FileSystemService';
+import { logger } from '../services/Logger';
 
 export interface ProjectStructure {
   type: 'nodejs' | 'expo' | 'react' | 'backend' | 'monorepo' | 'unknown';
@@ -159,11 +158,11 @@ export class ProjectStructureDetector {
   private detectFramework(packageJson: any): ProjectStructure['detectedFramework'] {
     const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
 
-    if (deps['expo'] || deps['expo-router']) return 'expo';
-    if (deps['react-native']) return 'react-native';
-    if (deps['next']) return 'next';
-    if (deps['vite']) return 'vite';
-    if (deps['react-scripts']) return 'create-react-app';
+    if (deps['expo'] || deps['expo-router']) {return 'expo';}
+    if (deps['react-native']) {return 'react-native';}
+    if (deps['next']) {return 'next';}
+    if (deps['vite']) {return 'vite';}
+    if (deps['react-scripts']) {return 'create-react-app';}
 
     return undefined;
   }

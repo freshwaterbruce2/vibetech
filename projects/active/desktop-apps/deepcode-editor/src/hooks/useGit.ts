@@ -1,4 +1,3 @@
-import { logger } from '../services/Logger';
 import { useCallback, useEffect, useState } from 'react';
 
 import {
@@ -8,6 +7,7 @@ import {
   GitService,
   GitStatus,
 } from '../services/GitServiceBrowser';
+import { logger } from '../services/Logger';
 
 interface UseGitReturn {
   // State

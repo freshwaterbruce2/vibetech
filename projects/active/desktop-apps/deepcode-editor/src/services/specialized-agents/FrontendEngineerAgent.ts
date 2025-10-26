@@ -1,8 +1,9 @@
 /**
  * Frontend Engineer Agent - UI/UX and client-side development specialist
  */
-import { BaseSpecializedAgent, AgentCapability, AgentContext, AgentResponse, CodeChange } from './BaseSpecializedAgent';
 import { DeepSeekService } from '../DeepSeekService';
+
+import { AgentCapability, AgentContext, AgentResponse, BaseSpecializedAgent, CodeChange } from './BaseSpecializedAgent';
 
 export class FrontendEngineerAgent extends BaseSpecializedAgent {
   constructor(deepSeekService: DeepSeekService) {
@@ -120,7 +121,7 @@ Focus on creating maintainable, performant, and accessible user interfaces.`;
       return 'React + TypeScript (inferred)';
     }
     
-    const techStack = context.codebaseMetrics.techStack;
+    const {techStack} = context.codebaseMetrics;
     const frontendStack = techStack.filter(tech => 
       ['React', 'Vue', 'Angular', 'TypeScript', 'JavaScript', 'CSS', 'SCSS', 'Tailwind', 'styled-components']
         .includes(tech)
@@ -163,8 +164,8 @@ Focus on creating maintainable, performant, and accessible user interfaces.`;
     }
     
     // Penalize vague responses
-    if (response.length < 150) confidence -= 0.1;
-    if (!response.includes('component') && !response.includes('React')) confidence -= 0.05;
+    if (response.length < 150) {confidence -= 0.1;}
+    if (!response.includes('component') && !response.includes('React')) {confidence -= 0.05;}
     
     return Math.min(0.95, Math.max(0.5, confidence));
   }

@@ -10,7 +10,7 @@ module.exports = {
   ],
   ignorePatterns: [
     'dist',
-    '.eslintrc.js',
+    '.eslintrc.cjs',
     'node_modules',
     'public',
     'release',

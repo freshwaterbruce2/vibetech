@@ -2,39 +2,40 @@
  * Agent Mode V2 - Real autonomous coding with AI-powered task planning and execution
  * Implements 2025 best practices for agentic AI workflows
  */
-import React, { useState, useEffect, useRef } from 'react';
-import { logger } from '../../services/Logger';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef,useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
-  Play,
-  Pause,
-  Square,
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  FileText,
-  Code,
-  Zap,
   Activity,
-  Clock,
-  ChevronRight,
-  Shield,
   AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  Code,
+  FileText,
+  Loader2,
+  Pause,
+  Play,
+  Shield,
+  Square,
+  XCircle,
+  Zap,
 } from 'lucide-react';
-import { vibeTheme } from '../../styles/theme';
+import styled from 'styled-components';
+
+import { ExecutionCallbacks,ExecutionEngine } from '../../services/ai/ExecutionEngine';
 import { TaskPlanner } from '../../services/ai/TaskPlanner';
-import { ExecutionEngine, ExecutionCallbacks } from '../../services/ai/ExecutionEngine';
 import { BackgroundAgentSystem } from '../../services/BackgroundAgentSystem';
+import { logger } from '../../services/Logger';
+import { vibeTheme } from '../../styles/theme';
 import {
-  AgentTask,
   AgentStep,
+  AgentTask,
   ApprovalRequest,
-  TaskStatus,
-  StepStatus,
   EnhancedAgentStep,
   PlanningInsights,
+  StepStatus,
+  TaskStatus,
 } from '../../types';
 
 interface AgentModeV2Props {
@@ -639,7 +640,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
   }, [currentTask?.steps]);
 
   const handlePlanTask = async () => {
-    if (!userRequest.trim()) return;
+    if (!userRequest.trim()) {return;}
 
     try {
       // PHASE 6: Plan the task using enhanced planning with confidence scores
@@ -673,7 +674,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
   };
 
   const handleExecuteTask = async () => {
-    if (!currentTask) return;
+    if (!currentTask) {return;}
 
     // If running in background, submit to background agent system
     if (runInBackground && backgroundAgentSystem) {
@@ -716,7 +717,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
       onStepStart: (step) => {
         logger.debug('[AgentModeV2] Step started:', step.order, step.title);
         setCurrentTask(prev => {
-          if (!prev) return null;
+          if (!prev) {return null;}
           return {
             ...prev,
             steps: prev.steps.map(s => s.id === step.id ? { ...s, status: 'in_progress' } : s),
@@ -736,7 +737,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
         }
 
         setCurrentTask(prev => {
-          if (!prev) return null;
+          if (!prev) {return null;}
           return {
             ...prev,
             steps: prev.steps.map(s => s.id === step.id ? { ...s, status: step.status, result } : s),
@@ -747,7 +748,7 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
       onStepError: (step, error) => {
         logger.error('[AgentModeV2] Step error:', step.order, step.title, error);
         setCurrentTask(prev => {
-          if (!prev) return null;
+          if (!prev) {return null;}
           return {
             ...prev,
             steps: prev.steps.map(s => s.id === step.id ? { ...s, status: 'failed', error: error.message } : s),
@@ -803,10 +804,10 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
   };
 
   const handleApprove = () => {
-    if (!pendingApproval || !currentTask) return;
+    if (!pendingApproval || !currentTask) {return;}
 
     setCurrentTask(prev => {
-      if (!prev) return null;
+      if (!prev) {return null;}
       return {
         ...prev,
         steps: prev.steps.map(s =>
@@ -821,10 +822,10 @@ const AgentModeV2: React.FC<AgentModeV2Props> = ({
   };
 
   const handleReject = () => {
-    if (!pendingApproval || !currentTask) return;
+    if (!pendingApproval || !currentTask) {return;}
 
     setCurrentTask(prev => {
-      if (!prev) return null;
+      if (!prev) {return null;}
       return {
         ...prev,
         steps: prev.steps.map(s =>

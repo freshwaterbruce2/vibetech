@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FileEdit, CheckCircle2, XCircle, ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react';
+import { AnimatePresence,motion } from 'framer-motion';
+import { AlertTriangle,CheckCircle2, ChevronDown, ChevronRight, FileEdit, XCircle } from 'lucide-react';
 import styled from 'styled-components';
 
-import { FileChange } from '../types/multifile';
 import { vibeTheme } from '../styles/theme';
+import { FileChange } from '../types/multifile';
 
 interface MultiFileDiffViewProps {
   changes: FileChange[];

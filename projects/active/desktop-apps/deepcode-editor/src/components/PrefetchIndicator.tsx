@@ -6,19 +6,18 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import styled, { keyframes } from 'styled-components';
 import {
-  Brain,
-  Zap,
-  TrendingUp,
-  Database,
   Activity,
-  Clock,
-  Target,
   BarChart3,
+  Brain,
+  Clock,
   Cpu,
-  HardDrive
-} from 'lucide-react';
+  Database,
+  HardDrive,
+  Target,
+  TrendingUp,
+  Zap} from 'lucide-react';
+import styled, { keyframes } from 'styled-components';
 
 const pulse = keyframes`
   0%, 100% {
@@ -295,8 +294,8 @@ const PrefetchIndicator: React.FC<PrefetchIndicatorProps> = ({
   }, [stats.hitRate]);
 
   const getConfidenceLevel = (confidence: number): 'high' | 'medium' | 'low' => {
-    if (confidence >= 0.8) return 'high';
-    if (confidence >= 0.5) return 'medium';
+    if (confidence >= 0.8) {return 'high';}
+    if (confidence >= 0.5) {return 'medium';}
     return 'low';
   };
 

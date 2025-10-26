@@ -5,11 +5,11 @@
  * ARCHITECTURE NOTE: Uses Electron IPC for shell commands instead of child_process
  * This ensures compatibility with both dev and production builds
  */
-import { logger } from '../services/Logger';
-
 import { promises as fs } from 'fs';
-import { join, resolve, relative, dirname, basename, extname } from 'path';
 import { existsSync } from 'fs';
+import { basename, dirname, extname,join, relative, resolve } from 'path';
+
+import { logger } from '../services/Logger';
 
 // Use Electron IPC for shell commands instead of child_process
 // Type is defined in ElectronService.ts
@@ -421,7 +421,7 @@ export class TestRunner {
       this.logger(`Running tests for pattern: ${filePattern}`);
       
       const discovery = await this.discoverTests(options);
-      const framework = discovery.framework;
+      const {framework} = discovery;
       
       // Filter test files by pattern
       const matchingFiles = discovery.testFiles.filter(file => 
@@ -483,7 +483,7 @@ export class TestRunner {
       this.logger('Running all tests in the project');
       
       const discovery = await this.discoverTests(options);
-      const framework = discovery.framework;
+      const {framework} = discovery;
       
       if (discovery.testFiles.length === 0) {
         this.logger('No test files found in the project', 'warn');
@@ -746,7 +746,7 @@ export class TestRunner {
     // Handle Vitest format
     if (result.results) {
       for (const suiteResult of result.results) {
-        const file = suiteResult.file;
+        const {file} = suiteResult;
         
         const extractTests = (tasks: any[]): void => {
           for (const task of tasks) {

@@ -10,15 +10,14 @@
  * @see Phase 4: ReActExecutor for cycle generation
  */
 import { logger } from '../../services/Logger';
-
 import {
-  StrategyPattern,
-  StrategyQuery,
-  StrategyMatch,
-  StrategyMemoryStats,
-  ReActCycle,
   ActionType,
   AgentStep,
+  ReActCycle,
+  StrategyMatch,
+  StrategyMemoryStats,
+  StrategyPattern,
+  StrategyQuery,
 } from '../../types';
 
 const STORAGE_KEY = 'deepcode_strategy_memory';

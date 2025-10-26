@@ -2,18 +2,16 @@
  * OpenAI Provider - Implementation for OpenAI API integration
  */
 import { logger } from '../../../services/Logger';
-
+import SecureApiKeyManager from '../../../utils/SecureApiKeyManager';
 import {
-  IAIProvider,
+  AIModel,
+  AIProvider,
   AIProviderConfig,
   CompletionOptions,
   CompletionResponse,
-  StreamCompletionResponse,
-  AIModel,
-  AIProvider,
-  MODEL_REGISTRY
-} from '../AIProviderInterface';
-import SecureApiKeyManager from '../../../utils/SecureApiKeyManager';
+  IAIProvider,
+  MODEL_REGISTRY,
+  StreamCompletionResponse} from '../AIProviderInterface';
 
 interface OpenAIMessage {
   role: 'system' | 'user' | 'assistant' | 'function';
@@ -52,11 +50,11 @@ export class OpenAIProvider implements IAIProvider {
 
   async initialize(config: AIProviderConfig): Promise<void> {
     this.config = config;
-    
+
     // Get API key from secure storage or config
     const secureKeyManager = SecureApiKeyManager.getInstance();
-    this.apiKey = config.apiKey || secureKeyManager.getApiKey('openai');
-    
+    this.apiKey = config.apiKey || await secureKeyManager.getApiKey('openai');
+
     if (config.baseUrl) {
       this.baseUrl = config.baseUrl;
     }
@@ -72,8 +70,9 @@ export class OpenAIProvider implements IAIProvider {
     }
 
     // Store the key securely if it came from config
-    if (config.apiKey && config.apiKey !== secureKeyManager.getApiKey('openai')) {
-      const stored = secureKeyManager.storeApiKey('openai', config.apiKey);
+    const currentKey = await secureKeyManager.getApiKey('openai');
+    if (config.apiKey && config.apiKey !== currentKey) {
+      const stored = await secureKeyManager.storeApiKey('openai', config.apiKey);
       if (!stored) {
         logger.warn('Failed to store OpenAI API key securely');
       }
@@ -84,7 +83,7 @@ export class OpenAIProvider implements IAIProvider {
 
   async complete(model: string, options: CompletionOptions): Promise<CompletionResponse> {
     const request: OpenAICompletionRequest = {
-      model: model,
+      model,
       messages: options.messages.map(msg => ({
         role: msg.role,
         content: msg.content,
@@ -169,7 +168,7 @@ export class OpenAIProvider implements IAIProvider {
     options: CompletionOptions
   ): AsyncGenerator<StreamCompletionResponse> {
     const request: OpenAICompletionRequest = {
-      model: model,
+      model,
       messages: options.messages.map(msg => ({
         role: msg.role,
         content: msg.content,
@@ -218,7 +217,7 @@ export class OpenAIProvider implements IAIProvider {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {break;}
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -304,10 +303,10 @@ export class OpenAIProvider implements IAIProvider {
   }
 
   private calculateCost(usage: any, modelName?: string): number {
-    if (!usage) return 0;
+    if (!usage) {return 0;}
 
     const modelInfo = MODEL_REGISTRY[modelName || this.config.model];
-    if (!modelInfo) return 0;
+    if (!modelInfo) {return 0;}
 
     const inputCost = (usage.prompt_tokens / 1000000) * modelInfo.costPerMillionInput;
     const outputCost = (usage.completion_tokens / 1000000) * modelInfo.costPerMillionOutput;

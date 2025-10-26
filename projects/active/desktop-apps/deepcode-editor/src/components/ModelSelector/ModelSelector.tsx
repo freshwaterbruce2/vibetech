@@ -1,11 +1,12 @@
 /**
  * Model Selector - UI component for selecting AI models and providers
  */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef,useState } from 'react';
+import { Check,ChevronDown, DollarSign, Sparkles, Zap } from 'lucide-react';
 import styled from 'styled-components';
-import { ChevronDown, Sparkles, DollarSign, Zap, Check } from 'lucide-react';
+
 // import { AIProviderManager } from '../../services/ai/AIProviderManager';
-import { AIProvider, AIModel, MODEL_REGISTRY } from '../../services/ai/AIProviderInterface';
+import { AIModel, AIProvider, MODEL_REGISTRY } from '../../services/ai/AIProviderInterface';
 import { vibeTheme } from '../../styles/theme';
 
 interface ModelSelectorProps {
@@ -164,9 +165,9 @@ const ModelDetails = styled.div`
 const Badge = styled.span<{ $type: 'recommended' | 'fast' | 'smart' }>`
   padding: 2px 6px;
   background: ${props => 
-    props.$type === 'recommended' ? vibeTheme.colors.success + '20' :
-    props.$type === 'fast' ? vibeTheme.colors.cyan + '20' :
-    vibeTheme.colors.purple + '20'
+    props.$type === 'recommended' ? `${vibeTheme.colors.success  }20` :
+    props.$type === 'fast' ? `${vibeTheme.colors.cyan  }20` :
+    `${vibeTheme.colors.purple  }20`
   };
   color: ${props =>
     props.$type === 'recommended' ? vibeTheme.colors.success :
@@ -221,10 +222,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ currentModel, onModelChan
   }, {} as Record<string, any[]>);
 
   const getCostIndicator = (model: AIModel) => {
-    if (!model.costPerMillionInput && !model.costPerMillionOutput) return '$';
+    if (!model.costPerMillionInput && !model.costPerMillionOutput) {return '$';}
     const avgCost = (model.costPerMillionInput + model.costPerMillionOutput) / 2;
-    if (avgCost < 1) return '$';
-    if (avgCost < 5) return '$$';
+    if (avgCost < 1) {return '$';}
+    if (avgCost < 5) {return '$$';}
     return '$$$';
   };
 

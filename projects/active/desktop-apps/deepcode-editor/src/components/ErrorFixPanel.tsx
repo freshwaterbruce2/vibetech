@@ -3,13 +3,13 @@
  * TDD Implementation based on comprehensive tests
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
+import {  AlertCircle, CheckCircle2, ChevronDown, ChevronRight, Code, Info,X } from 'lucide-react';
 import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
-import {  AlertCircle, CheckCircle2, X, ChevronDown, ChevronRight, Code, Info } from 'lucide-react';
 
+import type { FixSuggestion,GeneratedFix } from '../services/AutoFixService';
 import type { DetectedError } from '../services/ErrorDetector';
-import type { GeneratedFix, FixSuggestion } from '../services/AutoFixService';
 import { vibeTheme } from '../styles/theme';
 
 interface ErrorFixPanelProps {

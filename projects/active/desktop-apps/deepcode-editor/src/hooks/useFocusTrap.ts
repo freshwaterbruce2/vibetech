@@ -27,6 +27,8 @@
  */
 
 import { useEffect, useRef } from 'react';
+// Re-export React for the hooks that use it directly
+import * as React from 'react';
 
 export interface UseFocusTrapOptions {
   /** Whether focus trap is active */
@@ -84,7 +86,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!isActive || !containerRef.current) return;
+    if (!isActive || !containerRef.current) {return;}
 
     const container = containerRef.current;
 
@@ -234,6 +236,3 @@ export function useAriaLive() {
 
   return announce;
 }
-
-// Re-export React for the hooks that use it directly
-import * as React from 'react';

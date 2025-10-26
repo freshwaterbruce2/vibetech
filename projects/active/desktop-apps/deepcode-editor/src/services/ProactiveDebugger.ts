@@ -4,8 +4,8 @@
  */
 import { logger } from '../services/Logger';
 
-import type { DetectedError } from './ErrorDetector';
 import type { UnifiedAIService } from './ai/UnifiedAIService';
+import type { DetectedError } from './ErrorDetector';
 
 export interface ErrorAnalysis {
   error: DetectedError;
@@ -139,7 +139,7 @@ export class ProactiveDebugger {
 
     // Group by error message pattern
     for (const analysis of this.errorHistory) {
-      const error = analysis.error;
+      const {error} = analysis;
       const patternKey = this.extractPattern(error.message);
 
       if (!patterns.has(patternKey)) {
@@ -270,13 +270,13 @@ Provide insights as a JSON array of strings.`;
     let score = 5; // Base score
 
     // Adjust by severity
-    if (error.severity === 'error') score += 3;
-    if (error.severity === 'warning') score += 1;
+    if (error.severity === 'error') {score += 3;}
+    if (error.severity === 'warning') {score += 1;}
 
     // Adjust by keywords
-    if (error.message.includes('cannot') || error.message.includes('undefined')) score += 2;
-    if (error.message.includes('null')) score += 1;
-    if (error.message.includes('syntax')) score += 2;
+    if (error.message.includes('cannot') || error.message.includes('undefined')) {score += 2;}
+    if (error.message.includes('null')) {score += 1;}
+    if (error.message.includes('syntax')) {score += 2;}
 
     return Math.min(10, Math.max(1, score));
   }
@@ -432,7 +432,7 @@ Provide insights as a JSON array of strings.`;
    */
   private getFromCache(key: string): ErrorAnalysis | null {
     const cached = this.analysisCache.get(key);
-    if (!cached) return null;
+    if (!cached) {return null;}
 
     // Check if expired
     if (Date.now() - cached.timestamp > this.options.cacheTimeout) {

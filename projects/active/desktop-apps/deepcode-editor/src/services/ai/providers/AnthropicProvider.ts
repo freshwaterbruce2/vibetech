@@ -2,17 +2,15 @@
  * Anthropic Provider - Implementation for Claude API integration
  */
 import { logger } from '../../../services/Logger';
-
 import {
-  IAIProvider,
+  AIModel,
+  AIProvider,
   AIProviderConfig,
   CompletionOptions,
   CompletionResponse,
-  StreamCompletionResponse,
-  AIModel,
-  AIProvider,
-  MODEL_REGISTRY
-} from '../AIProviderInterface';
+  IAIProvider,
+  MODEL_REGISTRY,
+  StreamCompletionResponse} from '../AIProviderInterface';
 
 interface AnthropicMessage {
   role: 'user' | 'assistant';
@@ -69,7 +67,7 @@ export class AnthropicProvider implements IAIProvider {
     }));
 
     const request: AnthropicCompletionRequest = {
-      model: model,
+      model,
       messages: anthropicMessages,
       max_tokens: options.maxTokens ?? this.config.maxTokens ?? 4096,
       temperature: options.temperature ?? this.config.temperature ?? 0.7,
@@ -151,7 +149,7 @@ export class AnthropicProvider implements IAIProvider {
     }));
 
     const request: AnthropicCompletionRequest = {
-      model: model,
+      model,
       messages: anthropicMessages,
       max_tokens: options.maxTokens ?? this.config.maxTokens ?? 4096,
       temperature: options.temperature ?? this.config.temperature ?? 0.7,
@@ -191,7 +189,7 @@ export class AnthropicProvider implements IAIProvider {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {break;}
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -215,7 +213,7 @@ export class AnthropicProvider implements IAIProvider {
                     },
                     index: 0
                   }],
-                  model: model,
+                  model,
                   created: Date.now() / 1000
                 };
 
@@ -288,10 +286,10 @@ export class AnthropicProvider implements IAIProvider {
   }
 
   private calculateCost(usage: any, modelName?: string): number {
-    if (!usage) return 0;
+    if (!usage) {return 0;}
 
     const modelInfo = MODEL_REGISTRY[modelName || this.config.model];
-    if (!modelInfo) return 0;
+    if (!modelInfo) {return 0;}
 
     const inputCost = (usage.input_tokens / 1000000) * modelInfo.costPerMillionInput;
     const outputCost = (usage.output_tokens / 1000000) * modelInfo.costPerMillionOutput;

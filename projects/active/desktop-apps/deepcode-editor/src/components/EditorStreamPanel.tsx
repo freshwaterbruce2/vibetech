@@ -4,12 +4,13 @@
  * Control panel for live editor streaming settings and status
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import styled from 'styled-components';
+
 import {
   liveEditorStream,
-  StreamProgress,
   LiveStreamSettings,
+  StreamProgress,
 } from '../services/LiveEditorStream';
 import { vibeTheme } from '../styles/theme';
 
@@ -254,7 +255,7 @@ export const EditorStreamPanel: React.FC<EditorStreamPanelProps> = ({
   };
 
   const getStatus = (): 'idle' | 'streaming' | 'paused' => {
-    if (isStreaming) return 'streaming';
+    if (isStreaming) {return 'streaming';}
     return 'idle';
   };
 

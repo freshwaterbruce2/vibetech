@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Terminal } from 'xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
-import { Plus, X, Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2, Minimize2,Plus, X } from 'lucide-react';
 import styled from 'styled-components';
-import 'xterm/css/xterm.css';
+import { Terminal } from 'xterm';
 
 import { terminalService, TerminalSession } from '../services/TerminalService';
+
+import 'xterm/css/xterm.css';
 
 interface TerminalPanelProps {
   isOpen: boolean;

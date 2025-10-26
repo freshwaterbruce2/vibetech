@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect,useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
-  List,
-  Play,
-  Pause,
-  X,
-  CheckCircle2,
   AlertCircle,
-  Clock,
-  Loader,
-  Filter,
-  Trash2,
   BarChart3,
-  History,
+  CheckCircle2,
   ChevronDown,
   ChevronRight,
+  Clock,
+  Filter,
+  History,
+  List,
+  Loader,
+  Pause,
+  Play,
+  Trash2,
+  X,
 } from 'lucide-react';
 import styled from 'styled-components';
 
-import { BackgroundTask, TaskStatus, TaskType, TaskStats } from '../types/tasks';
 import { vibeTheme } from '../styles/theme';
+import { BackgroundTask, TaskStats,TaskStatus, TaskType } from '../types/tasks';
 
 interface TaskMonitorPanelProps {
   tasks: BackgroundTask[];
@@ -47,11 +47,11 @@ export const TaskMonitorPanel: React.FC<TaskMonitorPanelProps> = ({
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
 
   const filteredTasks = tasks.filter((task) => {
-    if (filter === 'all') return true;
-    if (filter === 'running') return task.status === TaskStatus.RUNNING;
-    if (filter === 'queued') return task.status === TaskStatus.QUEUED;
+    if (filter === 'all') {return true;}
+    if (filter === 'running') {return task.status === TaskStatus.RUNNING;}
+    if (filter === 'queued') {return task.status === TaskStatus.QUEUED;}
     if (filter === 'completed')
-      return task.status === TaskStatus.COMPLETED || task.status === TaskStatus.FAILED;
+      {return task.status === TaskStatus.COMPLETED || task.status === TaskStatus.FAILED;}
     return true;
   });
 

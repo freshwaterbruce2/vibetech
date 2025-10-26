@@ -9,25 +9,24 @@
  * - Copy to clipboard
  * - Insert into editor
  */
-import { logger } from '../services/Logger';
-
-import React, { useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useCallback, useRef,useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
-  Upload,
-  Image as ImageIcon,
+  Check,
   Code2,
   Copy,
-  Check,
-  Settings,
-  Loader2,
-  FileCode,
   Download,
+  FileCode,
+  Image as ImageIcon,
+  Loader2,
   RefreshCw,
+  Settings,
+  Upload,
 } from 'lucide-react';
 import styled from 'styled-components';
 
-import { ImageToCodeService, ImageToCodeOptions, ImageToCodeResult } from '../services/ImageToCodeService';
+import { ImageToCodeOptions, ImageToCodeResult,ImageToCodeService } from '../services/ImageToCodeService';
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 
 const PanelContainer = styled(motion.div)`
@@ -333,7 +332,7 @@ export const ScreenshotToCodePanel: React.FC<ScreenshotToCodePanelProps> = ({
 
   const handlePaste = useCallback((e: ClipboardEvent) => {
     const items = e.clipboardData?.items;
-    if (!items) return;
+    if (!items) {return;}
 
     for (const item of Array.from(items)) {
       if (item.type.startsWith('image/')) {
@@ -352,7 +351,7 @@ export const ScreenshotToCodePanel: React.FC<ScreenshotToCodePanelProps> = ({
   }, [handlePaste]);
 
   const handleGenerate = async () => {
-    if (!imageData) return;
+    if (!imageData) {return;}
 
     setIsGenerating(true);
     setError(null);
@@ -371,7 +370,7 @@ export const ScreenshotToCodePanel: React.FC<ScreenshotToCodePanelProps> = ({
   };
 
   const handleCopy = async () => {
-    if (!result) return;
+    if (!result) {return;}
 
     try {
       await navigator.clipboard.writeText(result.code);
@@ -383,7 +382,7 @@ export const ScreenshotToCodePanel: React.FC<ScreenshotToCodePanelProps> = ({
   };
 
   const handleInsert = () => {
-    if (!result) return;
+    if (!result) {return;}
     onInsertCode?.(result.code);
   };
 
@@ -426,7 +425,7 @@ export const ScreenshotToCodePanel: React.FC<ScreenshotToCodePanelProps> = ({
               style={{ display: 'none' }}
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) handleFileSelect(file);
+                if (file) {handleFileSelect(file);}
               }}
             />
           </UploadZone>

@@ -3,7 +3,6 @@
  * Supports YAML format with validation
  */
 import { logger } from '../services/Logger';
-
 import { DeepCodeRules, RuleValidationResult, RuleViolation } from '../types/customInstructions';
 
 export class DeepCodeRulesParser {
@@ -251,7 +250,7 @@ export class DeepCodeRulesParser {
 
       lines.forEach((line) => {
         const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#')) return;
+        if (!trimmed || trimmed.startsWith('#')) {return;}
 
         const currentIndent = line.search(/\S/);
 
@@ -282,12 +281,12 @@ export class DeepCodeRulesParser {
     const cleaned = value.replace(/^['"]|['"]$/g, '');
 
     // Boolean
-    if (cleaned === 'true') return true;
-    if (cleaned === 'false') return false;
+    if (cleaned === 'true') {return true;}
+    if (cleaned === 'false') {return false;}
 
     // Number
-    if (/^\d+$/.test(cleaned)) return parseInt(cleaned, 10);
-    if (/^\d+\.\d+$/.test(cleaned)) return parseFloat(cleaned);
+    if (/^\d+$/.test(cleaned)) {return parseInt(cleaned, 10);}
+    if (/^\d+\.\d+$/.test(cleaned)) {return parseFloat(cleaned);}
 
     // Array
     if (cleaned.startsWith('[') && cleaned.endsWith(']')) {
@@ -308,7 +307,7 @@ export class DeepCodeRulesParser {
     let yaml = '';
 
     Object.entries(obj).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
+      if (value === undefined || value === null) {return;}
 
       if (typeof value === 'object' && !Array.isArray(value)) {
         yaml += `${spaces}${key}:\n`;

@@ -1,9 +1,10 @@
 /**
  * Security Agent - Specialized in security analysis and vulnerability detection
  */
-import { BaseSpecializedAgent, AgentCapability, AgentContext, AgentResponse } from './BaseSpecializedAgent';
-import { DeepSeekService } from '../DeepSeekService';
 import { logger } from '../../utils/logger';
+import { DeepSeekService } from '../DeepSeekService';
+
+import { AgentCapability, AgentContext, AgentResponse,BaseSpecializedAgent } from './BaseSpecializedAgent';
 
 export interface SecurityVulnerability {
   id: string;

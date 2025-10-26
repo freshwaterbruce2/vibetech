@@ -3,6 +3,7 @@
  */
 
 import { useEffect } from 'react';
+
 import { BackgroundAgentSystem, BackgroundTask } from '../services/BackgroundAgentSystem';
 
 interface UseBackgroundTaskNotificationsProps {

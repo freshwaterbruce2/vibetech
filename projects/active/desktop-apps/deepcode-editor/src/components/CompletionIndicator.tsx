@@ -6,8 +6,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { Bot, Brain, ChevronRight, Gauge, X,Zap } from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
-import { Bot, Zap, Brain, Gauge, ChevronRight, X } from 'lucide-react';
 
 const pulse = keyframes`
   0% {

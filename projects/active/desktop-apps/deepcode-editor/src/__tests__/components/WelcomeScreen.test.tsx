@@ -41,10 +41,10 @@ describe('WelcomeScreen Component', () => {
     it('should render main title and subtitle', () => {
       render(<WelcomeScreen {...defaultProps} />);
 
-      expect(screen.getByText('DeepCode Studio 🚀')).toBeInTheDocument();
-      expect(screen.getByText(/Next-Level AI-Powered Development Experience/)).toBeInTheDocument();
+      expect(screen.getByText('Vibe Code Studio')).toBeInTheDocument();
+      expect(screen.getByText(/Next-Generation AI-Powered Development Experience/)).toBeInTheDocument();
       expect(
-        screen.getByText(/Built with the power of DeepSeek AI and Vibe Tech design/)
+        screen.getByText(/Where innovation meets elegant design/)
       ).toBeInTheDocument();
     });
 
@@ -66,7 +66,7 @@ describe('WelcomeScreen Component', () => {
       expect(
         screen.getByText(/Create a new file and start coding with AI-powered completions/)
       ).toBeInTheDocument();
-      expect(screen.getByText(/Chat with DeepSeek AI to get help with coding/)).toBeInTheDocument();
+      expect(screen.getByText(/Chat with AI to get help with coding/)).toBeInTheDocument();
       expect(
         screen.getByText(/Experience intelligent code completion, refactoring/)
       ).toBeInTheDocument();
@@ -233,13 +233,13 @@ describe('WelcomeScreen Component', () => {
     it('should handle null workspace context', () => {
       render(<WelcomeScreen {...defaultProps} workspaceContext={null} />);
 
-      expect(screen.getByText('DeepCode Studio 🚀')).toBeInTheDocument();
+      expect(screen.getByText('Vibe Code Studio')).toBeInTheDocument();
     });
 
     it('should handle provided workspace context', () => {
       render(<WelcomeScreen {...defaultProps} workspaceContext={mockWorkspaceContext} />);
 
-      expect(screen.getByText('DeepCode Studio 🚀')).toBeInTheDocument();
+      expect(screen.getByText('Vibe Code Studio')).toBeInTheDocument();
     });
 
     it('should not crash with empty workspace context', () => {
@@ -338,7 +338,7 @@ describe('WelcomeScreen Component', () => {
       render(<WelcomeScreen {...defaultProps} />);
 
       const mainTitle = screen.getByRole('heading', { level: 1 });
-      expect(mainTitle).toHaveTextContent('DeepCode Studio 🚀');
+      expect(mainTitle).toHaveTextContent('Vibe Code Studio');
 
       const quickStartTitle = screen.getByRole('heading', { level: 2 });
       expect(quickStartTitle).toHaveTextContent('Quick Start');
@@ -348,7 +348,7 @@ describe('WelcomeScreen Component', () => {
       render(<WelcomeScreen {...defaultProps} />);
 
       expect(screen.getByText(/Next-Level AI-Powered Development Experience/)).toBeInTheDocument();
-      expect(screen.getByText(/Built with the power of DeepSeek AI/)).toBeInTheDocument();
+      expect(screen.getByText(/Where innovation meets elegant design/)).toBeInTheDocument();
     });
   });
 
@@ -412,7 +412,7 @@ describe('WelcomeScreen Component', () => {
     it('should show title decorative line', () => {
       render(<WelcomeScreen {...defaultProps} />);
 
-      const title = screen.getByText('DeepCode Studio 🚀');
+      const title = screen.getByText('Vibe Code Studio');
       expect(title).toBeInTheDocument();
     });
 
@@ -499,7 +499,7 @@ describe('WelcomeScreen Component', () => {
 
       rerender(<WelcomeScreen {...defaultProps} />);
 
-      expect(screen.getByText('DeepCode Studio 🚀')).toBeInTheDocument();
+      expect(screen.getByText('Vibe Code Studio')).toBeInTheDocument();
     });
 
     it('should handle frequent prop updates efficiently', () => {
@@ -523,9 +523,9 @@ describe('WelcomeScreen Component', () => {
     it('should display consistent branding', () => {
       render(<WelcomeScreen {...defaultProps} />);
 
-      expect(screen.getByText('DeepCode Studio 🚀')).toBeInTheDocument();
-      expect(screen.getByText(/DeepSeek AI/)).toBeInTheDocument();
-      expect(screen.getByText(/Vibe Tech design/)).toBeInTheDocument();
+      expect(screen.getByText('Vibe Code Studio')).toBeInTheDocument();
+      expect(screen.getByText(/Next-Generation AI-Powered Development Experience/)).toBeInTheDocument();
+      expect(screen.getByText(/Where innovation meets elegant design/)).toBeInTheDocument();
     });
 
     it('should show appropriate call-to-action content', () => {
@@ -533,7 +533,7 @@ describe('WelcomeScreen Component', () => {
 
       expect(screen.getByText(/Open an existing project/)).toBeInTheDocument();
       expect(screen.getByText(/Create a new file/)).toBeInTheDocument();
-      expect(screen.getByText(/Chat with DeepSeek AI/)).toBeInTheDocument();
+      expect(screen.getByText(/Chat with AI/)).toBeInTheDocument();
     });
 
     it('should display helpful feature descriptions', () => {

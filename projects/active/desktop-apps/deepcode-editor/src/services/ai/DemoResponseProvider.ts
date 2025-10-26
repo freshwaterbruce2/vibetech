@@ -563,7 +563,7 @@ These examples show:
             type: 'search_codebase',
             params: {
               searchQuery: 'project structure',
-              workspaceRoot: workspaceRoot,
+              workspaceRoot,
               pattern: '*',
               includeFiles: true,
               includeDirs: true
@@ -579,7 +579,7 @@ These examples show:
           action: {
             type: 'analyze_code',
             params: {
-              workspaceRoot: workspaceRoot,
+              workspaceRoot,
               files: ['package.json', 'tsconfig.json', 'src/index.tsx', 'src/App.tsx']
             }
           },
@@ -628,7 +628,7 @@ These examples show:
             type: 'search_codebase',
             params: {
               searchQuery: 'TODO FIXME BUG ERROR',
-              workspaceRoot: workspaceRoot,
+              workspaceRoot,
               pattern: 'TODO|FIXME|BUG|ERROR'
             }
           },
@@ -661,7 +661,7 @@ These examples show:
           action: {
             type: 'custom',
             params: {
-              userRequest: userRequest
+              userRequest
             }
           },
           requiresApproval: true,
@@ -674,7 +674,7 @@ These examples show:
       title: userRequest,
       description: `Demo mode: Task plan for "${userRequest}"`,
       reasoning: 'This is a demo task plan. In production mode with a real AI API key, the agent would generate context-aware steps based on your actual codebase.',
-      steps: steps,
+      steps,
       warnings: [
         'Demo mode active - using simulated task planning',
         'Configure an AI API key in Settings for real autonomous capabilities'
