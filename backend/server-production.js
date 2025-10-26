@@ -6,14 +6,12 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const compression = require('compression');
-const path = require('path');
 
 // Import custom modules
 const { getDatabaseConfig } = require('./config/database');
 const { logger, requestLogger } = require('./config/logger');
 const {
   securityHeaders,
-  generalRateLimit,
   authRateLimit,
   apiRateLimit,
   validateRequest,
@@ -209,7 +207,7 @@ app.post('/api/auth', authRateLimit, (req, res) => {
 app.get('/api/blog', (req, res) => {
   const { published } = req.query;
   let query = 'SELECT * FROM blog_posts';
-  let params = [];
+  const params = [];
   
   if (published === 'true') {
     query += ' WHERE published = 1';

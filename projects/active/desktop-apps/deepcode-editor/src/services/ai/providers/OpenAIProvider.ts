@@ -2,7 +2,7 @@
  * OpenAI Provider - Implementation for OpenAI API integration
  */
 import { logger } from '../../../services/Logger';
-import SecureApiKeyManager from '../../../utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 import {
   AIModel,
   AIProvider,
@@ -52,7 +52,7 @@ export class OpenAIProvider implements IAIProvider {
     this.config = config;
 
     // Get API key from secure storage or config
-    const secureKeyManager = SecureApiKeyManager.getInstance();
+    const secureKeyManager = SecureApiKeyManager.getInstance(logger);
     this.apiKey = config.apiKey || await secureKeyManager.getApiKey('openai');
 
     if (config.baseUrl) {
