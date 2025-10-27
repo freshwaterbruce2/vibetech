@@ -1,8 +1,9 @@
 /**
  * Task Executors - Example implementations for common background tasks
  */
-import { logger } from '../services/Logger';
 import { BackgroundTask, TaskExecutor, TaskProgress, TaskResult, TaskType } from '@vibetech/types/tasks';
+
+import { logger } from '../services/Logger';
 
 /**
  * Code Analysis Executor

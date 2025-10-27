@@ -1,5 +1,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+import type { FileChange, MultiFileEditPlan } from '@vibetech/types/multifile';
 import { AnimatePresence, motion } from 'framer-motion';
 import styled from 'styled-components';
 
@@ -60,9 +62,7 @@ import { MultiFileEditor } from './services/MultiFileEditor';
 import { SearchService } from './services/SearchService';
 import { telemetry } from './services/TelemetryService';
 import { WorkspaceService } from './services/WorkspaceService';
-import type { FileChange, MultiFileEditPlan } from '@vibetech/types/multifile';
 import { getUserFriendlyError } from './utils/errorHandler';
-import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 // Types
 import { AIMessage, EditorFile } from './types';
 

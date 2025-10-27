@@ -2,13 +2,14 @@
  * UnifiedAIService - Bridges DeepSeekService interface with AIProviderManager
  * Provides backward-compatible interface while using the new multi-provider system
  */
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+
 import { logger } from '../../services/Logger';
 import {
   AIContextRequest,
   AIResponse,
   WorkspaceContext,
 } from '../../types';
-import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 
 import { AIProvider, CompletionOptions,MODEL_REGISTRY } from './AIProviderInterface';
 import { AIProviderManager } from './AIProviderManager';

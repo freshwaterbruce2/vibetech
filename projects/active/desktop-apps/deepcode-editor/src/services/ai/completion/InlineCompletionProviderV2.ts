@@ -10,16 +10,17 @@
  * - Suggestion filtering and ranking
  * - Streaming support with visual feedback
  */
-import { logger } from '../../../services/Logger';
-
 // This file needs runtime monaco for registerInlineCompletionsProvider
 import * as monaco from 'monaco-editor';
-import { CompletionOrchestrator } from './CompletionOrchestrator';
-import { UnifiedAIService } from '../UnifiedAIService';
+import { v4 as uuidv4 } from 'uuid';
+
+import { logger } from '../../../services/Logger';
+import type { CompletionLatency, VariationType } from '../../../types/analytics';
 import { LRUCache } from '../../../utils/LRUCache';
 import { getAnalyticsInstance } from '../CompletionAnalytics';
-import { v4 as uuidv4 } from 'uuid';
-import type { CompletionLatency, VariationType } from '../../../types/analytics';
+import { UnifiedAIService } from '../UnifiedAIService';
+
+import { CompletionOrchestrator } from './CompletionOrchestrator';
 
 // Smart trigger patterns for different languages
 const TRIGGER_PATTERNS = {

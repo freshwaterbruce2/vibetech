@@ -1,4 +1,5 @@
 import 'styled-components';
+
 import { VibeTheme } from './theme';
 
 declare module 'styled-components' {

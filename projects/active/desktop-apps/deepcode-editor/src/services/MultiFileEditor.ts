@@ -1,12 +1,13 @@
 /**
  * MultiFileEditor - Coordinate changes across multiple files
  */
-import { logger } from '../services/Logger';
 import {
   FileChange,
   MultiFileEditPlan,
   MultiFileEditResult,
 } from '@vibetech/types/multifile';
+
+import { logger } from '../services/Logger';
 
 import { UnifiedAIService } from './ai/UnifiedAIService';
 import { DependencyAnalyzer } from './DependencyAnalyzer';

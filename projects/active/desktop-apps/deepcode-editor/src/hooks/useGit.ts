@@ -1,4 +1,3 @@
-import { logger } from '../services/Logger';
 import { useCallback, useEffect, useState } from 'react';
 
 import {

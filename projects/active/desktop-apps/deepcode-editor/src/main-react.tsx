@@ -1,6 +1,7 @@
-import { logger } from './services/Logger';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+import { logger } from './services/Logger';
 
 logger.debug('Loading React app...');
 

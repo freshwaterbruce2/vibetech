@@ -1,7 +1,8 @@
-import { logger } from '../../services/Logger';
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, Home, Mail, RefreshCw } from 'lucide-react';
 import styled from 'styled-components';
+
+import { logger } from '../../services/Logger';
 import { telemetry } from '../../services/TelemetryService';
 
 const ErrorContainer = styled.div`

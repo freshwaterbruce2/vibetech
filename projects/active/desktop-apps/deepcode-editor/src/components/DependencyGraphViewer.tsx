@@ -1,11 +1,11 @@
 import React, { useEffect, useRef,useState } from 'react';
 import { ForceGraph2D } from 'react-force-graph';
+import { DependencyGraph } from '@vibetech/types/multifile';
 import { motion } from 'framer-motion';
 import { AlertCircle, Filter, Maximize2,Network } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import { DependencyGraph } from '@vibetech/types/multifile';
 
 interface GraphNode {
   id: string;

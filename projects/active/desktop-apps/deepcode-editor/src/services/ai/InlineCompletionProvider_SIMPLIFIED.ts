@@ -20,12 +20,13 @@
  * - Alt+[ or Opt+[: Previous completion variation
  * - Esc: Dismiss completion
  */
+import * as monaco from 'monaco-editor';
+
 import { logger } from '../../services/Logger';
 
-import * as monaco from 'monaco-editor';
-import { UnifiedAIService } from './UnifiedAIService';
 import { CompletionOrchestrator } from './completion/CompletionOrchestrator';
 import type { CompletionRequest } from './completion/types';
+import { UnifiedAIService } from './UnifiedAIService';
 
 export class InlineCompletionProvider {
   private orchestrator: CompletionOrchestrator;

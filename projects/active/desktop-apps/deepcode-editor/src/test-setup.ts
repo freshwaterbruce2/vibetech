@@ -4,8 +4,9 @@
  * Based on 2025 best practices for Vitest browser API mocking
  */
 
-import { vi } from 'vitest';
 import '@testing-library/jest-dom';
+
+import { vi } from 'vitest';
 
 /**
  * Mock Clipboard API

@@ -4,9 +4,8 @@
  * This file demonstrates how to use the CodeExecutor service
  * for executing code in different languages with proper security.
  */
-import { logger } from '../services/Logger';
-
 import { CodeExecutor, type ExecutionOptions, type SecurityPolicy } from '../services/CodeExecutor';
+import { logger } from '../services/Logger';
 
 export class CodeExecutorExample {
   private executor: CodeExecutor;

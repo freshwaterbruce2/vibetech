@@ -1,7 +1,8 @@
-import { logger } from './services/Logger';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import Editor from '@monaco-editor/react';
+
+import { logger } from './services/Logger';
 
 import './index.css';
 

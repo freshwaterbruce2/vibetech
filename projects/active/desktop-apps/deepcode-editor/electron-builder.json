@@ -26,7 +26,7 @@
         "arch": ["x64"]
       }
     ],
-    "icon": "build/icons/icon.ico",
+    "icon": "build/icons/icon-256.png",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "verifyUpdateCodeSignature": false
   },
@@ -36,9 +36,9 @@
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
     "shortcutName": "Vibe Code Studio",
-    "installerIcon": "build/icons/icon.ico",
-    "uninstallerIcon": "build/icons/icon.ico",
-    "installerHeaderIcon": "build/icons/icon.ico",
+    "installerIcon": "build/icons/icon-256.png",
+    "uninstallerIcon": "build/icons/icon-256.png",
+    "installerHeaderIcon": "build/icons/icon-256.png",
     "deleteAppDataOnUninstall": false,
     "runAfterFinish": true,
     "perMachine": false,
@@ -58,7 +58,7 @@
         "arch": ["x64", "arm64"]
       }
     ],
-    "icon": "build/icons/icon.icns",
+    "icon": "build/icons/icon-1024-mac.png",
     "category": "public.app-category.developer-tools",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "hardenedRuntime": true,
@@ -72,7 +72,7 @@
   },
   "dmg": {
     "title": "${productName} ${version}",
-    "icon": "build/icons/icon.icns",
+    "icon": "build/icons/icon-1024-mac.png",
     "background": "build/dmg-background.png",
     "contents": [
       {

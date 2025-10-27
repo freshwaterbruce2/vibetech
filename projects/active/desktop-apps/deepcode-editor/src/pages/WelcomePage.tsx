@@ -1,7 +1,7 @@
-import { logger } from '../services/Logger';
 import React from 'react';
 
 import WelcomeScreen from '../components/WelcomeScreen';
+import { logger } from '../services/Logger';
 import { useEditorStore } from '../stores/useEditorStore';
 
 const WelcomePage: React.FC = () => {

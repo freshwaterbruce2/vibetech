@@ -1,4 +1,5 @@
 import { logger } from '../services/Logger';
+
 import { EditorModuleInterface } from './editor';
 
 export interface Module {
