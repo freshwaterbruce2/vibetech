@@ -284,7 +284,7 @@ export class TaskPlanner {
    * Identifies if a task should use chunked code generation for large outputs
    * Reserved for future chunked generation optimization
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   private _shouldUseChunkedGeneration(userRequest: string): boolean {
     const largeCodingKeywords = [
       'comprehensive test suite',
@@ -307,7 +307,7 @@ export class TaskPlanner {
    * Creates chunked tasks for large code generation
    * Reserved for future chunked generation implementation
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   private _createChunkedCodeGenerationSteps(_userRequest: string, _context: WorkspaceContext): AgentStep[] {
     const chunks = [
       {

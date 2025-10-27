@@ -21,16 +21,16 @@ interface EditorStreamPanelProps {
   minimized?: boolean;
 }
 
-const PanelContainer = styled.div<{ minimized: boolean }>`
+const PanelContainer = styled.div<{ $minimized: boolean }>`
   position: fixed;
-  bottom: ${props => props.minimized ? '-200px' : '20px'};
+  bottom: ${props => props.$minimized ? '-200px' : '20px'};
   right: 20px;
   width: 350px;
   background: #1e1e1e;
   border: 1px solid #3e3e3e;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  padding: ${props => props.minimized ? '8px' : '16px'};
+  padding: ${props => props.$minimized ? '8px' : '16px'};
   z-index: 1000;
   transition: all 0.3s ease;
 `;
@@ -76,9 +76,9 @@ const ProgressBar = styled.div`
   margin-bottom: 8px;
 `;
 
-const ProgressFill = styled.div<{ percent: number }>`
+const ProgressFill = styled.div<{ $percent: number }>`
   height: 100%;
-  width: ${props => props.percent}%;
+  width: ${props => props.$percent}%;
   background: linear-gradient(90deg, #8b5cf6, #a78bfa);
   transition: width 0.3s ease;
 `;
@@ -134,7 +134,7 @@ const ApprovalButtons = styled.div`
   gap: 8px;
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
   flex: 1;
   padding: 8px 16px;
   border-radius: 4px;
@@ -145,7 +145,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   transition: all 0.2s;
 
   ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'primary':
         return `
           background: #10b981;
@@ -173,7 +173,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   }
 `;
 
-const StatusBadge = styled.div<{ status: 'idle' | 'streaming' | 'paused' }>`
+const StatusBadge = styled.div<{ $status: 'idle' | 'streaming' | 'paused' }>`
   display: inline-block;
   padding: 4px 8px;
   border-radius: 4px;
@@ -182,7 +182,7 @@ const StatusBadge = styled.div<{ status: 'idle' | 'streaming' | 'paused' }>`
   text-transform: uppercase;
 
   ${props => {
-    switch (props.status) {
+    switch (props.$status) {
       case 'streaming':
         return `
           background: rgba(16, 185, 129, 0.2);
@@ -260,11 +260,11 @@ export const EditorStreamPanel: React.FC<EditorStreamPanelProps> = ({
   };
 
   return (
-    <PanelContainer minimized={minimized}>
+    <PanelContainer $minimized={minimized}>
       <PanelHeader onClick={() => setMinimized(!minimized)}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <PanelTitle>Live Editor Streaming</PanelTitle>
-          <StatusBadge status={getStatus()}>{getStatus()}</StatusBadge>
+          <StatusBadge $status={getStatus()}>{getStatus()}</StatusBadge>
         </div>
         <MinimizeButton>
           {minimized ? '▲' : '▼'}
@@ -276,7 +276,7 @@ export const EditorStreamPanel: React.FC<EditorStreamPanelProps> = ({
           {isStreaming && progress && (
             <ProgressContainer>
               <ProgressBar>
-                <ProgressFill percent={progress.percentComplete} />
+                <ProgressFill $percent={progress.percentComplete} />
               </ProgressBar>
               <ProgressText>
                 <span>{progress.currentChar} / {progress.totalChars} chars</span>
@@ -347,13 +347,13 @@ export const EditorStreamPanel: React.FC<EditorStreamPanelProps> = ({
           {isStreaming && (
             <ApprovalSection>
               <ApprovalButtons>
-                <Button variant="primary" onClick={handleApprove}>
+                <Button $variant="primary" onClick={handleApprove}>
                   ✓ Approve
                 </Button>
-                <Button variant="danger" onClick={handleReject}>
+                <Button $variant="danger" onClick={handleReject}>
                   ✗ Reject
                 </Button>
-                <Button variant="secondary" onClick={handleStop}>
+                <Button $variant="secondary" onClick={handleStop}>
                   ⏸ Stop
                 </Button>
               </ApprovalButtons>

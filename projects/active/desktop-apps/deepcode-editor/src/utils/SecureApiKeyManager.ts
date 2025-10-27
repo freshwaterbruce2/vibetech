@@ -268,7 +268,7 @@ export class SecureApiKeyManager {
       if (this.isElectron && this.electronStorage) {
         const result = await this.electronStorage.keys();
         if (result.success && result.keys) {
-          keys = result.keys;
+          ({ keys } = result);
         }
       }
 

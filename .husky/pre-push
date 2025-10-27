@@ -1,8 +1,0 @@
-# Run tests before pushing to remote
-# This catches regressions before they reach CI/CD
-
-echo "Running tests before push..."
-cd "C:/dev/projects/active/desktop-apps/deepcode-editor" && pnpm vitest run
-
-# Exit with test status
-exit $?

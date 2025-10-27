@@ -92,7 +92,7 @@ export class AutoUpdateService {
    * Download and install update
    */
   async downloadAndInstallUpdate(updateInfo: UpdateInfo): Promise<void> {
-    if (!window.electronAPI) {
+    if (!window.electron) {
       logger.warn('Updates only available in Electron app');
       return;
     }
@@ -102,12 +102,12 @@ export class AutoUpdateService {
 
       // In Electron, we would need to implement auto-updater functionality
       // For now, open the download URL in the browser
-      await window.electronAPI.shellOpenExternal(updateInfo.downloadUrl);
+      await window.electron.shell.openExternal(updateInfo.downloadUrl);
 
       telemetry.trackEvent('update_download_initiated', { version: updateInfo.version });
 
       // Show user instructions
-      await window.electronAPI.showMessageBox({
+      await window.electron.dialog.showMessage({
         type: 'info',
         title: 'Update Available',
         message: `Version ${updateInfo.version} is available`,
@@ -131,12 +131,12 @@ export class AutoUpdateService {
    * Schedule application restart
    */
   private async scheduleRestart(): Promise<void> {
-    if (!window.electronAPI) {
+    if (!window.electron) {
       return;
     }
 
     // Show notification to user
-    const result = await window.electronAPI.showMessageBox({
+    const result = await window.electron.dialog.showMessage({
       type: 'question',
       title: 'Restart Required',
       message: 'Update downloaded successfully. Restart now to apply the update?',
@@ -145,7 +145,7 @@ export class AutoUpdateService {
 
     if (result.response === 0) {
       telemetry.trackEvent('update_restart_accepted');
-      await window.electronAPI.app.restart();
+      window.electron.app.quit();
     } else {
       telemetry.trackEvent('update_restart_deferred');
       // Remind user later
@@ -211,8 +211,8 @@ export class AutoUpdateService {
    * Get current platform
    */
   private getPlatform(): string {
-    if (window.electronEnv) {
-      return window.electronEnv.platform;
+    if (window.electron?.platform) {
+      return window.electron.platform.os;
     }
 
     const platform = navigator.platform.toLowerCase();
@@ -229,8 +229,8 @@ export class AutoUpdateService {
    * Get system architecture
    */
   private getArchitecture(): string {
-    if (window.electronEnv) {
-      return window.electronEnv.arch;
+    if (window.electron?.platform) {
+      return window.electron.platform.arch;
     }
 
     // Best guess from user agent
