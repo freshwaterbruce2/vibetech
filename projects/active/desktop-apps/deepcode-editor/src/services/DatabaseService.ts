@@ -512,7 +512,14 @@ export class DatabaseService {
       params.push(limit);
 
       if (this.isElectron) {
-        const rows = this.db.prepare(sql).all(...params);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, params);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
+
+        const rows = result.data || [];
         return rows.map(this.parseSnippet);
       } else {
         const result = this.db.exec(sql, params);
@@ -549,7 +556,12 @@ export class DatabaseService {
       `;
 
       if (this.isElectron) {
-        this.db.prepare(sql).run(id);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [id]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
       } else {
         this.db.run(sql, [id]);
       }
@@ -576,7 +588,15 @@ export class DatabaseService {
       const sql = 'SELECT value FROM deepcode_settings WHERE key = ?';
 
       if (this.isElectron) {
-        const row = this.db.prepare(sql).get(key);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [key]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
+
+        const rows = result.data || [];
+        const row = rows[0];
         return row ? JSON.parse(row.value) : defaultValue;
       } else {
         const result = this.db.exec(sql, [key]);
@@ -606,7 +626,12 @@ export class DatabaseService {
       const valueJson = JSON.stringify(value);
 
       if (this.isElectron) {
-        this.db.prepare(sql).run(key, valueJson);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [key, valueJson]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
       } else {
         this.db.run(sql, [key, valueJson]);
       }
@@ -629,7 +654,14 @@ export class DatabaseService {
       const sql = 'SELECT key, value FROM deepcode_settings';
 
       if (this.isElectron) {
-        const rows = this.db.prepare(sql).all();
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, []);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
+
+        const rows = result.data || [];
         return rows.reduce((acc: any, row: any) => {
           acc[row.key] = JSON.parse(row.value);
           return acc;
@@ -668,7 +700,12 @@ export class DatabaseService {
       const dataJson = eventData ? JSON.stringify(eventData) : null;
 
       if (this.isElectron) {
-        this.db.prepare(sql).run(eventType, dataJson);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [eventType, dataJson]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
       } else {
         this.db.run(sql, [eventType, dataJson]);
       }
@@ -713,7 +750,14 @@ export class DatabaseService {
       params.push(limit);
 
       if (this.isElectron) {
-        const rows = this.db.prepare(sql).all(...params);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, params);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
+
+        const rows = result.data || [];
         return rows.map((row: any) => ({
           id: row.id,
           event_type: row.event_type,
@@ -799,14 +843,19 @@ export class DatabaseService {
       const patternData = JSON.stringify(pattern);
 
       if (this.isElectron) {
-        this.db.prepare(sql).run(
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [
           patternHash,
           patternData,
           pattern.successRate,
           pattern.usageCount,
           pattern.lastUsedAt.toISOString(),
           pattern.createdAt.toISOString()
-        );
+        ]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
       } else {
         this.db.run(sql, [
           patternHash,
@@ -841,7 +890,14 @@ export class DatabaseService {
       `;
 
       if (this.isElectron) {
-        const rows = this.db.prepare(sql).all(limit);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [limit]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
+
+        const rows = result.data || [];
         return rows.map((row: any) => {
           const pattern = JSON.parse(row.pattern_data);
           // Restore Date objects
@@ -886,8 +942,17 @@ export class DatabaseService {
       let pattern: StrategyPattern | null = null;
 
       if (this.isElectron) {
-        const row = this.db.prepare(sql).get(patternHash);
-        if (row) {pattern = JSON.parse(row.pattern_data);}
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [patternHash]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
+
+        const rows = result.data || [];
+        if (rows.length > 0) {
+          pattern = JSON.parse(rows[0].pattern_data);
+        }
       } else {
         const result = this.db.exec(sql, [patternHash]);
         if (result[0] && result[0].values.length > 0) {
