@@ -1,8 +1,9 @@
 /**
  * Backend Engineer Agent - Server-side development and API specialist
  */
-import { BaseSpecializedAgent, AgentCapability, AgentContext, AgentResponse } from './BaseSpecializedAgent';
 import { DeepSeekService } from '../DeepSeekService';
+
+import { AgentCapability, AgentContext, AgentResponse,BaseSpecializedAgent } from './BaseSpecializedAgent';
 
 export class BackendEngineerAgent extends BaseSpecializedAgent {
   constructor(deepSeekService: DeepSeekService) {
@@ -129,7 +130,7 @@ Focus on building robust, scalable, and secure backend systems.`;
       return 'Modern Backend Architecture (inferred)';
     }
     
-    const techStack = context.codebaseMetrics.techStack;
+    const {techStack} = context.codebaseMetrics;
     const backendStack = techStack.filter(tech => 
       ['Node.js', 'Express', 'NestJS', 'Fastify', 'MongoDB', 'PostgreSQL', 'MySQL', 'Redis', 'Docker']
         .includes(tech)
@@ -193,7 +194,7 @@ Focus on building robust, scalable, and secure backend systems.`;
     }
     
     // Penalize vague responses
-    if (response.length < 150) confidence -= 0.1;
+    if (response.length < 150) {confidence -= 0.1;}
     if (!response.includes('api') && !response.includes('server') && !response.includes('database')) {
       confidence -= 0.05;
     }

@@ -4,19 +4,19 @@
  * Displays and manages background agent tasks
  */
 
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect,useState } from 'react';
 import {
-  Play,
-  Pause,
-  X,
-  CheckCircle,
+  Activity,
   AlertCircle,
-  Loader,
+  CheckCircle,
   Clock,
+  Loader,
+  Pause,
+  Play,
   TrendingUp,
-  Activity
-} from 'lucide-react';
+  X} from 'lucide-react';
+import styled from 'styled-components';
+
 import { BackgroundAgentSystem, BackgroundTask } from '../services/BackgroundAgentSystem';
 import { vibeTheme } from '../styles/theme';
 
@@ -93,13 +93,13 @@ export const BackgroundTaskPanel: React.FC<BackgroundTaskPanelProps> = ({
   };
 
   const formatDuration = (task: BackgroundTask): string => {
-    if (!task.startTime) return '-';
+    if (!task.startTime) {return '-';}
 
     const endTime = task.endTime || Date.now();
     const duration = endTime - task.startTime;
     const seconds = Math.floor(duration / 1000);
 
-    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 60) {return `${seconds}s`;}
     const minutes = Math.floor(seconds / 60);
     return `${minutes}m ${seconds % 60}s`;
   };

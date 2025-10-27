@@ -1,7 +1,7 @@
-import React, { forwardRef, useState, useRef, useEffect } from 'react';
+import React, { forwardRef, useEffect,useRef, useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
+import { Check,ChevronDown } from 'lucide-react';
 import styled, { css } from 'styled-components';
-import { ChevronDown, Check } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 import { vibeTheme } from '../../styles/theme';
 

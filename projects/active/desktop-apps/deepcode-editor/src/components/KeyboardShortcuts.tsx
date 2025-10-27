@@ -1,13 +1,12 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback,useMemo, useState } from 'react';
 import { 
+  ChevronDown,
+  ChevronRight,
+  Filter,
   Keyboard, 
   Search, 
-  X, 
-  Filter,
-  ChevronDown,
-  ChevronRight
-} from 'lucide-react';
+  X} from 'lucide-react';
+import styled from 'styled-components';
 
 export interface ShortcutCategory {
   name: string;
@@ -406,7 +405,7 @@ export const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
     return keyMap[key] || key;
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {return null;}
 
   return (
     <Overlay onClick={(e) => e.target === e.currentTarget && onClose()}>

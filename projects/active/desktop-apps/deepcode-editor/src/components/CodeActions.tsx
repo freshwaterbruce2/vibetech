@@ -3,6 +3,7 @@ import React from 'react';
 import { FileCode, Lightbulb, RefreshCw, Wrench } from 'lucide-react';
 import styled from 'styled-components';
 
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 
 interface CodeAction {

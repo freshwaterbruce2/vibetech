@@ -1,22 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(gh:*)",
-      "WebSearch",
-      "Bash(Test-Path \"scripts/remove-console-logs.cjs\")",
-      "Bash(Write-Output \"EXISTS\")",
-      "Bash(Write-Output \"NOT FOUND\")",
-      "Bash(Select-String \"error TS\")",
-      "Bash(Measure-Object -Line)",
-      "Bash(Select-Object -First 30)",
-      "Bash(git add:*)",
-      "Bash(Remove-Item -Path \"C:\\dev\\.git\\index.lock\" -Force -ErrorAction SilentlyContinue)",
-      "Bash(idar@latest concurrently@latest cross-env@latest --save-dev)",
-      "Bash(timeout 60 pnpm typecheck)",
-      "Bash(timeout 90 pnpm typecheck)",
-      "Bash(timeout 120 pnpm run build)",
-      "Bash(Select-String -Pattern \"(✓|✗|error|warning|built in|dist/)\")",
-      "Bash(Select-Object -Last 30)"
+      "Bash(Test-Path \"C:\\dev\\projects\\active\\desktop-apps\\nova-agent-current\\src-tauri\\target\\release\\nova-agent.exe\")",
+      "Bash(git rm:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": [],

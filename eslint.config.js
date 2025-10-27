@@ -9,18 +9,24 @@ export default tseslint.config(
   {
     ignores: [
       'dist',
+      '**/dist/**',
       'build',
+      '**/build/**',
       'node_modules',
       '.pnpm',
       '.turbo',
       '.nx',
       '.next',
+      '.vite-cache/**',
+      '.vscode/**',
       '.venv*/**',
       'DesktopCommanderMCP/**',
       'Vibe-Tutor/**',
       'opcode/**',
       'edge_extension_deps/**',
       'database-proxy-standalone/**',
+      'devworktrees*/**',
+      'backups/**',
       'logs/**',
       'playwright-report/**',
       'active-projects/**',
@@ -29,6 +35,7 @@ export default tseslint.config(
       'public/assets/**',
       'supabase/**',
       'desktop-commander-mcp/**',
+      'workflow-hub-mcp/**',
       '*.min.js',
       '*.bundle.js',
       'coverage/**'
@@ -90,9 +97,7 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-non-null-assertion': 'warn',
-      '@typescript-eslint/prefer-const': 'error',
-      '@typescript-eslint/no-var-requires': 'error',
-      
+
       // Code quality rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prefer-const': 'error',

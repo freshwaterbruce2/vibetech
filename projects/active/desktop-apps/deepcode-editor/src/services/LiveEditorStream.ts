@@ -128,7 +128,7 @@ export class LiveEditorStream {
 
     // Determine starting position
     const model = this.editor.getModel();
-    if (!model) return;
+    if (!model) {return;}
 
     const position = startPosition || {
       lineNumber: model.getLineCount(),
@@ -140,7 +140,7 @@ export class LiveEditorStream {
 
     // Stream character by character
     for (const char of content) {
-      if (!this.isStreaming) break; // Allow interruption
+      if (!this.isStreaming) {break;} // Allow interruption
 
       // Insert character at current position
       this.editor.executeEdits('live-stream', [
@@ -209,7 +209,7 @@ export class LiveEditorStream {
     oldContent: string,
     newContent: string
   ): DiffChange[] {
-    if (!this.editor) return [];
+    if (!this.editor) {return [];}
 
     const changes = this.calculateDiff(oldContent, newContent);
 
@@ -259,7 +259,7 @@ export class LiveEditorStream {
    * Clear all decorations from editor
    */
   clearDecorations(): void {
-    if (!this.editor) return;
+    if (!this.editor) {return;}
     this.decorations = this.editor.deltaDecorations(this.decorations, []);
   }
 

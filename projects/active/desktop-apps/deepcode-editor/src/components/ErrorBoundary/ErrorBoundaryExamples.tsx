@@ -2,6 +2,8 @@ import { logger } from '../../services/Logger';
 import { useState } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../../services/Logger';
+
 import { ModernErrorBoundary, useErrorHandler, withErrorBoundary } from './ModernErrorBoundary';
 
 // Example components showing different error boundary patterns

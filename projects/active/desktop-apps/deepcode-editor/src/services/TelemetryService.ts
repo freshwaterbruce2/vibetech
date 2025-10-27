@@ -31,7 +31,7 @@ export class TelemetryService {
 
   private constructor() {
     this.sessionId = this.generateSessionId();
-    this.enabled = import.meta.env['VITE_ENABLE_TELEMETRY'] === 'true';
+    this.enabled = false; // Disabled - no telemetry server configured
 
     if (this.enabled) {
       this.startFlushInterval();

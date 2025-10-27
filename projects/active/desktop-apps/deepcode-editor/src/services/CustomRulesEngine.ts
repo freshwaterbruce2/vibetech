@@ -3,14 +3,14 @@
  * Loads rules from workspace hierarchy and resolves them for specific files
  */
 import { logger } from '../services/Logger';
-
 import {
   DeepCodeRules,
-  RuleContext,
-  ResolvedRules,
-  PatternRules,
   GlobalRules,
+  PatternRules,
+  ResolvedRules,
+  RuleContext,
 } from '../types/customInstructions';
+
 import { DeepCodeRulesParser } from './DeepCodeRulesParser';
 import { FileSystemService } from './FileSystemService';
 
@@ -152,7 +152,7 @@ export class CustomRulesEngine {
   ): Promise<{ valid: boolean; violations: string[] }> {
     const resolved = await this.resolveRulesForFile(filePath);
     const violations: string[] = [];
-    const rules = resolved.rules;
+    const {rules} = resolved;
 
     // Check prohibited keywords
     if (rules.global?.prohibited?.keywords) {
@@ -221,7 +221,7 @@ export class CustomRulesEngine {
 
       // Move up one directory
       const parentDir = this.getParentDirectory(currentDir);
-      if (parentDir === currentDir) break; // Reached root
+      if (parentDir === currentDir) {break;} // Reached root
       currentDir = parentDir;
     }
 
@@ -309,7 +309,7 @@ export class CustomRulesEngine {
       const matchesDir = match.directories.some((dir) =>
         context.directory.includes(dir)
       );
-      if (!matchesDir) return false;
+      if (!matchesDir) {return false;}
     }
 
     // Check file glob patterns
@@ -317,7 +317,7 @@ export class CustomRulesEngine {
       const matchesFile = match.files.some((glob) =>
         this.matchGlob(context.filePath, glob)
       );
-      if (!matchesFile) return false;
+      if (!matchesFile) {return false;}
     }
 
     // Check exclusions
@@ -325,14 +325,14 @@ export class CustomRulesEngine {
       const excluded = match.excludeFiles.some((glob) =>
         this.matchGlob(context.filePath, glob)
       );
-      if (excluded) return false;
+      if (excluded) {return false;}
     }
 
     if (match.excludeDirectories) {
       const excluded = match.excludeDirectories.some((dir) =>
         context.directory.includes(dir)
       );
-      if (excluded) return false;
+      if (excluded) {return false;}
     }
 
     return true;
@@ -381,10 +381,10 @@ export class CustomRulesEngine {
   private generateNamingInstructions(naming: any): string {
     let instructions = '\n\nNaming Conventions:\n';
 
-    if (naming.variables) instructions += `- Variables: ${naming.variables}\n`;
-    if (naming.functions) instructions += `- Functions: ${naming.functions}\n`;
-    if (naming.classes) instructions += `- Classes: ${naming.classes}\n`;
-    if (naming.constants) instructions += `- Constants: ${naming.constants}\n`;
+    if (naming.variables) {instructions += `- Variables: ${naming.variables}\n`;}
+    if (naming.functions) {instructions += `- Functions: ${naming.functions}\n`;}
+    if (naming.classes) {instructions += `- Classes: ${naming.classes}\n`;}
+    if (naming.constants) {instructions += `- Constants: ${naming.constants}\n`;}
 
     return instructions;
   }
@@ -429,8 +429,8 @@ export class CustomRulesEngine {
       let end = start + match[0].length;
 
       while (braceCount > 0 && end < code.length) {
-        if (code[end] === '{') braceCount++;
-        if (code[end] === '}') braceCount--;
+        if (code[end] === '{') {braceCount++;}
+        if (code[end] === '}') {braceCount--;}
         end++;
       }
 

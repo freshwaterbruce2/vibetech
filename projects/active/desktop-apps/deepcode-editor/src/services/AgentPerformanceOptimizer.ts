@@ -1,9 +1,10 @@
 /**
  * Agent Performance Optimizer - Enhances agent response times and resource usage
  */
-import { EventEmitter } from 'events';
-import { BaseSpecializedAgent, AgentResponse, PerformanceMetrics } from './specialized-agents/BaseSpecializedAgent';
+import { EventEmitter } from '../utils/EventEmitter';
 import { logger } from '../utils/logger';
+
+import { AgentResponse, BaseSpecializedAgent, PerformanceMetrics } from './specialized-agents/BaseSpecializedAgent';
 
 export interface PerformanceProfile {
   agentId: string;
@@ -93,7 +94,7 @@ export class AgentPerformanceOptimizer extends EventEmitter {
    */
   private updateAgentProfile(agentId: string): void {
     const history = this.performanceHistory.get(agentId);
-    if (!history || history.length === 0) return;
+    if (!history || history.length === 0) {return;}
 
     const recent = history.slice(-20); // Last 20 interactions
     

@@ -1,8 +1,9 @@
-import { logger } from '../services/Logger';
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Search, Replace, ChevronDown, ChevronRight, FileText, X } from 'lucide-react';
+import React, { useCallback, useEffect, useRef,useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { ChevronDown, ChevronRight, FileText, Replace, Search, X } from 'lucide-react';
+import styled from 'styled-components';
+
+import { logger } from '../services/Logger';
 
 interface SearchResult {
   file: string;
@@ -296,7 +297,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
   // Keyboard shortcuts
   useHotkeys('ctrl+shift+f', (e) => {
     e.preventDefault();
-    if (!isOpen) return;
+    if (!isOpen) {return;}
     searchInputRef.current?.focus();
   });
 
@@ -407,7 +408,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
   };
 
   const handleReplaceAll = async () => {
-    if (!replaceText.trim() || !searchText.trim()) return;
+    if (!replaceText.trim() || !searchText.trim()) {return;}
     
     setIsReplacing(true);
     

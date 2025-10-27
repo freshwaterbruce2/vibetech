@@ -1,9 +1,12 @@
-import { logger } from '../services/Logger';
-import React, { useState, useCallback } from 'react';
+import React, { useCallback,useState } from 'react';
 import {
+  Bug,
   Code,
   FileText,
   FolderOpen,
+  MessageSquare,
+  Palette,
+  PanelLeftClose,
   Save,
   Search,
   Settings,
@@ -11,11 +14,9 @@ import {
   TestTube,
   Wand2,
   Zap,
-  Bug,
-  MessageSquare,
-  PanelLeftClose,
-  Palette,
 } from 'lucide-react';
+
+import { logger } from '../services/Logger';
 
 interface Command {
   id: string;

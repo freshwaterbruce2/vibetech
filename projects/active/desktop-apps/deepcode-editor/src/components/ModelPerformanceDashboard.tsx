@@ -4,38 +4,37 @@
  * October 2025 - Tracks Haiku 4.5, Sonnet 4.5, and DeepSeek usage
  */
 
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect,useState } from 'react';
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts';
-import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Cpu,
-  Zap,
-  Brain,
+  Activity,
   BarChart3,
-  Activity
-} from 'lucide-react';
-import { vibeTheme } from '../styles/theme';
+  Brain,
+  CheckCircle,
+  Clock,
+  Cpu,
+  DollarSign,
+  TrendingDown,
+  TrendingUp,
+  XCircle,
+  Zap} from 'lucide-react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis} from 'recharts';
+import styled from 'styled-components';
+
 import type { ModelConfig } from '../services/ai/completion/ModelSelector';
+import { vibeTheme } from '../styles/theme';
 
 // Styled Components
 const DashboardContainer = styled.div`

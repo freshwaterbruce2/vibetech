@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, CheckCircle, GitBranch, Layers, MessageCircle, Sidebar, Sparkles, Terminal, Zap, Activity, ImageIcon, Package } from 'lucide-react';
+import { Activity, AlertCircle, CheckCircle, GitBranch, ImageIcon, Layers, MessageCircle, Package,Sidebar, Sparkles, Terminal, Zap } from 'lucide-react';
 import styled from 'styled-components';
 
 import { useGit } from '../hooks/useGit';

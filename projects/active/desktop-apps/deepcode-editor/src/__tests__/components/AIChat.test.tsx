@@ -55,7 +55,7 @@ describe('AIChat Component', () => {
     it('should render message input and send button', () => {
       render(<AIChat {...defaultProps} />)
       
-      expect(screen.getByPlaceholderText(/ask me anything/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Ask AI about your code/i)).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /send/i })).toBeInTheDocument()
     })
 
@@ -63,7 +63,7 @@ describe('AIChat Component', () => {
       render(<AIChat {...defaultProps} messages={[]} />)
       
       expect(screen.getByText('AI Assistant')).toBeInTheDocument()
-      expect(screen.getByPlaceholderText(/ask me anything/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Ask AI about your code/i)).toBeInTheDocument()
     })
 
     it('should display message timestamps', () => {
@@ -124,7 +124,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i) as HTMLTextAreaElement
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i) as HTMLTextAreaElement
       await user.type(input, 'Hello AI')
       
       expect(input.value).toBe('Hello AI')
@@ -134,7 +134,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       const sendButton = screen.getByRole('button', { name: /send/i })
       
       await user.type(input, 'Test message')
@@ -147,7 +147,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       
       await user.type(input, 'Test message{enter}')
       
@@ -158,7 +158,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       
       await user.type(input, 'Test message{shift}{enter}')
       
@@ -169,7 +169,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i) as HTMLTextAreaElement
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i) as HTMLTextAreaElement
       const sendButton = screen.getByRole('button', { name: /send/i })
       
       await user.type(input, 'Test message')
@@ -193,7 +193,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       const sendButton = screen.getByRole('button', { name: /send/i })
       
       await user.type(input, '   ')
@@ -292,7 +292,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       await user.type(input, 'Typing should not affect scroll')
       
       // Should not crash or cause issues
@@ -305,7 +305,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       const sendButton = screen.getByRole('button', { name: /send/i })
       
       await user.type(input, 'Test message')
@@ -319,7 +319,7 @@ describe('AIChat Component', () => {
       const user = userEvent.setup()
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       const sendButton = screen.getByRole('button', { name: /send/i })
       
       await user.type(input, 'Test message')
@@ -344,7 +344,7 @@ describe('AIChat Component', () => {
     it('should have proper ARIA labels', () => {
       render(<AIChat {...defaultProps} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       const sendButton = screen.getByRole('button', { name: /send/i })
       const closeButton = screen.getByRole('button', { name: /close/i })
       
@@ -369,7 +369,7 @@ describe('AIChat Component', () => {
       
       render(<AIChat {...defaultProps} onSendMessage={errorOnSendMessage} />)
       
-      const input = screen.getByPlaceholderText(/ask me anything/i)
+      const input = screen.getByPlaceholderText(/Ask AI about your code/i)
       const sendButton = screen.getByRole('button', { name: /send/i })
       
       await user.type(input, 'Test message')

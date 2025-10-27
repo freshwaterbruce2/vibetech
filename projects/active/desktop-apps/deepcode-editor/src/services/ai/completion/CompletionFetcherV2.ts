@@ -10,13 +10,13 @@
  * - Automatic fallback to DeepSeek
  */
 import { logger } from '../../../services/Logger';
-
-import { UnifiedAIService } from '../UnifiedAIService';
-import type { CodeContext, CompletionResponse, FetcherOptions } from './types';
 import type { AIContextRequest } from '../../../types';
-import type { ModelConfig } from './ModelSelector';
-import { AIProviderManager } from '../AIProviderManager';
 import { AIProvider } from '../AIProviderInterface';
+import { AIProviderManager } from '../AIProviderManager';
+import { UnifiedAIService } from '../UnifiedAIService';
+
+import type { ModelConfig } from './ModelSelector';
+import type { CodeContext, CompletionResponse, FetcherOptions } from './types';
 
 const DEFAULT_OPTIONS: FetcherOptions = {
   streaming: false,

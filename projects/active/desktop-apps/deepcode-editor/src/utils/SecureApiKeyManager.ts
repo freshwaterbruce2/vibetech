@@ -2,9 +2,9 @@
  * Secure API Key Manager
  * Provides validation, encryption, and secure storage for API keys
  */
-import { logger } from '../services/Logger';
-
 import * as CryptoJS from 'crypto-js';
+
+import { logger } from '../services/Logger';
 
 // API key validation patterns
 const API_KEY_PATTERNS = {
@@ -27,12 +27,30 @@ interface StoredApiKey {
   metadata: ApiKeyMetadata;
 }
 
+interface ElectronStorageAPI {
+  get: (key: string) => Promise<{ success: boolean; value: any }>;
+  set: (key: string, value: any) => Promise<{ success: boolean }>;
+  remove: (key: string) => Promise<{ success: boolean }>;
+  keys: () => Promise<{ success: boolean; keys: string[] }>;
+}
+
 export class SecureApiKeyManager {
   private static instance: SecureApiKeyManager;
   private encryptionKey: string;
   private storage: Storage;
+  private electronStorage: ElectronStorageAPI | null = null;
+  private isElectron: boolean = false;
 
   private constructor() {
+    // Check if running in Electron
+    if (typeof window !== 'undefined' && (window as any).electron?.storage) {
+      this.isElectron = true;
+      this.electronStorage = (window as any).electron.storage;
+      logger.info('Using Electron secure storage for API keys');
+    } else {
+      logger.info('Using localStorage for API keys (browser mode)');
+    }
+
     // Initialize storage first, then get encryption key
     this.storage = window.localStorage;
     // Generate or retrieve encryption key from secure storage
@@ -111,7 +129,7 @@ export class SecureApiKeyManager {
   /**
    * Store API key securely
    */
-  public storeApiKey(provider: string, key: string): boolean {
+  public async storeApiKey(provider: string, key: string): Promise<boolean> {
     try {
       // Validate the key first
       if (!this.validateApiKey(key, provider)) {
@@ -136,6 +154,16 @@ export class SecureApiKeyManager {
       };
 
       const storageKey = `secure_api_key_${provider.toLowerCase()}`;
+
+      // Use Electron storage if available
+      if (this.isElectron && this.electronStorage) {
+        const result = await this.electronStorage.set(storageKey, JSON.stringify(storedKey));
+        if (!result.success) {
+          throw new Error('Failed to save to Electron storage');
+        }
+      }
+
+      // Always also save to localStorage as a fallback for immediate use
       this.storage.setItem(storageKey, JSON.stringify(storedKey));
 
       // Also update environment variable for immediate use
@@ -151,39 +179,53 @@ export class SecureApiKeyManager {
   /**
    * Retrieve and decrypt API key
    */
-  public getApiKey(provider: string): string | null {
+  public async getApiKey(provider: string): Promise<string | null> {
     try {
       const storageKey = `secure_api_key_${provider.toLowerCase()}`;
-      const storedData = this.storage.getItem(storageKey);
+      let storedData = null;
+
+      // Try Electron storage first
+      if (this.isElectron && this.electronStorage) {
+        const result = await this.electronStorage.get(storageKey);
+        if (result.success && result.value) {
+          storedData = result.value;
+        }
+      }
+
+      // Fallback to localStorage if not found in Electron storage
+      if (!storedData) {
+        storedData = this.storage.getItem(storageKey);
+      }
 
       if (!storedData) {
         // Fallback to environment variable
         return this.getEnvironmentVariable(provider);
       }
 
-      const storedKey: StoredApiKey = JSON.parse(storedData);
-      
+      const storedKey: StoredApiKey = typeof storedData === 'string' ?
+        JSON.parse(storedData) : storedData;
+
       // Verify metadata
       if (!storedKey.metadata.encrypted) {
         logger.warn('API key not encrypted, removing...');
-        this.removeApiKey(provider);
+        await this.removeApiKey(provider);
         return null;
       }
 
       // Decrypt and return
       const decryptedKey = this.decryptApiKey(storedKey.key);
-      
+
       // Validate decrypted key
       if (!this.validateApiKey(decryptedKey, provider)) {
         logger.warn('Stored API key is invalid, removing...');
-        this.removeApiKey(provider);
+        await this.removeApiKey(provider);
         return null;
       }
 
       return decryptedKey;
     } catch (error) {
       logger.error('Failed to retrieve API key:', error);
-      this.removeApiKey(provider); // Remove corrupted key
+      await this.removeApiKey(provider); // Remove corrupted key
       return null;
     }
   }
@@ -191,14 +233,21 @@ export class SecureApiKeyManager {
   /**
    * Remove API key from storage
    */
-  public removeApiKey(provider: string): boolean {
+  public async removeApiKey(provider: string): Promise<boolean> {
     try {
       const storageKey = `secure_api_key_${provider.toLowerCase()}`;
+
+      // Remove from Electron storage if available
+      if (this.isElectron && this.electronStorage) {
+        await this.electronStorage.remove(storageKey);
+      }
+
+      // Also remove from localStorage
       this.storage.removeItem(storageKey);
-      
+
       // Also clear environment variable
       this.clearEnvironmentVariable(provider);
-      
+
       return true;
     } catch (error) {
       logger.error('Failed to remove API key:', error);
@@ -209,18 +258,50 @@ export class SecureApiKeyManager {
   /**
    * List stored API key providers (without exposing keys)
    */
-  public getStoredProviders(): Array<{ provider: string; metadata: ApiKeyMetadata }> {
+  public async getStoredProviders(): Promise<Array<{ provider: string; metadata: ApiKeyMetadata }>> {
     const providers: Array<{ provider: string; metadata: ApiKeyMetadata }> = [];
 
     try {
-      for (let i = 0; i < this.storage.length; i++) {
-        const key = this.storage.key(i);
+      let keys: string[] = [];
+
+      // Try Electron storage first
+      if (this.isElectron && this.electronStorage) {
+        const result = await this.electronStorage.keys();
+        if (result.success && result.keys) {
+          keys = result.keys;
+        }
+      }
+
+      // Fallback to localStorage
+      if (keys.length === 0) {
+        for (let i = 0; i < this.storage.length; i++) {
+          const key = this.storage.key(i);
+          if (key) {keys.push(key);}
+        }
+      }
+
+      // Process keys
+      for (const key of keys) {
         if (key && key.startsWith('secure_api_key_')) {
           const provider = key.replace('secure_api_key_', '');
-          const storedData = this.storage.getItem(key);
-          
+          let storedData = null;
+
+          // Try Electron storage first
+          if (this.isElectron && this.electronStorage) {
+            const result = await this.electronStorage.get(key);
+            if (result.success && result.value) {
+              storedData = result.value;
+            }
+          }
+
+          // Fallback to localStorage
+          if (!storedData) {
+            storedData = this.storage.getItem(key);
+          }
+
           if (storedData) {
-            const storedKey: StoredApiKey = JSON.parse(storedData);
+            const storedKey: StoredApiKey = typeof storedData === 'string' ?
+              JSON.parse(storedData) : storedData;
             providers.push({
               provider,
               metadata: storedKey.metadata
@@ -239,7 +320,7 @@ export class SecureApiKeyManager {
    * Test API key by making a validation request
    */
   public async testApiKey(provider: string, key?: string): Promise<boolean> {
-    const apiKey = key || this.getApiKey(provider);
+    const apiKey = key || await this.getApiKey(provider);
     if (!apiKey) {
       return false;
     }
@@ -265,16 +346,56 @@ export class SecureApiKeyManager {
     }
   }
 
+  private async getOrCreateEncryptionKeyAsync(): Promise<string> {
+    const keyName = 'deepcode_encryption_key';
+    let key = null;
+
+    // Try Electron storage first
+    if (this.isElectron && this.electronStorage) {
+      const result = await this.electronStorage.get(keyName);
+      if (result.success && result.value) {
+        key = result.value;
+      }
+    }
+
+    // Fallback to localStorage
+    if (!key) {
+      key = this.storage.getItem(keyName);
+    }
+
+    if (!key) {
+      // Generate a new encryption key
+      key = CryptoJS.lib.WordArray.random(256/8).toString();
+
+      // Save to Electron storage if available
+      if (this.isElectron && this.electronStorage) {
+        await this.electronStorage.set(keyName, key);
+      }
+
+      // Also save to localStorage
+      this.storage.setItem(keyName, key);
+    }
+
+    return key;
+  }
+
   private getOrCreateEncryptionKey(): string {
     const keyName = 'deepcode_encryption_key';
     let key = this.storage.getItem(keyName);
-    
+
     if (!key) {
       // Generate a new encryption key
       key = CryptoJS.lib.WordArray.random(256/8).toString();
       this.storage.setItem(keyName, key);
+
+      // Also save to Electron storage if available (non-blocking)
+      if (this.isElectron && this.electronStorage) {
+        this.electronStorage.set(keyName, key).catch(err =>
+          logger.error('Failed to save encryption key to Electron storage:', err)
+        );
+      }
     }
-    
+
     return key;
   }
 

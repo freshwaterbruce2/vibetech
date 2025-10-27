@@ -16,13 +16,13 @@
  * - Responsive design
  * - Privacy-first (local data only)
  */
-import { logger } from '../services/Logger';
-
 import { useCallback, useEffect, useState } from 'react';
+import { Clock,Download, RefreshCw, Target, TrendingUp, X, Zap } from 'lucide-react';
 import styled from 'styled-components';
-import { X, Download, RefreshCw, TrendingUp, Zap, Target, Clock } from 'lucide-react';
+
 import { getAnalyticsInstance } from '../services/ai/CompletionAnalytics';
-import type { AnalyticsSummary, LanguageMetrics, VariationMetrics, DailyMetrics } from '../types/analytics';
+import { logger } from '../services/Logger';
+import type { AnalyticsSummary, DailyMetrics,LanguageMetrics, VariationMetrics } from '../types/analytics';
 
 interface AnalyticsDashboardProps {
   isOpen: boolean;
@@ -346,7 +346,7 @@ export default function AnalyticsDashboard({ isOpen, onClose }: AnalyticsDashboa
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {return null;}
 
   const hasData = summary && summary.totalShown > 0;
 

@@ -130,7 +130,7 @@ export class DependencyGraphService {
    */
   getGraphDensity(): number {
     const n = this.graph.nodes.length;
-    if (n <= 1) return 0;
+    if (n <= 1) {return 0;}
 
     const maxEdges = n * (n - 1);
     const actualEdges = this.graph.links.length;
@@ -217,7 +217,7 @@ export class DependencyGraphService {
    * Find shortest path between two nodes using BFS
    */
   findPath(from: string, to: string): string[] | null {
-    if (from === to) return [from];
+    if (from === to) {return [from];}
 
     const queue: [string, string[]][] = [[from, [from]]];
     const visited = new Set<string>([from]);

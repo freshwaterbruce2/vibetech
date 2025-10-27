@@ -2,15 +2,15 @@
  * MultiFileEditor - Coordinate changes across multiple files
  */
 import { logger } from '../services/Logger';
-
-import { UnifiedAIService } from './ai/UnifiedAIService';
-import { FileSystemService } from './FileSystemService';
-import { DependencyAnalyzer } from './DependencyAnalyzer';
 import {
   FileChange,
   MultiFileEditPlan,
   MultiFileEditResult,
-} from '../types/multifile';
+} from '@vibetech/types/multifile';
+
+import { UnifiedAIService } from './ai/UnifiedAIService';
+import { DependencyAnalyzer } from './DependencyAnalyzer';
+import { FileSystemService } from './FileSystemService';
 
 export class MultiFileEditor {
   private aiService: UnifiedAIService;
@@ -243,8 +243,8 @@ Modified content:`;
       const o = origLines[i] || '';
       const m = modLines[i] || '';
       if (o !== m) {
-        if (o) diff += `- ${o}\n`;
-        if (m) diff += `+ ${m}\n`;
+        if (o) {diff += `- ${o}\n`;}
+        if (m) {diff += `+ ${m}\n`;}
       }
     }
 

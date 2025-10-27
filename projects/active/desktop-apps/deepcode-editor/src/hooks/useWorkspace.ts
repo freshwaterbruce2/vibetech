@@ -1,6 +1,6 @@
-import { logger } from '../services/Logger';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { logger } from '../services/Logger';
 import { WorkspaceService } from '../services/WorkspaceService';
 import { ContextualFile, EditorFile, WorkspaceContext } from '../types';
 
@@ -43,6 +43,7 @@ export interface UseWorkspaceReturn {
 export const useWorkspace = (): UseWorkspaceReturn => {
   const [workspaceService] = useState(() => new WorkspaceService());
   const [workspaceContext, setWorkspaceContext] = useState<WorkspaceContext | null>(null);
+  const [currentRootPath, setCurrentRootPath] = useState<string | null>(null);
   const [isIndexing, setIsIndexing] = useState(false);
   const [indexingProgress, setIndexingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +77,7 @@ export const useWorkspace = (): UseWorkspaceReturn => {
         clearInterval(progressInterval);
         setIndexingProgress(100);
         setWorkspaceContext(context);
+        setCurrentRootPath(context?.rootPath || null);
 
         logger.debug('Workspace indexing completed:', context);
 
@@ -216,21 +218,16 @@ export const useWorkspace = (): UseWorkspaceReturn => {
 
   const clearWorkspace = useCallback(() => {
     setWorkspaceContext(null);
+    setCurrentRootPath(null);
     setError(null);
     setIndexingProgress(0);
   }, []);
 
   // Auto-refresh index periodically (every 5 minutes)
   // Uses debounced version to prevent performance issues from rapid refreshes
-  // FIX: Added stability check to prevent refresh during active indexing
+  // FIX: Use currentRootPath to prevent interval recreation on context changes
   useEffect(() => {
-    if (!workspaceContext) {
-      return;
-    }
-
-    // Only set up auto-refresh if not currently indexing
-    if (isIndexing) {
-      logger.debug('[useWorkspace] Skipping auto-refresh setup - indexing in progress');
+    if (!currentRootPath) {
       return;
     }
 
@@ -251,7 +248,7 @@ export const useWorkspace = (): UseWorkspaceReturn => {
       logger.debug('[useWorkspace] Cleaning up auto-refresh interval');
       clearInterval(interval);
     };
-  }, [workspaceContext?.rootPath, isIndexing]); // FIX: Removed debouncedRefreshIndex to prevent loop!
+  }, [currentRootPath]); // FIXED: Use separate state to prevent interval recreation when context object changes
 
   return {
     workspaceService,

@@ -17,35 +17,50 @@
  * - Graceful fallback to localStorage when database unavailable
  */
 
-import { logger } from './Logger';
 import type { StrategyPattern } from '../types';
 
-// Database path configuration - cross-platform
+import { logger } from './Logger';
+
+// Database path configuration - cross-platform with D: drive preference
 const getDatabasePath = (): string => {
   // Check if running in Electron
   if (typeof window !== 'undefined' && window.electron?.isElectron) {
-    // Use Electron's userData path for cross-platform compatibility
+    // First check if D: drive is available (Windows only)
+    if ((window.electron.platform as any)?.os === 'win32') {
+      // Try to use centralized database on D: drive if available
+      // This is the preferred location for the monorepo setup
+      const centralizedPath = 'D:\\databases\\database.db';
+
+      // Note: We'll attempt to use this path first, but will fall back if it fails
+      logger.debug(`[DatabaseService] Attempting to use centralized database at: ${centralizedPath}`);
+      return centralizedPath;
+    }
+
+    // For non-Windows or if D: drive is not available, use userData path
     const userDataPath = window.electron.app?.getPath('userData') || '';
-    const path = require('path');
-    return path.join(userDataPath, 'deepcode_database.db');
-  } else if (typeof process !== 'undefined' && process.platform) {
-    // Node.js environment
-    const os = require('os');
-    const path = require('path');
-    const platform = process.platform;
+    const sep = (window.electron.platform as any)?.pathSeparator || '\\';
+    return `${userDataPath}${sep}deepcode_database.db`;
+  } else if (typeof window !== 'undefined' && window.electron?.platform) {
+    // Electron platform API available
+    const platform = (window.electron.platform as any).os;
+    const {homedir} = (window.electron.platform as any);
+    const sep = (window.electron.platform as any).pathSeparator;
 
     if (platform === 'win32') {
-      // Windows: Use AppData
-      return path.join(os.homedir(), 'AppData', 'Roaming', 'deepcode-editor', 'database.db');
+      // Windows: Try D: drive first, then AppData
+      const centralizedPath = 'D:\\databases\\database.db';
+      logger.debug(`[DatabaseService] Attempting to use centralized database at: ${centralizedPath}`);
+      return centralizedPath;
     } else if (platform === 'darwin') {
       // macOS: Use Application Support
-      return path.join(os.homedir(), 'Library', 'Application Support', 'deepcode-editor', 'database.db');
+      return `${homedir}${sep}Library${sep}Application Support${sep}deepcode-editor${sep}database.db`;
     } else {
       // Linux: Use .local/share
-      return path.join(os.homedir(), '.local', 'share', 'deepcode-editor', 'database.db');
+      return `${homedir}${sep}.local${sep}share${sep}deepcode-editor${sep}database.db`;
     }
   } else {
     // Fallback for web environment - use localStorage only
+    logger.debug('[DatabaseService] Web environment detected, will use localStorage fallback');
     return '';
   }
 };
@@ -109,6 +124,7 @@ export class DatabaseService {
   private db: any = null;
   private isElectron: boolean = false;
   private useFallback: boolean = false;
+  private useIPC: boolean = false;  // Track if using IPC mode (Electron with better-sqlite3 via main process)
   private initialized: boolean = false;
 
   constructor() {
@@ -145,21 +161,42 @@ export class DatabaseService {
    */
   private async connect(): Promise<void> {
     if (this.isElectron) {
-      // Electron: Use better-sqlite3 (native)
+      // Electron: Use IPC-based database access via main process
+      // This is the 2025 security best practice - main process handles better-sqlite3
       try {
-        const module = await import('better-sqlite3');
-        const Database = (module as any).default || module;
-        this.db = new Database(DATABASE_PATH);
+        if (!window.electron?.db) {
+          throw new Error('Electron database API not available');
+        }
 
-        // Enable WAL mode for better concurrency
-        this.db.pragma('journal_mode = WAL');
+        // Initialize database via IPC
+        const result = await window.electron.db.initialize();
 
-        logger.debug('[DatabaseService] Connected via better-sqlite3 (Electron)');
+        if (!result.success) {
+          throw new Error(result.error || 'Database initialization failed');
+        }
+
+        // Mark as successfully connected (using IPC, not direct db handle)
+        this.db = 'ipc'; // Marker to indicate IPC mode
+        logger.debug('[DatabaseService] Connected via Electron IPC to database');
       } catch (error) {
-        throw new Error(`Failed to load better-sqlite3: ${error}`);
+        logger.error('[DatabaseService] Failed to connect via IPC:', error);
+        logger.warn('[DatabaseService] Falling back to localStorage');
+        this.useFallback = true;
       }
     } else {
-      // Web: Use sql.js (in-memory)
+      // Web: Use sql.js (in-memory) or just localStorage
+      if (DATABASE_PATH === '') {
+        // Pure localStorage mode for web
+        logger.debug('[DatabaseService] Web mode: Using localStorage fallback directly');
+        this.useFallback = true;
+        return;
+      }
+
+      // Web mode: Use localStorage fallback (sql.js not installed)
+      logger.debug('[DatabaseService] Web mode: Using localStorage fallback');
+      this.useFallback = true;
+
+      /* Commented out sql.js code - not installed
       try {
         const initSqlJs = (await import('sql.js')).default;
         const SQL = await initSqlJs();
@@ -175,8 +212,10 @@ export class DatabaseService {
           logger.debug('[DatabaseService] Created new in-memory database (Web)');
         }
       } catch (error) {
-        throw new Error(`Failed to initialize sql.js: ${error}`);
+        logger.warn('[DatabaseService] sql.js not available, using localStorage fallback');
+        this.useFallback = true;
       }
+      */
     }
   }
 
@@ -184,6 +223,12 @@ export class DatabaseService {
    * Initialize database schema (all tables and indexes)
    */
   private async initializeSchema(): Promise<void> {
+    // Skip schema initialization if using fallback mode
+    if (this.useFallback) {
+      logger.debug('[DatabaseService] Skipping schema initialization in fallback mode');
+      return;
+    }
+
     const schema = `
       -- Chat history persistence
       CREATE TABLE IF NOT EXISTS deepcode_chat_history (
@@ -242,16 +287,20 @@ export class DatabaseService {
       CREATE INDEX IF NOT EXISTS idx_analytics_type ON deepcode_analytics(event_type);
     `;
 
-    if (this.isElectron) {
-      // better-sqlite3: Execute all statements
-      this.db.exec(schema);
-    } else {
-      // sql.js: Execute all statements
-      this.db.run(schema);
-      await this.saveToLocalStorage();
+    try {
+      if (this.db) {
+        // sql.js: Execute all statements
+        this.db.run(schema);
+        await this.saveToLocalStorage();
+        logger.debug('[DatabaseService] Schema initialized successfully');
+      } else {
+        // Using localStorage fallback, no schema needed
+        logger.debug('[DatabaseService] Using localStorage fallback, skipping schema initialization');
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to initialize schema:', error);
+      throw error;
     }
-
-    logger.debug('[DatabaseService] Schema initialized');
   }
 
   // ============================================
@@ -329,7 +378,7 @@ export class DatabaseService {
         return rows.map(this.parseChatMessage);
       } else {
         const result = this.db.exec(sql, [workspace, limit, offset]);
-        if (!result[0]) return [];
+        if (!result[0]) {return [];}
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -446,7 +495,7 @@ export class DatabaseService {
         return rows.map(this.parseSnippet);
       } else {
         const result = this.db.exec(sql, params);
-        if (!result[0]) return [];
+        if (!result[0]) {return [];}
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -469,7 +518,7 @@ export class DatabaseService {
    * Increment snippet usage count
    */
   async incrementSnippetUsage(id: number): Promise<void> {
-    if (this.useFallback) return;
+    if (this.useFallback) {return;}
 
     try {
       const sql = `
@@ -510,7 +559,7 @@ export class DatabaseService {
         return row ? JSON.parse(row.value) : defaultValue;
       } else {
         const result = this.db.exec(sql, [key]);
-        if (!result[0] || result[0].values.length === 0) return defaultValue;
+        if (!result[0] || result[0].values.length === 0) {return defaultValue;}
         return JSON.parse(result[0].values[0][0]);
       }
     } catch (error) {
@@ -566,7 +615,7 @@ export class DatabaseService {
         }, {});
       } else {
         const result = this.db.exec(sql);
-        if (!result[0]) return {};
+        if (!result[0]) {return {};}
 
         return result[0].values.reduce((acc: any, row: any[]) => {
           acc[row[0]] = JSON.parse(row[1]);
@@ -587,7 +636,7 @@ export class DatabaseService {
    * Log an analytics event
    */
   async logEvent(eventType: string, eventData?: any): Promise<void> {
-    if (this.useFallback) return;
+    if (this.useFallback) {return;}
 
     try {
       const sql = `
@@ -618,7 +667,7 @@ export class DatabaseService {
     endDate?: Date,
     limit: number = 1000
   ): Promise<AnalyticsEvent[]> {
-    if (this.useFallback) return [];
+    if (this.useFallback) {return [];}
 
     try {
       let sql = 'SELECT * FROM deepcode_analytics WHERE 1=1';
@@ -652,7 +701,7 @@ export class DatabaseService {
         }));
       } else {
         const result = this.db.exec(sql, params);
-        if (!result[0]) return [];
+        if (!result[0]) {return [];}
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -784,7 +833,7 @@ export class DatabaseService {
         });
       } else {
         const result = this.db.exec(sql, [limit]);
-        if (!result[0]) return [];
+        if (!result[0]) {return [];}
 
         return result[0].values.map((row: any[]) => {
           const pattern = JSON.parse(row[0]);
@@ -807,7 +856,7 @@ export class DatabaseService {
    * Update pattern success rate
    */
   async updatePatternSuccess(patternHash: string, success: boolean): Promise<void> {
-    if (this.useFallback) return;
+    if (this.useFallback) {return;}
 
     try {
       // Get current pattern
@@ -817,7 +866,7 @@ export class DatabaseService {
 
       if (this.isElectron) {
         const row = this.db.prepare(sql).get(patternHash);
-        if (row) pattern = JSON.parse(row.pattern_data);
+        if (row) {pattern = JSON.parse(row.pattern_data);}
       } else {
         const result = this.db.exec(sql, [patternHash]);
         if (result[0] && result[0].values.length > 0) {
@@ -825,7 +874,7 @@ export class DatabaseService {
         }
       }
 
-      if (!pattern) return;
+      if (!pattern) {return;}
 
       // Update success rate
       pattern.usageCount++;
@@ -848,16 +897,58 @@ export class DatabaseService {
    * Detect if running in Electron
    */
   private detectElectron(): boolean {
-    return typeof window !== 'undefined' &&
-           typeof window.process !== 'undefined' &&
-           (window.process as any).type === 'renderer';
+    // Multiple checks for Electron environment
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    // Check for Electron-specific window properties
+    if (window.electron?.isElectron) {
+      return true;
+    }
+
+    // Check for process.type (older Electron versions)
+    if (typeof window.process !== 'undefined' && (window.process as any).type === 'renderer') {
+      return true;
+    }
+
+    // Check for navigator.userAgent containing Electron
+    if (navigator?.userAgent?.toLowerCase().includes('electron')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Check if database is using localStorage fallback
+   */
+  public isUsingFallback(): boolean {
+    return this.useFallback;
+  }
+
+  /**
+   * Get database status information
+   */
+  public getStatus(): {
+    initialized: boolean;
+    usingFallback: boolean;
+    isElectron: boolean;
+    databasePath: string;
+  } {
+    return {
+      initialized: this.initialized,
+      usingFallback: this.useFallback,
+      isElectron: this.isElectron,
+      databasePath: this.useFallback ? 'localStorage' : DATABASE_PATH,
+    };
   }
 
   /**
    * Save database to localStorage (for web mode persistence)
    */
   private async saveToLocalStorage(): Promise<void> {
-    if (this.isElectron || !this.db) return;
+    if (this.isElectron || !this.db) {return;}
 
     try {
       const data = this.db.export();

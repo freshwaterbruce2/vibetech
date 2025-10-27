@@ -8,16 +8,8 @@ import {
 import { AlertTriangle, Bug, Copy, Home, RefreshCw } from 'lucide-react';
 import styled from 'styled-components';
 
+import { logger } from '../../services/Logger';
 import { vibeTheme } from '../../styles/theme';
-
-// Default fallback render function
-const defaultFallbackRender = ({ error, resetErrorBoundary }: FallbackProps) => (
-  <div role="alert">
-    <p>Something went wrong:</p>
-    <pre>{error.message}</pre>
-    <button onClick={resetErrorBoundary}>Try again</button>
-  </div>
-);
 
 // Styled components with 2025 patterns
 const ErrorContainer = styled.div`
@@ -310,27 +302,16 @@ export function ModernErrorBoundary({
   onReset,
   resetKeys = [],
 }: ModernErrorBoundaryProps) {
-  const errorBoundaryProps: Record<string, unknown> = {
-    FallbackComponent: fallback,
-    onError,
-    resetKeys,
-  };
-
-  // Only add onReset if it's defined
-  if (onReset !== undefined) {
-    errorBoundaryProps['onReset'] = onReset;
-  }
-
-  // Ensure we have a fallbackRender function
-  const fallbackRenderer = typeof errorBoundaryProps['fallbackRender'] === 'function' 
-    ? errorBoundaryProps['fallbackRender'] as (props: FallbackProps) => React.ReactNode
-    : defaultFallbackRender;
-  const finalProps = {
-    ...errorBoundaryProps,
-    fallbackRender: fallbackRenderer,
-  };
-
-  return <ReactErrorBoundary {...finalProps}>{children}</ReactErrorBoundary>;
+  return (
+    <ReactErrorBoundary
+      FallbackComponent={fallback}
+      onError={onError}
+      onReset={onReset}
+      resetKeys={resetKeys}
+    >
+      {children}
+    </ReactErrorBoundary>
+  );
 }
 
 // Hook for imperatively handling errors

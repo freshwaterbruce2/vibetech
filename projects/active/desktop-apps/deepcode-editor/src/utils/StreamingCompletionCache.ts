@@ -52,7 +52,7 @@ export class StreamingCompletionCache {
    */
   appendChunk(key: string, chunk: string): void {
     const stream = this.activeStreams.get(key);
-    if (!stream) return;
+    if (!stream) {return;}
 
     stream.partialText += chunk;
 
@@ -75,7 +75,7 @@ export class StreamingCompletionCache {
    */
   completeStreaming(key: string): void {
     const stream = this.activeStreams.get(key);
-    if (!stream) return;
+    if (!stream) {return;}
 
     stream.isComplete = true;
 
@@ -107,7 +107,7 @@ export class StreamingCompletionCache {
    */
   isStreaming(key: string): boolean {
     const stream = this.activeStreams.get(key);
-    if (!stream) return false;
+    if (!stream) {return false;}
 
     // Check if stream is stale (older than MAX_CACHE_AGE)
     const age = Date.now() - stream.timestamp;

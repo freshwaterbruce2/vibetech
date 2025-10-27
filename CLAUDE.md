@@ -2,6 +2,117 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🔄 Git Workflow (IMPORTANT - Read First!)
+
+**📖 See [MONOREPO_WORKFLOW.md](./MONOREPO_WORKFLOW.md) for complete workflow documentation**
+
+### Quick Reference - Incremental Merge Strategy
+```bash
+# Check commits ahead of main
+git commits-ahead
+
+# When you hit 10 commits, merge to main:
+git checkout main && git pull
+git merge feature/your-branch --no-ff
+git push origin main
+
+# Continue working
+git checkout feature/your-branch
+```
+
+**Why This Matters:** Merging every 10 commits prevents massive merge conflicts (147+ conflicts) like we experienced with fix/4. Small, frequent merges = 2-5 conflicts instead of hours of resolution.
+
+**Git Aliases Configured:**
+- `git commits-ahead` - Show how many commits ahead of main
+- `git sync` - Pull main and return to your branch
+- `git imerge` - Incremental merge (pull main → merge your branch)
+
+## 📦 Monorepo Philosophy (C:\dev)
+
+**Your current setup is PERFECT for a monorepo.** One repository contains all projects.
+
+### Why Monorepo? (C:\dev = ONE REPO)
+
+**✅ Benefits:**
+- **Share code easily** - Components, utils, types shared across projects
+- **Unified tooling** - One ESLint, one TypeScript config, one pnpm workspace
+- **Atomic commits** - Change multiple projects in one commit
+- **Nx caching** - Build once, use everywhere (80-90% faster builds)
+- **Easier refactoring** - Rename functions across all projects at once
+- **Single source of truth** - All code in one place
+
+**C:\dev Structure (ONE REPO):**
+```
+C:\dev (https://github.com/freshwaterbruce2/vibetech.git)
+├── projects/
+│   ├── crypto-enhanced/              (Python trading system)
+│   └── active/
+│       ├── web-apps/                 (React apps)
+│       │   ├── digital-content-builder/
+│       │   ├── business-booking-platform/
+│       │   └── iconforge/
+│       ├── desktop-apps/             (Electron/Tauri apps)
+│       │   ├── deepcode-editor/
+│       │   └── nova-agent/
+│       └── mobile-apps/              (Capacitor apps)
+│           └── vibe-tutor/
+├── packages/                         (Shared libraries: @nova/*, @vibetech/ui)
+├── tools/                            (Shared scripts)
+├── backend/                          (Node.js API servers)
+└── nx.json                           (Nx workspace config)
+```
+
+### When to Create Separate Repos
+
+**⚠️ ONLY create separate repos if:**
+
+1. **Open Source Public Release**
+   - Example: `DeepCode-Editor-App` for public distribution
+   - Users don't need your entire monorepo
+   - Extract standalone project when shipping
+
+2. **Different Teams Own Projects** (Not applicable - you're solo)
+   - Team A: Crypto bot (separate repo)
+   - Team B: Web apps (separate repo)
+
+3. **Vastly Different Tech Stacks** (Your Python works fine in monorepo!)
+   - Pure Rust systems project (might warrant separate repo)
+   - Legacy PHP project (separate repo)
+
+4. **Security Isolation Required**
+   - Sensitive client project (separate private repo)
+   - Public portfolio vs private work (separate repos)
+
+### Development vs Distribution Strategy
+
+**Development (C:\dev monorepo):**
+- ✅ All active work happens here
+- ✅ Use "merge every 10 commits" workflow
+- ✅ Share code across projects
+- ✅ Nx caching for fast builds
+
+**Distribution (Separate repos when needed):**
+- Extract `deepcode-editor` → `DeepCode-Editor-App` (public release)
+- Extract `vibe-tutor` → `Vibe-Tutor-Public` (app store submission)
+- Extract client project → Client-specific private repo
+
+**Companies using monorepos:**
+- Google (2+ billion lines of code in one repo)
+- Facebook/Meta, Microsoft, Twitter/X, Airbnb
+
+### Best Practices
+
+**✅ DO:**
+- Keep all active projects in C:\dev monorepo
+- Use pnpm workspace for shared dependencies
+- Commit changes across multiple projects atomically
+- Use Nx affected commands (`pnpm nx affected:build`)
+
+**❌ DON'T:**
+- Create separate repos for every project (defeats monorepo benefits)
+- Duplicate shared code across projects
+- Use different versions of React/TypeScript per project
+
 ## Architecture Overview
 
 This is a **fully modularized Nx monorepo** with the following project categories:

@@ -66,7 +66,7 @@ describe('TitleBar Component', () => {
       render(<TitleBar {...defaultProps} />);
 
       // Check main sections exist
-      expect(screen.getByText('DeepCode Studio')).toBeInTheDocument();
+      expect(screen.getByText('Vibe Code Studio')).toBeInTheDocument();
       expect(screen.getByText('DeepSeek AI Ready')).toBeInTheDocument();
 
       // Check action buttons
@@ -91,7 +91,7 @@ describe('TitleBar Component', () => {
     it('should render without onSettingsClick prop', () => {
       render(<TitleBar />);
 
-      expect(screen.getByText('DeepCode Studio')).toBeInTheDocument();
+      expect(screen.getByText('Vibe Code Studio')).toBeInTheDocument();
     });
   });
 
@@ -230,7 +230,7 @@ describe('TitleBar Component', () => {
     it('should have drag regions properly configured', () => {
       render(<TitleBar {...defaultProps} />);
 
-      const titleBar = screen.getByText('DeepCode Studio').closest('div');
+      const titleBar = screen.getByText('Vibe Code Studio').closest('div');
       expect(titleBar).toHaveStyle('-webkit-app-region: drag');
     });
 

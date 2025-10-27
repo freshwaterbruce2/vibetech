@@ -4,19 +4,18 @@
  */
 import { logger } from '../../services/Logger';
 
+import { AnthropicProvider } from './providers/AnthropicProvider';
+import { DeepSeekProvider } from './providers/DeepSeekProvider';
+import { GoogleProvider } from './providers/GoogleProvider';
+import { OpenAIProvider } from './providers/OpenAIProvider';
 import {
-  IAIProvider,
   AIProvider,
   AIProviderConfig,
   CompletionOptions,
   CompletionResponse,
-  StreamCompletionResponse,
-  MODEL_REGISTRY
-} from './AIProviderInterface';
-import { OpenAIProvider } from './providers/OpenAIProvider';
-import { AnthropicProvider } from './providers/AnthropicProvider';
-import { DeepSeekProvider } from './providers/DeepSeekProvider';
-import { GoogleProvider } from './providers/GoogleProvider';
+  IAIProvider,
+  MODEL_REGISTRY,
+  StreamCompletionResponse} from './AIProviderInterface';
 
 export class AIProviderManager {
   private providers: Map<AIProvider, IAIProvider> = new Map();
@@ -86,7 +85,7 @@ export class AIProviderManager {
   }
 
   getCurrentProvider(): IAIProvider | null {
-    if (!this.currentProvider) return null;
+    if (!this.currentProvider) {return null;}
     return this.providers.get(this.currentProvider) || null;
   }
 

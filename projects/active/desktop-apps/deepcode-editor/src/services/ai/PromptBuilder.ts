@@ -1,6 +1,6 @@
 import { AIContextRequest, WorkspaceContext } from '../../types';
-import { RulesParser, type Rule } from '../RulesParser';
 import { FileSystemService } from '../FileSystemService';
+import { type Rule,RulesParser } from '../RulesParser';
 
 /**
  * Builds system prompts and context for AI interactions
@@ -237,7 +237,7 @@ Provide the refactored code with explanations of the changes made.`;
    * Build custom rules section for prompt injection
    */
   private static buildCustomRulesSection(rules: Rule[]): string {
-    if (rules.length === 0) return '';
+    if (rules.length === 0) {return '';}
 
     const rulesContent = rules.map((rule, index) => {
       const header = rule.description ? `### ${rule.description}` : `### Custom Rule ${index + 1}`;

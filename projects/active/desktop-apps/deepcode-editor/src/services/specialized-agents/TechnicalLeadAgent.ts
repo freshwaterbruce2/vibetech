@@ -1,8 +1,9 @@
 /**
  * Technical Lead Agent - Architecture and system design specialist
  */
-import { BaseSpecializedAgent, AgentCapability, AgentContext, AgentResponse } from './BaseSpecializedAgent';
 import { DeepSeekService } from '../DeepSeekService';
+
+import { AgentCapability, AgentContext, AgentResponse,BaseSpecializedAgent } from './BaseSpecializedAgent';
 
 export class TechnicalLeadAgent extends BaseSpecializedAgent {
   constructor(deepSeekService: DeepSeekService) {
@@ -110,13 +111,13 @@ Focus on high-level strategy while being practical and implementable.`;
     confidence += termCount * 0.02;
     
     // Increase confidence if we have good context
-    if (context.codebaseMetrics) confidence += 0.05;
-    if (context.currentFile) confidence += 0.03;
-    if (context.sessionHistory && context.sessionHistory.length > 0) confidence += 0.02;
+    if (context.codebaseMetrics) {confidence += 0.05;}
+    if (context.currentFile) {confidence += 0.03;}
+    if (context.sessionHistory && context.sessionHistory.length > 0) {confidence += 0.02;}
     
     // Decrease confidence for vague responses
-    if (response.length < 200) confidence -= 0.1;
-    if (!response.includes('recommend') && !response.includes('suggest')) confidence -= 0.05;
+    if (response.length < 200) {confidence -= 0.1;}
+    if (!response.includes('recommend') && !response.includes('suggest')) {confidence -= 0.05;}
     
     return Math.min(0.95, Math.max(0.5, confidence));
   }

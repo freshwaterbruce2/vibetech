@@ -1,13 +1,18 @@
 /**
  * TestRunner - Production-ready service for running tests and validating code quality
  * Supports Jest, Vitest, Mocha, and other popular test frameworks
+ *
+ * ARCHITECTURE NOTE: Uses Electron IPC for shell commands instead of child_process
+ * This ensures compatibility with both dev and production builds
  */
+import { promises as fs } from 'fs';
+import { existsSync } from 'fs';
+import { basename, dirname, extname,join, relative, resolve } from 'path';
+
 import { logger } from '../services/Logger';
 
-import { spawn, ChildProcess } from 'child_process';
-import { promises as fs } from 'fs';
-import { join, resolve, relative, dirname, basename, extname } from 'path';
-import { existsSync } from 'fs';
+// Use Electron IPC for shell commands instead of child_process
+// Type is defined in ElectronService.ts
 
 // Enhanced interfaces for comprehensive test support
 export interface TestResult {
@@ -102,7 +107,6 @@ export class TestRunner {
   private workspaceRoot: string;
   private logger: (message: string, level?: 'info' | 'warn' | 'error') => void;
   private frameworkCache: Map<string, TestFrameworkInfo> = new Map();
-  private runningProcesses: Set<ChildProcess> = new Set();
 
   constructor(
     workspaceRoot?: string,
@@ -111,32 +115,16 @@ export class TestRunner {
   ) {
     this.workspaceRoot = workspaceRoot || process.cwd();
     this.logger = logger || this.defaultLogger;
-    
+
     if (framework) {
       this.defaultFramework = framework;
     }
-
-    // Cleanup processes on exit
-    process.on('exit', () => this.cleanup());
-    process.on('SIGINT', () => this.cleanup());
-    process.on('SIGTERM', () => this.cleanup());
   }
 
   private defaultLogger(message: string, level: 'info' | 'warn' | 'error' = 'info'): void {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}] [TestRunner] [${level.toUpperCase()}]`;
     logger.debug(`${prefix} ${message}`);
-  }
-
-  private async cleanup(): Promise<void> {
-    for (const process of this.runningProcesses) {
-      try {
-        process.kill('SIGTERM');
-      } catch (error) {
-        // Process might already be dead
-      }
-    }
-    this.runningProcesses.clear();
   }
 
   /**
@@ -433,7 +421,7 @@ export class TestRunner {
       this.logger(`Running tests for pattern: ${filePattern}`);
       
       const discovery = await this.discoverTests(options);
-      const framework = discovery.framework;
+      const {framework} = discovery;
       
       // Filter test files by pattern
       const matchingFiles = discovery.testFiles.filter(file => 
@@ -495,7 +483,7 @@ export class TestRunner {
       this.logger('Running all tests in the project');
       
       const discovery = await this.discoverTests(options);
-      const framework = discovery.framework;
+      const {framework} = discovery;
       
       if (discovery.testFiles.length === 0) {
         this.logger('No test files found in the project', 'warn');
@@ -631,52 +619,35 @@ export class TestRunner {
       }
       
       this.logger(`Executing: ${framework.command} ${args.join(' ')}`);
-      
-      const child = spawn(framework.command, args, {
-        cwd: options.workingDirectory || this.workspaceRoot,
-        env: { 
-          ...process.env, 
-          ...options.env,
-          CI: 'true' // Disable interactive features
-        },
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
-      
-      this.runningProcesses.add(child);
-      
-      let stdout = '';
-      let stderr = '';
-      
-      child.stdout?.on('data', (data) => {
-        stdout += data.toString();
-      });
-      
-      child.stderr?.on('data', (data) => {
-        stderr += data.toString();
-      });
-      
-      const cleanupTimer = setTimeout(() => {
-        child.kill('SIGTERM');
-        reject(new Error(`Test execution timed out after ${timeout}ms`));
-      }, timeout);
-      
-      child.on('close', (code) => {
-        clearTimeout(cleanupTimer);
-        this.runningProcesses.delete(child);
-        
+
+      // Check if running in Electron
+      if (typeof window === 'undefined' || !window.electron?.shell) {
+        reject(new Error('Test execution requires Electron environment'));
+        return;
+      }
+
+      // Execute via IPC
+      const command = `${framework.command} ${args.join(' ')}`;
+
+      // Use IIFE to handle async in Promise
+      (async () => {
         try {
-          const result = this.parseTestOutput(framework, stdout, stderr, code || 0);
-          resolve(result);
+          const result = await window.electron.shell.execute(
+            command,
+            options.workingDirectory || this.workspaceRoot
+          );
+
+          const testResult = this.parseTestOutput(
+            framework,
+            result.stdout,
+            result.stderr,
+            result.code
+          );
+          resolve(testResult);
         } catch (error) {
           reject(error);
         }
-      });
-      
-      child.on('error', (error) => {
-        clearTimeout(cleanupTimer);
-        this.runningProcesses.delete(child);
-        reject(new Error(`Failed to execute tests: ${error.message}`));
-      });
+      })();
     });
   }
 
@@ -775,7 +746,7 @@ export class TestRunner {
     // Handle Vitest format
     if (result.results) {
       for (const suiteResult of result.results) {
-        const file = suiteResult.file;
+        const {file} = suiteResult;
         
         const extractTests = (tasks: any[]): void => {
           for (const task of tasks) {
@@ -1241,23 +1212,15 @@ export class TestRunner {
       throw new Error('Selected framework does not support watch mode');
     }
     
-    this.logger('Starting test watch mode');
-    
-    const args = [...framework.args, '--watch'];
-    
-    const child = spawn(framework.command, args, {
-      cwd: options.workingDirectory || this.workspaceRoot,
-      env: { ...process.env, ...options.env },
-      stdio: 'inherit'
-    });
-    
-    this.runningProcesses.add(child);
-    
-    return () => {
-      child.kill('SIGTERM');
-      this.runningProcesses.delete(child);
-      this.logger('Stopped test watch mode');
-    };
+    this.logger('Watch mode is not supported in IPC mode (requires interactive terminal)', 'warn');
+
+    // TODO: Implement terminal streaming IPC handler for watch mode support
+    // This would require:
+    // 1. New IPC handler: terminal:spawn with streaming support
+    // 2. Event-based output updates
+    // 3. Process management in main process
+
+    throw new Error('Watch mode requires interactive terminal - not yet supported in IPC mode');
   }
 
   /**

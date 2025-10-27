@@ -1,5 +1,6 @@
 import { AIContextRequest, AIResponse } from '../../types';
-import { MockAIResponses, TaskPlan, ReActThought, SelfCorrectionStrategy } from './mockAIResponses';
+
+import { MockAIResponses, ReActThought, SelfCorrectionStrategy,TaskPlan } from './mockAIResponses';
 
 /**
  * Mock AI Service for testing

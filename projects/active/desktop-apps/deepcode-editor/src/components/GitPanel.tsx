@@ -14,6 +14,7 @@ import {
 import styled from 'styled-components';
 
 import { useGit } from '../hooks/useGit';
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 
 const PanelContainer = styled.div`

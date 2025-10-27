@@ -57,8 +57,8 @@ const MenuItem = styled(motion.div)<{ $disabled?: boolean; $danger?: boolean }>`
   cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   font-size: ${vibeTheme.typography.fontSize.sm};
   color: ${(props) => {
-    if (props.$disabled) return vibeTheme.colors.textDisabled;
-    if (props.$danger) return vibeTheme.colors.error;
+    if (props.$disabled) {return vibeTheme.colors.textDisabled;}
+    if (props.$danger) {return vibeTheme.colors.error;}
     return vibeTheme.colors.text;
   }};
   background: transparent;
@@ -154,7 +154,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ items, x, y, onClose }
 
   // Handle item click
   const handleItemClick = (item: ContextMenuItem) => {
-    if (item.disabled || item.divider) return;
+    if (item.disabled || item.divider) {return;}
 
     if (item.onClick) {
       item.onClick();

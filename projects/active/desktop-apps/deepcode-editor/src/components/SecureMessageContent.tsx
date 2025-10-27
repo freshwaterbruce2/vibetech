@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+
 import { vibeTheme } from '../styles/theme';
-import { parseMessageSafely, validateMessageContent, MessagePart } from '../utils/messageFormatter';
+import { MessagePart,parseMessageSafely, validateMessageContent } from '../utils/messageFormatter';
 
 const MessageContainer = styled.div<{ role: 'user' | 'assistant' }>`
   background: ${(props) =>

@@ -174,7 +174,7 @@ export class WorkspaceManager {
    * @returns Workspace folder name or null
    */
   getWorkspaceName(): string | null {
-    if (!this.currentWorkspace) return null;
+    if (!this.currentWorkspace) {return null;}
 
     // Extract folder name from path
     const parts = this.currentWorkspace.split(/[/\\]/);

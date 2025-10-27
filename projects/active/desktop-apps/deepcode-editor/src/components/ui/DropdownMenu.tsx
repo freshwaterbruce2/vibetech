@@ -1,9 +1,9 @@
-import { logger } from '../../services/Logger';
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronRight } from 'lucide-react';
 import styled from 'styled-components';
 
+import { logger } from '../../services/Logger';
 import { vibeTheme } from '../../styles/theme';
 
 // Types
@@ -55,8 +55,8 @@ const MenuItemWrapper = styled(motion.div)<{ $disabled?: boolean; $danger?: bool
   cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   font-size: ${vibeTheme.typography.fontSize.sm};
   color: ${(props) => {
-    if (props.$disabled) return vibeTheme.colors.textDisabled;
-    if (props.$danger) return vibeTheme.colors.error;
+    if (props.$disabled) {return vibeTheme.colors.textDisabled;}
+    if (props.$danger) {return vibeTheme.colors.error;}
     return vibeTheme.colors.text;
   }};
   background: transparent;
@@ -180,7 +180,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
     };
 
     const handleItemClick = (item: DropdownMenuItem) => {
-      if (item.disabled || item.submenu) return;
+      if (item.disabled || item.submenu) {return;}
 
       if (item.onClick) {
         item.onClick();
@@ -204,7 +204,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
 
     // Keyboard navigation
     useEffect(() => {
-      if (!isOpen) return;
+      if (!isOpen) {return;}
 
       const validItems = items.filter((item) => !item.divider && !item.disabled);
 

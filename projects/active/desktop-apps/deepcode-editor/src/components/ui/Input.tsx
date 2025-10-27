@@ -1,6 +1,6 @@
 import React, { forwardRef, useState } from 'react';
-import styled, { css } from 'styled-components';
 import { Eye, EyeOff, X } from 'lucide-react';
+import styled, { css } from 'styled-components';
 
 import { vibeTheme } from '../../styles/theme';
 

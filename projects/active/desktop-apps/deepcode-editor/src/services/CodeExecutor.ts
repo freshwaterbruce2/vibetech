@@ -485,7 +485,7 @@ export class CodeExecutor {
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      if (!line || line.trim() === '') continue;
+      if (!line || line.trim() === '') {continue;}
 
       const _indent = line.length - line.trimStart().length;
       
