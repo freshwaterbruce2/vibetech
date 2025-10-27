@@ -1,5 +1,6 @@
 // Super simple test to see if React loads at all
 import { logger } from './services/Logger';
+
 logger.debug('main-simple.tsx loading...');
 
 const root = document.getElementById('root');

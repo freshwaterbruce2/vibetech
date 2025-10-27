@@ -1,4 +1,3 @@
-import { logger } from '../services/Logger';
 import { useCallback, useState } from 'react';
 
 import { FileSystemService } from '../services/FileSystemService';

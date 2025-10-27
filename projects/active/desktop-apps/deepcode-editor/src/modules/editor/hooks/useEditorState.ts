@@ -1,6 +1,6 @@
-import { logger } from '../../../services/Logger';
 import { useCallback, useState } from 'react';
 
+import { logger } from '../../../services/Logger';
 import { EditorService } from '../services/EditorService';
 import { CursorPosition, EditorState, Selection } from '../types';
 

@@ -124,7 +124,6 @@ export class DatabaseService {
   private db: any = null;
   private isElectron: boolean = false;
   private useFallback: boolean = false;
-  private useIPC: boolean = false;  // Track if using IPC mode (Electron with better-sqlite3 via main process)
   private initialized: boolean = false;
 
   constructor() {
@@ -288,11 +287,13 @@ export class DatabaseService {
     `;
 
     try {
-      if (this.db) {
-        // sql.js: Execute all statements
-        this.db.run(schema);
-        await this.saveToLocalStorage();
-        logger.debug('[DatabaseService] Schema initialized successfully');
+      // Use IPC to execute schema on main process
+      if (window.electron?.db) {
+        const result = await window.electron.db.query(schema, []);
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to initialize schema');
+        }
+        logger.debug('[DatabaseService] Schema initialized successfully via IPC');
       } else {
         // Using localStorage fallback, no schema needed
         logger.debug('[DatabaseService] Using localStorage fallback, skipping schema initialization');
@@ -333,7 +334,7 @@ export class DatabaseService {
 
       if (this.isElectron) {
         // Use IPC for database operations
-        const result = await window.electron.db.query(sql, [
+        const result = await window.electron?.db?.query(sql, [
           workspace,
           userMessage,
           aiResponse,
@@ -342,11 +343,12 @@ export class DatabaseService {
           contextJson
         ]);
 
-        if (!result.success) {
-          throw new Error(result.error || 'Database operation failed');
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
         }
 
-        return result.lastID || null;
+        // IPC returns success but doesn't provide lastID, return a success indicator
+        return 1;
       } else {
         this.db.run(sql, [workspace, userMessage, aiResponse, model, tokens || null, contextJson]);
         await this.saveToLocalStorage();
@@ -470,7 +472,8 @@ export class DatabaseService {
           throw new Error(result?.error || 'Database operation failed');
         }
 
-        return result.lastID || null;
+        // IPC returns success but doesn't provide lastID, return a success indicator
+        return 1;
       } else {
         this.db.run(sql, [language, code, description || null, tagsJson]);
         await this.saveToLocalStorage();
@@ -519,7 +522,7 @@ export class DatabaseService {
           throw new Error(result?.error || 'Database operation failed');
         }
 
-        const rows = result.data || [];
+        const rows = result.rows || [];
         return rows.map(this.parseSnippet);
       } else {
         const result = this.db.exec(sql, params);
@@ -595,7 +598,7 @@ export class DatabaseService {
           throw new Error(result?.error || 'Database operation failed');
         }
 
-        const rows = result.data || [];
+        const rows = result.rows || [];
         const row = rows[0];
         return row ? JSON.parse(row.value) : defaultValue;
       } else {
@@ -661,7 +664,7 @@ export class DatabaseService {
           throw new Error(result?.error || 'Database operation failed');
         }
 
-        const rows = result.data || [];
+        const rows = result.rows || [];
         return rows.reduce((acc: any, row: any) => {
           acc[row.key] = JSON.parse(row.value);
           return acc;
@@ -757,7 +760,7 @@ export class DatabaseService {
           throw new Error(result?.error || 'Database operation failed');
         }
 
-        const rows = result.data || [];
+        const rows = result.rows || [];
         return rows.map((row: any) => ({
           id: row.id,
           event_type: row.event_type,
@@ -897,7 +900,7 @@ export class DatabaseService {
           throw new Error(result?.error || 'Database operation failed');
         }
 
-        const rows = result.data || [];
+        const rows = result.rows || [];
         return rows.map((row: any) => {
           const pattern = JSON.parse(row.pattern_data);
           // Restore Date objects
@@ -949,7 +952,7 @@ export class DatabaseService {
           throw new Error(result?.error || 'Database operation failed');
         }
 
-        const rows = result.data || [];
+        const rows = result.rows || [];
         if (rows.length > 0) {
           pattern = JSON.parse(rows[0].pattern_data);
         }
@@ -1065,16 +1068,19 @@ export class DatabaseService {
    * Parse snippet row
    */
   private parseSnippet(row: any): CodeSnippet {
-    return {
+    const snippet: CodeSnippet = {
       id: row.id,
       language: row.language,
       code: row.code,
-      description: row.description,
-      tags: row.tags ? JSON.parse(row.tags) : undefined,
       created_at: new Date(row.created_at),
       usage_count: row.usage_count,
-      last_used: row.last_used ? new Date(row.last_used) : undefined,
     };
+    
+    if (row.description) {snippet.description = row.description;}
+    if (row.tags) {snippet.tags = JSON.parse(row.tags);}
+    if (row.last_used) {snippet.last_used = new Date(row.last_used);}
+    
+    return snippet;
   }
 
   // ============================================
@@ -1099,9 +1105,10 @@ export class DatabaseService {
       user_message: userMessage,
       ai_response: aiResponse,
       model_used: model,
-      tokens_used: tokens,
-      workspace_context: context ? JSON.stringify(context) : undefined,
     };
+    
+    if (tokens !== undefined) {newMessage.tokens_used = tokens;}
+    if (context) {newMessage.workspace_context = JSON.stringify(context);}
 
     messages.push(newMessage);
     localStorage.setItem(key, JSON.stringify(messages));
@@ -1133,11 +1140,12 @@ export class DatabaseService {
       id: Date.now(),
       language,
       code,
-      description,
-      tags: tags ? JSON.stringify(tags) : undefined,
       created_at: new Date(),
       usage_count: 0,
     };
+    
+    if (description) {newSnippet.description = description;}
+    if (tags) {newSnippet.tags = JSON.stringify(tags);}
 
     snippets.push(newSnippet);
     localStorage.setItem(key, JSON.stringify(snippets));

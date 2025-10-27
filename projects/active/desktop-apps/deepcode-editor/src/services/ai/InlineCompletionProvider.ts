@@ -24,15 +24,16 @@
  * - Alt+[ or Opt+[: Previous completion variation
  * - Esc: Dismiss completion
  */
-import { logger } from '../../services/Logger';
-
 import * as monaco from 'monaco-editor';
-import { UnifiedAIService } from './UnifiedAIService';
+import { v4 as uuidv4 } from 'uuid';
+
+import { logger } from '../../services/Logger';
+import type { CompletionLatency, VariationType } from '../../types/analytics';
 import { LRUCache } from '../../utils/LRUCache';
 import { StreamingCompletionCache } from '../../utils/StreamingCompletionCache';
+
 import { getAnalyticsInstance } from './CompletionAnalytics';
-import { v4 as uuidv4 } from 'uuid';
-import type { CompletionLatency, VariationType } from '../../types/analytics';
+import { UnifiedAIService } from './UnifiedAIService';
 
 export class InlineCompletionProvider {
   private aiService: UnifiedAIService;
@@ -198,8 +199,8 @@ export class InlineCompletionProvider {
    */
   private getCodeContext(model: monaco.editor.ITextModel, position: monaco.Position): CodeContext {
     try {
-      const lineNumber = position.lineNumber;
-      const column = position.column;
+      const {lineNumber} = position;
+      const {column} = position;
 
       // Validate line number
       if (lineNumber < 1 || lineNumber > model.getLineCount()) {

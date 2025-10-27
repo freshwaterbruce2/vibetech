@@ -2,7 +2,6 @@
  * TaskQueue - Priority-based background task queue
  * Manages task execution with priority ordering and concurrency control
  */
-import { logger } from '../services/Logger';
 import {
   BackgroundTask,
   TaskExecutor,
@@ -16,6 +15,8 @@ import {
   TaskStatus,
   TaskType,
 } from '@vibetech/types/tasks';
+
+import { logger } from '../services/Logger';
 
 const DEFAULT_OPTIONS: TaskQueueOptions = {
   maxConcurrentTasks: 3,

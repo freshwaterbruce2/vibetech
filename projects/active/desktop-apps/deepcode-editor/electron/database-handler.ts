@@ -15,22 +15,15 @@ let db: Database.Database | null = null;
  * Get the database path
  */
 function getDatabasePath(): string {
-  // Check if D: drive is available (Windows only)
-  if (process.platform === 'win32') {
-    const centralizedPath = 'D:\\databases\\database.db';
-    // Check if D: drive exists
-    try {
-      if (fs.existsSync('D:\\databases')) {
-        return centralizedPath;
-      }
-    } catch {
-      // D: drive not available, fall through to userData
-    }
+  // Use D: drive for databases alongside learning system
+  const dbDir = 'D:\\databases';
+  
+  // Ensure the directory exists
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
   }
-
-  // Fallback to userData directory
-  const userDataPath = app.getPath('userData');
-  return path.join(userDataPath, 'deepcode_database.db');
+  
+  return path.join(dbDir, 'database.db');
 }
 
 /**

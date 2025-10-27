@@ -1,4 +1,3 @@
-import { logger } from '../../services/Logger';
 import React, { ErrorInfo, useCallback, useEffect, useState } from 'react';
 import {
   ErrorBoundary as ReactErrorBoundary,
@@ -7,6 +6,8 @@ import {
 } from 'react-error-boundary';
 import { AlertTriangle, Bug, Copy, Home, RefreshCw } from 'lucide-react';
 import styled from 'styled-components';
+
+import { logger } from '../../services/Logger';
 import { vibeTheme } from '../../styles/theme';
 
 // Styled components with 2025 patterns
@@ -300,13 +301,15 @@ export function ModernErrorBoundary({
   onReset,
   resetKeys = [],
 }: ModernErrorBoundaryProps) {
+  const props = {
+    FallbackComponent: fallback,
+    onError,
+    resetKeys,
+    ...(onReset && { onReset }),
+  };
+
   return (
-    <ReactErrorBoundary
-      FallbackComponent={fallback}
-      onError={onError}
-      onReset={onReset}
-      resetKeys={resetKeys}
-    >
+    <ReactErrorBoundary {...props}>
       {children}
     </ReactErrorBoundary>
   );

@@ -1,8 +1,9 @@
 /**
  * Google Gemini Provider - Implementation for Google Gemini API integration
  */
-import { logger } from '../../../services/Logger';
 import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+
+import { logger } from '../../../services/Logger';
 import {
   AIModel,
   AIProvider,
