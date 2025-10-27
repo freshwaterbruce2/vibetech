@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(Test-Path \"C:\\dev\\projects\\active\\desktop-apps\\nova-agent-current\\src-tauri\\target\\release\\nova-agent.exe\")",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": [],

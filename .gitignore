@@ -119,4 +119,5 @@ test-results/
 .nx/cache
 .nx/workspace-data
 .cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
+.github/instructions/nx.instructions.md.gitignore entry
+nul
