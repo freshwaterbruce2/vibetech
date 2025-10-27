@@ -129,32 +129,31 @@ export class WorkspaceService {
 
 
         try {
-
-
           const content = await this.readFile(tsconfigPath);
 
-
           // Remove comments from JSONC (JSON with Comments) format
-
-
-          const jsonContent = content.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
-
+          // Line comments: strip entire line after //
+          // Block comments: remove /* */ blocks
+          const jsonContent = content
+            .split('\n')
+            .map(line => {
+              // Remove line comments
+              const commentIndex = line.indexOf('//');
+              if (commentIndex !== -1) {
+                return line.substring(0, commentIndex);
+              }
+              return line;
+            })
+            .join('\n')
+            .replace(/\/\*[\s\S]*?\*\//g, ''); // Remove block comments
 
           structure.tsConfig = JSON.parse(jsonContent);
-
-
           structure.configFiles.push('tsconfig.json');
 
-
         } catch (error) {
-
-
-          logger.warn('Failed to parse tsconfig.json:', error);
-
-
-          structure.configFiles.push('tsconfig.json'); // Still track it exists
-
-
+          // Silently track file exists even if parsing fails
+          // This is non-critical - tsconfig parsing is just for additional context
+          structure.configFiles.push('tsconfig.json');
         }
 
 

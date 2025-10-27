@@ -1,8 +1,9 @@
 /**
  * Super Coding Agent - General purpose coding specialist with advanced capabilities
  */
-import { BaseSpecializedAgent, AgentCapability, AgentContext, AgentResponse, CodeChange } from './BaseSpecializedAgent';
 import { DeepSeekService } from '../DeepSeekService';
+
+import { AgentCapability, AgentContext, AgentResponse, BaseSpecializedAgent, CodeChange } from './BaseSpecializedAgent';
 
 export class SuperCodingAgent extends BaseSpecializedAgent {
   constructor(deepSeekService: DeepSeekService) {
@@ -189,7 +190,7 @@ Focus on delivering high-quality, production-ready code that follows modern deve
   }
 
   private analyzeSelectedCode(code: string): string | null {
-    if (!code || code.length < 10) return null;
+    if (!code || code.length < 10) {return null;}
     
     const patterns = {
       function: /function\s+\w+|const\s+\w+\s*=\s*\(/,
@@ -212,7 +213,7 @@ Focus on delivering high-quality, production-ready code that follows modern deve
       }
     });
     
-    if (matches.length === 0) return null;
+    if (matches.length === 0) {return null;}
     
     return `Contains: ${matches.join(', ')}`;
   }

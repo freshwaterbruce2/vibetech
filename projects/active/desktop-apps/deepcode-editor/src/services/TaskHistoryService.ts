@@ -5,7 +5,6 @@
  * Stores completed tasks for future reference, search, and re-execution.
  */
 import { logger } from '../services/Logger';
-
 import type { AgentTask } from '../types';
 
 const DB_NAME = 'VibeCodeStudio_AgentMode';

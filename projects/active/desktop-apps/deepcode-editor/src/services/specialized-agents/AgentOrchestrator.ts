@@ -2,15 +2,16 @@
  * Advanced Agent Orchestrator with intelligent coordination and optimization
  * Manages multiple specialized agents and coordinates their collaboration
  */
+import { logger } from '../../utils/logger';
 import { DeepSeekService } from '../DeepSeekService';
-import { BaseSpecializedAgent, AgentContext, AgentResponse, AgentCapability } from './BaseSpecializedAgent';
-import { TechnicalLeadAgent } from './TechnicalLeadAgent';
-import { FrontendEngineerAgent } from './FrontendEngineerAgent';
+
 import { BackendEngineerAgent } from './BackendEngineerAgent';
+import { AgentCapability,AgentContext, AgentResponse, BaseSpecializedAgent } from './BaseSpecializedAgent';
+import { FrontendEngineerAgent } from './FrontendEngineerAgent';
 import { PerformanceAgent } from './PerformanceAgent';
 import { SecurityAgent } from './SecurityAgent';
 import { SuperCodingAgent } from './SuperCodingAgent';
-import { logger } from '../../utils/logger';
+import { TechnicalLeadAgent } from './TechnicalLeadAgent';
 
 export interface OrchestratorTask {
   id: string;
@@ -373,7 +374,7 @@ export class AgentOrchestrator {
   ): Promise<Record<string, AgentResponse>> {
     const promises = agentKeys.map(async (agentKey) => {
       const agent = this.agents.get(agentKey);
-      if (!agent) return null;
+      if (!agent) {return null;}
 
       try {
         const response = await agent.process(request, context);
@@ -470,7 +471,7 @@ export class AgentOrchestrator {
     // Refined responses based on collaboration
     const refinedPromises = agentKeys.map(async (agentKey) => {
       const agent = this.agents.get(agentKey);
-      if (!agent) return null;
+      if (!agent) {return null;}
 
       try {
         const refinedRequest = `${request}\n\nPlease refine your response considering peer insights and ensure coordination with other specialists.`;
@@ -670,12 +671,12 @@ export class AgentOrchestrator {
   private categorizeRequest(request: string): string {
     const requestLower = request.toLowerCase();
     
-    if (requestLower.includes('component') || requestLower.includes('ui')) return 'ui-development';
-    if (requestLower.includes('api') || requestLower.includes('backend')) return 'api-development';
-    if (requestLower.includes('security') || requestLower.includes('auth')) return 'security';
-    if (requestLower.includes('performance') || requestLower.includes('optimization')) return 'optimization';
-    if (requestLower.includes('test') || requestLower.includes('testing')) return 'testing';
-    if (requestLower.includes('architecture') || requestLower.includes('design')) return 'architecture';
+    if (requestLower.includes('component') || requestLower.includes('ui')) {return 'ui-development';}
+    if (requestLower.includes('api') || requestLower.includes('backend')) {return 'api-development';}
+    if (requestLower.includes('security') || requestLower.includes('auth')) {return 'security';}
+    if (requestLower.includes('performance') || requestLower.includes('optimization')) {return 'optimization';}
+    if (requestLower.includes('test') || requestLower.includes('testing')) {return 'testing';}
+    if (requestLower.includes('architecture') || requestLower.includes('design')) {return 'architecture';}
     
     return 'general';
   }

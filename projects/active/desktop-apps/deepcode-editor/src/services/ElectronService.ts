@@ -42,12 +42,20 @@ interface ElectronWindow {
   isMaximized: () => Promise<boolean>;
 }
 
+interface ElectronDB {
+  initialize: () => Promise<{ success: boolean; error?: string }>;
+  execute: (sql: string, params?: any[]) => Promise<{ success: boolean; data?: any; error?: string }>;
+  query: (sql: string, params?: any[]) => Promise<{ success: boolean; rows?: any[]; error?: string }>;
+  close: () => Promise<{ success: boolean; error?: string }>;
+}
+
 interface WindowElectron {
   fs: ElectronFS;
   dialog: ElectronDialog;
   shell: ElectronShell;
   app: ElectronApp;
   window?: ElectronWindow;
+  db?: ElectronDB;
   platform: string;
   isElectron: boolean;
 }

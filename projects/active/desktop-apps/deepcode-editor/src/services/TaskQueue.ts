@@ -3,20 +3,19 @@
  * Manages task execution with priority ordering and concurrency control
  */
 import { logger } from '../services/Logger';
-
 import {
   BackgroundTask,
-  TaskStatus,
-  TaskPriority,
-  TaskType,
-  TaskQueueOptions,
   TaskExecutor,
-  TaskResult,
-  TaskProgress,
-  TaskStats,
   TaskFilter,
   TaskNotification,
-} from '../types/tasks';
+  TaskPriority,
+  TaskProgress,
+  TaskQueueOptions,
+  TaskResult,
+  TaskStats,
+  TaskStatus,
+  TaskType,
+} from '@vibetech/types/tasks';
 
 const DEFAULT_OPTIONS: TaskQueueOptions = {
   maxConcurrentTasks: 3,
@@ -106,7 +105,7 @@ export class TaskQueue {
    */
   async cancelTask(taskId: string): Promise<boolean> {
     const task = this.tasks.get(taskId);
-    if (!task) return false;
+    if (!task) {return false;}
 
     if (!task.cancelable) {
       throw new Error('Task is not cancelable');
@@ -142,7 +141,7 @@ export class TaskQueue {
    */
   async pauseTask(taskId: string): Promise<boolean> {
     const task = this.tasks.get(taskId);
-    if (!task || task.status !== TaskStatus.RUNNING) return false;
+    if (!task || task.status !== TaskStatus.RUNNING) {return false;}
 
     if (!task.pausable) {
       throw new Error('Task is not pausable');
@@ -174,7 +173,7 @@ export class TaskQueue {
    */
   async resumeTask(taskId: string): Promise<boolean> {
     const task = this.tasks.get(taskId);
-    if (!task || task.status !== TaskStatus.PAUSED) return false;
+    if (!task || task.status !== TaskStatus.PAUSED) {return false;}
 
     task.status = TaskStatus.QUEUED;
 
@@ -329,7 +328,7 @@ export class TaskQueue {
 
     // Get next task by priority
     const nextTask = this.getNextTask();
-    if (!nextTask) return;
+    if (!nextTask) {return;}
 
     // Execute task
     await this.executeTask(nextTask);
@@ -467,7 +466,7 @@ export class TaskQueue {
   }
 
   private persistState(): void {
-    if (!this.options.enablePersistence) return;
+    if (!this.options.enablePersistence) {return;}
 
     try {
       const state = {
@@ -485,7 +484,7 @@ export class TaskQueue {
   private loadFromStorage(): void {
     try {
       const stored = localStorage.getItem('deepcode_task_queue');
-      if (!stored) return;
+      if (!stored) {return;}
 
       const state = JSON.parse(stored);
 
@@ -493,8 +492,8 @@ export class TaskQueue {
       state.tasks?.forEach(([id, task]: [string, any]) => {
         // Convert date strings back to Date objects
         task.createdAt = new Date(task.createdAt);
-        if (task.startedAt) task.startedAt = new Date(task.startedAt);
-        if (task.completedAt) task.completedAt = new Date(task.completedAt);
+        if (task.startedAt) {task.startedAt = new Date(task.startedAt);}
+        if (task.completedAt) {task.completedAt = new Date(task.completedAt);}
 
         // Reset running tasks to queued on reload
         if (task.status === TaskStatus.RUNNING) {

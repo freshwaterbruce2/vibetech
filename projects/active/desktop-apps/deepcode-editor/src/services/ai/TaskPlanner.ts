@@ -5,26 +5,26 @@
  * This is the core of Agent Mode's intelligence.
  */
 import { logger } from '../../services/Logger';
-
-import { UnifiedAIService } from './UnifiedAIService';
-import { StrategyMemory } from './StrategyMemory';
+import {
+  ActionType,
+  AgentStep,
+  AgentTask,
+  ConfidenceFactor,
+  EnhancedAgentStep,
+  FallbackPlan,
+  PlanningInsights,
+  StepAction,
+  StepConfidence,
+  TaskPlanRequest,
+  TaskPlanResponse,
+  WorkspaceContext,
+} from '../../types';
 // import { PromptBuilder } from './PromptBuilder'; // Reserved for future prompt optimization
 import { ProjectStructureDetector } from '../../utils/ProjectStructureDetector';
 import { FileSystemService } from '../FileSystemService';
-import {
-  AgentTask,
-  AgentStep,
-  TaskPlanRequest,
-  TaskPlanResponse,
-  StepAction,
-  ActionType,
-  WorkspaceContext,
-  StepConfidence,
-  ConfidenceFactor,
-  FallbackPlan,
-  PlanningInsights,
-  EnhancedAgentStep,
-} from '../../types';
+
+import { StrategyMemory } from './StrategyMemory';
+import { UnifiedAIService } from './UnifiedAIService';
 
 export class TaskPlanner {
   private structureDetector: ProjectStructureDetector | null = null;
@@ -150,13 +150,13 @@ export class TaskPlanner {
           if (pkg.dependencies || pkg.devDependencies) {
             const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
             const frameworks = [];
-            if (allDeps['react']) frameworks.push('React');
-            if (allDeps['react-native']) frameworks.push('React Native');
-            if (allDeps['expo']) frameworks.push('Expo');
-            if (allDeps['vue']) frameworks.push('Vue');
-            if (allDeps['next']) frameworks.push('Next.js');
-            if (allDeps['@tauri-apps/api']) frameworks.push('Tauri');
-            if (allDeps['electron']) frameworks.push('Electron');
+            if (allDeps['react']) {frameworks.push('React');}
+            if (allDeps['react-native']) {frameworks.push('React Native');}
+            if (allDeps['expo']) {frameworks.push('Expo');}
+            if (allDeps['vue']) {frameworks.push('Vue');}
+            if (allDeps['next']) {frameworks.push('Next.js');}
+            if (allDeps['@tauri-apps/api']) {frameworks.push('Tauri');}
+            if (allDeps['electron']) {frameworks.push('Electron');}
 
             if (frameworks.length > 0) {
               analysis.push(`- Frameworks Detected: ${frameworks.join(', ')}`);
@@ -790,17 +790,17 @@ Generate the task plan now:`;
   private generateTitle(userRequest: string): string {
     // Simple title generation - take first sentence or first 50 chars
     const firstSentence = userRequest.split(/[.!?]/)[0];
-    if (!firstSentence) return userRequest.substring(0, 50);
-    return firstSentence.length > 50 ? firstSentence.substring(0, 47) + '...' : firstSentence;
+    if (!firstSentence) {return userRequest.substring(0, 50);}
+    return firstSentence.length > 50 ? `${firstSentence.substring(0, 47)  }...` : firstSentence;
   }
 
   /**
    * Estimates execution time based on step count
    */
   private estimateTime(stepCount: number): string {
-    if (stepCount <= 2) return '< 1 minute';
-    if (stepCount <= 5) return '1-3 minutes';
-    if (stepCount <= 10) return '3-5 minutes';
+    if (stepCount <= 2) {return '< 1 minute';}
+    if (stepCount <= 5) {return '1-3 minutes';}
+    if (stepCount <= 10) {return '3-5 minutes';}
     return '5+ minutes';
   }
 
@@ -864,7 +864,7 @@ Generate the task plan now:`;
 
     // Factor 2: File Existence (20 points)
     if (step.action.type === 'read_file' || step.action.type === 'write_file') {
-      const filePath = step.action.params.filePath;
+      const {filePath} = step.action.params;
       if (filePath && typeof filePath === 'string') {
         const exists = await this.estimateFileExistence(filePath);
         if (exists) {
@@ -897,9 +897,9 @@ Generate the task plan now:`;
 
     // Determine risk level
     let riskLevel: 'low' | 'medium' | 'high';
-    if (score >= 70) riskLevel = 'low';
-    else if (score >= 40) riskLevel = 'medium';
-    else riskLevel = 'high';
+    if (score >= 70) {riskLevel = 'low';}
+    else if (score >= 40) {riskLevel = 'medium';}
+    else {riskLevel = 'high';}
 
     return {
       score: Math.min(100, Math.max(0, score)),
@@ -1078,8 +1078,8 @@ Generate the task plan now:`;
       (step as EnhancedAgentStep).confidence = confidence;
       totalConfidence += confidence.score;
 
-      if (confidence.riskLevel === 'high') highRiskCount++;
-      if (confidence.memoryBacked) memoryBackedCount++;
+      if (confidence.riskLevel === 'high') {highRiskCount++;}
+      if (confidence.memoryBacked) {memoryBackedCount++;}
 
       // Generate fallbacks for risky steps
       const fallbacks = await this.generateFallbackPlans(step, confidence);

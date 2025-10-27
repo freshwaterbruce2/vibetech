@@ -6,29 +6,27 @@
  * This service requires Node.js APIs (child_process) which are only available in Electron/Tauri.
  * In web mode (dev:web), MCP features are disabled gracefully.
  */
-import { logger } from '../services/Logger';
-
-import { EventEmitter } from 'events';
-
 // MCP SDK imports - these work in both browser and Node.js
 // Note: The stdio transport uses child_process internally, but we handle that gracefully
 import type { Client as MCPClient } from '@modelcontextprotocol/sdk/client/index.js';
 import type { StdioClientTransport as MCPTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import type {
-  Tool,
-  Resource,
-  Prompt,
   CallToolResult,
-  GetPromptResult
-} from '@modelcontextprotocol/sdk/types.js';
+  GetPromptResult,
+  Prompt,
+  Resource,
+  Tool} from '@modelcontextprotocol/sdk/types.js';
+
+import { logger } from '../services/Logger';
+import { EventEmitter } from '../utils/EventEmitter';
 
 // Check if we're in a desktop environment (Electron/Tauri with Node.js APIs)
 const isDesktopEnvironment = (() => {
   // Browser definitely doesn't have Node.js APIs
   if (typeof window !== 'undefined' && typeof window.document !== 'undefined') {
     // Check for Electron
-    if ((window as any).electronAPI) return true;
-    if (window.electron?.isElectron) return true;
+    if ((window as any).electronAPI) {return true;}
+    if (window.electron?.isElectron) {return true;}
     // Pure browser
     return false;
   }
@@ -435,4 +433,4 @@ export class MCPService extends EventEmitter {
 }
 
 // Export types for external use
-export type { Tool, Resource, Prompt, CallToolResult, GetPromptResult };
+export type { CallToolResult, GetPromptResult,Prompt, Resource, Tool };

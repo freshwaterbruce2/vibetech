@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, RefreshCw, Code, AlertCircle } from 'lucide-react';
+import { AlertCircle,Code, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
+
 import { IconButton } from './ui/IconButton';
 
 const PreviewContainer = styled(motion.div)`

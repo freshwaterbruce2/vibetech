@@ -2,6 +2,7 @@ import { logger } from '../services/Logger';
 import { useCallback } from 'react';
 
 import { FileSystemService } from '../services/FileSystemService';
+import { logger } from '../services/Logger';
 import { useEditorStore, useFileActions } from '../stores/useEditorStore';
 import { EditorFile } from '../types';
 

@@ -1,4 +1,3 @@
-import { logger } from '../services/Logger';
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
@@ -16,12 +15,14 @@ import {
 } from 'lucide-react';
 import styled from 'styled-components';
 
+import { FileSystemService } from '../services/FileSystemService';
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 import { FileSystemItem } from '../types';
-import { FileSystemService } from '../services/FileSystemService';
-import { IconButton } from './ui/IconButton';
+
 import { ContextMenu, ContextMenuItem, useContextMenu } from './ui/ContextMenu';
 import { Dialog } from './ui/Dialog';
+import { IconButton } from './ui/IconButton';
 
 const SidebarContainer = styled.div`
   width: 280px;
@@ -370,7 +371,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleDeleteConfirm = async () => {
-    if (!onDeleteFile) return;
+    if (!onDeleteFile) {return;}
 
     try {
       await onDeleteFile(deleteDialog.filePath);
@@ -436,7 +437,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <SidebarContainer>
+    <SidebarContainer role="complementary" aria-label="Sidebar navigation">
       <SidebarSection>
         <SectionHeader>
           <FolderOpen size={14} style={{ marginRight: 8 }} />

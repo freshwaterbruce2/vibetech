@@ -1,18 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "com.vibetech.deepcode-editor",
-  "productName": "DeepCode Editor",
+  "appId": "com.vibetech.vibe-code-studio",
+  "productName": "Vibe Code Studio",
   "copyright": "Copyright © 2025 VibeTech",
   "asar": true,
   "directories": {
     "output": "release-builds",
     "buildResources": "build"
   },
-  "files": [
-    "dist/**/*",
-    "electron/**/*",
-    "package.json"
-  ],
   "extraResources": [
     {
       "from": "build/icons",
@@ -33,7 +28,6 @@
     ],
     "icon": "build/icons/icon.ico",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
-    "publisherName": "VibeTech",
     "verifyUpdateCodeSignature": false
   },
   "nsis": {
@@ -41,7 +35,7 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "DeepCode Editor",
+    "shortcutName": "Vibe Code Studio",
     "installerIcon": "build/icons/icon.ico",
     "uninstallerIcon": "build/icons/icon.ico",
     "installerHeaderIcon": "build/icons/icon.ico",
@@ -117,15 +111,7 @@
     "category": "Development",
     "synopsis": "AI-Powered Code Editor",
     "description": "Modern code editor with AI assistance, powered by DeepSeek and Monaco Editor",
-    "artifactName": "${productName}-${version}-${arch}.${ext}",
-    "desktop": {
-      "Name": "DeepCode Editor",
-      "Comment": "AI-Powered Code Editor",
-      "GenericName": "Code Editor",
-      "Keywords": "code;editor;ai;development;programming;",
-      "Categories": "Development;IDE;TextEditor;",
-      "StartupWMClass": "DeepCode Editor"
-    }
+    "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "appImage": {
     "license": "MIT"
@@ -135,12 +121,14 @@
     "depends": []
   },
   "rpm": {
-    "compression": "xz",
-    "license": "MIT"
+    "compression": "xz"
   },
   "publish": null,
   "compression": "maximum",
   "buildDependenciesFromSource": false,
   "nodeGypRebuild": false,
-  "npmRebuild": false
+  "npmRebuild": false,
+  "electronRebuild": false,
+  "beforeBuild": null,
+  "afterPack": null
 }

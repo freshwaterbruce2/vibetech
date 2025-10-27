@@ -1,4 +1,4 @@
-import { AIResponse, AIContextRequest } from '../../types';
+import { AIResponse } from '../../types';
 
 /**
  * Mock AI responses for testing
@@ -59,7 +59,7 @@ export class MockAIResponses {
             type: 'search_codebase',
             params: {
               searchQuery: 'project structure analysis',
-              workspaceRoot: workspaceRoot,
+              workspaceRoot,
               pattern: '**/*.{ts,tsx,js,jsx}',
               includeFiles: true,
               includeDirs: true
@@ -75,7 +75,7 @@ export class MockAIResponses {
           action: {
             type: 'analyze_code',
             params: {
-              workspaceRoot: workspaceRoot,
+              workspaceRoot,
               files: ['src/**/*.ts', 'src/**/*.tsx'],
               checkComplexity: true,
               checkDuplication: true
@@ -120,7 +120,7 @@ export class MockAIResponses {
             type: 'search_codebase',
             params: {
               searchQuery: 'error patterns bugs TODOs',
-              workspaceRoot: workspaceRoot,
+              workspaceRoot,
               pattern: 'TODO|FIXME|BUG|ERROR|XXX'
             }
           },
@@ -150,7 +150,7 @@ export class MockAIResponses {
             type: 'run_command',
             params: {
               command: 'npm test',
-              workspaceRoot: workspaceRoot
+              workspaceRoot
             }
           },
           requiresApproval: false,
@@ -186,7 +186,7 @@ export class MockAIResponses {
       thought: 'I should analyze these files to understand their purpose and structure',
       action: 'analyze_code',
       parameters: {
-        files: files,
+        files,
         checkComplexity: true
       },
       confidence: 0.85,
@@ -297,7 +297,7 @@ export class MockAIResponses {
  * Validate that a response matches expected schema
  */
 export function validateTaskPlan(plan: unknown): plan is TaskPlan {
-  if (typeof plan !== 'object' || plan === null) return false;
+  if (typeof plan !== 'object' || plan === null) {return false;}
 
   const p = plan as Record<string, unknown>;
 
@@ -311,7 +311,7 @@ export function validateTaskPlan(plan: unknown): plan is TaskPlan {
 }
 
 export function validateTaskStep(step: unknown): step is TaskStep {
-  if (typeof step !== 'object' || step === null) return false;
+  if (typeof step !== 'object' || step === null) {return false;}
 
   const s = step as Record<string, unknown>;
 
@@ -329,7 +329,7 @@ export function validateTaskStep(step: unknown): step is TaskStep {
 }
 
 export function validateReActThought(thought: unknown): thought is ReActThought {
-  if (typeof thought !== 'object' || thought === null) return false;
+  if (typeof thought !== 'object' || thought === null) {return false;}
 
   const t = thought as Record<string, unknown>;
 
@@ -343,7 +343,7 @@ export function validateReActThought(thought: unknown): thought is ReActThought 
 }
 
 export function validateSelfCorrection(correction: unknown): correction is SelfCorrectionStrategy {
-  if (typeof correction !== 'object' || correction === null) return false;
+  if (typeof correction !== 'object' || correction === null) {return false;}
 
   const c = correction as Record<string, unknown>;
 

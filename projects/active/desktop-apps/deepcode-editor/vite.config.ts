@@ -4,6 +4,7 @@ import { resolve } from 'path'
 import { builtinModules } from 'module'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
   // Electron: No base path needed (uses file:// protocol)
@@ -12,6 +13,20 @@ export default defineConfig({
 
   plugins: [
     react(),
+
+    // Polyfills for Node.js built-ins in browser environment
+    nodePolyfills({
+      // Enable polyfills for specific globals
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+      // Polyfill node: protocol imports
+      protocolImports: true,
+      // Include specific modules
+      include: ['crypto', 'stream', 'buffer', 'process'],
+    }),
 
     // @monaco-editor/react handles Monaco workers internally - no plugin needed
 
@@ -39,9 +54,8 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
-  
+
   define: {
-    global: 'globalThis',
     'process.env': '{}',
   },
   
@@ -63,6 +77,9 @@ export default defineConfig({
       'chromium-bidi',
       'pac-proxy-agent',
       'get-uri',
+      'puppeteer',
+      'puppeteer-core',
+      '@puppeteer/browsers',
       ...builtinModules,
       ...builtinModules.map(m => `node:${m}`)
     ]

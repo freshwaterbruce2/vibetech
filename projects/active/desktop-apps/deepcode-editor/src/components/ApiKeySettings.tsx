@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Save, TestTube, Trash2, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle,Eye, EyeOff, Save, Shield, TestTube, Trash2 } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import SecureApiKeyManager from '../utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+import { logger } from '../services/Logger';
 
 const Container = styled.div`
   padding: ${vibeTheme.spacing.lg};
@@ -327,14 +328,14 @@ const ApiKeySettings: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successes, setSuccesses] = useState<Record<string, string>>({});
 
-  const keyManager = SecureApiKeyManager.getInstance();
+  const keyManager = SecureApiKeyManager.getInstance(logger);
 
   useEffect(() => {
     loadApiKeyStatuses();
   }, []);
 
-  const loadApiKeyStatuses = () => {
-    const storedProviders = keyManager.getStoredProviders();
+  const loadApiKeyStatuses = async () => {
+    const storedProviders = await keyManager.getStoredProviders();
     const newStatuses: Record<string, ApiKeyStatus> = {};
 
     PROVIDERS.forEach(provider => {
@@ -374,11 +375,11 @@ const ApiKeySettings: React.FC = () => {
         return;
       }
 
-      const saved = keyManager.storeApiKey(provider, key);
+      const saved = await keyManager.storeApiKey(provider, key);
       if (saved) {
         setSuccesses(prev => ({ ...prev, [provider]: 'API key saved securely' }));
         setApiKeys(prev => ({ ...prev, [provider]: '' }));
-        loadApiKeyStatuses();
+        await loadApiKeyStatuses();
       } else {
         setErrors(prev => ({ ...prev, [provider]: 'Failed to save API key' }));
       }
@@ -399,7 +400,7 @@ const ApiKeySettings: React.FC = () => {
       } else {
         setErrors(prev => ({ ...prev, [provider]: 'API key test failed - key may be invalid or expired' }));
       }
-      loadApiKeyStatuses();
+      await loadApiKeyStatuses();
     } catch (error) {
       setErrors(prev => ({ ...prev, [provider]: error instanceof Error ? error.message : 'Test failed' }));
     } finally {
@@ -407,28 +408,28 @@ const ApiKeySettings: React.FC = () => {
     }
   };
 
-  const removeApiKey = (provider: string) => {
-    const removed = keyManager.removeApiKey(provider);
+  const removeApiKey = async (provider: string) => {
+    const removed = await keyManager.removeApiKey(provider);
     if (removed) {
       setSuccesses(prev => ({ ...prev, [provider]: 'API key removed' }));
-      loadApiKeyStatuses();
+      await loadApiKeyStatuses();
     } else {
       setErrors(prev => ({ ...prev, [provider]: 'Failed to remove API key' }));
     }
   };
 
   const getStatusBadge = (status: ApiKeyStatus) => {
-    if (!status.hasKey) return 'unknown';
+    if (!status.hasKey) {return 'unknown';}
     return status.isValid ? 'valid' : 'invalid';
   };
 
   const getStatusText = (status: ApiKeyStatus) => {
-    if (!status.hasKey) return 'Not configured';
+    if (!status.hasKey) {return 'Not configured';}
     return status.isValid ? 'Valid' : 'Invalid';
   };
 
   const getStatusIcon = (status: ApiKeyStatus) => {
-    if (!status.hasKey) return <AlertTriangle size={12} />;
+    if (!status.hasKey) {return <AlertTriangle size={12} />;}
     return status.isValid ? <CheckCircle size={12} /> : <AlertTriangle size={12} />;
   };
 
@@ -493,7 +494,6 @@ const ApiKeySettings: React.FC = () => {
               <Button
                 variant="primary"
                 onClick={() => saveApiKey(provider.id)}
-                disabled={!apiKeys[provider.id]?.trim()}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >

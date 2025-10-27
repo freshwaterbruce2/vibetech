@@ -2,6 +2,7 @@ import { logger } from '../services/Logger';
 import { useCallback, useState } from 'react';
 
 import { FileSystemService } from '../services/FileSystemService';
+import { logger } from '../services/Logger';
 import { EditorFile } from '../types';
 
 export interface UseFileManagerReturn {
@@ -126,7 +127,8 @@ export function useFileManager({
 
         // Update current file if we're closing it
         if (currentFile?.path === filePath) {
-          setCurrentFile(filtered.length > 0 && filtered[0] ? filtered[0] : null);
+          // Simply set to the first available file or null
+          setCurrentFile(filtered.length > 0 ? filtered[0] : null);
         }
 
         return filtered;

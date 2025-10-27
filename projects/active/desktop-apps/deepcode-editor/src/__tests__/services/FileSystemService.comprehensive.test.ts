@@ -9,10 +9,11 @@ import { FileSystemService } from '../../services/FileSystemService';
 // Mock ElectronService
 vi.mock('../../services/ElectronService', () => ({
   ElectronService: vi.fn().mockImplementation(() => ({
-    isElectron: false,
+    isElectron: vi.fn().mockReturnValue(false), // FIX: isElectron() is a function, not a property
     readFile: vi.fn(),
     writeFile: vi.fn(),
     readDirectory: vi.fn(),
+    createDirectory: vi.fn().mockResolvedValue(undefined), // FIX: Add missing createDirectory mock
   })),
 }));
 

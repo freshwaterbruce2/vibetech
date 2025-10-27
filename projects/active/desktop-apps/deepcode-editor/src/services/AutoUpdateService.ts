@@ -1,10 +1,10 @@
 /**
  * Auto-update service for keeping the application up to date
  */
-import { logger } from '../services/Logger';
-
 // Import electron types
 import '../types/electron.d';
+
+import { logger } from '../services/Logger';
 
 import { telemetry } from './TelemetryService';
 
@@ -24,7 +24,7 @@ export class AutoUpdateService {
   private updateCheckTimer?: NodeJS.Timeout | undefined;
 
   private constructor() {
-    this.enabled = import.meta.env['VITE_ENABLE_AUTO_UPDATE'] === 'true';
+    this.enabled = false; // Disabled - no update server configured
     this.currentVersion = import.meta.env['VITE_APP_VERSION'] || '1.0.0';
 
     if (this.enabled) {

@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
+
 import { vibeTheme } from '../../styles/theme';
 
 export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
@@ -14,8 +15,8 @@ const StyledLabel = styled.label<{ $required?: boolean; $disabled?: boolean; $er
   font-size: ${vibeTheme.typography.fontSize.sm};
   font-weight: ${vibeTheme.typography.fontWeight.medium};
   color: ${props => {
-    if (props.$error) return vibeTheme.colors.error;
-    if (props.$disabled) return vibeTheme.colors.textDisabled;
+    if (props.$error) {return vibeTheme.colors.error;}
+    if (props.$disabled) {return vibeTheme.colors.textDisabled;}
     return vibeTheme.colors.text;
   }};
   margin-bottom: ${vibeTheme.spacing[1]};

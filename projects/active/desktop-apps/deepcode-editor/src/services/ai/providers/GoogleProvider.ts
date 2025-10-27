@@ -2,18 +2,16 @@
  * Google Gemini Provider - Implementation for Google Gemini API integration
  */
 import { logger } from '../../../services/Logger';
-
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 import {
-  IAIProvider,
+  AIModel,
+  AIProvider,
   AIProviderConfig,
   CompletionOptions,
   CompletionResponse,
-  StreamCompletionResponse,
-  AIModel,
-  AIProvider,
-  MODEL_REGISTRY
-} from '../AIProviderInterface';
-import SecureApiKeyManager from '../../../utils/SecureApiKeyManager';
+  IAIProvider,
+  MODEL_REGISTRY,
+  StreamCompletionResponse} from '../AIProviderInterface';
 
 interface GoogleMessage {
   role: 'user' | 'model';
@@ -45,7 +43,7 @@ export class GoogleProvider implements IAIProvider {
     this.config = config;
 
     // Get API key from secure storage or config
-    const secureKeyManager = SecureApiKeyManager.getInstance();
+    const secureKeyManager = SecureApiKeyManager.getInstance(logger);
     this.apiKey = config.apiKey || await secureKeyManager.getApiKey('google') || '';
 
     if (config.baseUrl) {
@@ -138,7 +136,7 @@ export class GoogleProvider implements IAIProvider {
         choices: [{
           message: {
             role: 'assistant',
-            content: content
+            content
           },
           finishReason: this.mapFinishReason(candidate?.finishReason),
           index: 0
@@ -149,7 +147,7 @@ export class GoogleProvider implements IAIProvider {
           totalTokens: (data.usageMetadata?.promptTokenCount || 0) + (data.usageMetadata?.candidatesTokenCount || 0),
           estimatedCost: this.calculateCost(data.usageMetadata, model)
         },
-        model: model,
+        model,
         created: Math.floor(Date.now() / 1000)
       };
     } catch (error) {
@@ -214,7 +212,7 @@ export class GoogleProvider implements IAIProvider {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {break;}
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -235,12 +233,12 @@ export class GoogleProvider implements IAIProvider {
                   choices: [{
                     delta: {
                       role: 'assistant',
-                      content: content
+                      content
                     },
                     finishReason: this.mapFinishReason(candidate?.finishReason),
                     index: 0
                   }],
-                  model: model,
+                  model,
                   created: Math.floor(Date.now() / 1000)
                 };
 
@@ -294,10 +292,10 @@ export class GoogleProvider implements IAIProvider {
   }
 
   private calculateCost(usage: any, modelName?: string): number {
-    if (!usage) return 0;
+    if (!usage) {return 0;}
 
     const modelInfo = MODEL_REGISTRY[modelName || this.config.model];
-    if (!modelInfo) return 0;
+    if (!modelInfo) {return 0;}
 
     const inputCost = (usage.promptTokenCount / 1000000) * modelInfo.costPerMillionInput;
     const outputCost = (usage.candidatesTokenCount / 1000000) * modelInfo.costPerMillionOutput;

@@ -2,11 +2,12 @@
  * ModelSelectorPanel - Visual interface for model selection and cost tracking
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo,useState } from 'react';
+import { Award,ChevronDown, ChevronUp, DollarSign, TrendingUp, X, Zap } from 'lucide-react';
 import styled from 'styled-components';
-import { X, ChevronDown, ChevronUp, DollarSign, TrendingUp, Zap, Award } from 'lucide-react';
-import type { ModelRegistry, AIModel } from '../services/ModelRegistry';
+
 import type { CostTracker } from '../services/CostTracker';
+import type { AIModel,ModelRegistry } from '../services/ModelRegistry';
 
 export interface ModelSelectorPanelProps {
   modelRegistry: ModelRegistry;
@@ -62,7 +63,7 @@ export const ModelSelectorPanel: React.FC<ModelSelectorPanelProps> = ({
 
   // Get recommended model for task type
   const recommendedModel = useMemo(() => {
-    if (!taskType) return null;
+    if (!taskType) {return null;}
     return modelRegistry.getRecommendedModel(taskType);
   }, [modelRegistry, taskType]);
 

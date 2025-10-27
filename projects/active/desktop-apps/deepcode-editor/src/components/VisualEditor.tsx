@@ -9,28 +9,28 @@
  * - Lovable.dev-style interface
  */
 
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo,useState } from 'react';
 import {
-  DndContext,
-  DragOverlay,
   closestCenter,
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragStartEvent,
-  DragEndEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
   useSortable,
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Plus, Trash2, Code2, Copy, Eye, Settings, Save } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Code2, Copy, Eye, Plus, Save,Settings, Trash2 } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
@@ -124,7 +124,7 @@ const SortableItem = styled.div<{ isDragging: boolean }>`
   padding: 16px;
   border-radius: 8px;
   border: 2px solid ${props => props.isDragging ? vibeTheme.colors.cyan : vibeTheme.colors.border};
-  background: ${props => props.isDragging ? vibeTheme.colors.cyan + '10' : 'white'};
+  background: ${props => props.isDragging ? `${vibeTheme.colors.cyan  }10` : 'white'};
   cursor: move;
   position: relative;
   transition: all 0.2s;
@@ -380,7 +380,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onSave }) => {
   };
 
   const handleUpdateProperty = (key: string, value: any) => {
-    if (!selectedElement) return;
+    if (!selectedElement) {return;}
 
     setElements(
       elements.map((el) =>

@@ -2,18 +2,16 @@
  * DeepSeek Provider - Implementation for DeepSeek API integration
  */
 import { logger } from '../../../services/Logger';
-
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 import {
-  IAIProvider,
+  AIModel,
+  AIProvider,
   AIProviderConfig,
   CompletionOptions,
   CompletionResponse,
-  StreamCompletionResponse,
-  AIModel,
-  AIProvider,
-  MODEL_REGISTRY
-} from '../AIProviderInterface';
-import SecureApiKeyManager from '../../../utils/SecureApiKeyManager';
+  IAIProvider,
+  MODEL_REGISTRY,
+  StreamCompletionResponse} from '../AIProviderInterface';
 
 interface DeepSeekMessage {
   role: 'system' | 'user' | 'assistant';
@@ -45,11 +43,11 @@ export class DeepSeekProvider implements IAIProvider {
 
   async initialize(config: AIProviderConfig): Promise<void> {
     this.config = config;
-    
+
     // Get API key from secure storage or config
-    const secureKeyManager = SecureApiKeyManager.getInstance();
-    this.apiKey = config.apiKey || secureKeyManager.getApiKey('deepseek');
-    
+    const secureKeyManager = SecureApiKeyManager.getInstance(logger);
+    this.apiKey = config.apiKey || await secureKeyManager.getApiKey('deepseek');
+
     if (config.baseUrl) {
       this.baseUrl = config.baseUrl;
     }
@@ -65,8 +63,9 @@ export class DeepSeekProvider implements IAIProvider {
     }
 
     // Store the key securely if it came from config
-    if (config.apiKey && config.apiKey !== secureKeyManager.getApiKey('deepseek')) {
-      const stored = secureKeyManager.storeApiKey('deepseek', config.apiKey);
+    const currentKey = await secureKeyManager.getApiKey('deepseek');
+    if (config.apiKey && config.apiKey !== currentKey) {
+      const stored = await secureKeyManager.storeApiKey('deepseek', config.apiKey);
       if (!stored) {
         logger.warn('Failed to store DeepSeek API key securely');
       }
@@ -77,7 +76,7 @@ export class DeepSeekProvider implements IAIProvider {
 
   async complete(model: string, options: CompletionOptions): Promise<CompletionResponse> {
     const request: DeepSeekCompletionRequest = {
-      model: model,
+      model,
       messages: options.messages.filter(msg => msg.role !== 'function').map(msg => ({
         role: msg.role as 'system' | 'user' | 'assistant',
         content: msg.content
@@ -162,7 +161,7 @@ export class DeepSeekProvider implements IAIProvider {
     options: CompletionOptions
   ): AsyncGenerator<StreamCompletionResponse> {
     const request: DeepSeekCompletionRequest = {
-      model: model,
+      model,
       messages: options.messages.filter(msg => msg.role !== 'function').map(msg => ({
         role: msg.role as 'system' | 'user' | 'assistant',
         content: msg.content
@@ -204,7 +203,7 @@ export class DeepSeekProvider implements IAIProvider {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {break;}
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -287,10 +286,10 @@ export class DeepSeekProvider implements IAIProvider {
   }
 
   private calculateCost(usage: any, modelName?: string): number {
-    if (!usage) return 0;
+    if (!usage) {return 0;}
 
     const modelInfo = MODEL_REGISTRY[modelName || this.config.model];
-    if (!modelInfo) return 0;
+    if (!modelInfo) {return 0;}
 
     const inputCost = (usage.prompt_tokens / 1000000) * modelInfo.costPerMillionInput;
     const outputCost = (usage.completion_tokens / 1000000) * modelInfo.costPerMillionOutput;

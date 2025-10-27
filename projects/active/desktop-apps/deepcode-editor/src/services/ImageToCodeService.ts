@@ -9,9 +9,9 @@
  * - Iterative refinement: 2-3 passes for accuracy
  * - Puppeteer MCP integration for screenshot comparison
  */
-import { logger } from '../services/Logger';
-
 import Anthropic from '@anthropic-ai/sdk';
+
+import { logger } from '../services/Logger';
 
 export interface ImageToCodeOptions {
   framework: 'react' | 'html' | 'vue';
@@ -41,7 +41,7 @@ export class ImageToCodeService {
   constructor(apiKey: string) {
     this.apiKey = apiKey;
     this.anthropic = new Anthropic({
-      apiKey: apiKey,
+      apiKey,
     });
   }
 
@@ -261,42 +261,19 @@ Provide the improved code. ONLY code, no explanations.`,
   /**
    * Render code and capture screenshot using Puppeteer
    * Integrates with Puppeteer MCP server for screenshot comparison
+   *
+   * NOTE: Screenshot rendering is disabled in Electron renderer for security.
+   * TODO: Move to main process via IPC for proper Puppeteer integration.
    */
   private async renderAndScreenshot(
     code: string,
     framework: string
   ): Promise<string> {
-    try {
-      // Create temporary HTML file with the generated code
-      const html = this.createPreviewHTML(code, framework);
-
-      // Write to temporary file
-      const tempPath = `${process.cwd()}/temp-preview-${Date.now()}.html`;
-      const fs = await import('fs/promises');
-      await fs.writeFile(tempPath, html, 'utf-8');
-
-      // Use Puppeteer MCP to take screenshot
-      // Note: This assumes @playwright/mcp or @modelcontextprotocol/server-puppeteer is available
-      const puppeteer = await import('puppeteer');
-      const browser = await puppeteer.default.launch({ headless: true });
-      const page = await browser.newPage();
-
-      await page.setViewport({ width: 1280, height: 720 });
-      await page.goto(`file://${tempPath}`, { waitUntil: 'networkidle0' });
-
-      const screenshot = await page.screenshot({ encoding: 'base64', fullPage: true });
-
-      await browser.close();
-
-      // Cleanup temp file
-      await fs.unlink(tempPath);
-
-      return `data:image/png;base64,${screenshot}`;
-    } catch (error: any) {
-      logger.error('[ImageToCode] Screenshot capture failed:', error.message);
-      // Return empty string to skip refinement iteration
-      return '';
-    }
+    // DISABLED: Puppeteer should not be used in renderer process
+    // Puppeteer requires Node.js APIs and causes bundling issues in Electron
+    // Future implementation should use IPC to request screenshots from main process
+    logger.debug('[ImageToCode] Screenshot rendering disabled in production (requires main process IPC)');
+    return '';
   }
 
   /**
@@ -376,13 +353,13 @@ Provide the improved code. ONLY code, no explanations.`,
   private extractComponentName(code: string): string | null {
     // Try to find function/const component declaration
     const functionMatch = code.match(/function\s+([A-Z]\w*)/);
-    if (functionMatch) return functionMatch[1];
+    if (functionMatch) {return functionMatch[1];}
 
     const constMatch = code.match(/const\s+([A-Z]\w*)\s*=/);
-    if (constMatch) return constMatch[1];
+    if (constMatch) {return constMatch[1];}
 
     const exportMatch = code.match(/export\s+(?:default\s+)?(?:function|const)\s+([A-Z]\w*)/);
-    if (exportMatch) return exportMatch[1];
+    if (exportMatch) {return exportMatch[1];}
 
     return null;
   }

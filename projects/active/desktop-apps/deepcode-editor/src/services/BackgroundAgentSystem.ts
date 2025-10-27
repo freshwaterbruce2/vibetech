@@ -5,11 +5,11 @@
  * Integrates with ExecutionEngine to run real agent tasks
  */
 import { logger } from '../services/Logger';
-
-import { EventEmitter } from 'events';
-import type { ExecutionEngine, ExecutionCallbacks } from './ai/ExecutionEngine';
-import type { TaskPlanner } from './ai/TaskPlanner';
 import type { AgentTask } from '../types';
+import { EventEmitter } from '../utils/EventEmitter';
+
+import type { ExecutionCallbacks,ExecutionEngine } from './ai/ExecutionEngine';
+import type { TaskPlanner } from './ai/TaskPlanner';
 
 export interface BackgroundTask {
   id: string;
@@ -114,7 +114,7 @@ export class BackgroundAgentSystem extends EventEmitter {
    */
   cancel(taskId: string): boolean {
     const task = this.tasks.get(taskId);
-    if (!task) return false;
+    if (!task) {return false;}
 
     if (task.status === 'pending') {
       task.status = 'cancelled';
@@ -154,7 +154,7 @@ export class BackgroundAgentSystem extends EventEmitter {
 
       const onComplete = (completedTask: BackgroundTask) => {
         if (completedTask.id === taskId) {
-          if (timeoutId) clearTimeout(timeoutId);
+          if (timeoutId) {clearTimeout(timeoutId);}
           this.off('completed', onComplete);
           this.off('failed', onFailed);
           this.off('cancelled', onCancelled);
@@ -164,7 +164,7 @@ export class BackgroundAgentSystem extends EventEmitter {
 
       const onFailed = (failedTask: BackgroundTask) => {
         if (failedTask.id === taskId) {
-          if (timeoutId) clearTimeout(timeoutId);
+          if (timeoutId) {clearTimeout(timeoutId);}
           this.off('completed', onComplete);
           this.off('failed', onFailed);
           this.off('cancelled', onCancelled);
@@ -174,7 +174,7 @@ export class BackgroundAgentSystem extends EventEmitter {
 
       const onCancelled = (cancelledTask: BackgroundTask) => {
         if (cancelledTask.id === taskId) {
-          if (timeoutId) clearTimeout(timeoutId);
+          if (timeoutId) {clearTimeout(timeoutId);}
           this.off('completed', onComplete);
           this.off('failed', onFailed);
           this.off('cancelled', onCancelled);

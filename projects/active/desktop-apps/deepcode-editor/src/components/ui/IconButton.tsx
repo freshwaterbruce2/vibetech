@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import styled, { css } from 'styled-components';
 import { Loader2 } from 'lucide-react';
+import styled, { css } from 'styled-components';
 
 import { vibeTheme } from '../../styles/theme';
 

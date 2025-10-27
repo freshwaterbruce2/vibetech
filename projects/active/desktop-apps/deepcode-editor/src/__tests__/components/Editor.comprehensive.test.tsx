@@ -37,21 +37,28 @@ vi.mock('@monaco-editor/react', () => ({
         data-testid="monaco-mount-trigger"
         onClick={() => {
           const mockEditor = {
-            getValue: () => value,
-            setValue: vi.fn(),
+            updateOptions: vi.fn(),
             dispose: vi.fn(),
             getModel: () => ({
               findMatches: () => [],
               deltaDecorations: () => [],
             }),
-            focus: vi.fn(),
-            getSelection: () => null,
-            executeEdits: vi.fn(),
-            trigger: vi.fn(),
+            getValue: () => value,
+            setValue: vi.fn(),
             getPosition: () => ({ lineNumber: 1, column: 1 }),
             setPosition: vi.fn(),
-            revealLine: vi.fn(),
+            getSelection: () => null,
+            setSelection: vi.fn(),
+            focus: vi.fn(),
             onDidChangeCursorPosition: () => ({ dispose: vi.fn() }),
+            onDidChangeModelContent: () => ({ dispose: vi.fn() }),
+            deltaDecorations: () => [],
+            revealRangeInCenter: vi.fn(),
+            executeEdits: vi.fn(() => true),
+            getAction: () => ({ run: vi.fn() }),
+            addCommand: () => ({ dispose: vi.fn() }),
+            trigger: vi.fn(),
+            revealLine: vi.fn(),
           };
           onMount?.(mockEditor, {} as any);
         }}
@@ -70,11 +77,22 @@ vi.mock('../../services/ai/InlineCompletionProvider', () => ({
 }));
 
 // Mock framer-motion
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  },
-}));
+vi.mock('framer-motion', () => {
+  const createMotionComponent = (type: string) => ({ children, ...props }: any) =>
+    type === 'div' ? (
+      <div {...props}>{children}</div>
+    ) : (
+      <button {...props}>{children}</button>
+    );
+
+  return {
+    motion: {
+      div: createMotionComponent('div'),
+      button: createMotionComponent('button'),
+    },
+    AnimatePresence: ({ children }: any) => children,
+  };
+});
 
 // Mock react-hotkeys-hook
 vi.mock('react-hotkeys-hook', () => ({

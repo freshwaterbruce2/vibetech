@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect,useState } from 'react';
+import { AnimatePresence,motion } from 'framer-motion';
 import {
-  FileCode,
-  Plus,
-  Edit,
-  Trash2,
-  Download,
-  Upload,
+  AlertCircle,
   BookOpen,
   CheckCircle2,
-  AlertCircle,
-  Layers,
   Code,
+  Download,
+  Edit,
+  FileCode,
+  Layers,
+  Plus,
+  Trash2,
+  Upload,
   Zap,
 } from 'lucide-react';
 import styled from 'styled-components';
 
-import { DeepCodeRules, CodeTemplate } from '../types/customInstructions';
 import { vibeTheme } from '../styles/theme';
+import { CodeTemplate,DeepCodeRules } from '../types/customInstructions';
 
 interface CustomInstructionsPanelProps {
   workspaceRoot: string;
@@ -368,7 +368,7 @@ export const CustomInstructionsPanel: React.FC<CustomInstructionsPanelProps> = (
   );
 
   const updateNestedValue = (path: string, value: any) => {
-    if (!rules) return;
+    if (!rules) {return;}
 
     const parts = path.split('.');
     const newRules = { ...rules };

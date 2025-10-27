@@ -6,18 +6,19 @@
  * Implements Haiku 4.5 + Sonnet 4.5 ensemble (Anthropic recommended pattern)
  * Week 4: Added predictive prefetching support
  */
-import { logger } from '../../../services/Logger';
-
 import * as monaco from 'monaco-editor';
+
+import { logger } from '../../../services/Logger';
+import type { CompletionLatency } from '../../../types/analytics';
 import { UnifiedAIService } from '../UnifiedAIService';
+
 import { CompletionCache } from './CompletionCache';
 import { CompletionFetcherV2 as CompletionFetcher } from './CompletionFetcherV2';
 import { CompletionParser } from './CompletionParser';
-import { VariationGenerator } from './VariationGenerator';
 import { ModelSelector } from './ModelSelector';
 import { PredictivePrefetcher } from './PredictivePrefetcher';
-import type { CodeContext, ModelStrategy, CompletionRequest } from './types';
-import type { CompletionLatency } from '../../../types/analytics';
+import type { CodeContext, CompletionRequest,ModelStrategy } from './types';
+import { VariationGenerator } from './VariationGenerator';
 
 export class CompletionOrchestrator {
   private cache: CompletionCache;
@@ -161,8 +162,8 @@ export class CompletionOrchestrator {
     position: monaco.Position
   ): CodeContext {
     try {
-      const lineNumber = position.lineNumber;
-      const column = position.column;
+      const {lineNumber} = position;
+      const {column} = position;
 
       // Validate line number
       if (lineNumber < 1 || lineNumber > model.getLineCount()) {

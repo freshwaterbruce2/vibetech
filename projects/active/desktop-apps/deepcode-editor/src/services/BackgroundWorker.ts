@@ -3,8 +3,7 @@
  * Provides a clean API for offloading work to background threads
  */
 import { logger } from '../services/Logger';
-
-import { TaskResult, TaskProgress } from '../types/tasks';
+import { TaskProgress,TaskResult } from '@vibetech/types/tasks';
 
 export interface WorkerMessage {
   type: 'execute' | 'progress' | 'result' | 'error' | 'terminate';
@@ -112,7 +111,7 @@ export class BackgroundWorker {
   // --- Private Methods ---
 
   private setupMessageHandler(): void {
-    if (!this.worker) return;
+    if (!this.worker) {return;}
 
     this.worker.onmessage = (event: MessageEvent<WorkerMessage>) => {
       const message = event.data;

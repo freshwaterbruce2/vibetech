@@ -12,9 +12,12 @@ import { EventEmitter } from 'events';
 
 // Mock child_process
 const mockChildProcess = (): ChildProcess => {
-  const emitter = new EventEmitter();
-  return {
-    ...emitter,
+  // Create object that properly inherits from EventEmitter
+  const process = Object.create(EventEmitter.prototype) as ChildProcess;
+  EventEmitter.call(process); // Initialize EventEmitter
+
+  // Add child process specific properties
+  Object.assign(process, {
     stdout: new EventEmitter() as any,
     stderr: new EventEmitter() as any,
     stdin: {
@@ -23,11 +26,21 @@ const mockChildProcess = (): ChildProcess => {
     } as any,
     kill: vi.fn(),
     pid: Math.floor(Math.random() * 10000),
-  } as any;
+  });
+
+  return process;
 };
 
 vi.mock('child_process', () => ({
-  spawn: vi.fn(() => mockChildProcess()),
+  spawn: vi.fn(() => {
+    const process = mockChildProcess();
+    // Auto-emit stdout data and exit event to simulate real process
+    setTimeout(() => {
+      process.stdout?.emit('data', Buffer.from('test output\n'));
+      process.emit('exit', 0);
+    }, 10);
+    return process;
+  }),
 }));
 
 describe('TerminalService - Real Tests', () => {
@@ -121,23 +134,28 @@ describe('TerminalService - Real Tests', () => {
       }).not.toThrow();
     });
 
-    it('should throw error when starting shell for non-existent session', () => {
+    it('should throw error when starting shell for non-existent session', async () => {
       const onData = vi.fn();
       const onExit = vi.fn();
 
-      expect(() => {
-        terminalService.startShell('non-existent-id', onData, onExit);
-      }).toThrow('Session non-existent-id not found');
+      // startShell is async, so error becomes rejected Promise
+      await expect(
+        terminalService.startShell('non-existent-id', onData, onExit)
+      ).rejects.toThrow('Session non-existent-id not found');
     });
 
-    it('should handle shell output via onData callback', (context) => {
+    it('should handle shell output via onData callback', async () => {
       const sessionId = terminalService.createSession('/test');
       const onData = vi.fn();
       const onExit = vi.fn();
 
-      terminalService.startShell(sessionId, onData, onExit);
+      // Start shell and wait for it to spawn process
+      await terminalService.startShell(sessionId, onData, onExit);
 
-      // onData should be called (at minimum for browser fallback message)
+      // Wait for mock to emit data (10ms timeout in mock)
+      await new Promise(resolve => setTimeout(resolve, 20));
+
+      // onData should be called with stdout data from mock
       expect(onData).toHaveBeenCalled();
     });
 
@@ -157,20 +175,33 @@ describe('TerminalService - Real Tests', () => {
       // In browser mode (fallback), it won't spawn process
     });
 
-    it('should handle shell errors gracefully', () => {
+    it('should handle shell errors gracefully', async () => {
       const sessionId = terminalService.createSession('/test');
       const onData = vi.fn();
       const onExit = vi.fn();
 
-      terminalService.startShell(sessionId, onData, onExit);
+      // Start shell (will spawn process that emits data and exits)
+      await terminalService.startShell(sessionId, onData, onExit);
 
-      // Simulate process error
-      if (mockProcess) {
-        mockProcess.emit('error', new Error('Shell spawn failed'));
+      // Wait for mock to emit data (10ms timeout in mock)
+      await new Promise(resolve => setTimeout(resolve, 20));
+
+      // Verify no errors thrown - shell handles errors via onData callback
+      expect(onData).toHaveBeenCalled();
+
+      // Get the process from the session to test error handling
+      const sessions = terminalService.getSessions();
+      const session = sessions.find(s => s.id === sessionId);
+      if (session?.process) {
+        // Emit error on the actual process
+        session.process.emit('error', new Error('Shell spawn failed'));
+        // Should call onData with error message (next tick)
+        await new Promise(resolve => setTimeout(resolve, 20));
+        const errorCalls = onData.mock.calls.filter(call =>
+          call[0].includes('Error:')
+        );
+        expect(errorCalls.length).toBeGreaterThan(0);
       }
-
-      // Error should be handled via onData
-      // In real Electron mode, this would call onData with error message
     });
   });
 

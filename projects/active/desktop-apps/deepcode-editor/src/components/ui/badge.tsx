@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
+
 import { vibeTheme } from '../../styles/theme';
 
 export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'outline';

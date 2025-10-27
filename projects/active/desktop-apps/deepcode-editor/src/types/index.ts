@@ -400,3 +400,7 @@ export interface NotificationOptions {
 
 // Re-export agent types
 export * from './agent';
+
+// Note: @vibetech/types (tasks, errorfix, multifile) should be imported directly
+// from '@vibetech/types/tasks', '@vibetech/types/errorfix', or '@vibetech/types/multifile'
+// to avoid naming conflicts with agent.ts types

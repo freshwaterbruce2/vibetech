@@ -48,6 +48,18 @@ describe('Agent Mode V2 Integration', () => {
     workspaceService = {
       searchFiles: vi.fn().mockResolvedValue([]),
       analyzeFile: vi.fn().mockResolvedValue({}),
+      getWorkspaceContext: vi.fn().mockResolvedValue({
+        rootPath: '/test/workspace',
+        totalFiles: 0,
+        languages: [],
+        testFiles: 0,
+        projectStructure: {},
+        dependencies: {},
+        exports: {},
+        symbols: {},
+        lastIndexed: new Date(),
+        summary: 'Test workspace'
+      }),
     } as any;
 
     gitService = {

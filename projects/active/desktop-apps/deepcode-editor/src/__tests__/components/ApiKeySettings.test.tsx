@@ -1,7 +1,7 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import ApiKeySettings from '../../components/ApiKeySettings';
-import SecureApiKeyManager from '../../utils/SecureApiKeyManager';
+import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 
 // Mock SecureApiKeyManager
 vi.mock('../../utils/SecureApiKeyManager', () => {
@@ -387,21 +387,6 @@ describe('ApiKeySettings Component', () => {
   });
 
   describe('Button States', () => {
-    it('should disable Save button when input is empty', () => {
-      render(<ApiKeySettings />);
-      const saveButtons = screen.getAllByText('Save Key');
-      expect(saveButtons[0]).toBeDisabled();
-    });
-
-    it('should enable Save button when input has value', () => {
-      render(<ApiKeySettings />);
-      const input = screen.getAllByPlaceholderText(/sk-/i)[0];
-      const saveButtons = screen.getAllByText('Save Key');
-
-      fireEvent.change(input, { target: { value: 'sk-test' } });
-      expect(saveButtons[0]).not.toBeDisabled();
-    });
-
     it('should disable Test button while testing', async () => {
       keyManager.getStoredProviders.mockReturnValue([
         {

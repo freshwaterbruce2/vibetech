@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useCallback,useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import {
   Filter,
@@ -13,9 +13,9 @@ import {
 } from 'lucide-react';
 import styled from 'styled-components';
 
-import { DependencyGraphService } from '../services/DependencyGraphService';
-import type { DependencyGraph, GraphNode, GraphLink } from '../services/DependencyGraphService';
 import type { InternalDependency } from '../services/CodebaseAnalyzer';
+import type { DependencyGraph, GraphLink,GraphNode } from '../services/DependencyGraphService';
+import { DependencyGraphService } from '../services/DependencyGraphService';
 import { vibeTheme } from '../styles/theme';
 
 const PanelContainer = styled.div<{ fullscreen?: boolean }>`
@@ -241,7 +241,7 @@ export const CodebaseMapPanel: React.FC<CodebaseMapPanelProps> = ({
 
   // D3 visualization
   useEffect(() => {
-    if (!svgRef.current || filteredGraph.nodes.length === 0) return;
+    if (!svgRef.current || filteredGraph.nodes.length === 0) {return;}
 
     const svg = d3.select(svgRef.current);
     const width = svgRef.current.clientWidth;
@@ -356,7 +356,7 @@ export const CodebaseMapPanel: React.FC<CodebaseMapPanelProps> = ({
 
     // Drag functions
     function dragstarted(event: any) {
-      if (!event.active) simulation.alphaTarget(0.3).restart();
+      if (!event.active) {simulation.alphaTarget(0.3).restart();}
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
     }
@@ -367,7 +367,7 @@ export const CodebaseMapPanel: React.FC<CodebaseMapPanelProps> = ({
     }
 
     function dragended(event: any) {
-      if (!event.active) simulation.alphaTarget(0);
+      if (!event.active) {simulation.alphaTarget(0);}
       event.subject.fx = null;
       event.subject.fy = null;
     }

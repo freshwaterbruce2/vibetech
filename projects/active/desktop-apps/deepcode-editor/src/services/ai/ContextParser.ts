@@ -2,7 +2,6 @@
  * ContextParser - Parse @file, @folder references from user messages (Cursor-style)
  */
 import { logger } from '../../services/Logger';
-
 import { FileSystemService } from '../FileSystemService';
 
 export interface ParsedContext {

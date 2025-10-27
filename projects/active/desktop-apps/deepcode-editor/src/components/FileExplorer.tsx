@@ -1,4 +1,3 @@
-import { logger } from '../services/Logger';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ChevronDown,
@@ -12,6 +11,7 @@ import {
 } from 'lucide-react';
 import styled from 'styled-components';
 
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 
 import { VirtualList } from './VirtualList';

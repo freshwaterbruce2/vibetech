@@ -2,9 +2,10 @@
  * AutoFixService - Generate AI-powered fixes for errors
  * Updated Oct 20, 2025: Smart model selection with October 2025 AI models
  */
+import * as monaco from 'monaco-editor';
+
 import { logger } from '../services/Logger';
 
-import * as monaco from 'monaco-editor';
 import { ModelRegistry } from './ModelRegistry';
 
 export interface DetectedError {
@@ -192,7 +193,7 @@ export class AutoFixService {
       });
       response = aiResponse.content;
     } catch (err) {
-      throw new Error('AI service error: ' + (err as Error).message);
+      throw new Error(`AI service error: ${  (err as Error).message}`);
     }
 
     // Calculate generation time

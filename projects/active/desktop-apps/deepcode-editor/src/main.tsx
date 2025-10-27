@@ -40,21 +40,20 @@ self.MonacoEnvironment = {
 loader.config({ monaco });
 logger.debug('✅ Monaco Editor configured with Vite workers (Tauri-compatible mode)');
 
-// Use production or development error boundary based on environment
-const ErrorBoundary = import.meta.env.PROD
-  ? ProductionErrorBoundary
-  : (await import('./components/ErrorBoundary/index')).ModernErrorBoundary;
+// Use production error boundary (no dynamic imports to avoid blocking)
+const ErrorBoundary = ProductionErrorBoundary;
 
 // Initialize the app with error boundary
 const root = document.getElementById('root');
-if (root) {
-  ReactDOM.createRoot(root).render(
-    <React.StrictMode>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </React.StrictMode>
-  );
-} else {
-  logger.error('Root element not found!');
+
+if (!root) {
+  throw new Error('Root element #root not found in DOM!');
 }
+
+ReactDOM.createRoot(root).render(
+  <React.StrictMode>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  </React.StrictMode>
+);

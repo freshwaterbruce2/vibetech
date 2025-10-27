@@ -1,9 +1,10 @@
 /**
  * Performance Agent - Specialized in performance analysis and optimization
  */
-import { BaseSpecializedAgent, AgentCapability, AgentContext, AgentResponse } from './BaseSpecializedAgent';
-import { DeepSeekService } from '../DeepSeekService';
 import { logger } from '../../utils/logger';
+import { DeepSeekService } from '../DeepSeekService';
+
+import { AgentCapability, AgentContext, AgentResponse,BaseSpecializedAgent } from './BaseSpecializedAgent';
 
 export interface PerformanceAnalysis {
   metrics: {

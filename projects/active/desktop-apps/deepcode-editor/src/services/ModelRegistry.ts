@@ -269,7 +269,7 @@ export class ModelRegistry {
    */
   calculateCost(modelId: string, inputTokens: number, outputTokens: number): number {
     const model = this.getModel(modelId);
-    if (!model) return 0;
+    if (!model) {return 0;}
 
     const inputCost = (inputTokens / 1000) * model.pricing.inputCostPer1k;
     const outputCost = (outputTokens / 1000) * model.pricing.outputCostPer1k;
@@ -388,7 +388,7 @@ export class ModelRegistry {
       return cost <= maxCost;
     });
 
-    if (affordable.length === 0) return null;
+    if (affordable.length === 0) {return null;}
 
     // Return highest quality within budget
     return affordable.sort((a, b) => b.performance.quality - a.performance.quality)[0];
@@ -399,7 +399,7 @@ export class ModelRegistry {
    */
   selectFastest(capability: string): AIModel | null {
     const models = this.listModelsByCapability(capability);
-    if (models.length === 0) return null;
+    if (models.length === 0) {return null;}
 
     return models.sort((a, b) => b.performance.speed - a.performance.speed)[0];
   }
@@ -409,7 +409,7 @@ export class ModelRegistry {
    */
   selectHighestQuality(capability: string): AIModel | null {
     const models = this.listModelsByCapability(capability);
-    if (models.length === 0) return null;
+    if (models.length === 0) {return null;}
 
     return models.sort((a, b) => b.performance.quality - a.performance.quality)[0];
   }

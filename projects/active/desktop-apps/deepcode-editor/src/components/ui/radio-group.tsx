@@ -1,5 +1,6 @@
-import React, { forwardRef, createContext, useContext } from 'react';
+import React, { createContext, forwardRef, useContext } from 'react';
 import styled from 'styled-components';
+
 import { vibeTheme } from '../../styles/theme';
 
 interface RadioGroupContextValue {
@@ -33,7 +34,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
     const currentValue = value !== undefined ? value : internalValue;
 
     const handleValueChange = (newValue: string) => {
-      if (disabled) return;
+      if (disabled) {return;}
       if (value === undefined) {
         setInternalValue(newValue);
       }

@@ -1,4 +1,3 @@
-import { logger } from '../services/Logger';
 import React, { useState } from 'react';
 import {
   Command,
@@ -6,7 +5,9 @@ import {
   FileText,
   FolderOpen,
   HelpCircle,
+  Image,
   Info,
+  ListTodo,
   Menu,
   Minimize2,
   Search,
@@ -19,7 +20,9 @@ import {
 import styled from 'styled-components';
 
 import { ElectronService } from '../services/ElectronService';
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
+
 import { DropdownMenu, DropdownMenuItem } from './ui/DropdownMenu';
 
 const TitleBarContainer = styled.div`
@@ -197,9 +200,11 @@ interface TitleBarProps {
   onOpenFolder?: () => void;
   onSaveAll?: () => void;
   onCloseFolder?: () => void;
+  onScreenshotToCode?: () => void;
   onToggleSidebar?: () => void;
   onToggleAIChat?: () => void;
   onTogglePreview?: () => void;
+  onToggleBackgroundPanel?: () => void;
   previewOpen?: boolean;
   children?: React.ReactNode;
 }
@@ -210,9 +215,11 @@ const TitleBar: React.FC<TitleBarProps> = ({
   onOpenFolder,
   onSaveAll,
   onCloseFolder,
+  onScreenshotToCode,
   onToggleSidebar,
   onToggleAIChat,
   onTogglePreview,
+  onToggleBackgroundPanel,
   previewOpen,
   children,
 }) => {
@@ -302,6 +309,20 @@ const TitleBar: React.FC<TitleBarProps> = ({
           icon: <Eye size={16} />,
           shortcut: 'Ctrl+Shift+V',
           onClick: onTogglePreview,
+        },
+        {
+          id: 'view-screenshot-to-code',
+          label: 'Screenshot to Code',
+          icon: <Image size={16} />,
+          shortcut: 'Ctrl+Shift+I',
+          onClick: onScreenshotToCode,
+        },
+        {
+          id: 'view-background-tasks',
+          label: 'Background Tasks',
+          icon: <ListTodo size={16} />,
+          shortcut: 'Ctrl+Shift+T',
+          onClick: onToggleBackgroundPanel,
         },
         { id: 'divider-4', label: '', divider: true },
         {

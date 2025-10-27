@@ -1,0 +1,28 @@
+# Build outputs
+**/dist/
+**/build/
+**/dist-electron/
+**/.next/
+**/.nuxt/
+**/.output/
+**/.vite/
+**/.turbo/
+
+# Dependencies
+**/node_modules/
+
+# Cache directories
+**/.cache/
+**/.temp/
+
+# Test coverage
+**/coverage/
+
+# Generated files
+**/.docusaurus/
+**/public/build/
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock

@@ -1,4 +1,3 @@
-import { logger } from '../services/Logger';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -9,8 +8,10 @@ import {
 } from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
 
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 import { WorkspaceContext } from '../types';
+
 import { InputDialog } from './InputDialog';
 
 interface WelcomeScreenProps {

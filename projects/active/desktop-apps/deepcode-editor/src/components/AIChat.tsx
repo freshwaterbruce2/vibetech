@@ -1,11 +1,12 @@
-import { logger } from '../services/Logger';
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bot, Copy, Send, ThumbsDown, ThumbsUp, User, X, Zap, Play, FileEdit, CheckCircle2, XCircle, Loader2, AlertCircle, Shield } from 'lucide-react';
+import { AlertCircle, Bot, CheckCircle2, Copy, FileEdit, Loader2, Play, Send, Shield,ThumbsDown, ThumbsUp, User, X, XCircle, Zap } from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
 
+import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
-import { AIMessage, AgentTask, AgentStep, StepStatus, ApprovalRequest } from '../types';
+import { AgentStep, AgentTask, AIMessage, ApprovalRequest,StepStatus } from '../types';
+
 import SecureMessageContent from './SecureMessageContent';
 
 const pulse = keyframes`
@@ -550,12 +551,6 @@ const ApprovalPromptCompact = styled(motion.div)`
   border-radius: ${vibeTheme.borderRadius.small};
 `;
 
-const ApprovalActionsCompact = styled.div`
-  display: flex;
-  gap: ${vibeTheme.spacing.xs};
-  margin-top: ${vibeTheme.spacing.xs};
-`;
-
 const ApprovalButton = styled(motion.button)<{ $variant: 'approve' | 'reject' }>`
   flex: 1;
   padding: 6px 12px;
@@ -596,9 +591,11 @@ const MemoizedStepCard = memo<MemoizedStepCardProps>(
         $status={step.status}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
+        data-testid="step-card"
+        data-status={step.status}
       >
         <StepHeaderCompact>
-          <StepIconCompact $status={step.status}>
+          <StepIconCompact $status={step.status} data-testid="step-status" data-status={step.status}>
             {getStepIcon(step.status)}
           </StepIconCompact>
           <StepTitleCompact>{step.title}</StepTitleCompact>
@@ -654,6 +651,7 @@ const MemoizedStepCard = memo<MemoizedStepCardProps>(
                         )}
                       </div>
                       <div
+                        data-testid="synthesis-content"
                         style={{
                           fontSize: isSynthesis ? '13px' : '12px',
                           whiteSpace: 'pre-wrap',
@@ -841,7 +839,7 @@ const AIChat: React.FC<AIChatProps> = ({
   };
 
   useEffect(() => {
-    if (!isResizing) return;
+    if (!isResizing) {return;}
 
     const handleResizeMove = (e: MouseEvent) => {
       const deltaX = resizeStartX.current - e.clientX; // Subtract because we're dragging from right edge
@@ -1135,14 +1133,14 @@ const AIChat: React.FC<AIChatProps> = ({
 
   // Render compact agent task visualization
   const renderAgentTask = (message: AIMessage) => {
-    if (!message.agentTask) return null;
+    if (!message.agentTask) {return null;}
 
     const { task, pendingApproval } = message.agentTask;
     const completedSteps = task.steps.filter(s => s.status === 'completed').length;
     const progress = (completedSteps / task.steps.length) * 100;
 
     return (
-      <div>
+      <div data-testid="agent-task">
         <TaskProgressBar>
           <TaskProgressFill
             $progress={progress}
@@ -1183,6 +1181,8 @@ const AIChat: React.FC<AIChatProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             title="Chat Mode: Conversational AI assistance"
+            data-testid="mode-chat"
+            className={mode === 'chat' ? 'active' : ''}
           >
             Chat
           </ModeButton>
@@ -1192,6 +1192,8 @@ const AIChat: React.FC<AIChatProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             title="Agent Mode: Autonomous task execution"
+            data-testid="mode-agent"
+            className={mode === 'agent' ? 'active' : ''}
           >
             Agent
           </ModeButton>
@@ -1325,6 +1327,7 @@ const AIChat: React.FC<AIChatProps> = ({
             id="ai-chat-input"
             name="aiChatMessage"
             aria-label="AI chat message input"
+            data-testid="chat-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}

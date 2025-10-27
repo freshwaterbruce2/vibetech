@@ -4,8 +4,7 @@
  * Provides task state persistence and resumption capabilities for long-running Agent Mode tasks
  */
 import { logger } from '../../services/Logger';
-
-import { AgentTask, AgentStep } from '../../types';
+import { AgentStep,AgentTask } from '../../types';
 import { FileSystemService } from '../FileSystemService';
 
 export interface PersistedTask {
@@ -140,7 +139,7 @@ export class TaskPersistence {
 
   private async loadFromLocalStorage(): Promise<PersistedTask[]> {
     const stored = localStorage.getItem(TaskPersistence.TASK_STORAGE_KEY);
-    if (!stored) return [];
+    if (!stored) {return [];}
     
     try {
       return JSON.parse(stored);
@@ -154,7 +153,7 @@ export class TaskPersistence {
   }
 
   private async saveToFileSystem(task: PersistedTask): Promise<void> {
-    if (!this.fileSystemService) throw new Error('FileSystemService not available');
+    if (!this.fileSystemService) {throw new Error('FileSystemService not available');}
     
     const tasksDir = '.deepcode/agent-tasks';
     const taskFile = `${tasksDir}/${task.id}.json`;
@@ -170,7 +169,7 @@ export class TaskPersistence {
   }
 
   private async loadFromFileSystem(): Promise<PersistedTask[]> {
-    if (!this.fileSystemService) throw new Error('FileSystemService not available');
+    if (!this.fileSystemService) {throw new Error('FileSystemService not available');}
     
     const tasksDir = '.deepcode/agent-tasks';
     
@@ -198,7 +197,7 @@ export class TaskPersistence {
   }
 
   private async saveAllToFileSystem(tasks: PersistedTask[]): Promise<void> {
-    if (!this.fileSystemService) throw new Error('FileSystemService not available');
+    if (!this.fileSystemService) {throw new Error('FileSystemService not available');}
     
     const tasksDir = '.deepcode/agent-tasks';
     

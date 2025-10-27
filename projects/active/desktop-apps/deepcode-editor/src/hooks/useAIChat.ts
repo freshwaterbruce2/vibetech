@@ -1,7 +1,7 @@
-import { logger } from '../services/Logger';
-import { useCallback, useState, startTransition } from 'react';
+import { startTransition,useCallback, useState } from 'react';
 
 import { UnifiedAIService } from '../services/ai/UnifiedAIService';
+import { logger } from '../services/Logger';
 import { AIContextRequest, AIMessage, EditorFile, WorkspaceContext } from '../types';
 
 export interface UseAIChatReturn {
@@ -122,12 +122,12 @@ Let's build something amazing together!`,
           conversationHistory: [],
           currentFile: currentFile || undefined,
           userActivity: {
-            openFiles: openFiles,
-            sidebarOpen: sidebarOpen,
-            previewOpen: previewOpen,
-            aiChatOpen: aiChatOpen,
+            openFiles,
+            sidebarOpen,
+            previewOpen,
+            aiChatOpen,
             recentFiles: openFiles.slice(0, 5).map(f => f.name),
-            workspaceFolder: workspaceFolder,
+            workspaceFolder,
           },
           ...contextRequest,
         };

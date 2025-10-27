@@ -10,9 +10,10 @@
  * - Adaptive learning from user behavior
  * - Resource-aware throttling
  */
+import * as monaco from 'monaco-editor';
+
 import { logger } from '../../../services/Logger';
 
-import * as monaco from 'monaco-editor';
 import { CompletionOrchestrator } from './CompletionOrchestrator';
 import { PatternLearner } from './PatternLearner';
 import { PrefetchCache } from './PrefetchCache';

@@ -6,10 +6,10 @@
  * Supports Claude Haiku 4.5 + Sonnet 4.5 ensemble (2025 best practice)
  */
 import { logger } from '../../../services/Logger';
-
-import { UnifiedAIService } from '../UnifiedAIService';
-import type { CodeContext, CompletionResponse, FetcherOptions } from './types';
 import type { AIContextRequest } from '../../../types';
+import { UnifiedAIService } from '../UnifiedAIService';
+
+import type { CodeContext, CompletionResponse, FetcherOptions } from './types';
 
 const DEFAULT_OPTIONS: FetcherOptions = {
   streaming: false,

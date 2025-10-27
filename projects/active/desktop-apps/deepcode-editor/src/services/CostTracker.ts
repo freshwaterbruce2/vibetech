@@ -149,7 +149,7 @@ export class CostTracker {
    * Check if over budget
    */
   isOverBudget(): boolean {
-    if (this.budget === null) return false;
+    if (this.budget === null) {return false;}
     return this.getTotalCost() > this.budget;
   }
 
@@ -157,7 +157,7 @@ export class CostTracker {
    * Get remaining budget
    */
   getRemainingBudget(): number {
-    if (this.budget === null) return Infinity;
+    if (this.budget === null) {return Infinity;}
     return Math.max(0, this.budget - this.getTotalCost());
   }
 
@@ -165,7 +165,7 @@ export class CostTracker {
    * Get budget usage percentage
    */
   getBudgetUsagePercentage(): number {
-    if (this.budget === null || this.budget === 0) return 0;
+    if (this.budget === null || this.budget === 0) {return 0;}
     return (this.getTotalCost() / this.budget) * 100;
   }
 
@@ -190,7 +190,7 @@ export class CostTracker {
    * Get most used model
    */
   getMostUsedModel(): string | null {
-    if (this.entries.length === 0) return null;
+    if (this.entries.length === 0) {return null;}
 
     const counts: Record<string, number> = {};
 
@@ -215,7 +215,7 @@ export class CostTracker {
    * Get most expensive model
    */
   getMostExpensiveModel(): string | null {
-    if (this.entries.length === 0) return null;
+    if (this.entries.length === 0) {return null;}
 
     const costs: Record<string, number> = {};
 
