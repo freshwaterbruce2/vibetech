@@ -98,16 +98,6 @@ contextBridge.exposeInMainWorld('electron', {
     get: async (key) => {
       return await ipcRenderer.invoke('storage:get', key);
     },
-
-  // Database operations
-  db: {
-    query: async (sql, params = []) => {
-      return await ipcRenderer.invoke('db:query', sql, params);
-    },
-    initialize: async () => {
-      return await ipcRenderer.invoke('db:initialize');
-    },
-  },
     set: async (key, value) => {
       return await ipcRenderer.invoke('storage:set', key, value);
     },
@@ -116,6 +106,16 @@ contextBridge.exposeInMainWorld('electron', {
     },
     keys: async () => {
       return await ipcRenderer.invoke('storage:keys');
+    },
+  },
+
+  // Database operations
+  db: {
+    query: async (sql, params = []) => {
+      return await ipcRenderer.invoke('db:query', sql, params);
+    },
+    initialize: async () => {
+      return await ipcRenderer.invoke('db:initialize');
     },
   },
 

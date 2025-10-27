@@ -52,3 +52,24 @@ export interface AICodeContext {
   position: { line: number; column: number };
   fileName?: string;
 }
+
+// Agent task execution types
+export interface AgentAction {
+  type: string;
+  params: Record<string, any>;
+}
+
+export interface AgentResult {
+  success: boolean;
+  data?: {
+    thought?: string;
+    [key: string]: any;
+  };
+  error?: string;
+}
+
+export interface AgentStep {
+  action: AgentAction;
+  description?: string;
+  result?: AgentResult;
+}

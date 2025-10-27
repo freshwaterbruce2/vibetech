@@ -9,11 +9,13 @@ export default defineConfig({
    * Builds electron/main.cjs (Electron main process)
    */
   main: {
+    plugins: [externalizeDepsPlugin({ exclude: ['better-sqlite3'] })],
     build: {
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'electron/main.ts')
-        }
+        },
+        external: ['better-sqlite3']
       }
     }
   },

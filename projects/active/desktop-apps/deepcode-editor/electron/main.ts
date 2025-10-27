@@ -5,7 +5,7 @@
  * Architecture: Cursor/VS Code style (Electron + Monaco Editor)
  */
 
-import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, session } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { exec } from 'child_process';
@@ -110,9 +110,45 @@ function createWindow() {
 }
 
 /**
+ * Configure Content Security Policy
+ * This is the recommended approach for Electron apps (vs meta tags in HTML)
+ */
+function setupCSP() {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-eval'", // Monaco Editor needs unsafe-eval for AMD loader
+            "style-src 'self' 'unsafe-inline'", // styled-components needs unsafe-inline
+            "img-src 'self' data: blob: https:",
+            "font-src 'self' data: https://r2cdn.perplexity.ai",
+            "connect-src 'self' http://localhost:* ws://localhost:* http://ipc.localhost ipc: https://ipc.localhost https://api.deepseek.com https://api.openai.com https://api.anthropic.com wss: ws: tauri:",
+            "media-src 'self' blob:",
+            "worker-src 'self' blob: data:", // Monaco Editor web workers
+            "child-src 'self' blob:",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "frame-ancestors 'none'"
+          ].join('; ')
+        ]
+      }
+    });
+  });
+
+  console.log('[Electron] Content Security Policy configured');
+}
+
+/**
  * App lifecycle events
  */
 app.whenReady().then(() => {
+  // Configure CSP before creating windows
+  setupCSP();
+
   // Initialize database
   const dbInit = dbHandler.initializeDatabase();
   if (!dbInit.success) {

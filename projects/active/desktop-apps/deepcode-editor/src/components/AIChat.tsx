@@ -52,9 +52,10 @@ const ChatContainer = styled.div<{ $width: number; $mode: ChatMode }>`
     height: 100%;
     background: ${props => {
       switch (props.$mode) {
-        case 'agent': return 'linear-gradient(180deg, rgba(139, 92, 246, 0.8), rgba(139, 92, 246, 0.2))';
-        case 'composer': return 'linear-gradient(180deg, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.2))';
-        default: return vibeTheme.gradients.border;
+        case 'agent': return vibeTheme.colors.cyan;
+        case 'composer': return vibeTheme.colors.orange;
+        case 'chat': return vibeTheme.colors.purple;
+        default: return vibeTheme.colors.purple;
       }
     }};
     opacity: ${props => props.$mode !== 'chat' ? 1 : 0.6};
@@ -330,8 +331,8 @@ const InputContainer = styled.div`
   border-top: 2px solid rgba(139, 92, 246, 0.2);
   background: linear-gradient(
     135deg,
-    ${vibeTheme.colors.primary} 0%,
-    ${vibeTheme.colors.secondary} 100%
+    rgba(26, 26, 46, 0.95) 0%,
+    rgba(31, 31, 51, 0.95) 100%
   );
   position: relative;
 
@@ -578,13 +579,138 @@ export type ChatMode = 'chat' | 'agent' | 'composer';
 // Memoized step card component to improve rendering performance
 interface MemoizedStepCardProps {
   step: AgentStep;
-  pendingApproval: ApprovalRequest | null;
+  pendingApproval: ApprovalRequest | null | undefined;
   getStepIcon: (status: StepStatus) => React.ReactElement;
   handleApproval?: (stepId: string, approved: boolean) => void;
 }
 
 const MemoizedStepCard = memo<MemoizedStepCardProps>(
   ({ step, pendingApproval, getStepIcon, handleApproval }) => {
+    // Helper to render step result
+    const renderStepResult = () => {
+      if (step.status !== 'completed' || !step.result?.data) {
+        return null;
+      }
+
+      const {data} = step.result;
+      
+      // Type guard to ensure data is an object with the expected properties
+      if (!data || typeof data !== 'object') {
+        return null;
+      }
+      
+      const typedData = data as {
+        generatedCode?: string;
+        content?: string;
+        filePath?: string;
+        isSynthesis?: boolean;
+      };
+      
+      const isSynthesis = typedData.isSynthesis === true;
+
+      return (
+        <div
+          style={{
+            marginTop: '8px',
+            padding: '12px',
+            background: 'rgba(0,0,0,0.2)',
+            borderRadius: '6px',
+            borderLeft: '3px solid rgba(139, 92, 246, 0.5)',
+          }}
+        >
+          {/* Display AI Review/Synthesis */}
+          {typedData.generatedCode && (
+            <div>
+              <div
+                style={{
+                  marginBottom: '8px',
+                  fontWeight: 700,
+                  fontSize: isSynthesis ? '14px' : '13px',
+                  color: isSynthesis ? '#a78bfa' : '#8b5cf6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                {isSynthesis ? '✨ Comprehensive Review Summary' : '🤖 AI Review'}
+                {isSynthesis && (
+                  <span
+                    style={{
+                      background: 'rgba(139, 92, 246, 0.3)',
+                      padding: '2px 6px',
+                      borderRadius: '10px',
+                      fontSize: '10px',
+                      fontWeight: 500,
+                    }}
+                  >
+                    AUTO-GENERATED
+                  </span>
+                )}
+              </div>
+              <div
+                data-testid="synthesis-content"
+                style={{
+                  fontSize: isSynthesis ? '13px' : '12px',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.6',
+                  background: isSynthesis
+                    ? 'rgba(139, 92, 246, 0.15)'
+                    : 'rgba(139, 92, 246, 0.1)',
+                  padding: isSynthesis ? '12px' : '10px',
+                  borderRadius: '4px',
+                  border: isSynthesis
+                    ? '2px solid rgba(139, 92, 246, 0.5)'
+                    : '1px solid rgba(139, 92, 246, 0.3)',
+                  boxShadow: isSynthesis
+                    ? '0 4px 16px rgba(139, 92, 246, 0.2)'
+                    : 'none',
+                  maxHeight: isSynthesis ? '600px' : '300px',
+                  overflow: 'auto',
+                }}
+              >
+                {typedData.generatedCode}
+              </div>
+            </div>
+          )}
+
+          {/* Display file content (collapsed by default) */}
+          {typedData.content && !typedData.generatedCode && (
+            <details style={{ marginTop: '8px' }}>
+              <summary
+                style={{
+                  cursor: 'pointer',
+                  color: '#10b981',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  marginBottom: '6px',
+                }}
+              >
+                📄 File Content ({typedData.filePath || 'file'})
+              </summary>
+              <pre
+                style={{
+                  fontSize: '11px',
+                  whiteSpace: 'pre-wrap',
+                  background: 'rgba(0,0,0,0.3)',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                  marginTop: '6px',
+                }}
+              >
+                {typeof typedData.content === 'string'
+                  ? typedData.content.slice(0, 2000)
+                  : JSON.stringify(typedData.content).slice(0, 2000)}
+                {(typeof typedData.content === 'string' ? typedData.content : JSON.stringify(typedData.content))
+                  .length > 2000 && '\n... (truncated)'}
+              </pre>
+            </details>
+          )}
+        </div>
+      );
+    };
+
     return (
       <CompactStepCard
         key={step.id}
@@ -605,116 +731,7 @@ const MemoizedStepCard = memo<MemoizedStepCardProps>(
         )}
 
         {/* Show step results if completed */}
-        {step.status === 'completed' && step.result?.data && (
-          <div
-            style={{
-              marginTop: '8px',
-              padding: '12px',
-              background: 'rgba(0,0,0,0.2)',
-              borderRadius: '6px',
-              borderLeft: '3px solid rgba(139, 92, 246, 0.5)',
-            }}
-          >
-            {(() => {
-              const data = step.result!.data as any;
-              const isSynthesis = data.isSynthesis === true;
-
-              return (
-                <>
-                  {/* Display AI Review/Synthesis */}
-                  {data.generatedCode && (
-                    <div>
-                      <div
-                        style={{
-                          marginBottom: '8px',
-                          fontWeight: 700,
-                          fontSize: isSynthesis ? '14px' : '13px',
-                          color: isSynthesis ? '#a78bfa' : '#8b5cf6',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                        }}
-                      >
-                        {isSynthesis ? '✨ Comprehensive Review Summary' : '🤖 AI Review'}
-                        {isSynthesis && (
-                          <span
-                            style={{
-                              background: 'rgba(139, 92, 246, 0.3)',
-                              padding: '2px 6px',
-                              borderRadius: '10px',
-                              fontSize: '10px',
-                              fontWeight: 500,
-                            }}
-                          >
-                            AUTO-GENERATED
-                          </span>
-                        )}
-                      </div>
-                      <div
-                        data-testid="synthesis-content"
-                        style={{
-                          fontSize: isSynthesis ? '13px' : '12px',
-                          whiteSpace: 'pre-wrap',
-                          lineHeight: '1.6',
-                          background: isSynthesis
-                            ? 'rgba(139, 92, 246, 0.15)'
-                            : 'rgba(139, 92, 246, 0.1)',
-                          padding: isSynthesis ? '12px' : '10px',
-                          borderRadius: '4px',
-                          border: isSynthesis
-                            ? '2px solid rgba(139, 92, 246, 0.5)'
-                            : '1px solid rgba(139, 92, 246, 0.3)',
-                          boxShadow: isSynthesis
-                            ? '0 4px 16px rgba(139, 92, 246, 0.2)'
-                            : 'none',
-                          maxHeight: isSynthesis ? '600px' : '300px',
-                          overflow: 'auto',
-                        }}
-                      >
-                        {data.generatedCode}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Display file content (collapsed by default) */}
-                  {data.content && !data.generatedCode && (
-                    <details style={{ marginTop: '8px' }}>
-                      <summary
-                        style={{
-                          cursor: 'pointer',
-                          color: '#10b981',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          marginBottom: '6px',
-                        }}
-                      >
-                        📄 File Content ({data.filePath || 'file'})
-                      </summary>
-                      <pre
-                        style={{
-                          fontSize: '11px',
-                          whiteSpace: 'pre-wrap',
-                          background: 'rgba(0,0,0,0.3)',
-                          padding: '8px',
-                          borderRadius: '4px',
-                          maxHeight: '200px',
-                          overflow: 'auto',
-                          marginTop: '6px',
-                        }}
-                      >
-                        {typeof data.content === 'string'
-                          ? data.content.slice(0, 2000)
-                          : JSON.stringify(data.content).slice(0, 2000)}
-                        {(typeof data.content === 'string' ? data.content : JSON.stringify(data.content))
-                          .length > 2000 && '\n... (truncated)'}
-                      </pre>
-                    </details>
-                  )}
-                </>
-              );
-            })()}
-          </div>
-        )}
+        {renderStepResult()}
 
         {/* Show approval prompt if this step is pending approval */}
         {pendingApproval && pendingApproval.stepId === step.id && handleApproval && (
@@ -777,6 +794,11 @@ interface AIChatProps {
   onTaskComplete?: (task: AgentTask) => void;
   onTaskError?: (task: AgentTask, error: Error) => void;
   onApprovalRequired?: (step: AgentStep, request: ApprovalRequest) => Promise<boolean>;
+  // Task execution tracking
+  onTaskStart?: (task: AgentTask) => void;
+  onStepStart?: (step: AgentStep, stepIndex: number) => void;
+  onStepComplete?: (step: AgentStep) => void;
+  onTaskCompleteCallback?: (task: AgentTask) => void;
 }
 
 const MIN_WIDTH = 380;
@@ -800,6 +822,11 @@ const AIChat: React.FC<AIChatProps> = ({
   onTaskComplete,
   onTaskError,
   onApprovalRequired,
+  // Task execution tracking - unused but kept for API compatibility
+  onTaskStart: _onTaskStart,
+  onStepStart: _onStepStart,
+  onStepComplete: _onStepComplete,
+  onTaskCompleteCallback: _onTaskCompleteCallback,
 }) => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -1032,15 +1059,16 @@ const AIChat: React.FC<AIChatProps> = ({
           logger.debug('[AIChat] Step started:', step.title);
           // Update message to show current step
           if (onUpdateMessage) {
-            onUpdateMessage(agentMessageId, (msg) => ({
-              ...msg,
-              agentTask: msg.agentTask
-                ? {
-                    ...msg.agentTask,
-                    currentStep: step,
-                  }
-                : msg.agentTask,
-            }));
+            onUpdateMessage(agentMessageId, (msg) => {
+              if (!msg.agentTask) {return msg;}
+              return {
+                ...msg,
+                agentTask: {
+                  ...msg.agentTask,
+                  currentStep: step,
+                },
+              };
+            });
           }
         },
         onStepComplete: (step: AgentStep, result: any) => {

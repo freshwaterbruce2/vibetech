@@ -27,6 +27,7 @@ import { PreviewPanel } from './components/PreviewPanel';
 import { ScreenshotToCodePanel } from './components/ScreenshotToCodePanel';
 import Sidebar from './components/Sidebar';
 import StatusBar from './components/StatusBar';
+import { TaskExecutionPanel } from './components/TaskExecutionPanel';
 import { TerminalPanel } from './components/TerminalPanel';
 // Components - Using lazy loading for heavy components
 import TitleBar from './components/TitleBar';
@@ -178,7 +179,7 @@ function App() {
   });
 
   // Workspace management
-  const { workspaceContext, isIndexing, indexingProgress, getFileContext, indexWorkspace } =
+  const { workspaceContext, isIndexing, indexingProgress, getFileContext, indexWorkspace, refreshIndex } =
     useWorkspace();
 
   // App settings and UI state
@@ -225,6 +226,12 @@ function App() {
 
   // Chat mode state
   const [chatMode, setChatMode] = useState<'chat' | 'agent' | 'composer'>('chat');
+
+  // Task execution tracking for real-time visibility
+  const [currentExecutingStep, setCurrentExecutingStep] = useState<any>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [totalSteps, setTotalSteps] = useState(0);
+  const [isTaskExecuting, setIsTaskExecuting] = useState(false);
 
   // AI Chat
   const {
@@ -825,6 +832,36 @@ I'm now your context-aware coding companion! 🎯`,
   }, [currentFile, aiChatOpen, setAiChatOpen, handleAIMessage, showSuccess, showWarning]);
 
   // AI-Powered Command Palette
+  // Task execution callbacks for real-time visibility
+  const handleTaskStart = useCallback((task: any) => {
+    setIsTaskExecuting(true);
+    setTotalSteps(task.plan?.steps?.length || 0);
+    setCurrentStepIndex(0);
+    logger.debug('[App] Task execution started:', task);
+  }, []);
+
+  const handleStepStart = useCallback((step: any, stepIndex: number) => {
+    setCurrentExecutingStep(step);
+    setCurrentStepIndex(stepIndex);
+    logger.debug('[App] Step execution started:', step, 'Index:', stepIndex);
+  }, []);
+
+  const handleStepComplete = useCallback((step: any) => {
+    logger.debug('[App] Step execution completed:', step);
+    // Keep the step visible for a brief moment before clearing
+    setTimeout(() => {
+      setCurrentExecutingStep(null);
+    }, 500);
+  }, []);
+
+  const handleTaskComplete = useCallback((task: any) => {
+    setIsTaskExecuting(false);
+    setCurrentExecutingStep(null);
+    setCurrentStepIndex(0);
+    setTotalSteps(0);
+    logger.debug('[App] Task execution completed:', task);
+  }, []);
+
   const { commandPaletteOpen, setCommandPaletteOpen, commands } = useAICommandPalette({
     onSaveFile: handleSaveFile,
     onOpenFolder: handleOpenFolderDialog,
@@ -1141,6 +1178,10 @@ I'm now your context-aware coding companion! 🎯`,
                     if (action === 'created' || action === 'modified') {
                       // Open the file in editor
                       handleOpenFile(filePath);
+                      // Immediately refresh workspace index to show new files in explorer
+                      if (workspaceFolder) {
+                        refreshIndex().catch(err => logger.error('[App] Failed to refresh workspace:', err));
+                      }
                     }
                   }}
                   onTaskComplete={(task) => {
@@ -1149,6 +1190,10 @@ I'm now your context-aware coding companion! 🎯`,
                   onTaskError={(task, error) => {
                     showError('Task Failed', `Failed to execute ${task.title}: ${error.message}`);
                   }}
+                  onTaskStart={handleTaskStart}
+                  onStepStart={handleStepStart}
+                  onStepComplete={handleStepComplete}
+                  onTaskCompleteCallback={handleTaskComplete}
                 />
               </Suspense>
             )}
@@ -1189,6 +1234,14 @@ I'm now your context-aware coding companion! 🎯`,
 
           <NotificationContainer notifications={notifications} onClose={removeNotification} />
 
+
+          {/* Real-time Task Execution Panel */}
+          <TaskExecutionPanel
+            currentStep={currentExecutingStep}
+            totalSteps={totalSteps}
+            currentStepIndex={currentStepIndex}
+            isExecuting={isTaskExecuting}
+          />
           {/* PHASE 7: Live Editor Streaming Control Panel */}
           <EditorStreamPanel
             isStreaming={liveStream.isCurrentlyStreaming()}

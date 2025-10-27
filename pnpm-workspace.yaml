@@ -1,6 +1,0 @@
-packages:
-  - 'backend'
-  - 'packages/*'
-  - 'projects/active/web-apps/*'
-  - 'projects/active/desktop-apps/*'
-  - 'projects/Vibe-Subscription-Guard'

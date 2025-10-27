@@ -1,5 +1,0 @@
-{
-  "test": {
-    "error": "Found xterm-256color, while expecting a Windows console. Maybe try to run this program using \"winpty\" or run it in cmd.exe instead. Or otherwise, in case of Cygwin, use the Python executable that is compiled for Cygwin."
-  }
-}

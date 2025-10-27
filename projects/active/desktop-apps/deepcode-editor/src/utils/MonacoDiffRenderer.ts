@@ -44,7 +44,7 @@ export class MonacoDiffRenderer {
    */
   highlightDeletions(
     lines: number[],
-    options: DiffRenderOptions = {}
+    _options: DiffRenderOptions = {}
   ): void {
     if (!this.editor || lines.length === 0) {return;}
 
@@ -74,7 +74,7 @@ export class MonacoDiffRenderer {
    */
   highlightAdditions(
     lines: number[],
-    options: DiffRenderOptions = {}
+    _options: DiffRenderOptions = {}
   ): void {
     if (!this.editor || lines.length === 0) {return;}
 

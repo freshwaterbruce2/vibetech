@@ -23,6 +23,7 @@ interface ElectronDialog {
   openFile: (options?: any) => Promise<{ success: boolean; canceled: boolean; filePaths: string[] }>;
   openFolder: (options?: any) => Promise<{ success: boolean; canceled: boolean; filePaths: string[] }>;
   saveFile: (options?: any) => Promise<{ success: boolean; canceled: boolean; filePath?: string }>;
+  showMessage: (options?: any) => Promise<any>;
 }
 
 interface ElectronShell {
@@ -32,6 +33,8 @@ interface ElectronShell {
 
 interface ElectronApp {
   getPath: (name: string) => Promise<{ success: boolean; path?: string; error?: string }>;
+  getVersion: () => Promise<string>;
+  quit: () => void;
   getPlatform: () => Promise<{ success: boolean; platform: string; arch: string; version: string; electron: string; node: string }>;
 }
 
@@ -56,7 +59,13 @@ interface WindowElectron {
   app: ElectronApp;
   window?: ElectronWindow;
   db?: ElectronDB;
-  platform: string;
+  platform: {
+    os: string;
+    arch: string;
+    version: string;
+    homedir: string;
+    pathSeparator: string;
+  };
   isElectron: boolean;
 }
 
@@ -80,7 +89,7 @@ export class ElectronService {
   }
 
   get platform(): string {
-    return this.electron?.platform || 'web';
+    return this.electron?.platform.os || 'web';
   }
 
   // File System Operations (matches preload.cjs)
