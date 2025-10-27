@@ -7,8 +7,6 @@ import {
 } from 'react-error-boundary';
 import { AlertTriangle, Bug, Copy, Home, RefreshCw } from 'lucide-react';
 import styled from 'styled-components';
-
-import { logger } from '../../services/Logger';
 import { vibeTheme } from '../../styles/theme';
 
 // Styled components with 2025 patterns
