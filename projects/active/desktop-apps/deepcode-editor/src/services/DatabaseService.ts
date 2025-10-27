@@ -332,16 +332,21 @@ export class DatabaseService {
       const contextJson = context ? JSON.stringify(context) : null;
 
       if (this.isElectron) {
-        const result = this.db.prepare(sql).run(
+        // Use IPC for database operations
+        const result = await window.electron.db.query(sql, [
           workspace,
           userMessage,
           aiResponse,
           model,
           tokens || null,
           contextJson
-        );
-        await this.saveToLocalStorage();
-        return result.lastInsertRowid as number;
+        ]);
+
+        if (!result.success) {
+          throw new Error(result.error || 'Database operation failed');
+        }
+
+        return result.lastID || null;
       } else {
         this.db.run(sql, [workspace, userMessage, aiResponse, model, tokens || null, contextJson]);
         await this.saveToLocalStorage();
@@ -374,8 +379,14 @@ export class DatabaseService {
       `;
 
       if (this.isElectron) {
-        const rows = this.db.prepare(sql).all(workspace, limit, offset);
-        return rows.map(this.parseChatMessage);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [workspace, limit, offset]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
+
+        return (result.rows || []).map(this.parseChatMessage);
       } else {
         const result = this.db.exec(sql, [workspace, limit, offset]);
         if (!result[0]) {return [];}
@@ -409,7 +420,12 @@ export class DatabaseService {
       const sql = 'DELETE FROM deepcode_chat_history WHERE workspace_path = ?';
 
       if (this.isElectron) {
-        this.db.prepare(sql).run(workspace);
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [workspace]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
       } else {
         this.db.run(sql, [workspace]);
       }
@@ -447,9 +463,14 @@ export class DatabaseService {
       const tagsJson = tags ? JSON.stringify(tags) : null;
 
       if (this.isElectron) {
-        const result = this.db.prepare(sql).run(language, code, description || null, tagsJson);
-        await this.saveToLocalStorage();
-        return result.lastInsertRowid as number;
+        // Use IPC for database operations
+        const result = await window.electron?.db?.query(sql, [language, code, description || null, tagsJson]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Database operation failed');
+        }
+
+        return result.lastID || null;
       } else {
         this.db.run(sql, [language, code, description || null, tagsJson]);
         await this.saveToLocalStorage();
