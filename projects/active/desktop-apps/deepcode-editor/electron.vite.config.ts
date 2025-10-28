@@ -23,6 +23,7 @@ export default defineConfig({
   /**
    * Preload Process Configuration
    * Builds electron/preload.ts (Electron preload script)
+   * Note: electron-vite builds this as .mjs by default
    */
   preload: {
     build: {
@@ -49,6 +50,8 @@ export default defineConfig({
       alias: {
         '@': resolve(__dirname, 'src'),
       },
+      // Force single React instance (fixes "Cannot read properties of null" error)
+      dedupe: ['react', 'react-dom'],
     },
 
     define: {
