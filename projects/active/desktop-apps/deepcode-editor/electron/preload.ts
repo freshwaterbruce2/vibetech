@@ -153,4 +153,11 @@ contextBridge.exposeInMainWorld('electron', {
   },
 });
 
+// Debug: Verify preload script loaded successfully
+console.log('[Preload] ✅ Preload script loaded successfully!', {
+  isElectron: true,
+  hasStorage: true,
+  electronAPI: typeof (globalThis as any).electron !== 'undefined'
+});
+
 // Type definitions added via global declaration above

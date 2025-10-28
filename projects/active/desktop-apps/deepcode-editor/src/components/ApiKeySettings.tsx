@@ -363,6 +363,17 @@ const ApiKeySettings: React.FC = () => {
 
   const saveApiKey = async (provider: string) => {
     const key = apiKeys[provider];
+
+    // Developer diagnostics (survives production builds)
+    console.log('[ApiKeySettings] Save attempt:', {
+      provider,
+      keyLength: key?.length,
+      keyPrefix: key?.substring(0, 5),
+      hasElectron: !!(window as any).electron,
+      hasStorage: !!(window as any).electron?.storage,
+      isElectron: (window as any).electron?.isElectron
+    });
+
     if (!key?.trim()) {
       setErrors(prev => ({ ...prev, [provider]: 'API key is required' }));
       return;
@@ -371,7 +382,21 @@ const ApiKeySettings: React.FC = () => {
     try {
       const isValid = keyManager.validateApiKey(key, provider);
       if (!isValid) {
-        setErrors(prev => ({ ...prev, [provider]: 'Invalid API key format' }));
+        // Detailed validation error with expected format
+        const expectedFormat = provider === 'deepseek'
+          ? 'sk-[32+ alphanumeric characters]'
+          : provider === 'openai'
+          ? 'sk-[48+ alphanumeric characters]'
+          : provider === 'anthropic'
+          ? 'sk-ant-[95+ characters]'
+          : provider === 'google'
+          ? 'AIza[35 characters]'
+          : 'valid API key format';
+
+        setErrors(prev => ({
+          ...prev,
+          [provider]: `Invalid ${provider} API key format. Expected: ${expectedFormat}`
+        }));
         return;
       }
 
@@ -381,9 +406,10 @@ const ApiKeySettings: React.FC = () => {
         setApiKeys(prev => ({ ...prev, [provider]: '' }));
         await loadApiKeyStatuses();
       } else {
-        setErrors(prev => ({ ...prev, [provider]: 'Failed to save API key' }));
+        setErrors(prev => ({ ...prev, [provider]: 'Failed to save API key. Check console for details.' }));
       }
     } catch (error) {
+      console.error('[ApiKeySettings] Save error:', error);
       setErrors(prev => ({ ...prev, [provider]: error instanceof Error ? error.message : 'Failed to save API key' }));
     }
   };

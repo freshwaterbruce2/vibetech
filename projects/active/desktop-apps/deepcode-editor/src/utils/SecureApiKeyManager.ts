@@ -8,7 +8,7 @@ import { logger } from '../services/Logger';
 
 // API key validation patterns
 const API_KEY_PATTERNS = {
-  DEEPSEEK: /^sk-[a-f0-9]{32,}$/i,
+  DEEPSEEK: /^sk-[a-zA-Z0-9]{32,}$/, // Fixed: DeepSeek uses alphanumeric, not just hex
   OPENAI: /^sk-[a-zA-Z0-9]{48,}$/,
   ANTHROPIC: /^sk-ant-[a-zA-Z0-9\-_]{95,}$/,
   GOOGLE: /^AIza[a-zA-Z0-9\-_]{35}$/,
@@ -130,13 +130,21 @@ export class SecureApiKeyManager {
    * Store API key securely
    */
   public async storeApiKey(provider: string, key: string): Promise<boolean> {
+    console.log('[SecureApiKeyManager] storeApiKey called for provider:', provider);
+    console.log('[SecureApiKeyManager] isElectron:', this.isElectron);
+    console.log('[SecureApiKeyManager] electronStorage exists:', !!this.electronStorage);
+
     try {
       // Validate the key first
+      console.log('[SecureApiKeyManager] Validating API key...');
       if (!this.validateApiKey(key, provider)) {
+        console.error('[SecureApiKeyManager] API key validation FAILED');
         throw new Error(`Invalid ${provider} API key format`);
       }
+      console.log('[SecureApiKeyManager] API key validation passed');
 
       // Encrypt the key
+      console.log('[SecureApiKeyManager] Encrypting API key...');
       const encryptedKey = this.encryptApiKey(key);
 
       // Create metadata
@@ -154,23 +162,35 @@ export class SecureApiKeyManager {
       };
 
       const storageKey = `secure_api_key_${provider.toLowerCase()}`;
+      console.log('[SecureApiKeyManager] Storage key:', storageKey);
 
       // Use Electron storage if available
       if (this.isElectron && this.electronStorage) {
+        console.log('[SecureApiKeyManager] Calling Electron storage.set via IPC...');
         const result = await this.electronStorage.set(storageKey, JSON.stringify(storedKey));
+        console.log('[SecureApiKeyManager] Electron storage.set result:', result);
+
         if (!result.success) {
-          throw new Error('Failed to save to Electron storage');
+          console.error('[SecureApiKeyManager] Electron storage.set returned failure:', result);
+          throw new Error('Failed to save to Electron storage: ' + (result.error || 'unknown error'));
         }
+        console.log('[SecureApiKeyManager] Electron storage.set SUCCESS');
+      } else {
+        console.warn('[SecureApiKeyManager] Electron storage NOT available, isElectron:', this.isElectron);
       }
 
       // Always also save to localStorage as a fallback for immediate use
+      console.log('[SecureApiKeyManager] Saving to localStorage as fallback...');
       this.storage.setItem(storageKey, JSON.stringify(storedKey));
+      console.log('[SecureApiKeyManager] localStorage save complete');
 
       // Also update environment variable for immediate use
       this.updateEnvironmentVariable(provider, key);
 
+      console.log('[SecureApiKeyManager] storeApiKey completed successfully');
       return true;
     } catch (error) {
+      console.error('[SecureApiKeyManager] storeApiKey FAILED:', error);
       logger.error('Failed to store API key:', error);
       return false;
     }
