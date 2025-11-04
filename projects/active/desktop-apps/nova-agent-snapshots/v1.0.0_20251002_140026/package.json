@@ -110,7 +110,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.3.0",
-    "lucide-react": "^0.544.0",
+    "lucide-react": "^0.545.0",
     "openai": "^4.72.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
