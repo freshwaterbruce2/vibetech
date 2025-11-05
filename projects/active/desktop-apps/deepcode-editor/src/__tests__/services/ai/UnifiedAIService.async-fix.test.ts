@@ -78,11 +78,10 @@ describe('UnifiedAIService - Async Fix Verification', () => {
   it('should properly await getStoredProviders in initializeProvidersFromStorage (fix for line 72)', async () => {
     const service = new UnifiedAIService();
     
-    // Wait for async initialization to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Verify that getStoredProviders was called (async initialization)
-    expect(mockKeyManager.getStoredProviders).toHaveBeenCalled();
+    // Wait for the async initialization Promise to resolve
+    await vi.waitFor(() => {
+      expect(mockKeyManager.getStoredProviders).toHaveBeenCalled();
+    }, { timeout: 1000 });
     
     // Verify it was awaited (not throwing iteration error)
     expect(mockKeyManager.getApiKey).toHaveBeenCalled();
@@ -98,11 +97,12 @@ describe('UnifiedAIService - Async Fix Verification', () => {
     
     const service = new UnifiedAIService();
     
-    // Allow async initialization to complete
-    await new Promise(resolve => setTimeout(resolve, 150));
+    // Wait for async initialization to process both providers
+    await vi.waitFor(() => {
+      expect(mockKeyManager.getApiKey).toHaveBeenCalledTimes(2);
+    }, { timeout: 1000 });
     
     // Should have processed both providers without throwing
-    expect(mockKeyManager.getApiKey).toHaveBeenCalledTimes(2);
     expect(mockKeyManager.getApiKey).toHaveBeenCalledWith('openai');
     expect(mockKeyManager.getApiKey).toHaveBeenCalledWith('anthropic');
   });
@@ -123,7 +123,10 @@ describe('UnifiedAIService - Async Fix Verification', () => {
     
     const service = new UnifiedAIService();
     
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait for async initialization to complete
+    await vi.waitFor(() => {
+      expect(mockKeyManager.getStoredProviders).toHaveBeenCalled();
+    }, { timeout: 1000 });
     
     // Should complete without errors even with empty array
     expect(service.isDemo()).toBe(true); // Still in demo mode
@@ -137,7 +140,10 @@ describe('UnifiedAIService - Async Fix Verification', () => {
       new UnifiedAIService();
     }).not.toThrow();
     
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait for async initialization to attempt and handle the error
+    await vi.waitFor(() => {
+      expect(mockKeyManager.getStoredProviders).toHaveBeenCalled();
+    }, { timeout: 1000 });
     
     // Should handle error gracefully (test completes without unhandled rejection)
   });
