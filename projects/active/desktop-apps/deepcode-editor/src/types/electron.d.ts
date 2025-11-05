@@ -72,7 +72,6 @@ interface ElectronAPI {
     query: (sql: string, params?: any[]) => Promise<{
       success: boolean;
       data?: any;
-      rows?: any[];
       lastID?: number;
       changes?: number;
       error?: string;

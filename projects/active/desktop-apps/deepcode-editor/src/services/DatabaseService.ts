@@ -160,7 +160,7 @@ export class DatabaseService {
    * Connect to database (platform-specific)
    */
   private async connect(): Promise<void> {
-    if (this.isElectron) {
+    if (this.isElectron && window.electron?.db) {
       // Electron: Use IPC-based database access via main process
       // This is the 2025 security best practice - main process handles better-sqlite3
       try {
@@ -169,7 +169,7 @@ export class DatabaseService {
         }
 
         // Initialize database via IPC
-        const result = await window.electron.db.initialize();
+        const result = await window.electron!.db!.initialize();
 
         if (!result.success) {
           throw new Error(result.error || 'Database initialization failed');
@@ -331,9 +331,9 @@ export class DatabaseService {
 
       const contextJson = context ? JSON.stringify(context) : null;
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
-        const result = await window.electron.db.query(sql, [
+        const result = await window.electron!.db!.query(sql, [
           workspace,
           userMessage,
           aiResponse,
@@ -378,7 +378,7 @@ export class DatabaseService {
         LIMIT ? OFFSET ?
       `;
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [workspace, limit, offset]);
 
@@ -419,7 +419,7 @@ export class DatabaseService {
     try {
       const sql = 'DELETE FROM deepcode_chat_history WHERE workspace_path = ?';
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [workspace]);
 
@@ -462,7 +462,7 @@ export class DatabaseService {
 
       const tagsJson = tags ? JSON.stringify(tags) : null;
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [language, code, description || null, tagsJson]);
 
@@ -511,7 +511,7 @@ export class DatabaseService {
       sql += ' ORDER BY usage_count DESC, created_at DESC LIMIT ?';
       params.push(limit);
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, params);
 
@@ -555,7 +555,7 @@ export class DatabaseService {
         WHERE id = ?
       `;
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [id]);
 
@@ -587,7 +587,7 @@ export class DatabaseService {
     try {
       const sql = 'SELECT value FROM deepcode_settings WHERE key = ?';
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [key]);
 
@@ -625,7 +625,7 @@ export class DatabaseService {
 
       const valueJson = JSON.stringify(value);
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [key, valueJson]);
 
@@ -653,7 +653,7 @@ export class DatabaseService {
     try {
       const sql = 'SELECT key, value FROM deepcode_settings';
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, []);
 
@@ -699,7 +699,7 @@ export class DatabaseService {
 
       const dataJson = eventData ? JSON.stringify(eventData) : null;
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [eventType, dataJson]);
 
@@ -749,7 +749,7 @@ export class DatabaseService {
       sql += ' ORDER BY timestamp DESC LIMIT ?';
       params.push(limit);
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, params);
 
@@ -842,7 +842,7 @@ export class DatabaseService {
       const patternHash = pattern.problemSignature;
       const patternData = JSON.stringify(pattern);
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [
           patternHash,
@@ -889,7 +889,7 @@ export class DatabaseService {
         LIMIT ?
       `;
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [limit]);
 
@@ -941,7 +941,7 @@ export class DatabaseService {
 
       let pattern: StrategyPattern | null = null;
 
-      if (this.isElectron) {
+      if (this.isElectron && window.electron?.db) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [patternHash]);
 
