@@ -23,7 +23,7 @@ vi.mock('@vibetech/shared-utils/security', () => ({
 // Mock AIProviderManager
 vi.mock('../../../services/ai/AIProviderManager', () => ({
   AIProviderManager: vi.fn(() => ({
-    setProvider: vi.fn().mockResolvedValue(undefined),
+    setProvider: vi.fn().mockResolvedValue(),
     isProviderConfigured: vi.fn().mockReturnValue(false),
     complete: vi.fn().mockResolvedValue({ content: 'test', usage: { total_tokens: 0 } }),
     streamComplete: vi.fn(),
