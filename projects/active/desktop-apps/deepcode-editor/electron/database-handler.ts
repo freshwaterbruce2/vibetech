@@ -135,7 +135,7 @@ function createTables() {
 /**
  * Execute a query
  */
-export function executeQuery(sql: string, params: any[] = []): { success: boolean; data?: any; error?: string } {
+export function executeQuery(sql: string, params: any[] = []): { success: boolean; data?: any; lastID?: number; changes?: number; error?: string } {
   try {
     if (!db) {
       initializeDatabase();
@@ -149,7 +149,12 @@ export function executeQuery(sql: string, params: any[] = []): { success: boolea
       return { success: true, data };
     } else {
       const result = stmt.run(...params);
-      return { success: true, data: result };
+      return { 
+        success: true, 
+        data: result,
+        lastID: result.lastInsertRowid as number,
+        changes: result.changes
+      };
     }
   } catch (error) {
     console.error('[Database] Query failed:', error);
