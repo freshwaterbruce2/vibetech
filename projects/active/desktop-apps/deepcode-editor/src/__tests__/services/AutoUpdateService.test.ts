@@ -304,7 +304,7 @@ describe('AutoUpdateService', () => {
 
     it('should warn when not in Electron environment', async () => {
       // @ts-ignore
-      global.window.electronAPI = undefined;
+      global.window.electron = undefined;
 
       const updateInfo = {
         version: '2.0.0',

@@ -92,7 +92,7 @@ export class AutoUpdateService {
    * Download and install update
    */
   async downloadAndInstallUpdate(updateInfo: UpdateInfo): Promise<void> {
-    if (!window.electronAPI) {
+    if (!window.electron) {
       logger.warn('Updates only available in Electron app');
       return;
     }
@@ -102,18 +102,13 @@ export class AutoUpdateService {
 
       // In Electron, we would need to implement auto-updater functionality
       // For now, open the download URL in the browser
-      await window.electronAPI.shellOpenExternal(updateInfo.downloadUrl);
+      await window.electron.shell.openExternal(updateInfo.downloadUrl);
 
       telemetry.trackEvent('update_download_initiated', { version: updateInfo.version });
 
-      // Show user instructions
-      await window.electronAPI.showMessageBox({
-        type: 'info',
-        title: 'Update Available',
-        message: `Version ${updateInfo.version} is available`,
-        detail:
-          'The download has been started in your browser. Please install the update manually.',
-      });
+      // Show user instructions - Note: showMessageBox is not available in current preload
+      // TODO: Add message box support or use alternative notification
+      logger.info(`Update available: Version ${updateInfo.version}`);
     } catch (error) {
       telemetry.trackError(
         error as Error,
@@ -131,26 +126,23 @@ export class AutoUpdateService {
    * Schedule application restart
    */
   private async scheduleRestart(): Promise<void> {
-    if (!window.electronAPI) {
+    if (!window.electron) {
       return;
     }
 
-    // Show notification to user
-    const result = await window.electronAPI.showMessageBox({
-      type: 'question',
-      title: 'Restart Required',
-      message: 'Update downloaded successfully. Restart now to apply the update?',
-      buttons: ['Restart Now', 'Later'],
-    });
-
-    if (result.response === 0) {
-      telemetry.trackEvent('update_restart_accepted');
-      await window.electronAPI.app.restart();
-    } else {
-      telemetry.trackEvent('update_restart_deferred');
-      // Remind user later
-      setTimeout(() => this.scheduleRestart(), 3600000); // 1 hour
-    }
+    // Show notification to user - showMessageBox not available in current preload
+    // TODO: Add proper dialog support or use alternative notification
+    telemetry.trackEvent('update_restart_prompt');
+    logger.info('Update downloaded successfully. Please restart to apply.');
+    
+    // For now, skip the interactive dialog
+    // if (userConfirmsRestart) {
+    //   telemetry.trackEvent('update_restart_accepted');
+    //   await window.electron.app.restart();
+    // } else {
+    //   telemetry.trackEvent('update_restart_deferred');
+    //   setTimeout(() => this.scheduleRestart(), 3600000); // 1 hour
+    // }
   }
 
   /**
@@ -211,8 +203,8 @@ export class AutoUpdateService {
    * Get current platform
    */
   private getPlatform(): string {
-    if (window.electronEnv) {
-      return window.electronEnv.platform;
+    if (window.electron) {
+      return window.electron.platform.os;
     }
 
     const platform = navigator.platform.toLowerCase();
@@ -229,8 +221,8 @@ export class AutoUpdateService {
    * Get system architecture
    */
   private getArchitecture(): string {
-    if (window.electronEnv) {
-      return window.electronEnv.arch;
+    if (window.electron) {
+      return window.electron.platform.arch;
     }
 
     // Best guess from user agent

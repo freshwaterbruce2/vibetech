@@ -14,10 +14,10 @@ export class EditorService {
 
   async loadFile(path: string): Promise<EditorFile> {
     try {
-      if (!window.electronAPI?.fs) {
+      if (!window.electron?.fs) {
         throw new Error('Electron API not available');
       }
-      const response = await window.electronAPI.fs.readFile(path);
+      const response = await window.electron.fs.readFile(path);
       return {
         path,
         content: response,
@@ -32,10 +32,10 @@ export class EditorService {
 
   async saveFile(file: EditorFile): Promise<void> {
     try {
-      if (!window.electronAPI?.fs) {
+      if (!window.electron?.fs) {
         throw new Error('Electron API not available');
       }
-      await window.electronAPI.fs.writeFile(file.path, file.content);
+      await window.electron.fs.writeFile(file.path, file.content);
     } catch (error) {
       throw new Error(`Failed to save file: ${file.path}`);
     }

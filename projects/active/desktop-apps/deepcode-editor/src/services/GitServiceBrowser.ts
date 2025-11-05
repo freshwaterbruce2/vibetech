@@ -40,16 +40,16 @@ export class GitService {
   constructor(workingDirectory: string) {
     this.workingDirectory = workingDirectory;
     // Check if running in Electron
-    this.isElectron = typeof window !== 'undefined' && window.electronAPI !== undefined;
+    this.isElectron = typeof window !== 'undefined' && window.electron !== undefined;
   }
 
   async isGitRepository(): Promise<boolean> {
     if (this.isElectron) {
       // In Electron, check if .git directory exists
       try {
-        if (window.electronAPI) {
+        if (window.electron) {
           const gitPath = `${this.workingDirectory}/.git`;
-          return await window.electronAPI.fs.exists(gitPath);
+          return await window.electron.fs.exists(gitPath);
         }
       } catch {
         return false;

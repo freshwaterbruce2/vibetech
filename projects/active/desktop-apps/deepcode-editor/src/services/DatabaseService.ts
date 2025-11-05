@@ -386,7 +386,7 @@ export class DatabaseService {
           throw new Error(result?.error || 'Database operation failed');
         }
 
-        return (result.rows || []).map(this.parseChatMessage);
+        return (result.data || []).map(this.parseChatMessage);
       } else {
         const result = this.db.exec(sql, [workspace, limit, offset]);
         if (!result[0]) {return [];}
