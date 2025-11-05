@@ -235,7 +235,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     if (window.electron) {
       try {
         const result = await window.electron.dialog.openFolder({});
-        if (!result.canceled && result.filePaths.length > 0 && result.filePaths[0]) {
+        if (result.success && !result.canceled && result.filePaths.length > 0 && result.filePaths[0]) {
           onOpenFolder(result.filePaths[0]);
         }
       } catch (error) {

@@ -49,7 +49,8 @@ export class GitService {
       try {
         if (window.electron) {
           const gitPath = `${this.workingDirectory}/.git`;
-          return await window.electron.fs.exists(gitPath);
+          const result = await window.electron.fs.exists(gitPath);
+          return result.success && result.exists;
         }
       } catch {
         return false;

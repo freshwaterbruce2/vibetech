@@ -18,9 +18,12 @@ export class EditorService {
         throw new Error('Electron API not available');
       }
       const response = await window.electron.fs.readFile(path);
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to read file');
+      }
       return {
         path,
-        content: response,
+        content: response.content || '',
         language: this.detectLanguage(path),
         isModified: false,
         lastModified: new Date(),
@@ -35,7 +38,10 @@ export class EditorService {
       if (!window.electron?.fs) {
         throw new Error('Electron API not available');
       }
-      await window.electron.fs.writeFile(file.path, file.content);
+      const result = await window.electron.fs.writeFile(file.path, file.content);
+      if (!result.success) {
+        throw new Error(result.error || 'Write failed');
+      }
     } catch (error) {
       throw new Error(`Failed to save file: ${file.path}`);
     }
