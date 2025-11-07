@@ -1,5 +1,5 @@
 import React, { useEffect,useState } from 'react';
-import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+import { SecureApiKeyManager } from '../utils/SecureApiKeyManager';
 import { motion } from 'framer-motion';
 import { AlertTriangle, CheckCircle,Eye, EyeOff, Save, Shield, TestTube, Trash2 } from 'lucide-react';
 import styled from 'styled-components';

@@ -141,6 +141,17 @@ export function executeQuery(sql: string, params: any[] = []): { success: boolea
       initializeDatabase();
     }
 
+    // Detect multiple statements (schema initialization, etc.)
+    const hasMultipleStatements = (sql.match(/;/g) || []).length > 1 ||
+                                   (sql.match(/CREATE\s+(TABLE|INDEX)/gi) || []).length > 1;
+
+    if (hasMultipleStatements) {
+      // Use exec() for multiple statements (no parameter binding supported)
+      db!.exec(sql);
+      return { success: true, rows: [] };
+    }
+
+    // Single statement - use prepare() for parameter binding
     const stmt = db!.prepare(sql);
 
     // Check if it's a SELECT query

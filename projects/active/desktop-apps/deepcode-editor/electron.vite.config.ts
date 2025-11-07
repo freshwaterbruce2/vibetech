@@ -177,6 +177,14 @@ export default defineConfig({
       port: 5174,
       strictPort: true,
       cors: true,
+      fs: {
+        // Allow serving files from node_modules (required for Monaco Editor CSS)
+        allow: [
+          '.',
+          '../../../../node_modules',
+          '../../../../node_modules/.pnpm'
+        ]
+      },
       warmup: {
         clientFiles: [
           './src/App.tsx',

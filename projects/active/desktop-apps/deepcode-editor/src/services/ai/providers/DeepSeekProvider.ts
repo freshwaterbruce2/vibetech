@@ -1,7 +1,7 @@
 /**
  * DeepSeek Provider - Implementation for DeepSeek API integration
  */
-import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+import { SecureApiKeyManager } from '../../../utils/SecureApiKeyManager';
 
 import { logger } from '../../../services/Logger';
 import {

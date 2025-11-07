@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
 import type { FileChange, MultiFileEditPlan } from '@vibetech/types/multifile';
 import { AnimatePresence, motion } from 'framer-motion';
 import styled from 'styled-components';

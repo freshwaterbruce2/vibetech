@@ -1,0 +1,370 @@
+{
+  "id": "task_1762472503885_3atoziry6",
+  "originalTask": {
+    "id": "task_1762472503885_3atoziry6",
+    "title": "Add error handling",
+    "description": "Demo mode: Task plan for \"Add error handling\"",
+    "userRequest": "Add error handling",
+    "steps": [
+      {
+        "id": "task_1762472503885_3atoziry6_step_1",
+        "taskId": "task_1762472503885_3atoziry6",
+        "order": 1,
+        "title": "Execute task",
+        "description": "Add error handling",
+        "action": {
+          "type": "custom",
+          "params": {
+            "userRequest": "Add error handling"
+          }
+        },
+        "status": "completed",
+        "requiresApproval": true,
+        "retryCount": 0,
+        "maxRetries": 3,
+        "approved": true,
+        "startedAt": "2025-11-06T23:41:43.887Z",
+        "completedAt": "2025-11-06T23:41:43.889Z",
+        "result": {
+          "success": true,
+          "message": "Custom action executed",
+          "data": {
+            "reActCycle": {
+              "stepId": "task_1762472503885_3atoziry6_step_1",
+              "thought": {
+                "reasoning": "Executing custom as planned",
+                "approach": "custom",
+                "alternatives": [],
+                "confidence": 50,
+                "risks": [
+                  "Unknown - thought generation failed"
+                ],
+                "expectedOutcome": "Unknown",
+                "timestamp": "2025-11-06T23:41:43.888Z"
+              },
+              "action": {
+                "type": "custom",
+                "params": {
+                  "userRequest": "Add error handling"
+                }
+              },
+              "observation": {
+                "actualOutcome": "Custom action executed",
+                "success": true,
+                "differences": [],
+                "learnings": [],
+                "unexpectedEvents": [],
+                "timestamp": "2025-11-06T23:41:43.888Z"
+              },
+              "reflection": {
+                "whatWorked": [
+                  "Thing 1 that worked",
+                  "Thing 2"
+                ],
+                "whatFailed": [
+                  "Thing 1 that failed",
+                  "Thing 2"
+                ],
+                "rootCause": "Root cause of failure (if failed)",
+                "shouldRetry": false,
+                "suggestedChanges": [
+                  "Change 1 for next attempt",
+                  "Change 2"
+                ],
+                "knowledgeGained": "Key insight learned from this attempt",
+                "timestamp": "2025-11-06T23:41:43.889Z"
+              },
+              "cycleNumber": 1,
+              "totalDurationMs": 2
+            },
+            "thought": {
+              "reasoning": "Executing custom as planned",
+              "approach": "custom",
+              "alternatives": [],
+              "confidence": 50,
+              "risks": [
+                "Unknown - thought generation failed"
+              ],
+              "expectedOutcome": "Unknown",
+              "timestamp": "2025-11-06T23:41:43.888Z"
+            },
+            "reflection": {
+              "whatWorked": [
+                "Thing 1 that worked",
+                "Thing 2"
+              ],
+              "whatFailed": [
+                "Thing 1 that failed",
+                "Thing 2"
+              ],
+              "rootCause": "Root cause of failure (if failed)",
+              "shouldRetry": false,
+              "suggestedChanges": [
+                "Change 1 for next attempt",
+                "Change 2"
+              ],
+              "knowledgeGained": "Key insight learned from this attempt",
+              "timestamp": "2025-11-06T23:41:43.889Z"
+            },
+            "relevantPatterns": [
+              {
+                "pattern": {
+                  "id": "pattern_1761790927306_komhvtl",
+                  "problemSignature": "custom::explain how this file relates to others::custom",
+                  "problemDescription": "Explain how this file relates to others",
+                  "actionType": "custom",
+                  "successfulApproach": "custom",
+                  "context": {
+                    "taskType": "custom"
+                  },
+                  "reActCycle": {
+                    "stepId": "task_1761790927302_7yoyngh1b_step_1",
+                    "thought": {
+                      "reasoning": "Executing custom as planned",
+                      "approach": "custom",
+                      "alternatives": [],
+                      "confidence": 50,
+                      "risks": [
+                        "Unknown - thought generation failed"
+                      ],
+                      "expectedOutcome": "Unknown",
+                      "timestamp": "2025-10-30T02:22:07.304Z"
+                    },
+                    "action": {
+                      "type": "custom",
+                      "params": {
+                        "userRequest": "Explain how this file relates to others"
+                      }
+                    },
+                    "observation": {
+                      "actualOutcome": "Custom action executed",
+                      "success": true,
+                      "differences": [],
+                      "learnings": [],
+                      "unexpectedEvents": [],
+                      "timestamp": "2025-10-30T02:22:07.305Z"
+                    },
+                    "reflection": {
+                      "whatWorked": [
+                        "Thing 1 that worked",
+                        "Thing 2"
+                      ],
+                      "whatFailed": [
+                        "Thing 1 that failed",
+                        "Thing 2"
+                      ],
+                      "rootCause": "Root cause of failure (if failed)",
+                      "shouldRetry": false,
+                      "suggestedChanges": [
+                        "Change 1 for next attempt",
+                        "Change 2"
+                      ],
+                      "knowledgeGained": "Key insight learned from this attempt",
+                      "timestamp": "2025-10-30T02:22:07.305Z"
+                    },
+                    "cycleNumber": 1,
+                    "totalDurationMs": 1
+                  },
+                  "confidence": 50,
+                  "usageCount": 1,
+                  "successRate": 100,
+                  "createdAt": "2025-10-30T02:22:07.306Z",
+                  "lastUsedAt": "2025-10-30T02:22:07.306Z",
+                  "lastSuccessAt": "2025-10-30T02:22:07.306Z"
+                },
+                "relevanceScore": 65,
+                "reason": "Same action type, Same task type, Same file type (undefined), High success rate"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "status": "in_progress",
+    "createdAt": "2025-11-06T23:41:43.885Z",
+    "startedAt": "2025-11-06T23:41:43.886Z"
+  },
+  "currentStepIndex": 0,
+  "completedSteps": [
+    {
+      "id": "task_1762472503885_3atoziry6_step_1",
+      "taskId": "task_1762472503885_3atoziry6",
+      "order": 1,
+      "title": "Execute task",
+      "description": "Add error handling",
+      "action": {
+        "type": "custom",
+        "params": {
+          "userRequest": "Add error handling"
+        }
+      },
+      "status": "completed",
+      "requiresApproval": true,
+      "retryCount": 0,
+      "maxRetries": 3,
+      "approved": true,
+      "startedAt": "2025-11-06T23:41:43.887Z",
+      "completedAt": "2025-11-06T23:41:43.889Z",
+      "result": {
+        "success": true,
+        "message": "Custom action executed",
+        "data": {
+          "reActCycle": {
+            "stepId": "task_1762472503885_3atoziry6_step_1",
+            "thought": {
+              "reasoning": "Executing custom as planned",
+              "approach": "custom",
+              "alternatives": [],
+              "confidence": 50,
+              "risks": [
+                "Unknown - thought generation failed"
+              ],
+              "expectedOutcome": "Unknown",
+              "timestamp": "2025-11-06T23:41:43.888Z"
+            },
+            "action": {
+              "type": "custom",
+              "params": {
+                "userRequest": "Add error handling"
+              }
+            },
+            "observation": {
+              "actualOutcome": "Custom action executed",
+              "success": true,
+              "differences": [],
+              "learnings": [],
+              "unexpectedEvents": [],
+              "timestamp": "2025-11-06T23:41:43.888Z"
+            },
+            "reflection": {
+              "whatWorked": [
+                "Thing 1 that worked",
+                "Thing 2"
+              ],
+              "whatFailed": [
+                "Thing 1 that failed",
+                "Thing 2"
+              ],
+              "rootCause": "Root cause of failure (if failed)",
+              "shouldRetry": false,
+              "suggestedChanges": [
+                "Change 1 for next attempt",
+                "Change 2"
+              ],
+              "knowledgeGained": "Key insight learned from this attempt",
+              "timestamp": "2025-11-06T23:41:43.889Z"
+            },
+            "cycleNumber": 1,
+            "totalDurationMs": 2
+          },
+          "thought": {
+            "reasoning": "Executing custom as planned",
+            "approach": "custom",
+            "alternatives": [],
+            "confidence": 50,
+            "risks": [
+              "Unknown - thought generation failed"
+            ],
+            "expectedOutcome": "Unknown",
+            "timestamp": "2025-11-06T23:41:43.888Z"
+          },
+          "reflection": {
+            "whatWorked": [
+              "Thing 1 that worked",
+              "Thing 2"
+            ],
+            "whatFailed": [
+              "Thing 1 that failed",
+              "Thing 2"
+            ],
+            "rootCause": "Root cause of failure (if failed)",
+            "shouldRetry": false,
+            "suggestedChanges": [
+              "Change 1 for next attempt",
+              "Change 2"
+            ],
+            "knowledgeGained": "Key insight learned from this attempt",
+            "timestamp": "2025-11-06T23:41:43.889Z"
+          },
+          "relevantPatterns": [
+            {
+              "pattern": {
+                "id": "pattern_1761790927306_komhvtl",
+                "problemSignature": "custom::explain how this file relates to others::custom",
+                "problemDescription": "Explain how this file relates to others",
+                "actionType": "custom",
+                "successfulApproach": "custom",
+                "context": {
+                  "taskType": "custom"
+                },
+                "reActCycle": {
+                  "stepId": "task_1761790927302_7yoyngh1b_step_1",
+                  "thought": {
+                    "reasoning": "Executing custom as planned",
+                    "approach": "custom",
+                    "alternatives": [],
+                    "confidence": 50,
+                    "risks": [
+                      "Unknown - thought generation failed"
+                    ],
+                    "expectedOutcome": "Unknown",
+                    "timestamp": "2025-10-30T02:22:07.304Z"
+                  },
+                  "action": {
+                    "type": "custom",
+                    "params": {
+                      "userRequest": "Explain how this file relates to others"
+                    }
+                  },
+                  "observation": {
+                    "actualOutcome": "Custom action executed",
+                    "success": true,
+                    "differences": [],
+                    "learnings": [],
+                    "unexpectedEvents": [],
+                    "timestamp": "2025-10-30T02:22:07.305Z"
+                  },
+                  "reflection": {
+                    "whatWorked": [
+                      "Thing 1 that worked",
+                      "Thing 2"
+                    ],
+                    "whatFailed": [
+                      "Thing 1 that failed",
+                      "Thing 2"
+                    ],
+                    "rootCause": "Root cause of failure (if failed)",
+                    "shouldRetry": false,
+                    "suggestedChanges": [
+                      "Change 1 for next attempt",
+                      "Change 2"
+                    ],
+                    "knowledgeGained": "Key insight learned from this attempt",
+                    "timestamp": "2025-10-30T02:22:07.305Z"
+                  },
+                  "cycleNumber": 1,
+                  "totalDurationMs": 1
+                },
+                "confidence": 50,
+                "usageCount": 1,
+                "successRate": 100,
+                "createdAt": "2025-10-30T02:22:07.306Z",
+                "lastUsedAt": "2025-10-30T02:22:07.306Z",
+                "lastSuccessAt": "2025-10-30T02:22:07.306Z"
+              },
+              "relevanceScore": 65,
+              "reason": "Same action type, Same task type, Same file type (undefined), High success rate"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "timestamp": "2025-11-06T23:41:43.890Z",
+  "metadata": {
+    "userRequest": "Add error handling",
+    "workspaceRoot": "C:/dev/projects/active/desktop-apps/taskmaster",
+    "totalSteps": 1,
+    "completedStepsCount": 1
+  }
+}
