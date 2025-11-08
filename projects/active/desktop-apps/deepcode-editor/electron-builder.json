@@ -3,7 +3,7 @@
   "appId": "com.vibetech.vibe-code-studio",
   "productName": "Vibe Code Studio",
   "copyright": "Copyright © 2025 VibeTech",
-  "asar": true,
+  "asar": false,
   "directories": {
     "output": "release-builds",
     "buildResources": "build"
