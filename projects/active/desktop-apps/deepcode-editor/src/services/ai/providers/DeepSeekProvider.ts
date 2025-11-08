@@ -12,7 +12,8 @@ import {
   CompletionResponse,
   IAIProvider,
   MODEL_REGISTRY,
-  StreamCompletionResponse} from '../AIProviderInterface';
+  StreamCompletionResponse
+} from '../AIProviderInterface';
 
 interface DeepSeekMessage {
   role: 'system' | 'user' | 'assistant';
@@ -40,7 +41,7 @@ export class DeepSeekProvider implements IAIProvider {
     estimatedCost: 0,
     requestCount: 0
   };
-  private abortController?: AbortController;
+  private abortController: AbortController | undefined = undefined;
 
   async initialize(config: AIProviderConfig): Promise<void> {
     this.config = config;
@@ -55,12 +56,16 @@ export class DeepSeekProvider implements IAIProvider {
 
     // Validate configuration
     if (!this.apiKey) {
-      throw new Error('DeepSeek API key is required. Please configure it in the settings.');
+      logger.warn('DeepSeek API key is not configured. Please configure it in the settings.');
+      // Don't throw error, allow app to start without API key
+      return;
     }
 
     // Validate API key format
     if (!secureKeyManager.validateApiKey(this.apiKey, 'deepseek')) {
-      throw new Error('Invalid DeepSeek API key format');
+      logger.warn('Invalid DeepSeek API key format. Please check your settings.');
+      // Don't throw error, allow app to start with invalid key
+      return;
     }
 
     // Store the key securely if it came from config
@@ -116,7 +121,7 @@ export class DeepSeekProvider implements IAIProvider {
       if (data.usage) {
         this.usageStats.tokensUsed += data.usage.total_tokens;
         this.usageStats.requestCount++;
-        
+
         // Calculate cost based on model
         const modelInfo = MODEL_REGISTRY[model];
         if (modelInfo) {
@@ -204,7 +209,7 @@ export class DeepSeekProvider implements IAIProvider {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) {break;}
+        if (done) { break; }
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -214,7 +219,7 @@ export class DeepSeekProvider implements IAIProvider {
           if (line.startsWith('data: ')) {
             const data = line.slice(6);
             if (data === '[DONE]') {
-                      return;
+              return;
             }
 
             try {
@@ -287,14 +292,14 @@ export class DeepSeekProvider implements IAIProvider {
   }
 
   private calculateCost(usage: any, modelName?: string): number {
-    if (!usage) {return 0;}
+    if (!usage) { return 0; }
 
     const modelInfo = MODEL_REGISTRY[modelName || this.config.model];
-    if (!modelInfo) {return 0;}
+    if (!modelInfo) { return 0; }
 
     const inputCost = (usage.prompt_tokens / 1000000) * modelInfo.costPerMillionInput;
     const outputCost = (usage.completion_tokens / 1000000) * modelInfo.costPerMillionOutput;
-    
+
     return inputCost + outputCost;
   }
 }

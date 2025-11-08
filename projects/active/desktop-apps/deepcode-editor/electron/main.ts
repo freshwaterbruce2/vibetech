@@ -8,9 +8,11 @@
 import { app, BrowserWindow, ipcMain, dialog, shell, session } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as dbHandler from './database-handler';
+import { initializeWindowsIntegration } from './windows-integration';
 
 const execAsync = promisify(exec);
 
@@ -40,9 +42,27 @@ function createWindow() {
       preload: path.join(__dirname, '../preload/index.mjs'), // electron-vite builds as .mjs
       // Monaco Editor requires web workers
       webviewTag: false,
+      // Windows 11 GPU acceleration optimizations
+      enableWebSQL: false,
+      offscreen: false, // Enable GPU acceleration
+      backgroundThrottling: false, // Prevent throttling for better performance
     },
     show: false, // Start hidden, show when ready
   });
+
+  // Enable hardware acceleration for Monaco rendering (RTX 3060)
+  if (mainWindow && process.platform === 'win32') {
+    mainWindow.webContents.setBackgroundThrottling(false);
+    // Force GPU acceleration
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow?.webContents.executeJavaScript(`
+        // Enable GPU acceleration hints for Monaco
+        if (window.monaco) {
+          console.log('[Monaco] GPU acceleration enabled for RTX 3060');
+        }
+      `);
+    });
+  }
 
   // CRITICAL: Force window visibility when ready
   mainWindow.once('ready-to-show', () => {
@@ -169,9 +189,39 @@ function setupCSP() {
 }
 
 /**
+ * Configure Windows 11 optimizations
+ * - GPU acceleration for RTX 3060
+ * - Multi-core processing for AMD Ryzen 7
+ */
+function configureWindowsOptimizations() {
+  if (process.platform === 'win32') {
+    // Enable GPU acceleration for RTX 3060
+    app.commandLine.appendSwitch('enable-gpu-rasterization');
+    app.commandLine.appendSwitch('enable-zero-copy');
+    app.commandLine.appendSwitch('enable-hardware-overlays');
+    app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
+
+    // Force GPU acceleration (for RTX 3060)
+    app.commandLine.appendSwitch('ignore-gpu-blacklist');
+    app.commandLine.appendSwitch('enable-gpu');
+
+    // Optimize for multi-core (AMD Ryzen 7)
+    app.commandLine.appendSwitch('enable-features', 'ParallelDownloading');
+
+    // Memory optimizations
+    app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096');
+
+    console.log('[Electron] Windows 11 optimizations enabled (RTX 3060 GPU, AMD Ryzen 7 multi-core)');
+  }
+}
+
+/**
  * App lifecycle events
  */
 app.whenReady().then(async () => {
+  // Configure Windows optimizations BEFORE creating windows
+  configureWindowsOptimizations();
+
   // Configure CSP before creating windows
   setupCSP();
 
@@ -190,6 +240,56 @@ app.whenReady().then(async () => {
   }
 
   createWindow();
+
+  // Initialize Windows 11 native integrations
+  if (process.platform === 'win32') {
+    initializeWindowsIntegration().catch((error) => {
+      console.error('[Electron] Windows integration initialization failed:', error);
+    });
+
+    // Handle file/folder opening from command line or file association
+    const openPath = process.argv.find(arg =>
+      arg !== process.execPath &&
+      !arg.startsWith('--') &&
+      (fsSync.existsSync(arg) || path.isAbsolute(arg))
+    );
+
+    if (openPath) {
+      // Wait for window to be ready, then send file path
+      mainWindow?.webContents.once('did-finish-load', () => {
+        mainWindow?.webContents.send('open-path', openPath);
+        console.log('[Electron] Opening path from command line:', openPath);
+      });
+    }
+  }
+
+  // Handle additional file opens (Windows file associations)
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Another instance tried to open - focus our window instead
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+
+      // Open any file paths from command line
+      const filePaths = commandLine.slice(1).filter(arg =>
+        !arg.startsWith('--') && (fsSync.existsSync(arg) || path.isAbsolute(arg))
+      );
+
+      if (filePaths.length > 0) {
+        mainWindow.webContents.send('open-paths', filePaths);
+        console.log('[Electron] Opening files from second instance:', filePaths);
+      }
+    }
+  });
+
+  // Prevent multiple instances (Windows)
+  if (process.platform === 'win32') {
+    const gotTheLock = app.requestSingleInstanceLock();
+    if (!gotTheLock) {
+      app.quit();
+      return;
+    }
+  }
 
   // macOS: Re-create window when dock icon clicked
   app.on('activate', () => {

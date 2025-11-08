@@ -274,21 +274,70 @@ export class WorkspaceService {
     ];
   }
 
+  /**
+   * Analyze files with multi-core optimization (AMD Ryzen 7)
+   * Uses parallel processing to utilize all CPU cores
+   */
   private async analyzeFiles(fileTree: FileSystemItem[]): Promise<void> {
-    const analyzeItem = async (item: FileSystemItem): Promise<void> => {
-      if (item.type === 'file') {
-        const analysis = await this.analyzeFile(item.path);
-        this.index.files.set(item.path, analysis);
-      } else if (item.children) {
-        for (const child of item.children) {
-          await analyzeItem(child);
+    // Collect all files first
+    const allFiles: string[] = [];
+    const collectFiles = (items: FileSystemItem[]): void => {
+      for (const item of items) {
+        if (item.type === 'file') {
+          allFiles.push(item.path);
+        } else if (item.children) {
+          collectFiles(item.children);
         }
       }
     };
+    collectFiles(fileTree);
 
-    for (const item of fileTree) {
-      await analyzeItem(item);
+    logger.debug(`[WorkspaceService] Analyzing ${allFiles.length} files with multi-core optimization`);
+
+    // Determine optimal batch size based on CPU cores (AMD Ryzen 7 = 8 cores, 16 threads)
+    // Use 4-8 parallel workers to avoid overwhelming the system
+    const cpuCores = navigator.hardwareConcurrency || 8; // Default to 8 for Ryzen 7
+    const batchSize = Math.min(cpuCores * 2, 16); // Use up to 16 parallel workers
+    const batches: string[][] = [];
+
+    // Split files into batches for parallel processing
+    for (let i = 0; i < allFiles.length; i += batchSize) {
+      batches.push(allFiles.slice(i, i + batchSize));
     }
+
+    logger.debug(`[WorkspaceService] Processing ${batches.length} batches with ${batchSize} files per batch`);
+
+    // Process batches in parallel, but limit concurrent batches to avoid memory issues
+    const maxConcurrentBatches = Math.min(4, Math.ceil(cpuCores / 2));
+    for (let i = 0; i < batches.length; i += maxConcurrentBatches) {
+      const concurrentBatches = batches.slice(i, i + maxConcurrentBatches);
+
+      await Promise.all(
+        concurrentBatches.map(async (batch) => {
+          // Process files in batch in parallel
+          const analyses = await Promise.all(
+            batch.map(async (filePath) => {
+              try {
+                const analysis = await this.analyzeFile(filePath);
+                return { filePath, analysis };
+              } catch (error) {
+                logger.error(`[WorkspaceService] Failed to analyze ${filePath}:`, error);
+                return null;
+              }
+            })
+          );
+
+          // Add successful analyses to index
+          for (const result of analyses) {
+            if (result) {
+              this.index.files.set(result.filePath, result.analysis);
+            }
+          }
+        })
+      );
+    }
+
+    logger.debug(`[WorkspaceService] Multi-core analysis complete. Indexed ${this.index.files.size} files`);
   }
 
   private async analyzeFile(filePath: string): Promise<FileAnalysis> {

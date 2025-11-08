@@ -15,6 +15,7 @@ import { ModernErrorBoundary } from './components/ErrorBoundary/index';
 import { ErrorFixPanel } from './components/ErrorFixPanel';
 import GitPanel from './components/GitPanel';
 import { GlobalSearch } from './components/GlobalSearch';
+import { LearningPanel } from './components/LearningPanel';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts';
 // Lazy loaded components
 import { LazyAIChat, LazyCommandPalette, LazySettings } from './components/LazyComponents';
@@ -261,13 +262,14 @@ function App() {
 
   // Git panel state
   const [gitPanelOpen, _setGitPanelOpen] = useState(false);
-  
+  const [learningPanelOpen, setLearningPanelOpen] = useState(false);
+
   // Composer Mode state
   const [composerModeOpen, setComposerModeOpen] = useState(false);
 
   // Global search state
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
-  
+
   // Keyboard shortcuts state
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
   const [backgroundPanelOpen, setBackgroundPanelOpen] = useState(false);
@@ -429,22 +431,22 @@ function App() {
   }, [handleOpenFile]);
 
   const handleReplaceInFile = useCallback(async (
-    file: string, 
-    searchText: string, 
-    replaceText: string, 
+    file: string,
+    searchText: string,
+    replaceText: string,
     options: any
   ) => {
     try {
       const result = await searchService.replaceInFile(
-        file, 
-        searchService['createSearchPattern'](searchText, options), 
-        replaceText, 
+        file,
+        searchService['createSearchPattern'](searchText, options),
+        replaceText,
         options
       );
-      
+
       if (result.success && result.replacements > 0) {
         showSuccess('Replace Complete', `Replaced ${result.replacements} occurrences in ${file}`);
-        
+
         // Refresh the file if it's currently open
         if (currentFile?.path === file) {
           const content = await fileSystemService.readFile(file);
@@ -563,7 +565,7 @@ function App() {
         window.addEventListener('keydown', handleCtrlS);
         setTimeout(() => window.removeEventListener('keydown', handleCtrlS), 2000);
       }
-      
+
       // Command palette: Ctrl+Shift+P
       if (e.ctrlKey && e.shiftKey && e.key === 'P') {
         e.preventDefault();
@@ -889,7 +891,7 @@ I'm now your context-aware coding companion! 🎯`,
     },
     currentFile: currentFile?.path || null,
   });
-  
+
   // Composer Mode handler
   const handleComposerModeApply = async (files: any[]) => {
     try {
@@ -903,7 +905,7 @@ I'm now your context-aware coding companion! 🎯`,
       showError('Composer Mode', 'Failed to apply changes');
     }
   };
-  
+
   const handleModelChange = async (model: string) => {
     setCurrentModel(model);
     // Update AI service with new model
@@ -1200,6 +1202,25 @@ I'm now your context-aware coding companion! 🎯`,
 
             {gitPanelOpen && <GitPanel workingDirectory={workspaceFolder || undefined} />}
 
+            {learningPanelOpen && dbService && (
+              <div style={{
+                position: 'fixed',
+                right: 0,
+                top: '40px',
+                bottom: '40px',
+                width: '400px',
+                zIndex: 1000,
+                background: '#1e1e1e',
+                borderLeft: '1px solid #3e3e3e',
+                boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.3)',
+              }}>
+                <LearningPanel
+                  databaseService={dbService}
+                  onClose={() => setLearningPanelOpen(false)}
+                />
+              </div>
+            )}
+
             {backgroundPanelOpen && (
               <BackgroundTaskPanel
                 backgroundAgent={backgroundAgentSystem}
@@ -1230,6 +1251,7 @@ I'm now your context-aware coding companion! 🎯`,
             onToggleScreenshot={handleToggleScreenshotPanel}
             onToggleLibrary={handleToggleComponentLibrary}
             onToggleVisualEditor={handleToggleVisualEditor}
+            onToggleLearningPanel={() => setLearningPanelOpen(!learningPanelOpen)}
           />
 
           <NotificationContainer notifications={notifications} onClose={removeNotification} />

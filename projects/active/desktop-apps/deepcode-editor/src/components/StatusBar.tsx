@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, AlertCircle, CheckCircle, GitBranch, ImageIcon, Layers, MessageCircle, Package,Sidebar, Sparkles, Terminal, Zap } from 'lucide-react';
+import { Activity, AlertCircle, BookOpen, CheckCircle, GitBranch, ImageIcon, Layers, MessageCircle, Package,Sidebar, Sparkles, Terminal, Zap } from 'lucide-react';
 import styled from 'styled-components';
 
 import { useGit } from '../hooks/useGit';
@@ -110,6 +110,7 @@ interface StatusBarProps {
   onToggleScreenshot?: () => void;
   onToggleLibrary?: () => void;
   onToggleVisualEditor?: () => void;
+  onToggleLearningPanel?: () => void;
 }
 
 const StatusBar: React.FC<StatusBarProps> = ({
@@ -125,6 +126,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
   onToggleScreenshot,
   onToggleLibrary,
   onToggleVisualEditor,
+  onToggleLearningPanel,
 }) => {
   const { isGitRepo, status, branches } = useGit();
 
@@ -252,6 +254,19 @@ const StatusBar: React.FC<StatusBarProps> = ({
           </ToggleButton>
         )}
 
+        {onToggleLearningPanel && (
+          <ToggleButton
+            active={false}
+            onClick={onToggleLearningPanel}
+            title="Learning System (Mistakes & Knowledge)"
+            whileHover={{ scale: 1.05, y: -1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <BookOpen size={14} />
+            Learning
+          </ToggleButton>
+        )}
+
         {onOpenAgentMode && (
           <ToggleButton
             active={false}
@@ -264,7 +279,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
             Agent
           </ToggleButton>
         )}
-        
+
         {onOpenComposerMode && (
           <ToggleButton
             active={false}

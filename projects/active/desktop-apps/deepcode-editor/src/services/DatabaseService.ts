@@ -66,6 +66,7 @@ const getDatabasePath = (): string => {
 };
 
 const DATABASE_PATH = getDatabasePath();
+const LEARNING_DB_PATH = 'D:\\databases\\agent_learning.db'; // Shared learning database
 const STORAGE_FALLBACK_PREFIX = 'deepcode_fallback_';
 
 // Interface definitions
@@ -797,7 +798,7 @@ export class DatabaseService {
     let errors = 0;
 
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = window.electronAPI.store.get(STORAGE_KEY);
       if (!stored) {
         logger.debug('[DatabaseService] No strategy patterns to migrate');
         return { migrated, errors };
@@ -817,7 +818,7 @@ export class DatabaseService {
       }
 
       // Create backup in localStorage
-      localStorage.setItem(`${STORAGE_KEY}_backup_${Date.now()}`, stored);
+      window.electronAPI.store.set(`${STORAGE_KEY}_backup_${Date.now()}`, stored);
 
       logger.debug(`[DatabaseService] ✅ Migration complete: ${migrated} migrated, ${errors} errors`);
       return { migrated, errors };
@@ -845,6 +846,14 @@ export class DatabaseService {
       const patternHash = pattern.problemSignature;
       const patternData = JSON.stringify(pattern);
 
+      // Convert dates to ISO strings, handling both Date objects and strings
+      const lastUsedAt = pattern.lastUsedAt instanceof Date
+        ? pattern.lastUsedAt.toISOString()
+        : new Date(pattern.lastUsedAt).toISOString();
+      const createdAt = pattern.createdAt instanceof Date
+        ? pattern.createdAt.toISOString()
+        : new Date(pattern.createdAt).toISOString();
+
       if (this.isElectron) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [
@@ -852,8 +861,8 @@ export class DatabaseService {
           patternData,
           pattern.successRate,
           pattern.usageCount,
-          pattern.lastUsedAt.toISOString(),
-          pattern.createdAt.toISOString()
+          lastUsedAt,
+          createdAt
         ]);
 
         if (!result?.success) {
@@ -865,8 +874,8 @@ export class DatabaseService {
           patternData,
           pattern.successRate,
           pattern.usageCount,
-          pattern.lastUsedAt.toISOString(),
-          pattern.createdAt.toISOString(),
+          lastUsedAt,
+          createdAt,
         ]);
       }
 
@@ -1042,7 +1051,7 @@ export class DatabaseService {
     try {
       const data = this.db.export();
       const base64 = btoa(String.fromCharCode(...data));
-      localStorage.setItem('deepcode_database_blob', base64);
+      window.electronAPI.store.set('deepcode_database_blob', base64);
     } catch (error) {
       logger.error('[DatabaseService] Failed to save to localStorage:', error);
     }
@@ -1075,11 +1084,11 @@ export class DatabaseService {
       created_at: new Date(row.created_at),
       usage_count: row.usage_count,
     };
-    
+
     if (row.description) {snippet.description = row.description;}
     if (row.tags) {snippet.tags = JSON.parse(row.tags);}
     if (row.last_used) {snippet.last_used = new Date(row.last_used);}
-    
+
     return snippet;
   }
 
@@ -1096,7 +1105,7 @@ export class DatabaseService {
     context?: any
   ): number {
     const key = `${STORAGE_FALLBACK_PREFIX}chat_${workspace}`;
-    const messages = JSON.parse(localStorage.getItem(key) || '[]');
+    const messages = JSON.parse(window.electronAPI.store.get(key) || '[]');
 
     const newMessage: ChatMessage = {
       id: Date.now(),
@@ -1106,25 +1115,25 @@ export class DatabaseService {
       ai_response: aiResponse,
       model_used: model,
     };
-    
+
     if (tokens !== undefined) {newMessage.tokens_used = tokens;}
     if (context) {newMessage.workspace_context = JSON.stringify(context);}
 
     messages.push(newMessage);
-    localStorage.setItem(key, JSON.stringify(messages));
+    window.electronAPI.store.set(key, JSON.stringify(messages));
 
     return newMessage.id!;
   }
 
   private getChatHistoryFallback(workspace: string, limit: number, offset: number): ChatMessage[] {
     const key = `${STORAGE_FALLBACK_PREFIX}chat_${workspace}`;
-    const messages = JSON.parse(localStorage.getItem(key) || '[]');
+    const messages = JSON.parse(window.electronAPI.store.get(key) || '[]');
     return messages.slice(offset, offset + limit);
   }
 
   private clearChatHistoryFallback(workspace: string): void {
     const key = `${STORAGE_FALLBACK_PREFIX}chat_${workspace}`;
-    localStorage.removeItem(key);
+    window.electronAPI.store.delete(key);
   }
 
   private saveSnippetFallback(
@@ -1134,7 +1143,7 @@ export class DatabaseService {
     tags?: string[]
   ): number {
     const key = `${STORAGE_FALLBACK_PREFIX}snippets`;
-    const snippets = JSON.parse(localStorage.getItem(key) || '[]');
+    const snippets = JSON.parse(window.electronAPI.store.get(key) || '[]');
 
     const newSnippet: CodeSnippet = {
       id: Date.now(),
@@ -1143,19 +1152,19 @@ export class DatabaseService {
       created_at: new Date(),
       usage_count: 0,
     };
-    
+
     if (description) {newSnippet.description = description;}
     if (tags) {newSnippet.tags = JSON.stringify(tags);}
 
     snippets.push(newSnippet);
-    localStorage.setItem(key, JSON.stringify(snippets));
+    window.electronAPI.store.set(key, JSON.stringify(snippets));
 
     return newSnippet.id!;
   }
 
   private searchSnippetsFallback(query?: string, language?: string, limit?: number): CodeSnippet[] {
     const key = `${STORAGE_FALLBACK_PREFIX}snippets`;
-    const snippets = JSON.parse(localStorage.getItem(key) || '[]');
+    const snippets = JSON.parse(window.electronAPI.store.get(key) || '[]');
 
     let filtered = snippets;
 
@@ -1174,24 +1183,24 @@ export class DatabaseService {
 
   private getSettingFallback<T>(key: string, defaultValue?: T): T | undefined {
     const storageKey = `${STORAGE_FALLBACK_PREFIX}setting_${key}`;
-    const value = localStorage.getItem(storageKey);
+    const value = window.electronAPI.store.get(storageKey);
     return value ? JSON.parse(value) : defaultValue;
   }
 
   private setSettingFallback(key: string, value: any): void {
     const storageKey = `${STORAGE_FALLBACK_PREFIX}setting_${key}`;
-    localStorage.setItem(storageKey, JSON.stringify(value));
+    window.electronAPI.store.set(storageKey, JSON.stringify(value));
   }
 
   private getAllSettingsFallback(): Record<string, any> {
     const settings: Record<string, any> = {};
     const prefix = `${STORAGE_FALLBACK_PREFIX}setting_`;
 
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    for (let i = 0; i < window.electronAPI.store; i++) {
+      const key = window.electronAPI.store(i);
       if (key?.startsWith(prefix)) {
         const settingKey = key.substring(prefix.length);
-        settings[settingKey] = JSON.parse(localStorage.getItem(key)!);
+        settings[settingKey] = JSON.parse(window.electronAPI.store.get(key)!);
       }
     }
 
@@ -1200,7 +1209,7 @@ export class DatabaseService {
 
   private savePatternFallback(pattern: StrategyPattern): void {
     const key = `${STORAGE_FALLBACK_PREFIX}patterns`;
-    const patterns = JSON.parse(localStorage.getItem(key) || '[]');
+    const patterns = JSON.parse(window.electronAPI.store.get(key) || '[]');
 
     // Find and replace or append
     const index = patterns.findIndex((p: StrategyPattern) => p.problemSignature === pattern.problemSignature);
@@ -1210,13 +1219,342 @@ export class DatabaseService {
       patterns.push(pattern);
     }
 
-    localStorage.setItem(key, JSON.stringify(patterns));
+    window.electronAPI.store.set(key, JSON.stringify(patterns));
   }
 
   private queryPatternsFallback(limit: number): StrategyPattern[] {
     const key = `${STORAGE_FALLBACK_PREFIX}patterns`;
-    const patterns = JSON.parse(localStorage.getItem(key) || '[]');
+    const patterns = JSON.parse(window.electronAPI.store.get(key) || '[]');
     return patterns.slice(0, limit);
+  }
+
+  /**
+   * ============================================
+   * LEARNING DATABASE METHODS
+   * Direct access to D:\databases\agent_learning.db
+   * ============================================
+   */
+
+  /**
+   * Log a mistake to the shared learning database
+   */
+  async logMistake(mistake: {
+    mistakeType: string;
+    mistakeCategory?: string;
+    description: string;
+    rootCauseAnalysis?: string;
+    contextWhenOccurred?: string;
+    impactSeverity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    preventionStrategy?: string;
+    resolved?: boolean;
+    platform?: 'Desktop' | 'Web' | 'Mobile' | 'Python' | 'General';
+    recurrenceRisk?: 'LOW' | 'MEDIUM' | 'HIGH';
+    tags?: string[];
+  }): Promise<number> {
+    if (this.useFallback) {
+      logger.warn('[DatabaseService] Cannot log mistake in fallback mode');
+      return 0;
+    }
+
+    try {
+      const sql = `
+        INSERT INTO agent_mistakes (
+          mistake_type, mistake_category, description, root_cause_analysis,
+          context_when_occurred, impact_severity, prevention_strategy,
+          resolved, platform, tags, app_source, identified_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'vibe', CURRENT_TIMESTAMP)
+      `;
+
+      const tagsJson = mistake.tags ? JSON.stringify(mistake.tags) : null;
+      const severity = mistake.impactSeverity.toLowerCase();
+      const platform = mistake.platform?.toLowerCase() || 'general';
+
+      if (this.isElectron) {
+        const result = await window.electron?.db?.query(sql, [
+          mistake.mistakeType,
+          mistake.mistakeCategory || null,
+          mistake.description,
+          mistake.rootCauseAnalysis || null,
+          mistake.contextWhenOccurred || null,
+          severity,
+          mistake.preventionStrategy || null,
+          mistake.resolved ? 1 : 0,
+          platform,
+          tagsJson,
+        ]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Failed to log mistake');
+        }
+
+        return result.lastInsertRowid || 0;
+      } else {
+        // Web fallback - store in localStorage
+        const key = `${STORAGE_FALLBACK_PREFIX}mistakes`;
+        const mistakes = JSON.parse(localStorage.getItem(key) || '[]');
+        const newMistake = {
+          id: Date.now(),
+          ...mistake,
+          app_source: 'vibe',
+          identified_at: new Date().toISOString(),
+        };
+        mistakes.push(newMistake);
+        localStorage.setItem(key, JSON.stringify(mistakes));
+        return newMistake.id;
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to log mistake:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add knowledge entry to the shared learning database
+   */
+  async addKnowledge(knowledge: {
+    title: string;
+    content: string;
+    category?: string;
+    tags?: string[];
+    source?: string;
+  }): Promise<number> {
+    if (this.useFallback) {
+      logger.warn('[DatabaseService] Cannot add knowledge in fallback mode');
+      return 0;
+    }
+
+    try {
+      const sql = `
+        INSERT INTO agent_knowledge (
+          knowledge_type, title, content, tags, app_source, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, 'vibe', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      `;
+
+      const tagsJson = knowledge.tags ? JSON.stringify(knowledge.tags) : null;
+      const knowledgeType = knowledge.category || 'general';
+
+      if (this.isElectron) {
+        const result = await window.electron?.db?.query(sql, [
+          knowledgeType,
+          knowledge.title,
+          knowledge.content,
+          tagsJson,
+        ]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Failed to add knowledge');
+        }
+
+        return result.lastInsertRowid || 0;
+      } else {
+        // Web fallback
+        const key = `${STORAGE_FALLBACK_PREFIX}knowledge`;
+        const entries = JSON.parse(localStorage.getItem(key) || '[]');
+        const newEntry = {
+          id: Date.now(),
+          ...knowledge,
+          app_source: 'vibe',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        entries.push(newEntry);
+        localStorage.setItem(key, JSON.stringify(entries));
+        return newEntry.id;
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to add knowledge:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get mistakes from the shared learning database
+   */
+  async getMistakes(filter?: {
+    severity?: 'low' | 'medium' | 'high' | 'critical';
+    platform?: string;
+    resolved?: boolean;
+    limit?: number;
+  }): Promise<any[]> {
+    if (this.useFallback) {
+      return this.getMistakesFallback(filter);
+    }
+
+    try {
+      let sql = 'SELECT * FROM agent_mistakes WHERE 1=1';
+      const params: any[] = [];
+
+      if (filter?.severity) {
+        sql += ' AND impact_severity = ?';
+        params.push(filter.severity.toLowerCase());
+      }
+
+      if (filter?.platform) {
+        sql += ' AND platform = ?';
+        params.push(filter.platform.toLowerCase());
+      }
+
+      if (filter?.resolved !== undefined) {
+        sql += ' AND resolved = ?';
+        params.push(filter.resolved ? 1 : 0);
+      }
+
+      sql += ' ORDER BY identified_at DESC';
+
+      if (filter?.limit) {
+        sql += ' LIMIT ?';
+        params.push(filter.limit);
+      }
+
+      if (this.isElectron) {
+        const result = await window.electron?.db?.query(sql, params);
+        if (!result?.success) {
+          throw new Error(result?.error || 'Failed to get mistakes');
+        }
+        return (result.rows || []).map((row: any) => ({
+          id: row.id,
+          mistakeType: row.mistake_type,
+          mistakeCategory: row.mistake_category,
+          description: row.description,
+          rootCauseAnalysis: row.root_cause_analysis,
+          contextWhenOccurred: row.context_when_occurred,
+          impactSeverity: row.impact_severity.toUpperCase(),
+          preventionStrategy: row.prevention_strategy,
+          resolved: row.resolved === 1,
+          platform: row.platform,
+          tags: row.tags ? JSON.parse(row.tags) : [],
+          app_source: row.app_source,
+          identified_at: row.identified_at,
+        }));
+      } else {
+        return this.getMistakesFallback(filter);
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to get mistakes:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get knowledge entries from the shared learning database
+   */
+  async getKnowledge(filter?: {
+    category?: string;
+    keyword?: string;
+    limit?: number;
+  }): Promise<any[]> {
+    if (this.useFallback) {
+      return this.getKnowledgeFallback(filter);
+    }
+
+    try {
+      let sql = 'SELECT * FROM agent_knowledge WHERE 1=1';
+      const params: any[] = [];
+
+      if (filter?.category) {
+        sql += ' AND knowledge_type = ?';
+        params.push(filter.category);
+      }
+
+      if (filter?.keyword) {
+        sql += ' AND (title LIKE ? OR content LIKE ?)';
+        const keyword = `%${filter.keyword}%`;
+        params.push(keyword, keyword);
+      }
+
+      sql += ' ORDER BY updated_at DESC';
+
+      if (filter?.limit) {
+        sql += ' LIMIT ?';
+        params.push(filter.limit);
+      }
+
+      if (this.isElectron) {
+        const result = await window.electron?.db?.query(sql, params);
+        if (!result?.success) {
+          throw new Error(result?.error || 'Failed to get knowledge');
+        }
+        return (result.rows || []).map((row: any) => ({
+          id: row.id,
+          knowledgeType: row.knowledge_type,
+          title: row.title,
+          content: row.content,
+          category: row.knowledge_type,
+          tags: row.tags ? JSON.parse(row.tags) : [],
+          app_source: row.app_source,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+        }));
+      } else {
+        return this.getKnowledgeFallback(filter);
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to get knowledge:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get recent mistakes (convenience method)
+   */
+  async getRecentMistakes(limit: number = 10): Promise<any[]> {
+    return this.getMistakes({ limit, resolved: false });
+  }
+
+  /**
+   * Get recent knowledge (convenience method)
+   */
+  async getRecentKnowledge(limit: number = 10): Promise<any[]> {
+    return this.getKnowledge({ limit });
+  }
+
+  /**
+   * Fallback methods for web environment
+   */
+  private getMistakesFallback(filter?: any): any[] {
+    const key = `${STORAGE_FALLBACK_PREFIX}mistakes`;
+    const mistakes = JSON.parse(localStorage.getItem(key) || '[]');
+    let filtered = mistakes;
+
+    if (filter?.severity) {
+      filtered = filtered.filter((m: any) =>
+        m.impactSeverity?.toLowerCase() === filter.severity.toLowerCase()
+      );
+    }
+
+    if (filter?.resolved !== undefined) {
+      filtered = filtered.filter((m: any) => m.resolved === filter.resolved);
+    }
+
+    if (filter?.limit) {
+      filtered = filtered.slice(0, filter.limit);
+    }
+
+    return filtered;
+  }
+
+  private getKnowledgeFallback(filter?: any): any[] {
+    const key = `${STORAGE_FALLBACK_PREFIX}knowledge`;
+    const knowledge = JSON.parse(localStorage.getItem(key) || '[]');
+    let filtered = knowledge;
+
+    if (filter?.category) {
+      filtered = filtered.filter((k: any) => k.category === filter.category);
+    }
+
+    if (filter?.keyword) {
+      const keyword = filter.keyword.toLowerCase();
+      filtered = filtered.filter((k: any) =>
+        k.title?.toLowerCase().includes(keyword) ||
+        k.content?.toLowerCase().includes(keyword)
+      );
+    }
+
+    if (filter?.limit) {
+      filtered = filtered.slice(0, filter.limit);
+    }
+
+    return filtered;
   }
 
   /**
