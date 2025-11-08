@@ -68,30 +68,35 @@ export class SecureApiKeyManager {
    * Validate API key format and structure
    */
   public validateApiKey(key: string, provider: string): boolean {
-    if (!key || typeof key !== 'string') {
+    try {
+      if (!key || typeof key !== 'string') {
+        return false;
+      }
+
+      // Remove whitespace
+      const cleanKey = key.trim();
+
+      // Check minimum length
+      if (cleanKey.length < 20) {
+        return false;
+      }
+
+      // Check for obvious security issues
+      if (this.containsSuspiciousPatterns(cleanKey)) {
+        return false;
+      }
+
+      // Validate against provider-specific patterns
+      const pattern = API_KEY_PATTERNS[provider.toUpperCase() as keyof typeof API_KEY_PATTERNS];
+      if (pattern && !pattern.test(cleanKey)) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      logger.error('API key validation error:', error);
       return false;
     }
-
-    // Remove whitespace
-    const cleanKey = key.trim();
-
-    // Check minimum length
-    if (cleanKey.length < 20) {
-      return false;
-    }
-
-    // Check for obvious security issues
-    if (this.containsSuspiciousPatterns(cleanKey)) {
-      return false;
-    }
-
-    // Validate against provider-specific patterns
-    const pattern = API_KEY_PATTERNS[provider.toUpperCase() as keyof typeof API_KEY_PATTERNS];
-    if (pattern && !pattern.test(cleanKey)) {
-      return false;
-    }
-
-    return true;
   }
 
   /**
@@ -114,11 +119,11 @@ export class SecureApiKeyManager {
     try {
       const bytes = CryptoJS.AES.decrypt(encryptedKey, this.encryptionKey);
       const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-      
+
       if (!decrypted) {
         throw new Error('Invalid encryption key or corrupted data');
       }
-      
+
       return decrypted;
     } catch (error) {
       logger.error('Failed to decrypt API key:', error);
