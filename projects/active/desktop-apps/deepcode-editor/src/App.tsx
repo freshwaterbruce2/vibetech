@@ -67,6 +67,8 @@ import { WorkspaceService } from './services/WorkspaceService';
 import { getUserFriendlyError } from './utils/errorHandler';
 // Types
 import { AIMessage, EditorFile } from './types';
+// IPC Store for integration with NOVA Agent
+import { initializeIPCStore, useIPCStore } from './stores/useIPCStore';
 
 // Browser-compatible Mock GitService (git_commit won't work in browser mode)
 class MockGitService {
@@ -1039,6 +1041,95 @@ I'm now your context-aware coding companion! 🎯`,
     };
     loadApiKey();
   }, []);
+
+  // Initialize IPC Store and auto-connect to IPC Bridge
+  useEffect(() => {
+    const initializeIPC = async () => {
+      try {
+        logger.info('[Vibe] Initializing IPC Bridge connection...');
+        initializeIPCStore();
+        showSuccess('Connected to IPC Bridge', 'Integration with NOVA Agent enabled');
+      } catch (err) {
+        logger.error('[Vibe] Failed to initialize IPC:', err);
+        showWarning('IPC Bridge connection failed', 'Integration features may be unavailable');
+      }
+    };
+
+    // Initialize with a small delay to allow app to fully mount
+    const timer = setTimeout(() => {
+      initializeIPC();
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [showSuccess, showWarning]);
+
+  // Subscribe to IPC status changes for notifications
+  useEffect(() => {
+    let previousStatus = useIPCStore.getState().status;
+
+    const unsubscribe = useIPCStore.subscribe((state) => {
+      const currentStatus = state.status;
+
+      // Notify on disconnect
+      if (previousStatus === 'connected' && currentStatus === 'disconnected') {
+        showWarning('IPC Bridge disconnected', 'Attempting to reconnect...');
+      }
+
+      // Notify on reconnection
+      if (previousStatus !== 'connected' && currentStatus === 'connected') {
+        showSuccess('IPC Bridge reconnected', 'Integration restored');
+      }
+
+      // Notify on error
+      if (currentStatus === 'error' && previousStatus !== 'error') {
+        showError('IPC Connection error', state.lastError || 'Unknown error occurred');
+      }
+
+      previousStatus = currentStatus;
+    });
+
+    return () => unsubscribe();
+  }, [showSuccess, showWarning, showError]);
+
+  // Listen for file open requests from NOVA Agent
+  useEffect(() => {
+    const handleFileOpenRequest = (event: any) => {
+      const { path, line, column } = event.detail;
+
+      logger.info(`[Vibe] Received file open request from NOVA: ${path}`);
+
+      try {
+        // Open the file using existing file manager
+        handleOpenFile(path);
+
+        // If line/column specified, focus after file loads
+        if (line !== undefined && line !== null) {
+          setTimeout(() => {
+            // Monaco editor will be available after file loads
+            if (editorRef.current && editorRef.current.monaco) {
+              const editor = editorRef.current.monaco;
+              editor.revealLineInCenter(line);
+              editor.setPosition({ lineNumber: line, column: column || 1 });
+              editor.focus();
+            }
+          }, 500);
+        }
+
+        // Focus window
+        if (window.electron) {
+          window.electron.focusWindow?.();
+        }
+
+        showSuccess('File opened from NOVA', path.split(/[\\/]/).pop() || path);
+      } catch (error) {
+        logger.error('[Vibe] Failed to open file from NOVA:', error);
+        showError('Failed to open file', 'Could not open file from NOVA Agent');
+      }
+    };
+
+    window.addEventListener('ipc:file-open', handleFileOpenRequest);
+    return () => window.removeEventListener('ipc:file-open', handleFileOpenRequest);
+  }, [handleOpenFile, showSuccess, showError]);
 
   if (isLoading) {
     return (

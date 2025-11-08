@@ -9,6 +9,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { DatabaseService } from '../services/DatabaseService';
 import { logger } from '../services/Logger';
+import { useRemoteLearningData, useIPCConnectionStatus } from '../stores/useIPCStore';
 
 const PanelContainer = styled.div`
   display: flex;
@@ -169,7 +170,7 @@ interface LearningPanelProps {
   onClose?: () => void;
 }
 
-type TabType = 'mistakes' | 'knowledge';
+type TabType = 'mistakes' | 'knowledge' | 'remote';
 
 export const LearningPanel: React.FC<LearningPanelProps> = ({ databaseService, onClose }) => {
   const [activeTab, setActiveTab] = useState<TabType>('mistakes');
@@ -177,6 +178,10 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ databaseService, o
   const [knowledge, setKnowledge] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Get remote learning data from NOVA Agent via IPC
+  const remoteLearningData = useRemoteLearningData();
+  const { isConnected } = useIPCConnectionStatus();
 
   const loadMistakes = useCallback(async () => {
     setLoading(true);
@@ -252,6 +257,10 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ databaseService, o
         <Tab active={activeTab === 'knowledge'} onClick={() => setActiveTab('knowledge')}>
           Knowledge ({knowledge.length})
         </Tab>
+        <Tab active={activeTab === 'remote'} onClick={() => setActiveTab('remote')}>
+          From NOVA {remoteLearningData.length > 0 && `(${remoteLearningData.length})`}
+          {isConnected && <span style={{ marginLeft: '4px', color: '#22c55e' }}>●</span>}
+        </Tab>
       </Tabs>
 
       <Content>
@@ -276,6 +285,52 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ databaseService, o
         {!loading && activeTab === 'knowledge' && knowledge.length === 0 && (
           <EmptyState>No knowledge entries yet</EmptyState>
         )}
+
+        {activeTab === 'remote' && !isConnected && (
+          <EmptyState>
+            <div style={{ fontSize: '14px', marginBottom: '8px' }}>
+              Not connected to NOVA Agent
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.7 }}>
+              Remote learning data appears here when connected via IPC Bridge
+            </div>
+          </EmptyState>
+        )}
+
+        {activeTab === 'remote' && isConnected && remoteLearningData.length === 0 && (
+          <EmptyState>
+            <div style={{ fontSize: '14px', marginBottom: '8px' }}>
+              No learning data received from NOVA yet
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.7 }}>
+              Learning data will appear here automatically when NOVA shares insights
+            </div>
+          </EmptyState>
+        )}
+
+        {activeTab === 'remote' && remoteLearningData.map((item) => (
+          <KnowledgeCard key={item.id} style={{ borderLeftColor: '#8b5cf6' }}>
+            <CardHeader>
+              <CardTitle>{item.content.substring(0, 60)}...</CardTitle>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <Badge type="nova" style={{ background: 'rgba(138, 43, 226, 0.5)', color: '#fff', fontWeight: 600 }}>
+                  NOVA
+                </Badge>
+                {item.category && <Badge>{item.category}</Badge>}
+              </div>
+            </CardHeader>
+            <CardContent>{item.content}</CardContent>
+            <CardMeta>
+              <span>Received: {formatDate(new Date(item.timestamp))}</span>
+              {item.tags && item.tags.length > 0 && (
+                <span>Tags: {item.tags.join(', ')}</span>
+              )}
+              <span style={{ fontStyle: 'italic', color: '#8b5cf6' }}>
+                🔗 Synced from NOVA Agent
+              </span>
+            </CardMeta>
+          </KnowledgeCard>
+        ))}
 
         {activeTab === 'mistakes' && mistakes.map((mistake) => (
           <MistakeCard key={mistake.id} severity={mistake.impactSeverity}>

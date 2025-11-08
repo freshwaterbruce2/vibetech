@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { useGit } from '../hooks/useGit';
 import { vibeTheme } from '../styles/theme';
 import { EditorFile } from '../types';
+import { IntegrationStatus } from './IntegrationStatus';
 
 const StatusBarContainer = styled.div`
   display: flex;
@@ -350,6 +351,10 @@ const StatusBar: React.FC<StatusBarProps> = ({
           <Sparkles size={14} />
           {isDemoMode ? 'Demo' : 'Live'}
         </ToggleButton>
+
+        <Separator />
+
+        <IntegrationStatus compact={true} />
       </RightSection>
     </StatusBarContainer>
   );
