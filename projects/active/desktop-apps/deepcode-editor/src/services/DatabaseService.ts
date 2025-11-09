@@ -43,7 +43,7 @@ const getDatabasePath = (): string => {
   } else if (typeof window !== 'undefined' && window.electron?.platform) {
     // Electron platform API available
     const platform = (window.electron.platform as any).os;
-    const {homedir} = (window.electron.platform as any);
+    const { homedir } = (window.electron.platform as any);
     const sep = (window.electron.platform as any).pathSeparator;
 
     if (platform === 'win32') {
@@ -392,7 +392,7 @@ export class DatabaseService {
         return (result.rows || []).map(this.parseChatMessage);
       } else {
         const result = this.db.exec(sql, [workspace, limit, offset]);
-        if (!result[0]) {return [];}
+        if (!result[0]) { return []; }
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -527,7 +527,7 @@ export class DatabaseService {
         return rows.map(this.parseSnippet);
       } else {
         const result = this.db.exec(sql, params);
-        if (!result[0]) {return [];}
+        if (!result[0]) { return []; }
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -550,7 +550,7 @@ export class DatabaseService {
    * Increment snippet usage count
    */
   async incrementSnippetUsage(id: number): Promise<void> {
-    if (this.useFallback) {return;}
+    if (this.useFallback) { return; }
 
     try {
       const sql = `
@@ -604,7 +604,7 @@ export class DatabaseService {
         return row ? JSON.parse(row.value) : defaultValue;
       } else {
         const result = this.db.exec(sql, [key]);
-        if (!result[0] || result[0].values.length === 0) {return defaultValue;}
+        if (!result[0] || result[0].values.length === 0) { return defaultValue; }
         return JSON.parse(result[0].values[0][0]);
       }
     } catch (error) {
@@ -672,7 +672,7 @@ export class DatabaseService {
         }, {});
       } else {
         const result = this.db.exec(sql);
-        if (!result[0]) {return {};}
+        if (!result[0]) { return {}; }
 
         return result[0].values.reduce((acc: any, row: any[]) => {
           acc[row[0]] = JSON.parse(row[1]);
@@ -693,7 +693,7 @@ export class DatabaseService {
    * Log an analytics event
    */
   async logEvent(eventType: string, eventData?: any): Promise<void> {
-    if (this.useFallback) {return;}
+    if (this.useFallback) { return; }
 
     try {
       const sql = `
@@ -729,7 +729,7 @@ export class DatabaseService {
     endDate?: Date,
     limit: number = 1000
   ): Promise<AnalyticsEvent[]> {
-    if (this.useFallback) {return [];}
+    if (this.useFallback) { return []; }
 
     try {
       let sql = 'SELECT * FROM deepcode_analytics WHERE 1=1';
@@ -770,7 +770,7 @@ export class DatabaseService {
         }));
       } else {
         const result = this.db.exec(sql, params);
-        if (!result[0]) {return [];}
+        if (!result[0]) { return []; }
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -793,39 +793,13 @@ export class DatabaseService {
    * Migrate strategy memory from localStorage to database
    */
   async migrateStrategyMemory(): Promise<{ migrated: number; errors: number }> {
-    const STORAGE_KEY = 'deepcode_strategy_memory';
-    let migrated = 0;
-    let errors = 0;
+    // DISABLED: Migration from localStorage no longer needed
+    // All data now stored in centralized D:\databases\database.db
+    // Both NOVA Agent and Vibe Code Studio use the same centralized database
+    // No need to migrate old localStorage data - fresh start with D:\databases\
 
-    try {
-      const stored = window.electronAPI.store.get(STORAGE_KEY);
-      if (!stored) {
-        logger.debug('[DatabaseService] No strategy patterns to migrate');
-        return { migrated, errors };
-      }
-
-      const patterns = JSON.parse(stored) as StrategyPattern[];
-      logger.debug(`[DatabaseService] Migrating ${patterns.length} strategy patterns...`);
-
-      for (const pattern of patterns) {
-        try {
-          await this.savePattern(pattern);
-          migrated++;
-        } catch (error) {
-          logger.error('[DatabaseService] Failed to migrate pattern:', error);
-          errors++;
-        }
-      }
-
-      // Create backup in localStorage
-      window.electronAPI.store.set(`${STORAGE_KEY}_backup_${Date.now()}`, stored);
-
-      logger.debug(`[DatabaseService] ✅ Migration complete: ${migrated} migrated, ${errors} errors`);
-      return { migrated, errors };
-    } catch (error) {
-      logger.error('[DatabaseService] Migration failed:', error);
-      return { migrated, errors };
-    }
+    logger.debug('[DatabaseService] Migration skipped - using centralized D:\\databases\\ storage');
+    return { migrated: 0, errors: 0 };
   }
 
   /**
@@ -922,7 +896,7 @@ export class DatabaseService {
         });
       } else {
         const result = this.db.exec(sql, [limit]);
-        if (!result[0]) {return [];}
+        if (!result[0]) { return []; }
 
         return result[0].values.map((row: any[]) => {
           const pattern = JSON.parse(row[0]);
@@ -945,7 +919,7 @@ export class DatabaseService {
    * Update pattern success rate
    */
   async updatePatternSuccess(patternHash: string, success: boolean): Promise<void> {
-    if (this.useFallback) {return;}
+    if (this.useFallback) { return; }
 
     try {
       // Get current pattern
@@ -972,7 +946,7 @@ export class DatabaseService {
         }
       }
 
-      if (!pattern) {return;}
+      if (!pattern) { return; }
 
       // Update success rate
       pattern.usageCount++;
@@ -1046,12 +1020,12 @@ export class DatabaseService {
    * Save database to localStorage (for web mode persistence)
    */
   private async saveToLocalStorage(): Promise<void> {
-    if (this.isElectron || !this.db) {return;}
+    if (this.isElectron || !this.db) { return; }
 
     try {
       const data = this.db.export();
       const base64 = btoa(String.fromCharCode(...data));
-      window.electronAPI.store.set('deepcode_database_blob', base64);
+      localStorage.setItem('deepcode_database_blob', base64);
     } catch (error) {
       logger.error('[DatabaseService] Failed to save to localStorage:', error);
     }
@@ -1085,9 +1059,9 @@ export class DatabaseService {
       usage_count: row.usage_count,
     };
 
-    if (row.description) {snippet.description = row.description;}
-    if (row.tags) {snippet.tags = JSON.parse(row.tags);}
-    if (row.last_used) {snippet.last_used = new Date(row.last_used);}
+    if (row.description) { snippet.description = row.description; }
+    if (row.tags) { snippet.tags = JSON.parse(row.tags); }
+    if (row.last_used) { snippet.last_used = new Date(row.last_used); }
 
     return snippet;
   }
@@ -1105,7 +1079,7 @@ export class DatabaseService {
     context?: any
   ): number {
     const key = `${STORAGE_FALLBACK_PREFIX}chat_${workspace}`;
-    const messages = JSON.parse(window.electronAPI.store.get(key) || '[]');
+    const messages = JSON.parse(localStorage.getItem(key) || '[]');
 
     const newMessage: ChatMessage = {
       id: Date.now(),
@@ -1116,24 +1090,24 @@ export class DatabaseService {
       model_used: model,
     };
 
-    if (tokens !== undefined) {newMessage.tokens_used = tokens;}
-    if (context) {newMessage.workspace_context = JSON.stringify(context);}
+    if (tokens !== undefined) { newMessage.tokens_used = tokens; }
+    if (context) { newMessage.workspace_context = JSON.stringify(context); }
 
     messages.push(newMessage);
-    window.electronAPI.store.set(key, JSON.stringify(messages));
+    localStorage.setItem(key, JSON.stringify(messages));
 
     return newMessage.id!;
   }
 
   private getChatHistoryFallback(workspace: string, limit: number, offset: number): ChatMessage[] {
     const key = `${STORAGE_FALLBACK_PREFIX}chat_${workspace}`;
-    const messages = JSON.parse(window.electronAPI.store.get(key) || '[]');
+    const messages = JSON.parse(localStorage.getItem(key) || '[]');
     return messages.slice(offset, offset + limit);
   }
 
   private clearChatHistoryFallback(workspace: string): void {
     const key = `${STORAGE_FALLBACK_PREFIX}chat_${workspace}`;
-    window.electronAPI.store.delete(key);
+    localStorage.removeItem(key);
   }
 
   private saveSnippetFallback(
@@ -1143,7 +1117,7 @@ export class DatabaseService {
     tags?: string[]
   ): number {
     const key = `${STORAGE_FALLBACK_PREFIX}snippets`;
-    const snippets = JSON.parse(window.electronAPI.store.get(key) || '[]');
+    const snippets = JSON.parse(localStorage.getItem(key) || '[]');
 
     const newSnippet: CodeSnippet = {
       id: Date.now(),
@@ -1153,18 +1127,18 @@ export class DatabaseService {
       usage_count: 0,
     };
 
-    if (description) {newSnippet.description = description;}
-    if (tags) {newSnippet.tags = JSON.stringify(tags);}
+    if (description) { newSnippet.description = description; }
+    if (tags) { newSnippet.tags = JSON.stringify(tags); }
 
     snippets.push(newSnippet);
-    window.electronAPI.store.set(key, JSON.stringify(snippets));
+    localStorage.setItem(key, JSON.stringify(snippets));
 
     return newSnippet.id!;
   }
 
   private searchSnippetsFallback(query?: string, language?: string, limit?: number): CodeSnippet[] {
     const key = `${STORAGE_FALLBACK_PREFIX}snippets`;
-    const snippets = JSON.parse(window.electronAPI.store.get(key) || '[]');
+    const snippets = JSON.parse(localStorage.getItem(key) || '[]');
 
     let filtered = snippets;
 
@@ -1183,24 +1157,24 @@ export class DatabaseService {
 
   private getSettingFallback<T>(key: string, defaultValue?: T): T | undefined {
     const storageKey = `${STORAGE_FALLBACK_PREFIX}setting_${key}`;
-    const value = window.electronAPI.store.get(storageKey);
+    const value = localStorage.getItem(storageKey);
     return value ? JSON.parse(value) : defaultValue;
   }
 
   private setSettingFallback(key: string, value: any): void {
     const storageKey = `${STORAGE_FALLBACK_PREFIX}setting_${key}`;
-    window.electronAPI.store.set(storageKey, JSON.stringify(value));
+    localStorage.setItem(storageKey, JSON.stringify(value));
   }
 
   private getAllSettingsFallback(): Record<string, any> {
     const settings: Record<string, any> = {};
     const prefix = `${STORAGE_FALLBACK_PREFIX}setting_`;
 
-    for (let i = 0; i < window.electronAPI.store; i++) {
-      const key = window.electronAPI.store(i);
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
       if (key?.startsWith(prefix)) {
         const settingKey = key.substring(prefix.length);
-        settings[settingKey] = JSON.parse(window.electronAPI.store.get(key)!);
+        settings[settingKey] = JSON.parse(localStorage.getItem(key)!);
       }
     }
 
@@ -1209,7 +1183,7 @@ export class DatabaseService {
 
   private savePatternFallback(pattern: StrategyPattern): void {
     const key = `${STORAGE_FALLBACK_PREFIX}patterns`;
-    const patterns = JSON.parse(window.electronAPI.store.get(key) || '[]');
+    const patterns = JSON.parse(localStorage.getItem(key) || '[]');
 
     // Find and replace or append
     const index = patterns.findIndex((p: StrategyPattern) => p.problemSignature === pattern.problemSignature);
@@ -1219,12 +1193,12 @@ export class DatabaseService {
       patterns.push(pattern);
     }
 
-    window.electronAPI.store.set(key, JSON.stringify(patterns));
+    localStorage.setItem(key, JSON.stringify(patterns));
   }
 
   private queryPatternsFallback(limit: number): StrategyPattern[] {
     const key = `${STORAGE_FALLBACK_PREFIX}patterns`;
-    const patterns = JSON.parse(window.electronAPI.store.get(key) || '[]');
+    const patterns = JSON.parse(localStorage.getItem(key) || '[]');
     return patterns.slice(0, limit);
   }
 
@@ -1289,18 +1263,10 @@ export class DatabaseService {
 
         return result.lastInsertRowid || 0;
       } else {
-        // Web fallback - store in localStorage
-        const key = `${STORAGE_FALLBACK_PREFIX}mistakes`;
-        const mistakes = JSON.parse(localStorage.getItem(key) || '[]');
-        const newMistake = {
-          id: Date.now(),
-          ...mistake,
-          app_source: 'vibe',
-          identified_at: new Date().toISOString(),
-        };
-        mistakes.push(newMistake);
-        localStorage.setItem(key, JSON.stringify(mistakes));
-        return newMistake.id;
+        // No fallback - all data must go to D:\databases\agent_learning.db
+        // If database unavailable, fail gracefully rather than creating data silos
+        logger.error('[DatabaseService] Database unavailable - cannot log mistake without D:\\databases\\ access');
+        throw new Error('Database not available - centralized storage required');
       }
     } catch (error) {
       logger.error('[DatabaseService] Failed to log mistake:', error);
@@ -1347,19 +1313,10 @@ export class DatabaseService {
 
         return result.lastInsertRowid || 0;
       } else {
-        // Web fallback
-        const key = `${STORAGE_FALLBACK_PREFIX}knowledge`;
-        const entries = JSON.parse(localStorage.getItem(key) || '[]');
-        const newEntry = {
-          id: Date.now(),
-          ...knowledge,
-          app_source: 'vibe',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        entries.push(newEntry);
-        localStorage.setItem(key, JSON.stringify(entries));
-        return newEntry.id;
+        // No fallback - all data must go to D:\databases\agent_learning.db
+        // If database unavailable, fail gracefully rather than creating data silos
+        logger.error('[DatabaseService] Database unavailable - cannot add knowledge without D:\\databases\\ access');
+        throw new Error('Database not available - centralized storage required');
       }
     } catch (error) {
       logger.error('[DatabaseService] Failed to add knowledge:', error);
@@ -1512,49 +1469,19 @@ export class DatabaseService {
    * Fallback methods for web environment
    */
   private getMistakesFallback(filter?: any): any[] {
-    const key = `${STORAGE_FALLBACK_PREFIX}mistakes`;
-    const mistakes = JSON.parse(localStorage.getItem(key) || '[]');
-    let filtered = mistakes;
-
-    if (filter?.severity) {
-      filtered = filtered.filter((m: any) =>
-        m.impactSeverity?.toLowerCase() === filter.severity.toLowerCase()
-      );
-    }
-
-    if (filter?.resolved !== undefined) {
-      filtered = filtered.filter((m: any) => m.resolved === filter.resolved);
-    }
-
-    if (filter?.limit) {
-      filtered = filtered.slice(0, filter.limit);
-    }
-
-    return filtered;
+    // No localStorage fallback - return empty if D:\databases\ unavailable
+    // This maintains single source of truth on D: drive
+    // Both NOVA and Vibe share D:\databases\agent_learning.db
+    logger.warn('[DatabaseService] Database unavailable - returning empty mistakes (D:\\databases\\ required)');
+    return [];
   }
 
   private getKnowledgeFallback(filter?: any): any[] {
-    const key = `${STORAGE_FALLBACK_PREFIX}knowledge`;
-    const knowledge = JSON.parse(localStorage.getItem(key) || '[]');
-    let filtered = knowledge;
-
-    if (filter?.category) {
-      filtered = filtered.filter((k: any) => k.category === filter.category);
-    }
-
-    if (filter?.keyword) {
-      const keyword = filter.keyword.toLowerCase();
-      filtered = filtered.filter((k: any) =>
-        k.title?.toLowerCase().includes(keyword) ||
-        k.content?.toLowerCase().includes(keyword)
-      );
-    }
-
-    if (filter?.limit) {
-      filtered = filtered.slice(0, filter.limit);
-    }
-
-    return filtered;
+    // No localStorage fallback - return empty if D:\databases\ unavailable
+    // This maintains single source of truth on D: drive
+    // Both NOVA and Vibe share D:\databases\agent_learning.db
+    logger.warn('[DatabaseService] Database unavailable - returning empty knowledge (D:\\databases\\ required)');
+    return [];
   }
 
   /**

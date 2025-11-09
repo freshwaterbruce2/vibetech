@@ -41,7 +41,7 @@ export class AutoFixCodeActionProvider implements monaco.languages.CodeActionPro
     token: monaco.CancellationToken
   ): Promise<monaco.languages.CodeActionList | undefined> {
     // Check if there are any markers (errors) at this position
-    const {markers} = context;
+    const { markers } = context;
     if (!markers || markers.length === 0) {
       return undefined;
     }
@@ -93,7 +93,7 @@ export class AutoFixCodeActionProvider implements monaco.languages.CodeActionPro
 
     return {
       actions,
-      dispose: () => {} // No cleanup needed
+      dispose: () => { } // No cleanup needed
     };
   }
 
@@ -130,8 +130,16 @@ export class AutoFixCodeActionProvider implements monaco.languages.CodeActionPro
           throw new Error('No fix suggestions generated');
         }
 
-        // Apply the first (highest confidence) suggestion
+        // Get the first (highest confidence) suggestion
         const suggestion = fix.suggestions[0];
+
+        // SAFETY: Ask for confirmation before applying
+        const confirmed = await this.confirmApply(suggestion);
+        if (!confirmed) {
+          logger.debug('[CodeActionProvider] User cancelled auto-fix');
+          return;
+        }
+
         this.applyFix(editor, model, suggestion);
 
         // Notify success
@@ -164,8 +172,13 @@ export class AutoFixCodeActionProvider implements monaco.languages.CodeActionPro
 
             if (fix.suggestions.length > 0) {
               const suggestion = fix.suggestions[0];
-              this.applyFix(editor, model, suggestion);
-              fixedCount++;
+
+              // SAFETY: Ask for confirmation before applying in batch mode too
+              const confirmed = await this.confirmApply(suggestion);
+              if (confirmed) {
+                this.applyFix(editor, model, suggestion);
+                fixedCount++;
+              }
             }
           } catch (err) {
             errors.push(`${marker.message}: ${(err as Error).message}`);
@@ -220,6 +233,21 @@ export class AutoFixCodeActionProvider implements monaco.languages.CodeActionPro
   }
 
   /**
+   * Ask user to confirm before applying fix
+   * SAFETY FEATURE: Prevents accidental code changes
+   */
+  private async confirmApply(suggestion: any): Promise<boolean> {
+    return new Promise((resolve) => {
+      const message = `Apply auto-fix?\n\n${suggestion.title}\n${suggestion.description || ''}\n\nLines ${suggestion.startLine}-${suggestion.endLine}`;
+
+      // Use native confirm dialog (simple but effective)
+      // TODO: Replace with custom styled modal for better UX
+      const confirmed = window.confirm(message);
+      resolve(confirmed);
+    });
+  }
+
+  /**
    * Apply a fix suggestion to the editor
    */
   private applyFix(
@@ -259,7 +287,7 @@ export class AutoFixCodeActionProvider implements monaco.languages.CodeActionPro
     if (message.length <= maxLength) {
       return message;
     }
-    return `${message.substring(0, maxLength)  }...`;
+    return `${message.substring(0, maxLength)}...`;
   }
 
   /**

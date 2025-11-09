@@ -17,44 +17,44 @@
  * - Accessibility support
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { useIPCConnectionStatus, useIPCActions } from '../stores/useIPCStore';
 import { ipcClient } from '../services/IPCClient';
 
-const Container = styled.div<{ clickable?: boolean }>`
+const Container = styled.div<{ $clickable?: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 4px 12px;
   background: var(--bg-elevated, #2a2a2a);
   border-radius: 6px;
-  cursor: ${props => props.clickable ? 'pointer' : 'default'};
+  cursor: ${props => props.$clickable ? 'pointer' : 'default'};
   transition: all 0.2s;
   font-size: 12px;
   border: 1px solid var(--border-color, #333);
 
   &:hover {
-    background: ${props => props.clickable ? 'var(--bg-hover, #3a3a3a)' : 'var(--bg-elevated, #2a2a2a)'};
-    border-color: ${props => props.clickable ? 'var(--accent-color, #00d2ff)' : 'var(--border-color, #333)'};
+    background: ${props => props.$clickable ? 'var(--bg-hover, #3a3a3a)' : 'var(--bg-elevated, #2a2a2a)'};
+    border-color: ${props => props.$clickable ? 'var(--accent-color, #00d2ff)' : 'var(--border-color, #333)'};
   }
 `;
 
-const StatusDot = styled.div<{ status: string }>`
+const StatusDot = styled.div<{ $status: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: ${props => {
-    switch (props.status) {
+    switch (props.$status) {
       case 'connected': return '#22c55e';
       case 'connecting': return '#f59e0b';
       case 'error': return '#ef4444';
       default: return '#6b7280';
     }
   }};
-  animation: ${props => props.status === 'connecting' ? 'pulse 1.5s infinite' : 'none'};
+  animation: ${props => props.$status === 'connecting' ? 'pulse 1.5s infinite' : 'none'};
   box-shadow: ${props => {
-    switch (props.status) {
+    switch (props.$status) {
       case 'connected': return '0 0 8px rgba(34, 197, 94, 0.5)';
       case 'error': return '0 0 8px rgba(239, 68, 68, 0.5)';
       default: return 'none';
@@ -190,25 +190,26 @@ export const IntegrationStatus: React.FC<IntegrationStatusProps> = ({ compact = 
   const { connect, disconnect } = useIPCActions();
   const [showDetails, setShowDetails] = useState(false);
 
-  const getStatusText = () => {
+  // Memoize derived values to prevent unnecessary recalculations
+  const statusText = useMemo(() => {
     switch (status) {
       case 'connected': return compact ? 'IPC' : 'IPC Connected';
       case 'connecting': return compact ? 'IPC...' : 'Connecting...';
       case 'error': return compact ? 'IPC ✗' : 'Connection Error';
       default: return compact ? 'IPC ○' : 'IPC Disconnected';
     }
-  };
+  }, [status, compact]);
 
-  const getStatusIcon = () => {
+  const statusIcon = useMemo(() => {
     switch (status) {
       case 'connected': return '🔗';
       case 'connecting': return '⏳';
       case 'error': return '⚠️';
       default: return '○';
     }
-  };
+  }, [status]);
 
-  const getTimeSinceLastPing = () => {
+  const timeSinceLastPing = useMemo(() => {
     if (!lastPing) return 'Never';
     const seconds = Math.floor((Date.now() - lastPing) / 1000);
     if (seconds < 60) return `${seconds}s ago`;
@@ -216,26 +217,27 @@ export const IntegrationStatus: React.FC<IntegrationStatusProps> = ({ compact = 
     if (minutes < 60) return `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);
     return `${hours}h ago`;
-  };
+  }, [lastPing]);
 
-  const handleReconnect = () => {
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleReconnect = useCallback(() => {
     ipcClient.disconnect();
     setTimeout(() => ipcClient.connect(), 500);
-  };
+  }, []);
 
-  const handleToggleDetails = (e: React.MouseEvent) => {
+  const handleToggleDetails = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowDetails(!showDetails);
-  };
+    setShowDetails(prev => !prev);
+  }, []);
 
-  const handleDisconnect = () => {
+  const handleDisconnect = useCallback(() => {
     disconnect();
     setShowDetails(false);
-  };
+  }, [disconnect]);
 
-  const handleConnect = () => {
+  const handleConnect = useCallback(() => {
     connect();
-  };
+  }, [connect]);
 
   // Close details when clicking outside
   React.useEffect(() => {
@@ -248,10 +250,10 @@ export const IntegrationStatus: React.FC<IntegrationStatusProps> = ({ compact = 
 
   return (
     <Wrapper>
-      <Container clickable={!compact} onClick={compact ? undefined : handleToggleDetails}>
-        <StatusDot status={status} />
-        {!compact && <StatusIcon>{getStatusIcon()}</StatusIcon>}
-        <StatusText>{getStatusText()}</StatusText>
+      <Container $clickable={!compact} onClick={compact ? undefined : handleToggleDetails}>
+        <StatusDot $status={status} />
+        {!compact && <StatusIcon>{statusIcon}</StatusIcon>}
+        <StatusText>{statusText}</StatusText>
 
         {queuedMessageCount > 0 && !compact && (
           <span style={{
@@ -292,7 +294,7 @@ export const IntegrationStatus: React.FC<IntegrationStatusProps> = ({ compact = 
           {isConnected && (
             <DetailRow>
               <DetailLabel>Last Ping</DetailLabel>
-              <DetailValue>{getTimeSinceLastPing()}</DetailValue>
+              <DetailValue>{timeSinceLastPing}</DetailValue>
             </DetailRow>
           )}
 

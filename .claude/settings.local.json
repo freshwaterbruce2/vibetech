@@ -11,7 +11,9 @@
       "Bash(cmd.exe //c \"taskkill //F //PID 48332 && taskkill //F //PID 50188\")",
       "Bash(powershell:*)",
       "Bash(cargo update:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(git add:*)",
+      "Bash(dir C:dev)"
     ],
     "deny": [],
     "ask": []

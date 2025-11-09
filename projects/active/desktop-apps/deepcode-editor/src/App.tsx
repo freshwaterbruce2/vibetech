@@ -1042,13 +1042,21 @@ I'm now your context-aware coding companion! 🎯`,
     loadApiKey();
   }, []);
 
-  // Initialize IPC Store and auto-connect to IPC Bridge
+  // Initialize IPC Store and auto-connect to IPC Bridge (non-blocking)
   useEffect(() => {
-    const initializeIPC = async () => {
+    const initializeIPC = () => {
       try {
         logger.info('[Vibe] Initializing IPC Bridge connection...');
+        // Don't block - run in background
         initializeIPCStore();
-        showSuccess('Connected to IPC Bridge', 'Integration with NOVA Agent enabled');
+
+        // Show notification after a brief delay to confirm connection
+        setTimeout(() => {
+          const store = useIPCStore.getState();
+          if (store.status === 'connected') {
+            showSuccess('Connected to IPC Bridge', 'Integration with NOVA Agent enabled');
+          }
+        }, 2000);
       } catch (err) {
         logger.error('[Vibe] Failed to initialize IPC:', err);
         showWarning('IPC Bridge connection failed', 'Integration features may be unavailable');
