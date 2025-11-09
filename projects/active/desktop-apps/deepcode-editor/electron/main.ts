@@ -5,11 +5,12 @@
  * Architecture: Cursor/VS Code style (Electron + Monaco Editor)
  */
 
-import { app, BrowserWindow, ipcMain, dialog, shell, session } from 'electron';
-import * as path from 'path';
-import * as fs from 'fs/promises';
+import { ChildProcess, exec, spawn } from 'child_process';
+import { app, BrowserWindow, dialog, ipcMain, session, shell } from 'electron';
 import * as fsSync from 'fs';
-import { exec } from 'child_process';
+import * as fs from 'fs/promises';
+import * as net from 'net';
+import * as path from 'path';
 import { promisify } from 'util';
 import * as dbHandler from './database-handler';
 import { initializeWindowsIntegration } from './windows-integration';
@@ -18,10 +19,163 @@ const execAsync = promisify(exec);
 
 // Keep a global reference to prevent garbage collection
 let mainWindow: BrowserWindow | null = null;
+let ipcBridgeProcess: ChildProcess | null = null;
 
 // Development or production mode
-const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5174';
+const isDev = process.env['NODE_ENV'] === 'development' || !app.isPackaged;
+const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'] || 'http://localhost:5174';
+
+/**
+ * Check if a TCP port is open (listening)
+ */
+async function isPortOpen(port: number, host = '127.0.0.1'): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    const onError = () => {
+      try { socket.destroy(); } catch { /* noop */ }
+      resolve(false);
+    };
+    socket.setTimeout(1500);
+    socket.once('error', onError);
+    socket.once('timeout', onError);
+    socket.connect(port, host, () => {
+      try { socket.end(); } catch { /* noop */ }
+      resolve(true);
+    });
+  });
+}
+
+/**
+ * Wait until a port becomes open, with timeout
+ */
+async function waitForPort(
+  port: number,
+  host = '127.0.0.1',
+  timeoutMs = 10000,
+  intervalMs = 300
+): Promise<boolean> {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+
+    if (await isPortOpen(port, host)) {
+      return true;
+    }
+
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  return false;
+}
+
+/**
+ * Resolve the filesystem path to the IPC Bridge project directory
+ * Priority:
+ *  1) env VIBE_IPC_BRIDGE_DIR
+ *  2) Monorepo path (dev): <repoRoot>/backend/ipc-bridge
+ *  3) Fallback (prod): C:\\dev\\backend\\ipc-bridge
+ */
+function resolveIpcBridgeDir(): string | null {
+  const envPath = process.env['VIBE_IPC_BRIDGE_DIR'];
+  if (envPath && fsSync.existsSync(envPath)) {
+    console.log('[IPC Bridge] Using env path:', envPath);
+    return envPath;
+  }
+
+  if (isDev) {
+    const repoRoot = path.resolve(app.getAppPath(), '..', '..', '..', '..');
+    const devPath = path.join(repoRoot, 'backend', 'ipc-bridge');
+    if (fsSync.existsSync(devPath)) {
+      console.log('[IPC Bridge] Using monorepo path:', devPath);
+      return devPath;
+    }
+  }
+
+  const fallbackWin = 'C:\\\\dev\\\\backend\\\\ipc-bridge';
+  if (process.platform === 'win32' && fsSync.existsSync(fallbackWin)) {
+    console.log('[IPC Bridge] Using fallback path:', fallbackWin);
+    return fallbackWin;
+  }
+
+  console.warn('[IPC Bridge] Could not resolve bridge directory. Set VIBE_IPC_BRIDGE_DIR env var.');
+  return null;
+}
+
+/**
+ * Start IPC Bridge if port 5004 is not listening
+ * Spawns: node src/index.js (requires dependencies to be installed)
+ */
+async function startIpcBridgeIfNeeded(): Promise<void> {
+  const PORT = 5004;
+  const alreadyOpen = await isPortOpen(PORT);
+  if (alreadyOpen) {
+    console.log('[IPC Bridge] Port 5004 is already open; skipping start.');
+    return;
+  }
+
+  const bridgeDir = resolveIpcBridgeDir();
+  if (!bridgeDir) {
+    console.warn('[IPC Bridge] Bridge directory not found; cannot auto-start.');
+    return;
+  }
+
+  try {
+    console.log('[IPC Bridge] Starting bridge at:', bridgeDir);
+    ipcBridgeProcess = spawn('node', ['src/index.js'], {
+      cwd: bridgeDir,
+      env: { ...process.env, NODE_ENV: 'production' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    });
+
+    ipcBridgeProcess.stdout?.on('data', (data: Buffer) => {
+      console.log('[IPC Bridge][stdout]', data.toString().trim());
+    });
+    ipcBridgeProcess.stderr?.on('data', (data: Buffer) => {
+      console.error('[IPC Bridge][stderr]', data.toString().trim());
+    });
+    ipcBridgeProcess.on('error', (err) => {
+      console.error('[IPC Bridge] Failed to start:', err);
+    });
+    ipcBridgeProcess.on('exit', (code, signal) => {
+      console.warn('[IPC Bridge] exited', { code, signal });
+      ipcBridgeProcess = null;
+    });
+
+    const up = await waitForPort(PORT, '127.0.0.1', 12000, 400);
+    if (up) {
+      console.log('[IPC Bridge] Bridge is listening on ws://localhost:5004');
+    } else {
+      console.warn('[IPC Bridge] Bridge did not start listening within timeout.');
+    }
+  } catch (error) {
+    console.error('[IPC Bridge] Error while starting bridge:', error);
+  }
+}
+
+/**
+ * Ensure the bridge is cleaned up on app exit
+ */
+function setupIpcBridgeShutdown(): void {
+  const terminate = () => {
+    if (ipcBridgeProcess && !ipcBridgeProcess.killed) {
+      try {
+        console.log('[IPC Bridge] Terminating bridge process...');
+        if (process.platform === 'win32') {
+          ipcBridgeProcess.kill('SIGTERM');
+          setTimeout(() => {
+            try { ipcBridgeProcess?.kill('SIGKILL'); } catch { /* noop */ }
+          }, 1500);
+        } else {
+          ipcBridgeProcess.kill('SIGTERM');
+        }
+      } catch (e) {
+        console.error('[IPC Bridge] Error terminating process:', e);
+      }
+    }
+  };
+
+  app.on('before-quit', terminate);
+  app.on('will-quit', terminate);
+}
 
 /**
  * Create the main application window
@@ -94,20 +248,24 @@ function createWindow() {
 
   // Handle loading errors
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-  console.error('[Electron] Failed to load:', errorCode, errorDescription);
+    console.error('[Electron] Failed to load:', errorCode, errorDescription);
   });
 
   // Log when page finishes loading
   mainWindow.webContents.on('did-finish-load', () => {
-  console.log('[Electron] Page loaded successfully');
+    console.log('[Electron] Page loaded successfully');
   });
 
   // Load the app
   if (isDev) {
+    // Attempt to start the IPC bridge automatically in development
+    void startIpcBridgeIfNeeded();
     if (mainWindow) {
       mainWindow.loadURL(VITE_DEV_SERVER_URL);
     }
   } else {
+    // Attempt to start the IPC bridge automatically in production
+    void startIpcBridgeIfNeeded();
     // In production, load from the dist folder
     // The app bundle is in resources/app when packaged
     const appPath = app.getAppPath();
@@ -119,9 +277,9 @@ function createWindow() {
       path.join(appPath, '..', 'dist', 'index.html'),        // Alternative: resources/dist/index.html
     ];
 
-    let indexPath = pathsToTry[0];
+    let indexPath = pathsToTry[0] ?? '';
     for (const tryPath of pathsToTry) {
-      if (require('fs').existsSync(tryPath)) {
+      if (fsSync.existsSync(tryPath)) {
         indexPath = tryPath;
         console.log('[Electron] Found index.html at:', indexPath);
         break;
@@ -131,22 +289,24 @@ function createWindow() {
     console.log('[Electron] App path:', appPath);
     console.log('[Electron] Resources path:', process.resourcesPath);
     console.log('[Electron] Loading from:', indexPath);
-    console.log('[Electron] File exists:', require('fs').existsSync(indexPath));
+    console.log('[Electron] File exists:', indexPath ? fsSync.existsSync(indexPath) : false);
 
-    if (mainWindow) {
+    if (mainWindow && indexPath) {
       mainWindow.loadFile(indexPath);
+    } else {
+      console.error('[Electron] index.html path is empty; cannot load UI.');
     }
   }
 
   // Handle window closed
   mainWindow.on('closed', () => {
-  mainWindow = null;
+    mainWindow = null;
   });
 
   // Handle external links
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-  shell.openExternal(url);
-  return { action: 'deny' };
+    shell.openExternal(url);
+    return { action: 'deny' };
   });
 }
 
@@ -224,6 +384,8 @@ app.whenReady().then(async () => {
 
   // Configure CSP before creating windows
   setupCSP();
+  // Setup cleanup hooks for the bridge process
+  setupIpcBridgeShutdown();
 
   // Initialize database
   const dbInit = dbHandler.initializeDatabase();
@@ -584,9 +746,11 @@ ipcMain.handle('storage:remove', async (event, key) => {
     await initSecureStorage();
     const storagePath = getSecureStoragePath();
     const data = await fs.readFile(storagePath, 'utf-8');
-    const storage = JSON.parse(data);
-    delete storage[key];
-    await fs.writeFile(storagePath, JSON.stringify(storage, null, 2), 'utf-8');
+    const storage = JSON.parse(data) as Record<string, unknown>;
+    // Reconstruct object without the key to satisfy lint rules
+
+    const { [key]: _removed, ...rest } = storage;
+    await fs.writeFile(storagePath, JSON.stringify(rest, null, 2), 'utf-8');
     return { success: true };
   } catch (error) {
     console.error('[Electron] Failed to remove storage:', error);
