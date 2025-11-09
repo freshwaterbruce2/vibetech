@@ -39,7 +39,7 @@ function createWindow() {
       nodeIntegration: false, // Security: disable Node.js in renderer
       contextIsolation: true, // Security: isolate context
       sandbox: false, // Allow access to Node.js APIs via preload
-      preload: path.join(__dirname, '../preload/index.mjs'), // electron-vite builds as .mjs
+      preload: path.join(__dirname, '../preload/index.cjs'), // CommonJS for electron-builder compatibility
       // Monaco Editor requires web workers
       webviewTag: false,
       // Windows 11 GPU acceleration optimizations

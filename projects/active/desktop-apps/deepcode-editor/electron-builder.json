@@ -8,10 +8,20 @@
     "output": "release-builds",
     "buildResources": "build"
   },
+  "files": [
+    "package.json",
+    "out/**/*",
+    "dist/**/*"
+  ],
   "extraResources": [
     {
-      "from": "build/icons",
-      "to": "icons",
+      "from": "out",
+      "to": "out",
+      "filter": ["**/*"]
+    },
+    {
+      "from": "dist",
+      "to": "dist",
       "filter": ["**/*"]
     }
   ],
@@ -26,7 +36,6 @@
         "arch": ["x64"]
       }
     ],
-    "icon": "build/icons/icon-256.png",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "verifyUpdateCodeSignature": false
   },
@@ -36,9 +45,6 @@
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
     "shortcutName": "Vibe Code Studio",
-    "installerIcon": "build/icons/icon-256.png",
-    "uninstallerIcon": "build/icons/icon-256.png",
-    "installerHeaderIcon": "build/icons/icon-256.png",
     "deleteAppDataOnUninstall": false,
     "runAfterFinish": true,
     "perMachine": false,
@@ -58,7 +64,6 @@
         "arch": ["x64", "arm64"]
       }
     ],
-    "icon": "build/icons/icon-1024-mac.png",
     "category": "public.app-category.developer-tools",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "hardenedRuntime": true,
@@ -72,7 +77,6 @@
   },
   "dmg": {
     "title": "${productName} ${version}",
-    "icon": "build/icons/icon-1024-mac.png",
     "background": "build/dmg-background.png",
     "contents": [
       {
@@ -107,7 +111,6 @@
         "arch": ["x64"]
       }
     ],
-    "icon": "build/icons",
     "category": "Development",
     "synopsis": "AI-Powered Code Editor",
     "description": "Modern code editor with AI assistance, powered by DeepSeek and Monaco Editor",
@@ -128,7 +131,5 @@
   "buildDependenciesFromSource": false,
   "nodeGypRebuild": false,
   "npmRebuild": false,
-  "electronRebuild": false,
-  "beforeBuild": null,
-  "afterPack": null
+  "npmArgs": ["--legacy-peer-deps"]
 }

@@ -996,6 +996,17 @@ I'm now your context-aware coding companion! 🎯`,
 
   // Initialize the application
   useEffect(() => {
+    // Verify Electron API is accessible (renderer side)
+    if (window.electron) {
+      logger.info('[Renderer] ✅ Electron API is accessible');
+      logger.info('[Renderer] ✅ Storage API available:', !!window.electron.storage);
+      logger.info('[Renderer] ✅ Storage.get available:', typeof window.electron.storage?.get === 'function');
+      logger.info('[Renderer] ✅ DB API available:', !!window.electron.db);
+      logger.info('[Renderer] ✅ FS API available:', !!window.electron.fs);
+    } else {
+      logger.info('[Renderer] Running in browser mode (no Electron API)');
+    }
+
     // Track app initialization
     telemetry.trackEvent('app_initialized', {
       version: import.meta.env['VITE_APP_VERSION'],

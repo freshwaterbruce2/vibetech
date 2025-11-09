@@ -9,8 +9,10 @@ import os from 'node:os';
 
 // Expose protected methods that allow the renderer process
 // to use ipcRenderer without exposing the entire object
-contextBridge.exposeInMainWorld('electron', {
-  isElectron: true,
+try {
+  console.log('[Preload] Attempting to expose electron API via contextBridge...');
+  contextBridge.exposeInMainWorld('electron', {
+    isElectron: true,
 
   // App methods
     app: {
@@ -152,12 +154,10 @@ contextBridge.exposeInMainWorld('electron', {
     },
   },
 });
-
-// Debug: Verify preload script loaded successfully
-console.log('[Preload] ✅ Preload script loaded successfully!', {
-  isElectron: true,
-  hasStorage: true,
-  electronAPI: typeof (globalThis as any).electron !== 'undefined'
-});
-
-// Type definitions added via global declaration above
+  console.log('[Preload] ✅ Successfully exposed electron API via contextBridge');
+  console.log('[Preload] Note: window.electron is NOT accessible in preload context - this is correct!');
+  console.log('[Preload] The renderer process will have access to window.electron');
+} catch (error) {
+  console.error('[Preload] ❌ FAILED to expose electron API via contextBridge:', error);
+  console.error('[Preload] Error stack:', (error as Error).stack);
+}
