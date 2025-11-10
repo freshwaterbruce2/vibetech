@@ -7,9 +7,8 @@
 │              Shared Learning Databases                      │
 │              D:\databases\                                  │
 ├─────────────────────────────────────────────────────────────┤
-│  • agent_learning.db  (mistakes, knowledge, snippets)      │
+│  • database.db        (unified: mistakes, knowledge, etc)  │
 │  • nova_activity.db   (activity tracking)                 │
-│  • strategy_memory.db (strategy patterns)                 │
 └─────────────────────────────────────────────────────────────┘
          ▲                              ▲
          │                              │
@@ -50,9 +49,9 @@ import { WebSocketBridge, createIPCMessage } from '@vibetech/shared';
 
 ### 2. Database-First Learning Pattern
 
-**Location:** `D:\databases\agent_learning.db`
+**Location:** `D:\databases\database.db`
 
-**Pattern:** Both applications write directly to shared database
+**Pattern:** Both applications write directly to unified shared database
 
 **Benefits:**
 
@@ -161,7 +160,7 @@ useEffect(() => {
 ### Learning Data Flow
 
 1. Mistake occurs in either app
-2. App writes directly to `D:\databases\agent_learning.db`
+2. App writes directly to `D:\databases\database.db`
 3. App sends `learning_update` message via IPC Bridge
 4. Other app receives message and refreshes UI
 5. LearningPanel displays updated data

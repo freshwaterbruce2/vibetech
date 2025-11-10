@@ -101,7 +101,7 @@ function resolveIpcBridgeDir(): string | null {
 
 /**
  * Start IPC Bridge if port 5004 is not listening
- * Spawns: node src/index.js (requires dependencies to be installed)
+ * Spawns: node src/server.js (requires dependencies to be installed)
  */
 async function startIpcBridgeIfNeeded(): Promise<void> {
   const PORT = 5004;
@@ -119,7 +119,7 @@ async function startIpcBridgeIfNeeded(): Promise<void> {
 
   try {
     console.log('[IPC Bridge] Starting bridge at:', bridgeDir);
-    ipcBridgeProcess = spawn('node', ['src/index.js'], {
+    ipcBridgeProcess = spawn('node', ['src/server.js'], {
       cwd: bridgeDir,
       env: { ...process.env, NODE_ENV: 'production' },
       stdio: ['ignore', 'pipe', 'pipe'],

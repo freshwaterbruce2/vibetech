@@ -36,9 +36,9 @@
 
 **Databases:**
 
-- `agent_learning.db` - Shared learning system (mistakes, knowledge)
+- `database.db` - Unified learning system (mistakes, knowledge, patterns) [Migrated 2025-10-06]
 - `nova_activity.db` - NOVA Agent activity tracking
-- `strategy_memory.db` - Vibe Code Studio strategy patterns
+- `strategy_memory.db` - Vibe Code Studio strategy patterns (legacy, consolidated into database.db)
 
 ### Database Schema
 
@@ -171,8 +171,9 @@ C:\dev\
 
 ### Database Paths
 
-- **NOVA Agent:** Configured in `main.rs` via environment variables or defaults to `D:\databases\agent_learning.db`
-- **Vibe Code Studio:** Configured in `DatabaseService.ts` as `D:\databases\agent_learning.db`
+- **NOVA Agent:** Configured in `main.rs` via environment variables or defaults to `D:\databases\database.db`
+- **Vibe Code Studio:** Configured in `DatabaseService.ts` as `D:\databases\database.db`
+- **Legacy:** `agent_learning.db` migrated to unified `database.db` on 2025-10-06
 
 ### IPC Bridge
 

@@ -1,0 +1,37 @@
+{
+  "total_samples": 101,
+  "train_samples": 80,
+  "test_samples": 21,
+  "num_features": 20,
+  "feature_names": [
+    "full_text",
+    "description_clean",
+    "prevention_clean",
+    "description_length",
+    "context_length",
+    "has_root_cause",
+    "has_prevention",
+    "severity_encoded",
+    "is_resolved",
+    "hour",
+    "day_of_week",
+    "is_business_hours",
+    "has_traceback",
+    "has_exception",
+    "has_timeout",
+    "has_connection",
+    "has_file",
+    "has_permission",
+    "has_null",
+    "has_syntax"
+  ],
+  "categories": {
+    "unknown": 101
+  },
+  "has_fix_distribution": {
+    "with_fix": 0,
+    "without_fix": 101,
+    "with_fix_pct": 0.0
+  },
+  "created_at": "2025-11-09T21:48:39.202409"
+}

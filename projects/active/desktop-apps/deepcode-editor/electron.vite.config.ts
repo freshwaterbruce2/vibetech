@@ -23,13 +23,17 @@ export default defineConfig({
   /**
    * Preload Process Configuration
    * Builds electron/preload.ts (Electron preload script)
-   * Note: electron-vite builds this as .mjs by default
+   * Force CommonJS format for better compatibility with electron-builder
    */
   preload: {
     build: {
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'electron/preload.ts')
+        },
+        output: {
+          format: 'cjs',
+          entryFileNames: '[name].cjs'
         }
       }
     }

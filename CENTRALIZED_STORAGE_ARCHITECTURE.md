@@ -14,10 +14,11 @@ All persistent application data stored centrally:
 
 ```
 D:\databases\
-├── database.db           ← Vibe Code Studio app data
-├── agent_learning.db     ← Shared learning (NOVA + Vibe)
+├── database.db           ← Unified learning & app data (NOVA + Vibe)
 ├── trading.db            ← Trading data (separate project)
 └── nova_activity.db      ← NOVA activity tracking
+
+Note: agent_learning.db migrated to database.db on 2025-10-06
 ```
 
 ---
@@ -85,11 +86,12 @@ if (databaseFails) {
 - Analytics
 - Strategy patterns
 
-### **D:\databases\agent_learning.db** (Shared Learning)
+### **D:\databases\database.db** (Unified Learning)
 - Mistakes (from both apps)
 - Knowledge entries (from both apps)
 - Patterns (from both apps)
 - **Shared by**: NOVA Agent + Vibe Code Studio
+- **Note**: Migrated from agent_learning.db on 2025-10-06
 
 ### **localStorage** (Limited Use Only)
 **Allowed:**
@@ -123,8 +125,8 @@ const result = await invoke('db_query', { sql, params });
 ### **Shared Learning Database:**
 
 ```typescript
-// Both apps write to same file
-const LEARNING_DB = 'D:\\databases\\agent_learning.db';
+// Both apps write to unified database
+const LEARNING_DB = 'D:\\databases\\database.db';
 
 // NOVA logs mistake
 await invoke('log_mistake', { mistake });
@@ -225,14 +227,16 @@ These other files still use localStorage (OK for now):
 After this change:
 
 ```powershell
-# Check database exists
+# Check unified database exists
 Test-Path D:\databases\database.db
-Test-Path D:\databases\agent_learning.db
+
+# Verify migration complete (should be false)
+Test-Path D:\learning-system\agent_learning.db
 
 # Start both apps
 # NOVA: Check learning panel
 # Vibe: Check learning panel
-# Should show SAME data!
+# Should show SAME data from database.db!
 ```
 
 ---

@@ -1,0 +1,29 @@
+{
+  "total_samples": 67,
+  "train_samples": 53,
+  "test_samples": 14,
+  "num_features": 15,
+  "feature_names": [
+    "volume",
+    "price",
+    "stop_loss",
+    "take_profit",
+    "estimated_fee",
+    "estimated_total_cost",
+    "hour_of_day",
+    "day_of_week",
+    "is_weekend",
+    "risk_reward_ratio",
+    "stop_loss_distance",
+    "take_profit_distance",
+    "total_value",
+    "side_encoded",
+    "order_type_encoded"
+  ],
+  "target_distribution": {
+    "profitable": 2,
+    "unprofitable": 65,
+    "profitable_pct": 2.9850746268656714
+  },
+  "created_at": "2025-11-09T21:48:28.918358"
+}

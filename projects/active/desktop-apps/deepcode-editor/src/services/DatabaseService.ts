@@ -66,7 +66,7 @@ const getDatabasePath = (): string => {
 };
 
 const DATABASE_PATH = getDatabasePath();
-const LEARNING_DB_PATH = 'D:\\databases\\agent_learning.db'; // Shared learning database
+const LEARNING_DB_PATH = 'D:\\databases\\database.db'; // Unified learning database (migrated 2025-10-06)
 const STORAGE_FALLBACK_PREFIX = 'deepcode_fallback_';
 
 // Interface definitions
@@ -1205,7 +1205,7 @@ export class DatabaseService {
   /**
    * ============================================
    * LEARNING DATABASE METHODS
-   * Direct access to D:\databases\agent_learning.db
+   * Direct access to D:\databases\database.db (unified)
    * ============================================
    */
 
@@ -1263,7 +1263,7 @@ export class DatabaseService {
 
         return result.lastInsertRowid || 0;
       } else {
-        // No fallback - all data must go to D:\databases\agent_learning.db
+        // No fallback - all data must go to D:\databases\database.db (unified)
         // If database unavailable, fail gracefully rather than creating data silos
         logger.error('[DatabaseService] Database unavailable - cannot log mistake without D:\\databases\\ access');
         throw new Error('Database not available - centralized storage required');
@@ -1313,7 +1313,7 @@ export class DatabaseService {
 
         return result.lastInsertRowid || 0;
       } else {
-        // No fallback - all data must go to D:\databases\agent_learning.db
+        // No fallback - all data must go to D:\databases\database.db (unified)
         // If database unavailable, fail gracefully rather than creating data silos
         logger.error('[DatabaseService] Database unavailable - cannot add knowledge without D:\\databases\\ access');
         throw new Error('Database not available - centralized storage required');
@@ -1471,7 +1471,7 @@ export class DatabaseService {
   private getMistakesFallback(filter?: any): any[] {
     // No localStorage fallback - return empty if D:\databases\ unavailable
     // This maintains single source of truth on D: drive
-    // Both NOVA and Vibe share D:\databases\agent_learning.db
+    // Both NOVA and Vibe share D:\databases\database.db (unified)
     logger.warn('[DatabaseService] Database unavailable - returning empty mistakes (D:\\databases\\ required)');
     return [];
   }
@@ -1479,7 +1479,7 @@ export class DatabaseService {
   private getKnowledgeFallback(filter?: any): any[] {
     // No localStorage fallback - return empty if D:\databases\ unavailable
     // This maintains single source of truth on D: drive
-    // Both NOVA and Vibe share D:\databases\agent_learning.db
+    // Both NOVA and Vibe share D:\databases\database.db (unified)
     logger.warn('[DatabaseService] Database unavailable - returning empty knowledge (D:\\databases\\ required)');
     return [];
   }

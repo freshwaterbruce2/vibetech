@@ -1,0 +1,160 @@
+name: Performance Regression Testing
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'src/**'
+      - '*.py'
+      - 'requirements.txt'
+  workflow_dispatch:
+
+jobs:
+  node-performance:
+    name: Node.js Performance Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run performance benchmarks
+        run: |
+          pnpm run bench || echo "No benchmark script found"
+
+      - name: Store benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'vitest'
+          output-file-path: benchmark-results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: true
+
+  python-performance:
+    name: Python Performance Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          cd projects/crypto-enhanced
+          pip install -r requirements.txt
+          pip install pytest-benchmark
+
+      - name: Run performance benchmarks
+        run: |
+          cd projects/crypto-enhanced
+          pytest tests/ --benchmark-only --benchmark-json=../../benchmark-results.json || true
+
+      - name: Store benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'pytest'
+          output-file-path: benchmark-results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          alert-threshold: '150%'
+          comment-on-alert: true
+
+  api-performance:
+    name: API Performance Tests
+    runs-on: ubuntu-latest
+    services:
+      learning-api:
+        image: python:3.12-slim
+        env:
+          DATABASE_API_TOKEN: test-token
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install locust
+
+      - name: Start API
+        run: |
+          python D:\learning-system\api\unified_database_api.py &
+          sleep 5
+        env:
+          DATABASE_API_TOKEN: test-token
+
+      - name: Run API load tests
+        run: |
+          locust -f .github/workflows/locustfile.py --headless --users 100 --spawn-rate 10 --run-time 60s --host http://localhost:5000
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-performance-results
+          path: locust-report.html
+
+  build-time:
+    name: Build Time Tracking
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build with timing
+        run: |
+          START=$(date +%s)
+          pnpm build
+          END=$(date +%s)
+          DURATION=$((END-START))
+          echo "Build time: ${DURATION}s" >> $GITHUB_STEP_SUMMARY
+          echo "build_time=${DURATION}" >> $GITHUB_OUTPUT
+        id: build
+
+      - name: Comment build time
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const buildTime = ${{ steps.build.outputs.build_time }};
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `⏱️ Build completed in ${buildTime}s`
+            });

@@ -1,7 +1,7 @@
 /**
  * Learning Database Service
  *
- * TypeScript/JavaScript interface for D:\databases\agent_learning.db
+ * TypeScript/JavaScript interface for D:\databases\database.db (unified)
  * Works with both NOVA Agent (Rust backend) and Vibe Code Studio (Electron)
  */
 

@@ -34,7 +34,7 @@ const response = await backendAgent.process(request, context);
 ```typescript
 import { LearningDatabase } from '@vibetech/shared/database';
 
-const learningDb = new LearningDatabase('D:\\databases\\agent_learning.db');
+const learningDb = new LearningDatabase('D:\\databases\\database.db');
 const mistakes = await learningDb.getMistakes({ severity: 'high' });
 ```
 

@@ -3,9 +3,12 @@
  *
  * Facilitates real-time communication between NOVA Agent and Vibe Code Studio
  * Runs on port 5004
+ * 
+ * Enhanced P3.2: Cross-app command routing (@nova, @vibe commands)
  */
 
 import { WebSocketServer } from 'ws';
+import { CommandRouter } from './commandRouter.js';
 
 const PORT = process.env.PORT || 5004;
 
@@ -21,6 +24,7 @@ class IPCBridgeServer {
             clientConnections: 0,
             clientDisconnections: 0
         };
+        this.commandRouter = new CommandRouter(); // P3.2: Command routing
     }
 
     start() {
@@ -122,6 +126,18 @@ class IPCBridgeServer {
             // Update stats
             this.stats.totalMessages++;
             this.stats.messagesByType[message.type] = (this.stats.messagesByType[message.type] || 0) + 1;
+
+            // P3.2: Check if this is a command request
+            if (this.commandRouter.isCommand(message)) {
+                this.handleCommandRequest(clientId, message);
+                return;
+            }
+
+            // P3.2: Check if this is a command response
+            if (message.type === 'command_result') {
+                this.handleCommandResult(clientId, message);
+                return;
+            }
 
             console.log(`\n📨 [${message.source}] ${message.type} → broadcasting to other clients`);
 
@@ -239,6 +255,59 @@ class IPCBridgeServer {
             },
             clients: activeClients
         };
+    }
+
+    // P3.2: Handle command request (@nova, @vibe commands)
+    async handleCommandRequest(clientId, message) {
+        console.log(`\n🎯 Command request from ${clientId}: ${message.payload?.text}`);
+        
+        try {
+            const parsedCommand = this.commandRouter.parseCommand(message);
+            if (!parsedCommand) {
+                console.warn(`Failed to parse command: ${message.payload?.text}`);
+                return;
+            }
+
+            console.log(`   → Routing to ${parsedCommand.target}: ${parsedCommand.command}`);
+
+            // Route command and wait for response
+            const result = await this.commandRouter.routeCommand(parsedCommand, this.clients, clientId);
+            
+            // Send successful response back to sender
+            this.commandRouter.sendCommandResponse(
+                this.clients,
+                clientId,
+                parsedCommand.originalMessage.messageId,
+                true,
+                result,
+                null
+            );
+
+            console.log(`   ✓ Command completed successfully`);
+
+        } catch (error) {
+            console.error(`   ✗ Command failed: ${error.message}`);
+            
+            // Send error response back to sender
+            this.commandRouter.sendCommandResponse(
+                this.clients,
+                clientId,
+                message.messageId,
+                false,
+                null,
+                error.message
+            );
+        }
+    }
+
+    // P3.2: Handle command result from executing app
+    handleCommandResult(clientId, message) {
+        console.log(`\n📥 Command result from ${clientId}`);
+        
+        const handled = this.commandRouter.handleCommandResponse(message);
+        if (handled) {
+            console.log(`   ✓ Response delivered to waiting command`);
+        }
     }
 }
 

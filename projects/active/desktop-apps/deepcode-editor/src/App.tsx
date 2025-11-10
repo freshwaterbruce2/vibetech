@@ -1,22 +1,23 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
 import type { FileChange, MultiFileEditPlan } from '@vibetech/types/multifile';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import styled from 'styled-components';
+import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
 
 // New AI components
 import ComposerMode from './components/AgentMode/ComposerMode';
 import { BackgroundTaskPanel } from './components/BackgroundTaskPanel';
 import { ComponentLibrary } from './components/ComponentLibrary';
+import { CrossAppCommandPalette } from './components/CrossAppCommandPalette';
 import Editor from './components/Editor';
 import { EditorStreamPanel } from './components/EditorStreamPanel';
 import { ModernErrorBoundary } from './components/ErrorBoundary/index';
 import { ErrorFixPanel } from './components/ErrorFixPanel';
 import GitPanel from './components/GitPanel';
 import { GlobalSearch } from './components/GlobalSearch';
-import { LearningPanel } from './components/LearningPanel';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts';
+import { LearningPanel } from './components/LearningPanel';
 // Lazy loaded components
 import { LazyAIChat, LazyCommandPalette, LazySettings } from './components/LazyComponents';
 import ModelSelector from './components/ModelSelector/ModelSelector';
@@ -29,6 +30,7 @@ import { ScreenshotToCodePanel } from './components/ScreenshotToCodePanel';
 import Sidebar from './components/Sidebar';
 import StatusBar from './components/StatusBar';
 import { TaskExecutionPanel } from './components/TaskExecutionPanel';
+import { TaskPanel } from './components/TaskPanel';
 import { TerminalPanel } from './components/TerminalPanel';
 // Components - Using lazy loading for heavy components
 import TitleBar from './components/TitleBar';
@@ -47,7 +49,7 @@ import { TaskPlanner } from './services/ai/TaskPlanner';
 // Services
 import { UnifiedAIService } from './services/ai/UnifiedAIService';
 import { AutoFixCodeActionProvider } from './services/AutoFixCodeActionProvider';
-import type { FixSuggestion,GeneratedFix } from './services/AutoFixService';
+import type { FixSuggestion, GeneratedFix } from './services/AutoFixService';
 import { AutoFixService } from './services/AutoFixService';
 import { autoUpdater } from './services/AutoUpdateService';
 import { BackgroundAgentSystem } from './services/BackgroundAgentSystem';
@@ -275,6 +277,10 @@ function App() {
   // Keyboard shortcuts state
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
   const [backgroundPanelOpen, setBackgroundPanelOpen] = useState(false);
+
+  // P3 Integration - Cross-App Command Palette & Task Intelligence
+  const [crossAppPaletteOpen, setCrossAppPaletteOpen] = useState(false);
+  const [taskPanelOpen, setTaskPanelOpen] = useState(false);
 
   // Visual panel state
   const [activeVisualPanel, setActiveVisualPanel] = useState<'none' | 'screenshot' | 'library' | 'visual'>('none');
@@ -547,6 +553,18 @@ function App() {
         setGlobalSearchOpen(true);
       }
 
+      // Cross-App Command Palette: Ctrl+Shift+P
+      if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        setCrossAppPaletteOpen(true);
+      }
+
+      // Task Intelligence Panel: Ctrl+Shift+T
+      if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+        e.preventDefault();
+        setTaskPanelOpen(prev => !prev);
+      }
+
       // Agent Mode: Ctrl+Shift+A (open AI Chat in Agent Mode)
       if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         e.preventDefault();
@@ -790,7 +808,7 @@ I'm now your context-aware coding companion! 🎯`,
 
   // AI Command Handler
   const handleAICommand = useCallback(async (command: string) => {
-    if (!currentFile || !currentFile.content) {
+    if (!currentFile?.content) {
       showWarning('Please open a file first');
       return;
     }
@@ -875,13 +893,13 @@ I'm now your context-aware coding companion! 🎯`,
     onToggleSidebar: () => setSidebarOpen(!sidebarOpen),
     onToggleAIChat: () => setAiChatOpen(!aiChatOpen),
     onOpenSettings: () => setSettingsOpen(true),
-    onAIExplainCode: () => handleAICommand('explain'),
-    onAIGenerateTests: () => handleAICommand('generate-tests'),
-    onAIRefactor: () => handleAICommand('refactor'),
-    onAIFixBugs: () => handleAICommand('fix-bugs'),
-    onAIOptimize: () => handleAICommand('optimize'),
-    onAIAddComments: () => handleAICommand('add-comments'),
-    onAIGenerateComponent: () => handleAICommand('generate-component'),
+    onAIExplainCode: async () => handleAICommand('explain'),
+    onAIGenerateTests: async () => handleAICommand('generate-tests'),
+    onAIRefactor: async () => handleAICommand('refactor'),
+    onAIFixBugs: async () => handleAICommand('fix-bugs'),
+    onAIOptimize: async () => handleAICommand('optimize'),
+    onAIAddComments: async () => handleAICommand('add-comments'),
+    onAIGenerateComponent: async () => handleAICommand('generate-component'),
     onFormatDocument: () => {
       // Format will be handled by Monaco editor
       document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -1125,7 +1143,7 @@ I'm now your context-aware coding companion! 🎯`,
         if (line !== undefined && line !== null) {
           setTimeout(() => {
             // Monaco editor will be available after file loads
-            if (editorRef.current && editorRef.current.monaco) {
+            if (editorRef.current?.monaco) {
               const editor = editorRef.current.monaco;
               editor.revealLineInCenter(line);
               editor.setPosition({ lineNumber: line, column: column || 1 });
@@ -1276,11 +1294,11 @@ I'm now your context-aware coding companion! 🎯`,
                   workspaceContext={
                     workspaceFolder
                       ? {
-                          workspaceRoot: workspaceFolder,
-                          currentFile: currentFile?.path,
-                          openFiles: openFiles.map((f) => f.path),
-                          recentFiles: openFiles.slice(0, 5).map((f) => f.path),
-                        }
+                        workspaceRoot: workspaceFolder,
+                        currentFile: currentFile?.path,
+                        openFiles: openFiles.map((f) => f.path),
+                        recentFiles: openFiles.slice(0, 5).map((f) => f.path),
+                      }
                       : undefined
                   }
                   onAddMessage={addAiMessage}
@@ -1350,14 +1368,14 @@ I'm now your context-aware coding companion! 🎯`,
             onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
             onToggleBackgroundPanel={() => setBackgroundPanelOpen(!backgroundPanelOpen)}
             onOpenAgentMode={() => {
-              if (!aiChatOpen) {setAiChatOpen(true);}
+              if (!aiChatOpen) { setAiChatOpen(true); }
               setChatMode('agent');
             }}
             onOpenComposerMode={() => {
-              if (!aiChatOpen) {setAiChatOpen(true);}
+              if (!aiChatOpen) { setAiChatOpen(true); }
               setChatMode('composer');
             }}
-            onOpenTerminal={() => {/* Terminal disabled */}}
+            onOpenTerminal={() => {/* Terminal disabled */ }}
             onToggleScreenshot={handleToggleScreenshotPanel}
             onToggleLibrary={handleToggleComponentLibrary}
             onToggleVisualEditor={handleToggleVisualEditor}
@@ -1474,6 +1492,17 @@ I'm now your context-aware coding companion! 🎯`,
             isOpen={keyboardShortcutsOpen}
             onClose={() => setKeyboardShortcutsOpen(false)}
           />
+
+          {/* Cross-App Command Palette - P3 Integration */}
+          {crossAppPaletteOpen && (
+            <CrossAppCommandPalette onClose={() => setCrossAppPaletteOpen(false)} />
+          )}
+
+          {/* Task Intelligence Panel - P3 Integration */}
+          {taskPanelOpen && (
+            <TaskPanel onClose={() => setTaskPanelOpen(false)} />
+          )}
+
           {/* Composer Mode */}
           <ComposerMode
             isOpen={composerModeOpen}
