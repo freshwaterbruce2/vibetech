@@ -1,0 +1,32 @@
+# CODEOWNERS for dev monorepo
+# Each line represents a path pattern followed by one or more owners (@username or @team)
+# Owners will be requested for review when someone opens a pull request
+
+# Default owner for everything in the repo
+* @FreshBruce
+
+# Core packages
+/packages/* @FreshBruce
+
+# Desktop applications
+/projects/active/desktop-apps/nova-agent-current/ @FreshBruce
+/projects/active/desktop-apps/deepcode-editor/ @FreshBruce
+
+# Backend services
+/backend/ipc-bridge/ @FreshBruce
+/backend/dap-proxy/ @FreshBruce
+/backend/lsp-proxy/ @FreshBruce
+/backend/search-service/ @FreshBruce
+/backend/workflow-engine/ @FreshBruce
+
+# Configuration and infrastructure
+/.github/ @FreshBruce
+/scripts/ @FreshBruce
+/turbo.json @FreshBruce
+/pnpm-workspace.yaml @FreshBruce
+/.env @FreshBruce
+
+# Documentation
+/docs/ @FreshBruce
+/memory-bank/ @FreshBruce
+README.md @FreshBruce

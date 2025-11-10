@@ -1,154 +1,182 @@
-# IPC Bridge Server
+# IPC Bridge
 
-WebSocket server for real-time communication between NOVA Agent and Vibe Code Studio.
+WebSocket bridge for real-time communication between NOVA Agent and Deepcode Editor.
 
-## Overview
+## Features
 
-The IPC Bridge facilitates bidirectional communication between the two desktop applications, enabling:
+- **WebSocket Server** - Real-time bidirectional communication
+- **Message Broadcasting** - Route messages between clients
+- **Command Routing** - @nova and @vibe command support
+- **Health Monitoring** - HTTP endpoints for liveness/readiness
+- **Connection Stats** - Track connections and message flow
 
-- Real-time activity synchronization
-- Learning insights sharing
-- Context-aware suggestions
-- Cross-app pattern recognition
-- File and project context exchange
+## Quick Start
 
-## Port
+```powershell
+# Start the bridge
+node src/server.js
 
-**5004** - WebSocket server
-
-## Installation
-
-```bash
-npm install
+# Or with custom port
+PORT=5005 node src/server.js
 ```
 
-## Running
+## Endpoints
 
-```bash
-# Production
-npm start
+### WebSocket
+- `ws://localhost:5004` - WebSocket connection
 
-# Development (with auto-reload)
-npm run dev
-```
+### Health Checks
+- `GET /healthz` - Liveness probe (always returns 200 if server is running)
+- `GET /readyz` - Readiness probe (returns 503 if server not ready)
+- `GET /metrics` - Prometheus-style metrics
 
 ## Message Format
 
-All messages must follow the IPC message format:
+All messages must follow this schema:
 
-```typescript
+```json
 {
-  type: 'file_open' | 'context_update' | 'activity_sync' | 'learning_update' | ...,
-  payload: any,
-  timestamp: number,
-  source: 'nova' | 'vibe',
-  messageId: string
+  "type": "string",
+  "source": "nova" | "vibe",
+  "timestamp": 1234567890,
+  "messageId": "uuid",
+  "payload": {}
 }
 ```
 
-## Message Types
+## Example Usage
 
-- `file_open` - File opened in one app
-- `context_update` - Workspace context changed
-- `activity_sync` - Activity events synchronization
-- `learning_update` - New mistakes or knowledge added
-- `mistake_logged` - New mistake recorded
-- `knowledge_added` - New knowledge entry
-- `project_switch` - Project changed
-- `deep_work_start` - Deep work session started
-- `deep_work_end` - Deep work session ended
-- `ping` / `pong` - Connection health check
+### Connect from Client
+
+```javascript
+const ws = new WebSocket('ws://localhost:5004');
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    type: 'greeting',
+    source: 'nova',
+    timestamp: Date.now(),
+    messageId: crypto.randomUUID(),
+    payload: { message: 'Hello from NOVA' }
+  }));
+});
+```
+
+### Health Check
+
+```powershell
+curl http://localhost:5004/healthz
+curl http://localhost:5004/readyz
+curl http://localhost:5004/metrics
+```
 
 ## Architecture
 
 ```
-┌─────────────────┐                    ┌─────────────────┐
-│   NOVA Agent    │                    │ Vibe Code Studio│
-│   (Tauri/Rust)  │                    │   (Electron)    │
-└────────┬────────┘                    └────────┬────────┘
-         │                                      │
-         │  WebSocket (port 5004)               │
-         │                                      │
-         └──────────►┌─────────────┐◄──────────┘
-                     │ IPC Bridge  │
-                     │   Server    │
-                     └─────────────┘
+┌─────────────┐         ┌──────────────┐         ┌─────────────────┐
+│ NOVA Agent  │ ◄─────► │  IPC Bridge  │ ◄─────► │ Deepcode Editor │
+└─────────────┘   WS    └──────────────┘   WS    └─────────────────┘
+                         Port 5004
+
+                         HTTP Endpoints:
+                         /healthz  (liveness)
+                         /readyz   (readiness)
+                         /metrics  (stats)
 ```
 
-## Features
+## Message Types
 
-- ✅ Message broadcasting (messages sent to all connected clients except sender)
-- ✅ Client identification (nova/vibe)
-- ✅ Message validation
-- ✅ Connection statistics
-- ✅ Message logging (last 100 messages)
-- ✅ Automatic reconnection support
-- ✅ Graceful shutdown
+- `connected` - Connection established
+- `greeting` - Client greeting
+- `command_request` - @nova or @vibe command
+- `command_result` - Command execution result
+- `bridge_stats` - Connection statistics
+- Custom types supported
 
-## Statistics
+## Configuration
 
-The server broadcasts statistics every 30 seconds:
+Environment variables:
 
-```json
-{
-  "type": "bridge_stats",
-  "payload": {
-    "server": { "uptime": 1234, "port": 5004 },
-    "connections": { "active": 2, "total": 5, "disconnections": 3 },
-    "messages": { "total": 150, "byType": {...}, "recentCount": 100 },
-    "clients": [...]
-  }
-}
-```
-
-## Integration
-
-Both applications use the `@vibetech/shared` package's `WebSocketBridge` class:
-
-```typescript
-import { WebSocketBridge, createIPCMessage } from '@vibetech/shared';
-
-const bridge = new WebSocketBridge('nova'); // or 'vibe'
-await bridge.connect();
-
-// Send message
-bridge.send(createIPCMessage('file_open', { filePath: 'test.ts' }, 'nova'));
-
-// Receive messages
-bridge.on('file_open', (message) => {
-  console.log('File opened:', message.payload.filePath);
-});
-```
-
-## Deployment
-
-The IPC Bridge should run as a background service and start automatically with the system.
-
-### Windows
-
-Create a scheduled task or use NSSM (Non-Sucking Service Manager) to run as a Windows service.
-
-### Linux/Mac
-
-Use systemd or launchd to run as a system service.
-
-## Security
-
-- Localhost only (0.0.0.0 binding disabled)
-- No authentication (relies on local machine security)
-- Message validation on all incoming data
-- Rate limiting can be added if needed
+- `PORT` - Server port (default: 5004)
 
 ## Monitoring
 
-View real-time logs:
+### Liveness Probe
+Checks if the server process is running.
 
 ```bash
-npm start
+curl http://localhost:5004/healthz
 ```
 
-Output shows:
-- Connection events
-- Message routing
-- Error messages
-- Statistics updates
+### Readiness Probe
+Checks if the server is ready to accept connections.
+
+```bash
+curl http://localhost:5004/readyz
+```
+
+Returns:
+- **200 OK** - Server is ready
+- **503 Service Unavailable** - Server not ready
+
+### Metrics
+
+```bash
+curl http://localhost:5004/metrics
+```
+
+Returns connection counts, message stats, and uptime.
+
+## Development
+
+```powershell
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Run with watch mode
+npm run dev
+```
+
+## Testing
+
+E2E tests are located in `../../tests/e2e/ipc-bridge.spec.ts`.
+
+```powershell
+cd ../../tests/e2e
+pnpm test
+```
+
+## Troubleshooting
+
+### Port already in use
+
+```powershell
+# Find process using port 5004
+Get-NetTCPConnection -LocalPort 5004 | Select-Object OwningProcess
+Get-Process -Id <PID> | Stop-Process -Force
+```
+
+### Connection refused
+
+Check if server is running:
+```powershell
+curl http://localhost:5004/healthz
+```
+
+### Server not ready
+
+Check readiness:
+```powershell
+curl http://localhost:5004/readyz
+```
+
+If returns 503, the server exists but isn't listening yet.
+
+## Related
+
+- [IPC Contracts](../../packages/shared-ipc/) - Message schemas
+- [Health Documentation](../../docs/READINESS_CHECK_FIX.md) - Health check details
+- [E2E Tests](../../tests/e2e/) - Integration tests

@@ -16,7 +16,10 @@
     "dev:vibe": "pnpm --filter vibe-code-studio dev",
     "dev:nova": "pnpm --filter nova-agent dev",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.17.0",

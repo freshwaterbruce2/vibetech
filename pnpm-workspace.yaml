@@ -28,8 +28,9 @@ packages:
   - 'desktop-commander-v2'
   - 'workflow-hub-mcp'
 
-  # Backend services (each service is a separate package)
+  # Backend services
   - 'backend/ipc-bridge'
   - 'backend/dap-proxy'
   - 'backend/lsp-proxy'
   - 'backend/search-service'
+  - 'backend/workflow-engine'

@@ -3,12 +3,14 @@
  *
  * Facilitates real-time communication between NOVA Agent and Vibe Code Studio
  * Runs on port 5004
- * 
+ *
  * Enhanced P3.2: Cross-app command routing (@nova, @vibe commands)
  */
 
+import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import { CommandRouter } from './commandRouter.js';
+import { createHealthHandler, createMetricsHandler, createReadinessHandler } from './health.js';
 
 const PORT = process.env.PORT || 5004;
 
@@ -28,7 +30,27 @@ class IPCBridgeServer {
     }
 
     start() {
-        this.wss = new WebSocketServer({ port: this.port });
+        // Create HTTP server for health checks
+        this.httpServer = createServer((req, res) => {
+            // Health check endpoints
+            if (req.url === '/healthz') {
+                const healthHandler = createHealthHandler(this.wss);
+                healthHandler(req, res);
+            } else if (req.url === '/readyz') {
+                const readinessHandler = createReadinessHandler(this.wss);
+                readinessHandler(req, res);
+            } else if (req.url === '/metrics') {
+                const metricsHandler = createMetricsHandler(this.wss, this.stats);
+                metricsHandler(req, res);
+            } else {
+                // WebSocket upgrade will be handled by ws library
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.end('Not Found\n\nAvailable endpoints:\n- /healthz\n- /readyz\n- /metrics\n- ws://localhost:5004 (WebSocket)\n');
+            }
+        });
+
+        // Attach WebSocket server to HTTP server
+        this.wss = new WebSocketServer({ server: this.httpServer });
 
         console.log(`\n🌉 IPC Bridge Server starting on port ${this.port}...`);
 
@@ -78,8 +100,15 @@ class IPCBridgeServer {
             console.error('\n❌ WebSocket server error:', error);
         });
 
-        console.log(`\n✅ IPC Bridge Server listening on ws://localhost:${this.port}`);
-        console.log(`\nReady to bridge NOVA Agent ↔ Vibe Code Studio\n`);
+        // Start HTTP server
+        this.httpServer.listen(this.port, () => {
+            console.log(`\n✅ IPC Bridge Server listening on ws://localhost:${this.port}`);
+            console.log(`\n📊 Health endpoints:`);
+            console.log(`   - http://localhost:${this.port}/healthz (liveness)`);
+            console.log(`   - http://localhost:${this.port}/readyz (readiness)`);
+            console.log(`   - http://localhost:${this.port}/metrics (metrics)`);
+            console.log(`\nReady to bridge NOVA Agent ↔ Vibe Code Studio\n`);
+        });
 
         // Periodic stats broadcast
         setInterval(() => {
@@ -260,7 +289,7 @@ class IPCBridgeServer {
     // P3.2: Handle command request (@nova, @vibe commands)
     async handleCommandRequest(clientId, message) {
         console.log(`\n🎯 Command request from ${clientId}: ${message.payload?.text}`);
-        
+
         try {
             const parsedCommand = this.commandRouter.parseCommand(message);
             if (!parsedCommand) {
@@ -272,7 +301,7 @@ class IPCBridgeServer {
 
             // Route command and wait for response
             const result = await this.commandRouter.routeCommand(parsedCommand, this.clients, clientId);
-            
+
             // Send successful response back to sender
             this.commandRouter.sendCommandResponse(
                 this.clients,
@@ -287,7 +316,7 @@ class IPCBridgeServer {
 
         } catch (error) {
             console.error(`   ✗ Command failed: ${error.message}`);
-            
+
             // Send error response back to sender
             this.commandRouter.sendCommandResponse(
                 this.clients,
@@ -303,7 +332,7 @@ class IPCBridgeServer {
     // P3.2: Handle command result from executing app
     handleCommandResult(clientId, message) {
         console.log(`\n📥 Command result from ${clientId}`);
-        
+
         const handled = this.commandRouter.handleCommandResponse(message);
         if (handled) {
             console.log(`   ✓ Response delivered to waiting command`);
@@ -316,26 +345,33 @@ const server = new IPCBridgeServer(PORT);
 server.start();
 
 // Graceful shutdown
-process.on('SIGINT', () => {
+const shutdown = () => {
     console.log('\n\n🛑 Shutting down IPC Bridge Server...');
-    if (server.wss) {
-        server.wss.close(() => {
-            console.log('✅ Server closed');
-            process.exit(0);
-        });
-    } else {
-        process.exit(0);
-    }
-});
 
-process.on('SIGTERM', () => {
-    console.log('\n\n🛑 Shutting down IPC Bridge Server...');
+    // Close WebSocket connections
     if (server.wss) {
         server.wss.close(() => {
-            console.log('✅ Server closed');
+            console.log('✅ WebSocket server closed');
+
+            // Close HTTP server
+            if (server.httpServer) {
+                server.httpServer.close(() => {
+                    console.log('✅ HTTP server closed');
+                    process.exit(0);
+                });
+            } else {
+                process.exit(0);
+            }
+        });
+    } else if (server.httpServer) {
+        server.httpServer.close(() => {
+            console.log('✅ HTTP server closed');
             process.exit(0);
         });
     } else {
         process.exit(0);
     }
-});
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
