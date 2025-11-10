@@ -7,8 +7,8 @@
 
 export class CommandRouter {
     constructor() {
-        this.pendingCommands = new Map(); // commandId => { resolve, reject, timeout }
-        this.commandTimeout = 30000; // 30 seconds
+        this.pendingCommands = new Map(); // commandId => { resolve, reject, timeout, createdAt, target, origin }
+        this.commandTimeout = 30000; // 30 seconds default
     }
 
     /**
@@ -18,6 +18,12 @@ export class CommandRouter {
         if (message.type !== 'command_request') return false;
 
         const text = message.payload?.text || '';
+        const explicitTarget = message.payload?.target;
+
+        if (explicitTarget && (explicitTarget === 'nova' || explicitTarget === 'vibe')) {
+            return text.length > 0;
+        }
+
         return text.startsWith('@nova ') || text.startsWith('@vibe ');
     }
 
@@ -25,18 +31,38 @@ export class CommandRouter {
      * Parse command from message
      */
     parseCommand(message) {
-        const text = message.payload?.text || '';
+        const rawText = message.payload?.text || '';
+        const explicitTarget = message.payload?.target;
+        const trimmed = rawText.trim();
 
-        // Extract target (@nova or @vibe)
-        const targetMatch = text.match(/^@(nova|vibe)\s+(.+)/);
-        if (!targetMatch) {
+        if (!trimmed) {
             return null;
         }
 
-        const [, target, commandText] = targetMatch;
+        let target = explicitTarget;
+        let commandText = trimmed;
+
+        // Extract target from leading @ mention when explicit target not provided
+        if (!target) {
+            const targetMatch = trimmed.match(/^@(nova|vibe)\s+(.+)/i);
+            if (!targetMatch) {
+                return null;
+            }
+
+            target = targetMatch[1].toLowerCase();
+            commandText = targetMatch[2];
+        }
+
+        if (target !== 'nova' && target !== 'vibe') {
+            return null;
+        }
 
         // Parse command and arguments
-        const parts = commandText.trim().split(/\s+/);
+        const parts = commandText.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) {
+            return null;
+        }
+
         const command = parts[0];
         const args = parts.slice(1);
 
@@ -45,7 +71,8 @@ export class CommandRouter {
             command, // e.g., 'open', 'analyze', 'create'
             args, // array of arguments
             text: commandText.trim(), // full command text
-            originalMessage: message
+            originalMessage: message,
+            timeoutMs: message.timeoutMs || message.payload?.timeout || this.commandTimeout,
         };
     }
 
@@ -54,7 +81,7 @@ export class CommandRouter {
      * Returns a promise that resolves with the response
      */
     async routeCommand(parsedCommand, clients, senderClientId) {
-        const { target, command, args, text, originalMessage } = parsedCommand;
+        const { target, command, args, text, originalMessage, timeoutMs } = parsedCommand;
 
         // Find target client(s)
         const targetClients = Array.from(clients.entries())
@@ -70,17 +97,20 @@ export class CommandRouter {
         const commandId = `cmd-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const commandMessage = {
             type: 'command_execute',
-            source: originalMessage.source,
+            source: 'bridge',
             target,
             payload: {
                 commandId,
                 command,
                 args,
                 text,
-                originalSender: senderClientId
+                originalSender: senderClientId,
+                originalSource: originalMessage.source,
+                originalMessageId: originalMessage.messageId,
             },
             timestamp: Date.now(),
-            messageId: commandId
+            messageId: commandId,
+            correlationId: originalMessage.messageId,
         };
 
         // Send to target client(s)
@@ -105,9 +135,21 @@ export class CommandRouter {
             const timeout = setTimeout(() => {
                 this.pendingCommands.delete(commandId);
                 reject(new Error(`Command timeout: ${target} ${command}`));
-            }, this.commandTimeout);
+            }, Math.max(1000, Math.min(timeoutMs || this.commandTimeout, 120000)));
 
-            this.pendingCommands.set(commandId, { resolve, reject, timeout });
+            this.pendingCommands.set(commandId, {
+                resolve,
+                reject,
+                timeout,
+                createdAt: Date.now(),
+                target,
+                origin: {
+                    clientId: senderClientId,
+                    source: originalMessage.source,
+                    messageId: originalMessage.messageId,
+                },
+                commandId,
+            });
         });
     }
 
@@ -129,7 +171,11 @@ export class CommandRouter {
 
         // Resolve or reject
         if (success) {
-            pending.resolve(result);
+            pending.resolve({
+                result: result ?? null,
+                target: pending.target,
+                commandId,
+            });
         } else {
             pending.reject(new Error(error || 'Command failed'));
         }
@@ -148,16 +194,16 @@ export class CommandRouter {
         }
 
         const responseMessage = {
-            type: 'command_response',
+            type: 'command_result',
             source: 'bridge',
             payload: {
                 commandId,
                 success,
                 result: result || null,
-                error: error || null
+                error: error || null,
             },
             timestamp: Date.now(),
-            messageId: `resp-${commandId}`
+            messageId: `resp-${commandId}`,
         };
 
         try {
@@ -183,8 +229,11 @@ export class CommandRouter {
     cleanup() {
         const now = Date.now();
         for (const [commandId, pending] of this.pendingCommands.entries()) {
-            // If timeout has passed, clean up
-            // (timeout handler will have already rejected the promise)
+            if (now - pending.createdAt > this.commandTimeout * 2) {
+                clearTimeout(pending.timeout);
+                pending.reject?.(new Error('Command cleanup timeout'));
+                this.pendingCommands.delete(commandId);
+            }
         }
     }
 }

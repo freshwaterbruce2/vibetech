@@ -10,6 +10,7 @@ loadEnv({ path: resolve(process.cwd(), '.env') });
 const envSchema = z.object({
     APP_DB_PATH: z.string().default('D:\\databases\\database.db'),
     LEARNING_DB_PATH: z.string().default('D:\\databases\\agent_learning.db'),
+    LEARNING_SYSTEM_DIR: z.string().default('D:\\learning-system'),
     IPC_WS_URL: z.string().url().default('ws://localhost:5004'),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     APP_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -41,6 +42,11 @@ export const env = parseEnv();
 export const getDatabasePath = (type: 'app' | 'learning'): string => {
     const path = type === 'app' ? env.APP_DB_PATH : env.LEARNING_DB_PATH;
     return normalizePath(path);
+};
+
+// Learning system directory
+export const getLearningSystemDir = (): string => {
+    return normalizePath(env.LEARNING_SYSTEM_DIR);
 };
 
 // Check if path exists

@@ -121,6 +121,13 @@ try {
     },
   },
 
+  // Learning adapter (Python) bridge
+  learning: {
+    run: async (command, payload, options) => {
+      return await ipcRenderer.invoke('learning:run', command, payload, options);
+    },
+  },
+
   // Get platform info
   getPlatform: async () => {
     return await ipcRenderer.invoke('app:getPlatform');

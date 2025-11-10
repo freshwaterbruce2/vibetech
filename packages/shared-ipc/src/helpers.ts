@@ -15,66 +15,67 @@ import {
     ErrorPayload,
 } from './schemas.js';
 
-type Sender = 'nova' | 'deepcode';
+type Sender = 'nova' | 'vibe';
 
-const createBaseMessage = (sender: Sender): BaseMessage => ({
-    id: uuidv4(),
-    type: IPCMessageType.CONNECT, // placeholder
+const createBaseMessage = (source: Sender): BaseMessage => ({
+    messageId: `${source}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    type: IPCMessageType.CONNECT, // placeholder, overwritten by caller
     timestamp: Date.now(),
-    sender,
+    source,
     version: '1.0.0',
+    id: uuidv4(), // legacy compatibility
 });
 
 export const createOpenFileMessage = (
-    sender: Sender,
+    source: Sender,
     payload: OpenFilePayload
 ): OpenFileMessage => ({
-    ...createBaseMessage(sender),
-    type: IPCMessageType.OPEN_FILE,
+    ...createBaseMessage(source),
+    type: IPCMessageType.FILE_OPEN,
     payload,
 });
 
 export const createOpenProjectMessage = (
-    sender: Sender,
+    source: Sender,
     payload: OpenProjectPayload
 ): OpenProjectMessage => ({
-    ...createBaseMessage(sender),
-    type: IPCMessageType.OPEN_PROJECT,
+    ...createBaseMessage(source),
+    type: IPCMessageType.PROJECT_OPEN,
     payload,
 });
 
 export const createGitStatusUpdateMessage = (
-    sender: Sender,
+    source: Sender,
     payload: GitStatusPayload
 ): GitStatusUpdateMessage => ({
-    ...createBaseMessage(sender),
+    ...createBaseMessage(source),
     type: IPCMessageType.GIT_STATUS_UPDATE,
     payload,
 });
 
 export const createLearningEventMessage = (
-    sender: Sender,
+    source: Sender,
     payload: LearningEventPayload
 ): LearningEventMessage => ({
-    ...createBaseMessage(sender),
+    ...createBaseMessage(source),
     type: IPCMessageType.LEARNING_EVENT,
     payload,
 });
 
 export const createErrorMessage = (
-    sender: Sender,
+    source: Sender,
     payload: ErrorPayload
 ): ErrorMessage => ({
-    ...createBaseMessage(sender),
+    ...createBaseMessage(source),
     type: IPCMessageType.ERROR,
     payload,
 });
 
 export const createAckMessage = (
-    sender: Sender,
+    source: Sender,
     messageId: string
 ): AckMessage => ({
-    ...createBaseMessage(sender),
+    ...createBaseMessage(source),
     type: IPCMessageType.ACK,
     payload: { messageId },
 });

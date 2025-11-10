@@ -15,6 +15,7 @@
       "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
       "@services/*": ["./src/services/*"],
+      "@vibetech/shared-ipc": ["../../../../packages/shared-ipc/src/index.ts"],
       "@vibetech/types/*": ["./src/types/*"],
       "@vibetech/shared/*": ["./src/types/*"],
       "@hooks/*": ["./src/hooks/*"],

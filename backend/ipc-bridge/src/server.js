@@ -300,7 +300,7 @@ class IPCBridgeServer {
             console.log(`   → Routing to ${parsedCommand.target}: ${parsedCommand.command}`);
 
             // Route command and wait for response
-            const result = await this.commandRouter.routeCommand(parsedCommand, this.clients, clientId);
+            const { result: commandResult, commandId } = await this.commandRouter.routeCommand(parsedCommand, this.clients, clientId);
 
             // Send successful response back to sender
             this.commandRouter.sendCommandResponse(
@@ -308,7 +308,7 @@ class IPCBridgeServer {
                 clientId,
                 parsedCommand.originalMessage.messageId,
                 true,
-                result,
+                commandResult,
                 null
             );
 

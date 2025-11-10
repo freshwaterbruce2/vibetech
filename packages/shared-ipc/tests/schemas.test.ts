@@ -22,16 +22,16 @@ describe('IPC Message Schemas', () => {
 
             expect(isValidIPCMessage(message)).toBe(true);
             const validated = validateIPCMessage(message);
-            expect(validated.type).toBe(IPCMessageType.OPEN_FILE);
+            expect(validated.type).toBe(IPCMessageType.FILE_OPEN);
             expect(validated.payload.filePath).toBe('C:\\dev\\test.ts');
         });
 
     it('should reject empty file path', () => {
       const invalidMessage = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        type: IPCMessageType.OPEN_FILE,
+        messageId: 'nova-test-invalid',
+        type: IPCMessageType.FILE_OPEN,
         timestamp: Date.now(),
-        sender: 'nova',
+        source: 'nova',
         version: '1.0.0',
         payload: {
           filePath: '',
@@ -43,10 +43,10 @@ describe('IPC Message Schemas', () => {
 
     it('should reject missing file path', () => {
       const invalidMessage = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        type: IPCMessageType.OPEN_FILE,
+        messageId: 'nova-test-missing',
+        type: IPCMessageType.FILE_OPEN,
         timestamp: Date.now(),
-        sender: 'nova',
+        source: 'nova',
         version: '1.0.0',
         payload: {},
       };
@@ -57,7 +57,7 @@ describe('IPC Message Schemas', () => {
 
     describe('GitStatusUpdateMessage', () => {
         it('should validate git status update', () => {
-            const message = createGitStatusUpdateMessage('deepcode', {
+            const message = createGitStatusUpdateMessage('vibe', {
                 branch: 'main',
                 modified: ['file1.ts', 'file2.ts'],
                 added: ['file3.ts'],
@@ -96,13 +96,13 @@ describe('IPC Message Schemas', () => {
         });
     });
 
-    describe('Sender validation', () => {
-        it('should only accept nova or deepcode as sender', () => {
+    describe('Source validation', () => {
+        it('should only accept nova or vibe as source', () => {
             const invalidMessage = {
-                id: '123e4567-e89b-12d3-a456-426614174000',
-                type: IPCMessageType.OPEN_FILE,
+                messageId: 'invalid-source',
+                type: IPCMessageType.FILE_OPEN,
                 timestamp: Date.now(),
-                sender: 'invalid',
+                source: 'invalid',
                 version: '1.0.0',
                 payload: {
                     filePath: 'test.ts',

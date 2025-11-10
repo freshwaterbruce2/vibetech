@@ -16,7 +16,14 @@
  * - Resilient connection management
  */
 
-import type { IPCMessage, IPCMessageType } from '@vibetech/shared/ipc-protocol';
+import {
+  CommandRequestPayload,
+  CommandExecutePayload,
+  CommandResultPayload,
+  IPCMessage,
+  IPCMessageType,
+  AppSource,
+} from '@vibetech/shared-ipc';
 
 // Simple EventEmitter for browser/Electron compatibility
 class SimpleEventEmitter {
@@ -68,6 +75,7 @@ export interface IPCClientOptions {
   maxReconnectAttempts?: number;
   pingInterval?: number;
   messageQueueMax?: number;
+  commandTimeoutMs?: number;
 }
 
 export interface IPCClientEvents {
@@ -80,8 +88,38 @@ export interface IPCClientEvents {
   'learning:sync': (payload: any) => void;
   'project:update': (payload: any) => void;
   'notification': (payload: any) => void;
-  'command:execute': (payload: any) => void;
+  [IPCMessageType.COMMAND_EXECUTE]: (payload: CommandExecutePayload) => void;
+  [IPCMessageType.COMMAND_RESULT]: (payload: CommandResultPayload) => void;
   'health:check': (payload: any) => void;
+}
+
+type CommandTarget = Exclude<AppSource, 'bridge'>;
+
+interface CommandRequestOptions {
+  target?: CommandTarget;
+  timeoutMs?: number;
+  metadata?: Record<string, any>;
+  context?: Record<string, any>;
+  messageId?: string;
+  correlationId?: string;
+}
+
+interface PendingCommand {
+  resolve: (payload: CommandResultPayload) => void;
+  reject: (error: Error) => void;
+  timeout: ReturnType<typeof setTimeout>;
+}
+
+interface OutgoingIPCMessage<T = any> {
+  type: IPCMessageType | string;
+  payload: T;
+  timestamp?: number;
+  messageId?: string;
+  target?: CommandTarget | 'bridge';
+  timeoutMs?: number;
+  correlationId?: string;
+  metadata?: Record<string, any>;
+  source?: AppSource;
 }
 
 class IPCClient extends SimpleEventEmitter {
@@ -90,8 +128,9 @@ class IPCClient extends SimpleEventEmitter {
   private reconnectAttempts = 0;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private pingTimer: NodeJS.Timeout | null = null;
-  private messageQueue: IPCMessage[] = [];
+  private messageQueue: OutgoingIPCMessage[] = [];
   private lastPingTime: number = 0;
+  private pendingCommands: Map<string, PendingCommand> = new Map();
 
   private options: Required<IPCClientOptions>;
 
@@ -102,7 +141,8 @@ class IPCClient extends SimpleEventEmitter {
       reconnectInterval: options.reconnectInterval || 2000,
       maxReconnectAttempts: options.maxReconnectAttempts || 10,
       pingInterval: options.pingInterval || 30000,
-      messageQueueMax: options.messageQueueMax || 100
+      messageQueueMax: options.messageQueueMax || 100,
+      commandTimeoutMs: options.commandTimeoutMs || 30000,
     };
   }
 
@@ -159,7 +199,7 @@ class IPCClient extends SimpleEventEmitter {
   /**
    * Send IPC message
    */
-  public send(message: IPCMessage): boolean {
+  public send(message: OutgoingIPCMessage): boolean {
     if (this.status !== 'connected' || !this.ws) {
       console.warn('[IPC] Not connected, queueing message:', message.type);
       this.queueMessage(message);
@@ -168,10 +208,11 @@ class IPCClient extends SimpleEventEmitter {
 
     try {
       // Add required fields for IPC Bridge
-      const fullMessage = {
+      const fullMessage: OutgoingIPCMessage = {
         ...message,
         source: 'vibe',  // Identify as Vibe Code Studio
-        messageId: `vibe-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        timestamp: message.timestamp ?? Date.now(),
+        messageId: message.messageId ?? this.generateMessageId('vibe'),
       };
 
       this.ws.send(JSON.stringify(fullMessage));
@@ -193,9 +234,10 @@ class IPCClient extends SimpleEventEmitter {
     column?: number
   ): boolean {
     return this.send({
-      type: 'file:open' as IPCMessageType,
+      type: IPCMessageType.FILE_OPEN,
       payload: { path, line, column },
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      messageId: this.generateMessageId('vibe'),
     });
   }
 
@@ -204,9 +246,10 @@ class IPCClient extends SimpleEventEmitter {
    */
   public sendLearningSync(data: any): boolean {
     return this.send({
-      type: 'learning:sync' as IPCMessageType,
+      type: IPCMessageType.LEARNING_SYNC,
       payload: data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      messageId: this.generateMessageId('vibe'),
     });
   }
 
@@ -215,9 +258,10 @@ class IPCClient extends SimpleEventEmitter {
    */
   public sendProjectUpdate(data: any): boolean {
     return this.send({
-      type: 'project:update' as IPCMessageType,
+      type: IPCMessageType.PROJECT_UPDATE,
       payload: data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      messageId: this.generateMessageId('vibe'),
     });
   }
 
@@ -226,10 +270,69 @@ class IPCClient extends SimpleEventEmitter {
    */
   public sendNotification(title: string, message: string, type: 'info' | 'warning' | 'error' = 'info'): boolean {
     return this.send({
-      type: 'notification' as IPCMessageType,
+      type: IPCMessageType.NOTIFICATION,
       payload: { title, message, type },
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      messageId: this.generateMessageId('vibe'),
     });
+  }
+
+  /**
+   * Send cross-app command request to NOVA Agent (Phase 3.2)
+   */
+  public async sendCommandRequest(
+    text: string,
+    options: CommandRequestOptions = {}
+  ): Promise<CommandResultPayload> {
+    if (!this.isConnected()) {
+      throw new Error('IPC Bridge is not connected');
+    }
+
+    const trimmedText = text.trim();
+    if (!trimmedText) {
+      throw new Error('Command text cannot be empty');
+    }
+
+    const target: CommandTarget = options.target ?? 'nova';
+    const commandId = options.messageId ?? this.generateMessageId('cmd');
+    const timeoutMs = Math.max(1000, options.timeoutMs ?? this.options.commandTimeoutMs);
+
+    const payload: CommandRequestPayload = {
+      text: trimmedText,
+      target,
+      context: options.context,
+      metadata: options.metadata,
+    };
+
+    const message: OutgoingIPCMessage<CommandRequestPayload> = {
+      type: IPCMessageType.COMMAND_REQUEST,
+      payload,
+      timestamp: Date.now(),
+      messageId: commandId,
+      target,
+      timeoutMs,
+      correlationId: options.correlationId,
+    };
+
+    const resultPromise = new Promise<CommandResultPayload>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.pendingCommands.delete(commandId);
+        reject(new Error(`Command request timed out after ${timeoutMs}ms`));
+      }, timeoutMs);
+
+      this.pendingCommands.set(commandId, {
+        resolve,
+        reject,
+        timeout,
+      });
+    });
+
+    const sent = this.send(message);
+    if (!sent) {
+      console.warn('[IPC] Command request queued (connection pending)');
+    }
+
+    return resultPromise;
   }
 
   /**
@@ -275,6 +378,7 @@ class IPCClient extends SimpleEventEmitter {
     console.log(`[IPC] Disconnected (code: ${event.code}, reason: ${event.reason || 'none'})`);
     this.stopPing();
     this.setStatus('disconnected');
+    this.rejectAllPendingCommands(new Error('IPC Bridge disconnected'));
 
     // Don't reconnect if it was a clean close
     if (event.code !== 1000) {
@@ -285,6 +389,7 @@ class IPCClient extends SimpleEventEmitter {
   private handleError(error: Event): void {
     console.error('[IPC] WebSocket error:', error);
     this.setStatus('error');
+    this.rejectAllPendingCommands(new Error('IPC Bridge encountered an error'));
   }
 
   private handleMessage(event: MessageEvent): void {
@@ -295,18 +400,32 @@ class IPCClient extends SimpleEventEmitter {
       this.lastPingTime = Date.now();
 
       // Handle ping/pong
-      if (message.type === 'ping') {
+      if (message.type === IPCMessageType.PING) {
         this.send({
-          type: 'pong' as IPCMessageType,
+          type: IPCMessageType.PONG,
           payload: {},
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          messageId: this.generateMessageId('vibe'),
         });
         return;
       }
 
-      if (message.type === 'pong') {
+      if (message.type === IPCMessageType.PONG) {
         this.emit('pong', message.timestamp);
         return;
+      }
+
+      if (message.type === IPCMessageType.COMMAND_RESULT) {
+        const payload = message.payload as CommandResultPayload;
+        const commandId = payload?.commandId;
+        if (commandId && this.pendingCommands.has(commandId)) {
+          const pending = this.pendingCommands.get(commandId);
+          if (pending) {
+            clearTimeout(pending.timeout);
+            this.pendingCommands.delete(commandId);
+            pending.resolve(payload);
+          }
+        }
       }
 
       // Emit generic message event
@@ -370,14 +489,14 @@ class IPCClient extends SimpleEventEmitter {
     }
   }
 
-  private queueMessage(message: IPCMessage): void {
+  private queueMessage(message: OutgoingIPCMessage): void {
     // Prevent queue from growing too large
     if (this.messageQueue.length >= this.options.messageQueueMax) {
       console.warn('[IPC] Message queue full, dropping oldest message');
       this.messageQueue.shift();
     }
 
-    this.messageQueue.push(message);
+    this.messageQueue.push({ ...message });
     console.log(`[IPC] Queued message (${this.messageQueue.length} in queue)`);
   }
 
@@ -392,6 +511,19 @@ class IPCClient extends SimpleEventEmitter {
     for (const message of messages) {
       this.send(message);
     }
+  }
+
+  private rejectAllPendingCommands(error: Error): void {
+    for (const [commandId, pending] of this.pendingCommands.entries()) {
+      clearTimeout(pending.timeout);
+      pending.reject(error);
+      this.pendingCommands.delete(commandId);
+      console.warn(`[IPC] Pending command rejected (${commandId}): ${error.message}`);
+    }
+  }
+
+  private generateMessageId(prefix: string): string {
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 

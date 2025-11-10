@@ -5,6 +5,7 @@
  * Examples: @vibe open file, @vibe show references, @vibe run tests
  */
 
+import { IPCMessageType, CommandExecutePayload, CommandResultPayload } from '@vibetech/shared-ipc';
 import { ipcClient } from './IPCClient';
 
 export interface CommandRequest {
@@ -67,38 +68,46 @@ export class CrossAppCommandService {
      * Set up IPC listener for incoming commands
      */
     private setupIPCListener() {
-        ipcClient.on('command_execute', async (message: any) => {
-            const { commandId, command, args, text } = message.payload;
+        ipcClient.on(IPCMessageType.COMMAND_EXECUTE, async (payload: CommandExecutePayload & { originalSource?: string; originalMessageId?: string; correlationId?: string }) => {
+            const { commandId, command, args = [], text } = payload;
 
             console.log(`[Vibe] Executing command: ${command}`, args);
 
+            const startedAt = Date.now();
+
             try {
                 const result = await this.execute(command, args);
+                const elapsedMs = Date.now() - startedAt;
 
                 // Send result back via IPC
-                await ipcClient.send({
-                    type: 'command_result',
-                    source: 'vibe',
+                ipcClient.send({
+                    type: IPCMessageType.COMMAND_RESULT,
                     payload: {
                         commandId,
                         success: true,
-                        result
-                    },
+                        result,
+                        metrics: {
+                            elapsedMs,
+                            startedAt,
+                            finishedAt: startedAt + elapsedMs,
+                        },
+                    } satisfies CommandResultPayload,
                     timestamp: Date.now(),
-                    messageId: `result-${commandId}`
+                    messageId: `result-${commandId}`,
+                    correlationId: payload.originalMessageId,
                 });
             } catch (error: any) {
                 // Send error back via IPC
-                await ipcClient.send({
-                    type: 'command_result',
-                    source: 'vibe',
+                ipcClient.send({
+                    type: IPCMessageType.COMMAND_RESULT,
                     payload: {
                         commandId,
                         success: false,
-                        error: error.message || 'Command execution failed'
-                    },
+                        error: error.message || 'Command execution failed',
+                    } satisfies CommandResultPayload,
                     timestamp: Date.now(),
-                    messageId: `result-${commandId}`
+                    messageId: `result-${commandId}`,
+                    correlationId: payload.originalMessageId,
                 });
             }
         });

@@ -14,6 +14,7 @@ import * as path from 'path';
 import { promisify } from 'util';
 import * as dbHandler from './database-handler';
 import { initializeWindowsIntegration } from './windows-integration';
+import { spawn } from 'child_process';
 
 const execAsync = promisify(exec);
 
@@ -835,6 +836,76 @@ ipcMain.handle('db:query', async (event, sql, params = []) => {
     console.error('[Electron] Database query error:', error);
     return { success: false, error: (error as Error).message };
   }
+});
+
+/**
+ * IPC Handlers - Learning Adapter (Python)
+ */
+type LearningCommand = 'error_prevention' | 'performance_optimize' | 'pattern_recognition' | 'batch_optimize';
+
+function resolveLearningModulePath(command: LearningCommand): string {
+  const base = process.env['LEARNING_SYSTEM_DIR'] || 'D:\\\\learning-system';
+  switch (command) {
+    case 'error_prevention':
+      return path.resolve(base, 'error_prevention_utils.py');
+    case 'performance_optimize':
+      return path.resolve(base, 'performance_optimization.py');
+    case 'pattern_recognition':
+      return path.resolve(base, 'pattern_recognition.py');
+    case 'batch_optimize':
+      return path.resolve(base, 'batch_optimization.py');
+  }
+}
+
+ipcMain.handle('learning:run', async (_event, command: LearningCommand, payload: any, options?: { timeoutMs?: number; pythonPath?: string; moduleOverride?: string }) => {
+  const timeoutMs = Math.max(1000, options?.timeoutMs ?? 5000);
+  const pythonPath = options?.pythonPath || 'python';
+  const modulePath = options?.moduleOverride || resolveLearningModulePath(command);
+
+  return await new Promise<{ success: boolean; result?: any; error?: string; durationMs?: number }>((resolve) => {
+    const startedAt = Date.now();
+    const child = spawn(pythonPath, [modulePath], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      windowsHide: true,
+    });
+
+    let stdout = '';
+    let stderr = '';
+    let finished = false;
+
+    const to = setTimeout(() => {
+      if (finished) return;
+      finished = true;
+      try { child.kill('SIGKILL'); } catch { /* noop */ }
+      resolve({ success: false, error: `Timeout after ${timeoutMs}ms`, durationMs: Date.now() - startedAt, });
+    }, timeoutMs);
+
+    child.stdout.on('data', (d: Buffer) => { stdout += d.toString(); });
+    child.stderr.on('data', (d: Buffer) => { stderr += d.toString(); });
+    child.on('error', (err) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(to);
+      resolve({ success: false, error: `Failed to start python: ${err.message}`, durationMs: Date.now() - startedAt });
+    });
+    child.on('exit', () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(to);
+      try {
+        const parsed = JSON.parse(stdout || '{}');
+        resolve({ success: true, result: parsed, durationMs: Date.now() - startedAt });
+      } catch (e: any) {
+        resolve({ success: false, error: `Invalid JSON from python: ${e.message}`, durationMs: Date.now() - startedAt });
+      }
+    });
+
+    try {
+      const body = JSON.stringify({ command, payload });
+      child.stdin?.write(body);
+      child.stdin?.end();
+    } catch { /* stdin write failure handled by exit */ }
+  });
 });
 
 // Initialize database

@@ -2,26 +2,33 @@
 
 ## ✅ Completed Work
 
-### Monorepo Integration (November 10, 2025)
+### Phase 3.2 + Learning Adapter (November 10, 2025)
 
-**Final integration phase complete!**
+**Unified Intelligence Platform updates complete.**
 
-- ✅ **Workspace Configuration** - pnpm workspaces + Turborepo with all packages
-- ✅ **Shared Packages** Created:
-  - `@vibetech/shared-config` - Environment & path validation
-  - `@vibetech/shared-ipc` - IPC schemas with Zod validation
-  - `@vibetech/db-app` - App database with WAL mode
-  - `@vibetech/db-learning` - Learning database (append-only)
-  - `@vibetech/logger` - Structured JSON logging
-- ✅ **Dual-Database Architecture** - Separate DBs for app data vs learning data
-- ✅ **IPC Contracts** - Versioned message schemas with contract tests
-- ✅ **ASAR Audit** - Verified Electron security (contextBridge + userData writes)
-- ✅ **Windows CI/CD** - GitHub Actions with pnpm caching and Turbo filters
-- ✅ **E2E Testing** - Playwright tests for IPC bridge integration
-- ✅ **Health Endpoints** - /healthz, /readyz, /metrics for IPC bridge
-- ✅ **Documentation** - Quick start guide and memory bank updates
+#### IPC Bridge & Routing
+- ✅ `packages/shared-ipc`: added `COMMAND_REQUEST/EXECUTE/RESULT/RESPONSE` types and payloads
+- ✅ `backend/ipc-bridge`: routing, timeouts, correlation; success path fixed to use original `messageId`
+- ✅ E2E tests added for success and timeout paths
 
-## ✅ Completed Work
+#### Clients
+- ✅ Vibe IPC client: promise-based command requests, timeouts, pending map
+- ✅ NOVA IPC client (Rust): pending commands, command handler, reconnection handling
+
+#### Learning System Integration
+- ✅ `LEARNING_SYSTEM_DIR` added to `@vibetech/shared-config`
+- ✅ NOVA Tauri command `run_python_learning_module` + TS `LearningAdapter`
+- ✅ Vibe Electron `learning:run` + `LearningHintsService` + LearningPanel “Local Hints”
+
+#### Packaging
+- ✅ Vibe: `pnpm --filter vibe-code-studio electron:build:win`
+- ✅ NOVA: `pnpm --filter nova-agent build`
+
+#### Docs
+- ✅ Memory-bank updated
+- ✅ Runbooks added to `docs/` (routing + learning adapter)
+
+## Previous Completed Work
 
 ### Phase 1: Shared Code Foundation ✅
 
@@ -253,6 +260,11 @@ All integration documentation is complete:
 
 ## 🎉 Completion Status
 
-**Status:** ✅ **PRODUCTION-READY (Grade: A+)**
+**Status:** ✅ **PHASE 3.2 COMPLETE — READY TO PACKAGE & TEST**
 
-All infrastructure optimization work is complete. The system has enterprise-grade service management, monitoring, database optimization, and CI/CD automation.
+- Both apps build and run, with cross-app command routing verified.
+- Learning adapter available in both NOVA and Vibe (optional local hints in Vibe).
+
+## Next
+- Documentation polish (runbooks complete; expand wiki as needed)
+- Optional: sign Windows builds; expand automated integration tests for learning flows

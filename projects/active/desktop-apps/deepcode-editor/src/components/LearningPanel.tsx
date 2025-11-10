@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { DatabaseService } from '../services/DatabaseService';
 import { logger } from '../services/Logger';
 import { useRemoteLearningData, useIPCConnectionStatus } from '../stores/useIPCStore';
+import { LearningHintsService } from '../services/LearningHintsService';
 
 const PanelContainer = styled.div`
   display: flex;
@@ -178,6 +179,9 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ databaseService, o
   const [knowledge, setKnowledge] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [localHints, setLocalHints] = useState<any | null>(null);
+  const [localLoading, setLocalLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   // Get remote learning data from NOVA Agent via IPC
   const remoteLearningData = useRemoteLearningData();
@@ -241,13 +245,37 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ databaseService, o
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   };
 
+  const runLocalHints = async () => {
+    setLocalLoading(true);
+    setLocalError(null);
+    setLocalHints(null);
+    try {
+      // Basic call to pattern recognition; payload can be extended with project context
+      const res = await LearningHintsService.run('pattern_recognition', { scope: 'workspace' }, { timeoutMs: 4000 });
+      if (res.success) {
+        setLocalHints(res.result ?? {});
+      } else {
+        setLocalError(res.error || 'Failed to generate hints');
+      }
+    } catch (e: any) {
+      setLocalError(e?.toString?.() || 'Unknown error');
+    } finally {
+      setLocalLoading(false);
+    }
+  };
+
   return (
     <PanelContainer>
       <Header>
         <Title>Learning System</Title>
-        <RefreshButton onClick={refresh} disabled={loading}>
-          {loading ? 'Loading...' : 'Refresh'}
-        </RefreshButton>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <RefreshButton onClick={runLocalHints} disabled={localLoading}>
+            {localLoading ? 'Running…' : 'Local Hints'}
+          </RefreshButton>
+          <RefreshButton onClick={refresh} disabled={loading}>
+            {loading ? 'Loading...' : 'Refresh'}
+          </RefreshButton>
+        </div>
       </Header>
 
       <Tabs>
@@ -264,6 +292,17 @@ export const LearningPanel: React.FC<LearningPanelProps> = ({ databaseService, o
       </Tabs>
 
       <Content>
+        {localError && (
+          <div style={{ padding: 12, background: 'rgba(255,0,0,0.08)', borderRadius: 4, marginBottom: 12 }}>
+            Local hints error: {localError}
+          </div>
+        )}
+        {localHints && (
+          <div style={{ padding: 12, background: 'rgba(34,197,94,0.08)', borderRadius: 4, marginBottom: 12 }}>
+            <div style={{ fontWeight: 600, marginBottom: 6 }}>Local Hints</div>
+            <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{JSON.stringify(localHints, null, 2)}</pre>
+          </div>
+        )}
         {error && (
           <div style={{ padding: '16px', background: 'rgba(255, 0, 0, 0.1)', borderRadius: '4px', marginBottom: '16px' }}>
             {error}

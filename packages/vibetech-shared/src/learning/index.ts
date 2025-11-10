@@ -6,3 +6,4 @@
 
 export * from './PatternRecognizer';
 export * from './MistakeTracker';
+export * from './pythonAdapter';

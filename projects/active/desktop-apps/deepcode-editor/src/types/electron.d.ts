@@ -87,6 +87,15 @@ interface ElectronAPI {
     initialize: () => Promise<{ success: boolean; error?: string }>;
   };
 
+  // Learning adapter
+  learning: {
+    run: (
+      command: 'error_prevention' | 'performance_optimize' | 'pattern_recognition' | 'batch_optimize',
+      payload: any,
+      options?: { timeoutMs?: number; pythonPath?: string; moduleOverride?: string }
+    ) => Promise<{ success: boolean; result?: any; error?: string; durationMs?: number }>;
+  };
+
   // Get platform info
   getPlatform: () => Promise<{
     success: boolean;

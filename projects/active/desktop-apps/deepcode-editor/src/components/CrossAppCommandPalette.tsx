@@ -6,11 +6,18 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { ipcClient } from '../services/IPCClient';
 
 interface CommandResult {
     success: boolean;
     result?: any;
     error?: string;
+    commandId?: string;
+    metrics?: {
+        elapsedMs?: number;
+        startedAt?: number;
+        finishedAt?: number;
+    };
 }
 
 const NOVA_COMMANDS = [
@@ -67,17 +74,22 @@ export const CrossAppCommandPalette: React.FC<CrossAppCommandPaletteProps> = ({ 
         setResult(null);
 
         try {
-            // Send command via IPC Bridge
-            const response = await window.electronAPI.sendCrossAppCommand({
-                commandId: `cmd-${Date.now()}`,
+            const response = await ipcClient.sendCommandRequest(commandText, {
                 target: 'nova',
-                command,
-                args,
-                text: commandText,
-                source: 'vibe'
+                metadata: {
+                    sourceComponent: 'CrossAppCommandPalette',
+                    command,
+                    args,
+                },
             });
 
-            setResult(response as CommandResult);
+            const formatted: CommandResult = {
+                success: response.success,
+                result: response.result,
+                error: response.error,
+            };
+
+            setResult(formatted);
 
             if (response.success) {
                 setTimeout(() => {

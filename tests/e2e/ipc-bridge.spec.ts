@@ -81,5 +81,156 @@ test.describe('IPC Bridge Integration', () => {
     ws1.close();
     ws2.close();
   });
-});
 
+  test('should route command_request from nova to vibe and return command_result', async () => {
+    const wsNova = new WebSocket('ws://localhost:5004');
+    const wsVibe = new WebSocket('ws://localhost:5004');
+
+    await Promise.all([
+      new Promise((resolve) => wsNova.on('open', resolve)),
+      new Promise((resolve) => wsVibe.on('open', resolve)),
+    ]);
+
+    // Helper to generate ids
+    const genId = (p: string) => `${p}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+    // Set initial identification by sending a benign valid message from both
+    wsNova.send(JSON.stringify({
+      type: 'ping',
+      payload: { ts: Date.now() },
+      timestamp: Date.now(),
+      source: 'nova',
+      messageId: genId('nova'),
+    }));
+
+    wsVibe.send(JSON.stringify({
+      type: 'ping',
+      payload: { ts: Date.now() },
+      timestamp: Date.now(),
+      source: 'vibe',
+      messageId: genId('vibe'),
+    }));
+
+    // Vibe listens for command_execute and responds with command_result
+    wsVibe.on('message', (data) => {
+      try {
+        const msg = JSON.parse(data.toString());
+        if (msg?.type === 'command_execute' && msg?.payload?.commandId) {
+          const { commandId } = msg.payload;
+          const response = {
+            type: 'command_result',
+            source: 'vibe',
+            payload: {
+              commandId,
+              success: true,
+              result: { ok: true },
+            },
+            timestamp: Date.now(),
+            messageId: `resp-${commandId}`,
+          };
+          wsVibe.send(JSON.stringify(response));
+        }
+      } catch {}
+    });
+
+    // Nova waits for command_result
+    const novaResult = new Promise<{ payload: any }>((resolve, reject) => {
+      const to = setTimeout(() => reject(new Error('Timeout waiting for command_result')), 5000);
+      wsNova.on('message', (data) => {
+        try {
+          const msg = JSON.parse(data.toString());
+          if (msg?.type === 'command_result') {
+            clearTimeout(to);
+            resolve(msg);
+          }
+        } catch {}
+      });
+    });
+
+    // Send command_request from nova
+    const requestId = genId('cmd');
+    wsNova.send(JSON.stringify({
+      type: 'command_request',
+      source: 'nova',
+      payload: {
+        text: '@vibe open C:\\\\dev\\\\README.md',
+        target: 'vibe',
+      },
+      timestamp: Date.now(),
+      messageId: requestId,
+      timeoutMs: 8000,
+    }));
+
+    const resultMsg = await novaResult;
+    expect(resultMsg.payload).toMatchObject({
+      success: true,
+      result: { ok: true },
+    });
+
+    wsNova.close();
+    wsVibe.close();
+  });
+
+  test('should return error result when target does not respond within timeout', async () => {
+    const wsNova = new WebSocket('ws://localhost:5004');
+    const wsVibe = new WebSocket('ws://localhost:5004');
+
+    await Promise.all([
+      new Promise((resolve) => wsNova.on('open', resolve)),
+      new Promise((resolve) => wsVibe.on('open', resolve)),
+    ]);
+
+    const genId = (p: string) => `${p}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+    // Identify both clients
+    wsNova.send(JSON.stringify({
+      type: 'ping',
+      payload: { ts: Date.now() },
+      timestamp: Date.now(),
+      source: 'nova',
+      messageId: genId('nova'),
+    }));
+    wsVibe.send(JSON.stringify({
+      type: 'ping',
+      payload: { ts: Date.now() },
+      timestamp: Date.now(),
+      source: 'vibe',
+      messageId: genId('vibe'),
+    }));
+
+    // Intentionally DO NOT respond from vibe to simulate timeout
+
+    const novaResult = new Promise<{ payload: any }>((resolve, reject) => {
+      const to = setTimeout(() => reject(new Error('Timeout waiting for command_result')), 12000);
+      wsNova.on('message', (data) => {
+        try {
+          const msg = JSON.parse(data.toString());
+          if (msg?.type === 'command_result') {
+            clearTimeout(to);
+            resolve(msg);
+          }
+        } catch {}
+      });
+    });
+
+    wsNova.send(JSON.stringify({
+      type: 'command_request',
+      source: 'nova',
+      payload: {
+        text: '@vibe help',
+        target: 'vibe',
+      },
+      timestamp: Date.now(),
+      messageId: genId('cmd'),
+      timeoutMs: 2000, // short timeout
+    }));
+
+    const resultMsg = await novaResult;
+    expect(resultMsg.payload).toMatchObject({
+      success: false,
+    });
+
+    wsNova.close();
+    wsVibe.close();
+  });
+});
