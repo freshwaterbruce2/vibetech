@@ -11,7 +11,9 @@
   "files": [
     "package.json",
     "out/**/*",
-    "dist/**/*"
+    "dist/**/*",
+    "!**/node_modules/**",
+    "!**/.git/**"
   ],
   "extraResources": [
     {
@@ -29,10 +31,6 @@
     "target": [
       {
         "target": "nsis",
-        "arch": ["x64", "arm64"]
-      },
-      {
-        "target": "portable",
         "arch": ["x64"]
       }
     ],

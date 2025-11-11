@@ -25,8 +25,9 @@ packages:
 
   # Other projects
   - 'projects/Vibe-Subscription-Guard'
-  - 'desktop-commander-v2'
+  - 'desktop-commander-v3'
   - 'workflow-hub-mcp'
+  - 'Vibe-Tutor'
 
   # Backend services
   - 'backend/ipc-bridge'
