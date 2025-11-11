@@ -87,7 +87,7 @@
     ]
   },
   "dependencies": {
-    "@langchain/community": "^0.3.0",
+    "@langchain/community": "^1.0.2",
     "@langchain/core": "^0.3.0",
     "@tailwindcss/postcss": "^4.1.13",
     "@tauri-apps/api": "^2.8.0",
