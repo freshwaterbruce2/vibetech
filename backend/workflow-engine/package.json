@@ -1,0 +1,16 @@
+{
+  "name": "workflow-engine",
+  "version": "1.0.0",
+  "description": "Workflow automation engine for P3.4",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6",
+    "ws": "^8.14.2"
+  }
+}

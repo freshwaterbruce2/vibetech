@@ -58,19 +58,20 @@ export function initializeDatabase(): { success: boolean; error?: string } {
 
 /**
  * Create database tables
+ * Table names match DatabaseService expectations (deepcode_* prefix)
  */
 function createTables() {
   if (!db) throw new Error('Database not initialized');
 
-  // Chat messages table
+  // Chat history table
   db.exec(`
-    CREATE TABLE IF NOT EXISTS chat_messages (
+    CREATE TABLE IF NOT EXISTS deepcode_chat_history (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-      workspace_path TEXT NOT NULL,
+      workspace_path TEXT,
       user_message TEXT NOT NULL,
       ai_response TEXT NOT NULL,
-      model_used TEXT NOT NULL,
+      model_used TEXT,
       tokens_used INTEGER,
       workspace_context TEXT
     );
@@ -78,7 +79,7 @@ function createTables() {
 
   // Code snippets table
   db.exec(`
-    CREATE TABLE IF NOT EXISTS code_snippets (
+    CREATE TABLE IF NOT EXISTS deepcode_code_snippets (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       language TEXT NOT NULL,
       code TEXT NOT NULL,
@@ -92,16 +93,16 @@ function createTables() {
 
   // Settings table
   db.exec(`
-    CREATE TABLE IF NOT EXISTS settings (
+    CREATE TABLE IF NOT EXISTS deepcode_settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
 
-  // Analytics events table
+  // Analytics table
   db.exec(`
-    CREATE TABLE IF NOT EXISTS analytics_events (
+    CREATE TABLE IF NOT EXISTS deepcode_analytics (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       event_type TEXT NOT NULL,
       event_data TEXT,
@@ -109,40 +110,57 @@ function createTables() {
     );
   `);
 
-  // Strategy patterns table
+  // Strategy memory table (migrated from localStorage)
   db.exec(`
-    CREATE TABLE IF NOT EXISTS strategy_patterns (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      description TEXT,
-      complexity INTEGER,
-      learning_type TEXT,
-      success_count INTEGER DEFAULT 0,
-      fail_count INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    CREATE TABLE IF NOT EXISTS deepcode_strategy_memory (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pattern_hash TEXT UNIQUE NOT NULL,
+      pattern_data TEXT NOT NULL,
+      success_rate REAL DEFAULT 0.0,
+      usage_count INTEGER DEFAULT 0,
+      last_used DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+  `);
+
+  // Create indexes for performance
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_chat_workspace ON deepcode_chat_history(workspace_path);
+    CREATE INDEX IF NOT EXISTS idx_chat_timestamp ON deepcode_chat_history(timestamp DESC);
+    CREATE INDEX IF NOT EXISTS idx_strategy_hash ON deepcode_strategy_memory(pattern_hash);
+    CREATE INDEX IF NOT EXISTS idx_analytics_type ON deepcode_analytics(event_type);
   `);
 }
 
 /**
  * Execute a query
  */
-export function executeQuery(sql: string, params: any[] = []): { success: boolean; data?: any; error?: string } {
+export function executeQuery(sql: string, params: any[] = []): { success: boolean; rows?: any[]; error?: string } {
   try {
     if (!db) {
       initializeDatabase();
     }
 
+    // Detect multiple statements (schema initialization, etc.)
+    const hasMultipleStatements = (sql.match(/;/g) || []).length > 1 ||
+                                   (sql.match(/CREATE\s+(TABLE|INDEX)/gi) || []).length > 1;
+
+    if (hasMultipleStatements) {
+      // Use exec() for multiple statements (no parameter binding supported)
+      db!.exec(sql);
+      return { success: true, rows: [] };
+    }
+
+    // Single statement - use prepare() for parameter binding
     const stmt = db!.prepare(sql);
 
     // Check if it's a SELECT query
     if (sql.trim().toLowerCase().startsWith('select')) {
-      const data = stmt.all(...params);
-      return { success: true, data };
+      const rows = stmt.all(...params);
+      return { success: true, rows };
     } else {
       const result = stmt.run(...params);
-      return { success: true, data: result };
+      return { success: true, rows: [] };
     }
   } catch (error) {
     console.error('[Database] Query failed:', error);

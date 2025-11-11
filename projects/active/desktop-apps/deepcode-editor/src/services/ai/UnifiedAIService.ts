@@ -2,8 +2,9 @@
  * UnifiedAIService - Bridges DeepSeekService interface with AIProviderManager
  * Provides backward-compatible interface while using the new multi-provider system
  */
-import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+import { SecureApiKeyManager } from '../../utils/SecureApiKeyManager';
 
+import { AI_MODELS, APP_EVENTS } from '../../constants';
 import { logger } from '../../services/Logger';
 import {
   AIContextRequest,
@@ -17,7 +18,7 @@ import { DemoResponseProvider } from './DemoResponseProvider';
 
 export class UnifiedAIService {
   private providerManager: AIProviderManager;
-  private currentModel: string = 'deepseek-chat';
+  private currentModel: string = AI_MODELS.DEEPSEEK_CHAT; // ✅ 2025: Type-safe constant
   private isDemoMode: boolean = true;
   private keyManager: SecureApiKeyManager;
 
@@ -51,7 +52,7 @@ export class UnifiedAIService {
 
     // Listen for API key updates from Settings component
     if (typeof window !== 'undefined') {
-      window.addEventListener('apiKeyUpdated', this.handleApiKeyUpdate.bind(this) as EventListener);
+      window.addEventListener(APP_EVENTS.API_KEY_UPDATED, this.handleApiKeyUpdate.bind(this) as EventListener); // ✅ 2025: Type-safe event
     }
   }
 

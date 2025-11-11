@@ -1,3 +1,4 @@
+import { AI_MODELS } from '../../constants';
 import { AIContextRequest, WorkspaceContext } from '../../types';
 import { FileSystemService } from '../FileSystemService';
 import { type Rule,RulesParser } from '../RulesParser';
@@ -14,7 +15,7 @@ export class PromptBuilder {
   private static readonly CACHE_TTL = 60000; // 1 minute cache
   static buildBaseSystemPrompt(model?: string): string {
     // Optimize prompt based on model
-    if (model === 'deepseek-coder') {
+    if (model === AI_MODELS.DEEPSEEK_CODER) { // ✅ 2025: Type-safe constant
       return `You are DeepSeek Coder, a specialized programming AI assistant in DeepCode Editor. You excel at generating, analyzing, and optimizing code.
 
 Your specialized capabilities:
@@ -32,7 +33,7 @@ Coding guidelines:
 - Add helpful inline comments for complex logic
 - Optimize for both readability and performance
 - Consider security best practices`;
-    } else if (model === 'deepseek-reasoner') {
+    } else if (model === AI_MODELS.DEEPSEEK_REASONER) { // ✅ 2025: Type-safe constant
       return `You are DeepSeek Reasoner in DeepCode Editor. You provide detailed reasoning for complex programming problems.
 
 Your approach:

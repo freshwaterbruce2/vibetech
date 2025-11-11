@@ -1,0 +1,29 @@
+{
+  "name": "@vibetech/shared-ipc",
+  "version": "1.0.0",
+  "description": "IPC message schemas and contracts for NOVA-Deepcode communication",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["ipc", "websocket", "contracts"],
+  "author": "VibeTech",
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "^11.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/ws": "^8.5.10",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "ws": "^8.13.0"
+  }
+}

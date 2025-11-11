@@ -2,6 +2,8 @@
  * AIProviderManager - Manages multiple AI providers and model selection
  * Browser-compatible version without Node.js dependencies
  */
+import { AI_MODELS } from '../../constants';
+import { env } from '../../config/env';
 import { logger } from '../../services/Logger';
 
 import { AnthropicProvider } from './providers/AnthropicProvider';
@@ -23,16 +25,15 @@ export class AIProviderManager {
   private configs: Map<AIProvider, AIProviderConfig> = new Map();
 
   constructor() {
-    // Initialize with default configs from environment variables if available
-    // Use a try-catch to handle environments where process.env is not available
+    // Initialize with validated environment variables
     try {
-      const deepseekKey = process.env?.VITE_DEEPSEEK_API_KEY || '';
+      const deepseekKey = env.VITE_DEEPSEEK_API_KEY;
       if (deepseekKey) {
         this.setProvider(AIProvider.DEEPSEEK, {
           provider: AIProvider.DEEPSEEK,
           apiKey: deepseekKey,
-          baseUrl: process.env?.VITE_DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
-          model: 'deepseek-chat'
+          baseUrl: env.VITE_DEEPSEEK_BASE_URL,
+          model: AI_MODELS.DEEPSEEK_CHAT // ✅ 2025: Type-safe constant
         });
       }
     } catch (error) {

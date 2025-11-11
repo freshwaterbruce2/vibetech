@@ -1,7 +1,7 @@
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
+import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import { builtinModules } from 'module'
+import { resolve } from 'path'
 
 export default defineConfig({
   /**
@@ -9,11 +9,13 @@ export default defineConfig({
    * Builds electron/main.cjs (Electron main process)
    */
   main: {
+    plugins: [externalizeDepsPlugin({ exclude: ['better-sqlite3'] })],
     build: {
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'electron/main.ts')
-        }
+        },
+        external: ['better-sqlite3']
       }
     }
   },
@@ -21,12 +23,17 @@ export default defineConfig({
   /**
    * Preload Process Configuration
    * Builds electron/preload.ts (Electron preload script)
+   * Force CommonJS format for better compatibility with electron-builder
    */
   preload: {
     build: {
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'electron/preload.ts')
+        },
+        output: {
+          format: 'cjs',
+          entryFileNames: '[name].cjs'
         }
       }
     }
@@ -47,6 +54,8 @@ export default defineConfig({
       alias: {
         '@': resolve(__dirname, 'src'),
       },
+      // Force single React instance (fixes "Cannot read properties of null" error)
+      dedupe: ['react', 'react-dom'],
     },
 
     define: {
@@ -61,6 +70,9 @@ export default defineConfig({
         'styled-components',
         'zustand',
         'framer-motion',
+        // Ensure deps required by workspace libs are pre-bundled for the renderer
+        'zod',
+        'uuid',
       ],
       exclude: [
         'monaco-editor',
@@ -169,9 +181,19 @@ export default defineConfig({
     },
 
     server: {
-      port: 5174,
-      strictPort: true,
+      // Allow overriding the dev server port via environment variable.
+      // If the chosen port is taken, automatically choose the next available one.
+      port: Number(process.env.VITE_PORT || 5174),
+      strictPort: false,
       cors: true,
+      fs: {
+        // Allow serving files from node_modules (required for Monaco Editor CSS)
+        allow: [
+          '.',
+          '../../../../node_modules',
+          '../../../../node_modules/.pnpm'
+        ]
+      },
       warmup: {
         clientFiles: [
           './src/App.tsx',

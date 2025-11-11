@@ -32,7 +32,7 @@ const slideIn = keyframes`
   }
 `;
 
-const Container = styled.div<{ visible: boolean }>`
+const Container = styled.div<{ $visible: boolean }>`
   position: fixed;
   bottom: 80px;
   right: 20px;
@@ -40,7 +40,7 @@ const Container = styled.div<{ visible: boolean }>`
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 12px;
   padding: 12px 16px;
-  display: ${props => props.visible ? 'flex' : 'none'};
+  display: ${props => props.$visible ? 'flex' : 'none'};
   align-items: center;
   gap: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -49,18 +49,18 @@ const Container = styled.div<{ visible: boolean }>`
   max-width: 320px;
 `;
 
-const IconWrapper = styled.div<{ isActive: boolean; color: string }>`
+const IconWrapper = styled.div<{ $isActive: boolean; color: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: ${props => props.isActive
+  background: ${props => props.$isActive
     ? `linear-gradient(135deg, ${props.color}20, ${props.color}10)`
     : 'transparent'};
   color: ${props => props.color};
-  animation: ${props => props.isActive ? pulse : 'none'} 2s infinite;
+  animation: ${props => props.$isActive ? pulse : 'none'} 2s infinite;
 
   svg {
     width: 18px;
@@ -212,8 +212,8 @@ const CompletionIndicator: React.FC<CompletionIndicatorProps> = ({
   const strategyColor = getStrategyColor();
 
   return (
-    <Container visible={visible && isActive}>
-      <IconWrapper isActive={hasCompletion} color={strategyColor}>
+    <Container $visible={visible && isActive}>
+      <IconWrapper $isActive={hasCompletion} color={strategyColor}>
         {getStrategyIcon()}
       </IconWrapper>
 
@@ -249,10 +249,10 @@ const CompletionIndicator: React.FC<CompletionIndicatorProps> = ({
 };
 
 // Ghost text overlay component
-const GhostTextOverlay = styled.div<{ visible: boolean }>`
+const GhostTextOverlay = styled.div<{ $visible: boolean }>`
   position: absolute;
   pointer-events: none;
-  opacity: ${props => props.visible ? 0.5 : 0};
+  opacity: ${props => props.$visible ? 0.5 : 0};
   font-style: italic;
   color: #8b949e;
   transition: opacity 0.2s ease-in-out;

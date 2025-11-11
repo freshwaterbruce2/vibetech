@@ -1,14 +1,15 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
 import type { FileChange, MultiFileEditPlan } from '@vibetech/types/multifile';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import styled from 'styled-components';
+import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
 
 // New AI components
 import ComposerMode from './components/AgentMode/ComposerMode';
 import { BackgroundTaskPanel } from './components/BackgroundTaskPanel';
 import { ComponentLibrary } from './components/ComponentLibrary';
+import { CrossAppCommandPalette } from './components/CrossAppCommandPalette';
 import Editor from './components/Editor';
 import { EditorStreamPanel } from './components/EditorStreamPanel';
 import { ModernErrorBoundary } from './components/ErrorBoundary/index';
@@ -16,6 +17,7 @@ import { ErrorFixPanel } from './components/ErrorFixPanel';
 import GitPanel from './components/GitPanel';
 import { GlobalSearch } from './components/GlobalSearch';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts';
+import { LearningPanel } from './components/LearningPanel';
 // Lazy loaded components
 import { LazyAIChat, LazyCommandPalette, LazySettings } from './components/LazyComponents';
 import ModelSelector from './components/ModelSelector/ModelSelector';
@@ -27,6 +29,8 @@ import { PreviewPanel } from './components/PreviewPanel';
 import { ScreenshotToCodePanel } from './components/ScreenshotToCodePanel';
 import Sidebar from './components/Sidebar';
 import StatusBar from './components/StatusBar';
+import { TaskExecutionPanel } from './components/TaskExecutionPanel';
+import { TaskPanel } from './components/TaskPanel';
 import { TerminalPanel } from './components/TerminalPanel';
 // Components - Using lazy loading for heavy components
 import TitleBar from './components/TitleBar';
@@ -45,7 +49,7 @@ import { TaskPlanner } from './services/ai/TaskPlanner';
 // Services
 import { UnifiedAIService } from './services/ai/UnifiedAIService';
 import { AutoFixCodeActionProvider } from './services/AutoFixCodeActionProvider';
-import type { FixSuggestion,GeneratedFix } from './services/AutoFixService';
+import type { FixSuggestion, GeneratedFix } from './services/AutoFixService';
 import { AutoFixService } from './services/AutoFixService';
 import { autoUpdater } from './services/AutoUpdateService';
 import { BackgroundAgentSystem } from './services/BackgroundAgentSystem';
@@ -65,6 +69,8 @@ import { WorkspaceService } from './services/WorkspaceService';
 import { getUserFriendlyError } from './utils/errorHandler';
 // Types
 import { AIMessage, EditorFile } from './types';
+// IPC Store for integration with NOVA Agent
+import { initializeIPCStore, useIPCStore } from './stores/useIPCStore';
 
 // Browser-compatible Mock GitService (git_commit won't work in browser mode)
 class MockGitService {
@@ -178,7 +184,7 @@ function App() {
   });
 
   // Workspace management
-  const { workspaceContext, isIndexing, indexingProgress, getFileContext, indexWorkspace } =
+  const { workspaceContext, isIndexing, indexingProgress, getFileContext, indexWorkspace, refreshIndex } =
     useWorkspace();
 
   // App settings and UI state
@@ -226,6 +232,12 @@ function App() {
   // Chat mode state
   const [chatMode, setChatMode] = useState<'chat' | 'agent' | 'composer'>('chat');
 
+  // Task execution tracking for real-time visibility
+  const [currentExecutingStep, setCurrentExecutingStep] = useState<any>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [totalSteps, setTotalSteps] = useState(0);
+  const [isTaskExecuting, setIsTaskExecuting] = useState(false);
+
   // AI Chat
   const {
     aiMessages,
@@ -254,16 +266,21 @@ function App() {
 
   // Git panel state
   const [gitPanelOpen, _setGitPanelOpen] = useState(false);
-  
+  const [learningPanelOpen, setLearningPanelOpen] = useState(false);
+
   // Composer Mode state
   const [composerModeOpen, setComposerModeOpen] = useState(false);
 
   // Global search state
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
-  
+
   // Keyboard shortcuts state
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
   const [backgroundPanelOpen, setBackgroundPanelOpen] = useState(false);
+
+  // P3 Integration - Cross-App Command Palette & Task Intelligence
+  const [crossAppPaletteOpen, setCrossAppPaletteOpen] = useState(false);
+  const [taskPanelOpen, setTaskPanelOpen] = useState(false);
 
   // Visual panel state
   const [activeVisualPanel, setActiveVisualPanel] = useState<'none' | 'screenshot' | 'library' | 'visual'>('none');
@@ -422,22 +439,22 @@ function App() {
   }, [handleOpenFile]);
 
   const handleReplaceInFile = useCallback(async (
-    file: string, 
-    searchText: string, 
-    replaceText: string, 
+    file: string,
+    searchText: string,
+    replaceText: string,
     options: any
   ) => {
     try {
       const result = await searchService.replaceInFile(
-        file, 
-        searchService['createSearchPattern'](searchText, options), 
-        replaceText, 
+        file,
+        searchService['createSearchPattern'](searchText, options),
+        replaceText,
         options
       );
-      
+
       if (result.success && result.replacements > 0) {
         showSuccess('Replace Complete', `Replaced ${result.replacements} occurrences in ${file}`);
-        
+
         // Refresh the file if it's currently open
         if (currentFile?.path === file) {
           const content = await fileSystemService.readFile(file);
@@ -536,6 +553,18 @@ function App() {
         setGlobalSearchOpen(true);
       }
 
+      // Cross-App Command Palette: Ctrl+Shift+P
+      if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        setCrossAppPaletteOpen(true);
+      }
+
+      // Task Intelligence Panel: Ctrl+Shift+T
+      if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+        e.preventDefault();
+        setTaskPanelOpen(prev => !prev);
+      }
+
       // Agent Mode: Ctrl+Shift+A (open AI Chat in Agent Mode)
       if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         e.preventDefault();
@@ -556,7 +585,7 @@ function App() {
         window.addEventListener('keydown', handleCtrlS);
         setTimeout(() => window.removeEventListener('keydown', handleCtrlS), 2000);
       }
-      
+
       // Command palette: Ctrl+Shift+P
       if (e.ctrlKey && e.shiftKey && e.key === 'P') {
         e.preventDefault();
@@ -779,7 +808,7 @@ I'm now your context-aware coding companion! 🎯`,
 
   // AI Command Handler
   const handleAICommand = useCallback(async (command: string) => {
-    if (!currentFile || !currentFile.content) {
+    if (!currentFile?.content) {
       showWarning('Please open a file first');
       return;
     }
@@ -825,6 +854,36 @@ I'm now your context-aware coding companion! 🎯`,
   }, [currentFile, aiChatOpen, setAiChatOpen, handleAIMessage, showSuccess, showWarning]);
 
   // AI-Powered Command Palette
+  // Task execution callbacks for real-time visibility
+  const handleTaskStart = useCallback((task: any) => {
+    setIsTaskExecuting(true);
+    setTotalSteps(task.plan?.steps?.length || 0);
+    setCurrentStepIndex(0);
+    logger.debug('[App] Task execution started:', task);
+  }, []);
+
+  const handleStepStart = useCallback((step: any, stepIndex: number) => {
+    setCurrentExecutingStep(step);
+    setCurrentStepIndex(stepIndex);
+    logger.debug('[App] Step execution started:', step, 'Index:', stepIndex);
+  }, []);
+
+  const handleStepComplete = useCallback((step: any) => {
+    logger.debug('[App] Step execution completed:', step);
+    // Keep the step visible for a brief moment before clearing
+    setTimeout(() => {
+      setCurrentExecutingStep(null);
+    }, 500);
+  }, []);
+
+  const handleTaskComplete = useCallback((task: any) => {
+    setIsTaskExecuting(false);
+    setCurrentExecutingStep(null);
+    setCurrentStepIndex(0);
+    setTotalSteps(0);
+    logger.debug('[App] Task execution completed:', task);
+  }, []);
+
   const { commandPaletteOpen, setCommandPaletteOpen, commands } = useAICommandPalette({
     onSaveFile: handleSaveFile,
     onOpenFolder: handleOpenFolderDialog,
@@ -834,13 +893,13 @@ I'm now your context-aware coding companion! 🎯`,
     onToggleSidebar: () => setSidebarOpen(!sidebarOpen),
     onToggleAIChat: () => setAiChatOpen(!aiChatOpen),
     onOpenSettings: () => setSettingsOpen(true),
-    onAIExplainCode: () => handleAICommand('explain'),
-    onAIGenerateTests: () => handleAICommand('generate-tests'),
-    onAIRefactor: () => handleAICommand('refactor'),
-    onAIFixBugs: () => handleAICommand('fix-bugs'),
-    onAIOptimize: () => handleAICommand('optimize'),
-    onAIAddComments: () => handleAICommand('add-comments'),
-    onAIGenerateComponent: () => handleAICommand('generate-component'),
+    onAIExplainCode: async () => handleAICommand('explain'),
+    onAIGenerateTests: async () => handleAICommand('generate-tests'),
+    onAIRefactor: async () => handleAICommand('refactor'),
+    onAIFixBugs: async () => handleAICommand('fix-bugs'),
+    onAIOptimize: async () => handleAICommand('optimize'),
+    onAIAddComments: async () => handleAICommand('add-comments'),
+    onAIGenerateComponent: async () => handleAICommand('generate-component'),
     onFormatDocument: () => {
       // Format will be handled by Monaco editor
       document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -852,7 +911,7 @@ I'm now your context-aware coding companion! 🎯`,
     },
     currentFile: currentFile?.path || null,
   });
-  
+
   // Composer Mode handler
   const handleComposerModeApply = async (files: any[]) => {
     try {
@@ -866,7 +925,7 @@ I'm now your context-aware coding companion! 🎯`,
       showError('Composer Mode', 'Failed to apply changes');
     }
   };
-  
+
   const handleModelChange = async (model: string) => {
     setCurrentModel(model);
     // Update AI service with new model
@@ -955,6 +1014,17 @@ I'm now your context-aware coding companion! 🎯`,
 
   // Initialize the application
   useEffect(() => {
+    // Verify Electron API is accessible (renderer side)
+    if (window.electron) {
+      logger.info('[Renderer] ✅ Electron API is accessible');
+      logger.info('[Renderer] ✅ Storage API available:', !!window.electron.storage);
+      logger.info('[Renderer] ✅ Storage.get available:', typeof window.electron.storage?.get === 'function');
+      logger.info('[Renderer] ✅ DB API available:', !!window.electron.db);
+      logger.info('[Renderer] ✅ FS API available:', !!window.electron.fs);
+    } else {
+      logger.info('[Renderer] Running in browser mode (no Electron API)');
+    }
+
     // Track app initialization
     telemetry.trackEvent('app_initialized', {
       version: import.meta.env['VITE_APP_VERSION'],
@@ -1000,6 +1070,103 @@ I'm now your context-aware coding companion! 🎯`,
     };
     loadApiKey();
   }, []);
+
+  // Initialize IPC Store and auto-connect to IPC Bridge (non-blocking)
+  useEffect(() => {
+    const initializeIPC = () => {
+      try {
+        logger.info('[Vibe] Initializing IPC Bridge connection...');
+        // Don't block - run in background
+        initializeIPCStore();
+
+        // Show notification after a brief delay to confirm connection
+        setTimeout(() => {
+          const store = useIPCStore.getState();
+          if (store.status === 'connected') {
+            showSuccess('Connected to IPC Bridge', 'Integration with NOVA Agent enabled');
+          }
+        }, 2000);
+      } catch (err) {
+        logger.error('[Vibe] Failed to initialize IPC:', err);
+        showWarning('IPC Bridge connection failed', 'Integration features may be unavailable');
+      }
+    };
+
+    // Initialize with a small delay to allow app to fully mount
+    const timer = setTimeout(() => {
+      initializeIPC();
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [showSuccess, showWarning]);
+
+  // Subscribe to IPC status changes for notifications
+  useEffect(() => {
+    let previousStatus = useIPCStore.getState().status;
+
+    const unsubscribe = useIPCStore.subscribe((state) => {
+      const currentStatus = state.status;
+
+      // Notify on disconnect
+      if (previousStatus === 'connected' && currentStatus === 'disconnected') {
+        showWarning('IPC Bridge disconnected', 'Attempting to reconnect...');
+      }
+
+      // Notify on reconnection
+      if (previousStatus !== 'connected' && currentStatus === 'connected') {
+        showSuccess('IPC Bridge reconnected', 'Integration restored');
+      }
+
+      // Notify on error
+      if (currentStatus === 'error' && previousStatus !== 'error') {
+        showError('IPC Connection error', state.lastError || 'Unknown error occurred');
+      }
+
+      previousStatus = currentStatus;
+    });
+
+    return () => unsubscribe();
+  }, [showSuccess, showWarning, showError]);
+
+  // Listen for file open requests from NOVA Agent
+  useEffect(() => {
+    const handleFileOpenRequest = (event: any) => {
+      const { path, line, column } = event.detail;
+
+      logger.info(`[Vibe] Received file open request from NOVA: ${path}`);
+
+      try {
+        // Open the file using existing file manager
+        handleOpenFile(path);
+
+        // If line/column specified, focus after file loads
+        if (line !== undefined && line !== null) {
+          setTimeout(() => {
+            // Monaco editor will be available after file loads
+            if (editorRef.current?.monaco) {
+              const editor = editorRef.current.monaco;
+              editor.revealLineInCenter(line);
+              editor.setPosition({ lineNumber: line, column: column || 1 });
+              editor.focus();
+            }
+          }, 500);
+        }
+
+        // Focus window
+        if (window.electron) {
+          window.electron.focusWindow?.();
+        }
+
+        showSuccess('File opened from NOVA', path.split(/[\\/]/).pop() || path);
+      } catch (error) {
+        logger.error('[Vibe] Failed to open file from NOVA:', error);
+        showError('Failed to open file', 'Could not open file from NOVA Agent');
+      }
+    };
+
+    window.addEventListener('ipc:file-open', handleFileOpenRequest);
+    return () => window.removeEventListener('ipc:file-open', handleFileOpenRequest);
+  }, [handleOpenFile, showSuccess, showError]);
 
   if (isLoading) {
     return (
@@ -1127,11 +1294,11 @@ I'm now your context-aware coding companion! 🎯`,
                   workspaceContext={
                     workspaceFolder
                       ? {
-                          workspaceRoot: workspaceFolder,
-                          currentFile: currentFile?.path,
-                          openFiles: openFiles.map((f) => f.path),
-                          recentFiles: openFiles.slice(0, 5).map((f) => f.path),
-                        }
+                        workspaceRoot: workspaceFolder,
+                        currentFile: currentFile?.path,
+                        openFiles: openFiles.map((f) => f.path),
+                        recentFiles: openFiles.slice(0, 5).map((f) => f.path),
+                      }
                       : undefined
                   }
                   onAddMessage={addAiMessage}
@@ -1141,6 +1308,10 @@ I'm now your context-aware coding companion! 🎯`,
                     if (action === 'created' || action === 'modified') {
                       // Open the file in editor
                       handleOpenFile(filePath);
+                      // Immediately refresh workspace index to show new files in explorer
+                      if (workspaceFolder) {
+                        refreshIndex().catch(err => logger.error('[App] Failed to refresh workspace:', err));
+                      }
                     }
                   }}
                   onTaskComplete={(task) => {
@@ -1149,11 +1320,34 @@ I'm now your context-aware coding companion! 🎯`,
                   onTaskError={(task, error) => {
                     showError('Task Failed', `Failed to execute ${task.title}: ${error.message}`);
                   }}
+                  onTaskStart={handleTaskStart}
+                  onStepStart={handleStepStart}
+                  onStepComplete={handleStepComplete}
+                  onTaskCompleteCallback={handleTaskComplete}
                 />
               </Suspense>
             )}
 
             {gitPanelOpen && <GitPanel workingDirectory={workspaceFolder || undefined} />}
+
+            {learningPanelOpen && dbService && (
+              <div style={{
+                position: 'fixed',
+                right: 0,
+                top: '40px',
+                bottom: '40px',
+                width: '400px',
+                zIndex: 1000,
+                background: '#1e1e1e',
+                borderLeft: '1px solid #3e3e3e',
+                boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.3)',
+              }}>
+                <LearningPanel
+                  databaseService={dbService}
+                  onClose={() => setLearningPanelOpen(false)}
+                />
+              </div>
+            )}
 
             {backgroundPanelOpen && (
               <BackgroundTaskPanel
@@ -1174,21 +1368,30 @@ I'm now your context-aware coding companion! 🎯`,
             onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
             onToggleBackgroundPanel={() => setBackgroundPanelOpen(!backgroundPanelOpen)}
             onOpenAgentMode={() => {
-              if (!aiChatOpen) {setAiChatOpen(true);}
+              if (!aiChatOpen) { setAiChatOpen(true); }
               setChatMode('agent');
             }}
             onOpenComposerMode={() => {
-              if (!aiChatOpen) {setAiChatOpen(true);}
+              if (!aiChatOpen) { setAiChatOpen(true); }
               setChatMode('composer');
             }}
-            onOpenTerminal={() => {/* Terminal disabled */}}
+            onOpenTerminal={() => {/* Terminal disabled */ }}
             onToggleScreenshot={handleToggleScreenshotPanel}
             onToggleLibrary={handleToggleComponentLibrary}
             onToggleVisualEditor={handleToggleVisualEditor}
+            onToggleLearningPanel={() => setLearningPanelOpen(!learningPanelOpen)}
           />
 
           <NotificationContainer notifications={notifications} onClose={removeNotification} />
 
+
+          {/* Real-time Task Execution Panel */}
+          <TaskExecutionPanel
+            currentStep={currentExecutingStep}
+            totalSteps={totalSteps}
+            currentStepIndex={currentStepIndex}
+            isExecuting={isTaskExecuting}
+          />
           {/* PHASE 7: Live Editor Streaming Control Panel */}
           <EditorStreamPanel
             isStreaming={liveStream.isCurrentlyStreaming()}
@@ -1289,6 +1492,17 @@ I'm now your context-aware coding companion! 🎯`,
             isOpen={keyboardShortcutsOpen}
             onClose={() => setKeyboardShortcutsOpen(false)}
           />
+
+          {/* Cross-App Command Palette - P3 Integration */}
+          {crossAppPaletteOpen && (
+            <CrossAppCommandPalette onClose={() => setCrossAppPaletteOpen(false)} />
+          )}
+
+          {/* Task Intelligence Panel - P3 Integration */}
+          {taskPanelOpen && (
+            <TaskPanel onClose={() => setTaskPanelOpen(false)} />
+          )}
+
           {/* Composer Mode */}
           <ComposerMode
             isOpen={composerModeOpen}

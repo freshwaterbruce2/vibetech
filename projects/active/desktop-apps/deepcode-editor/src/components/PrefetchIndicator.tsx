@@ -5,18 +5,17 @@
  * October 2025 - Week 4 Implementation
  */
 
-import React, { useEffect, useState } from 'react';
 import {
   Activity,
   BarChart3,
   Brain,
   Clock,
-  Cpu,
   Database,
   HardDrive,
   Target,
-  TrendingUp,
-  Zap} from 'lucide-react';
+  Zap
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 const pulse = keyframes`
@@ -39,18 +38,18 @@ const rotate = keyframes`
   }
 `;
 
-const Container = styled.div<{ expanded: boolean }>`
+const Container = styled.div<{ $expanded: boolean }>`
   position: fixed;
   bottom: 100px;
   left: 20px;
   background: linear-gradient(135deg, #1a1b26 0%, #24283b 100%);
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 12px;
-  padding: ${props => props.expanded ? '16px' : '12px'};
+  padding: ${props => props.$expanded ? '16px' : '12px'};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease-out;
   z-index: 999;
-  min-width: ${props => props.expanded ? '320px' : '180px'};
+  min-width: ${props => props.$expanded ? '320px' : '180px'};
   max-width: 400px;
 `;
 
@@ -71,18 +70,18 @@ const Title = styled.div`
   font-weight: 600;
 `;
 
-const IconWrapper = styled.div<{ isActive: boolean; color: string }>`
+const IconWrapper = styled.div<{ $isActive: boolean; color: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: ${props => props.isActive
+  background: ${props => props.$isActive
     ? `linear-gradient(135deg, ${props.color}30, ${props.color}20)`
     : 'transparent'};
   color: ${props => props.color};
-  animation: ${props => props.isActive ? pulse : 'none'} 2s infinite;
+  animation: ${props => props.$isActive ? pulse : 'none'} 2s infinite;
 
   svg {
     width: 16px;
@@ -97,14 +96,14 @@ const StatusBadge = styled.span<{ status: 'idle' | 'active' | 'learning' }>`
   font-weight: 600;
   text-transform: uppercase;
   background: ${props => {
-    switch(props.status) {
+    switch (props.status) {
       case 'active': return 'rgba(16, 185, 129, 0.2)';
       case 'learning': return 'rgba(245, 158, 11, 0.2)';
       default: return 'rgba(107, 114, 128, 0.2)';
     }
   }};
   color: ${props => {
-    switch(props.status) {
+    switch (props.status) {
       case 'active': return '#10b981';
       case 'learning': return '#f59e0b';
       default: return '#6b7280';
@@ -207,14 +206,14 @@ const ConfidenceBadge = styled.span<{ level: 'high' | 'medium' | 'low' }>`
   font-size: 9px;
   font-weight: 600;
   background: ${props => {
-    switch(props.level) {
+    switch (props.level) {
       case 'high': return 'rgba(16, 185, 129, 0.2)';
       case 'medium': return 'rgba(245, 158, 11, 0.2)';
       default: return 'rgba(107, 114, 128, 0.2)';
     }
   }};
   color: ${props => {
-    switch(props.level) {
+    switch (props.level) {
       case 'high': return '#10b981';
       case 'medium': return '#f59e0b';
       default: return '#6b7280';
@@ -294,18 +293,18 @@ const PrefetchIndicator: React.FC<PrefetchIndicatorProps> = ({
   }, [stats.hitRate]);
 
   const getConfidenceLevel = (confidence: number): 'high' | 'medium' | 'low' => {
-    if (confidence >= 0.8) {return 'high';}
-    if (confidence >= 0.5) {return 'medium';}
+    if (confidence >= 0.8) { return 'high'; }
+    if (confidence >= 0.5) { return 'medium'; }
     return 'low';
   };
 
   const memoryUsagePercent = (stats.memoryUsageMB / 50) * 100; // Assuming 50MB max
 
   return (
-    <Container expanded={expanded}>
+    <Container $expanded={expanded}>
       <Header onClick={() => setExpanded(!expanded)}>
         <Title>
-          <IconWrapper isActive={isActive} color="#8b92f6">
+          <IconWrapper $isActive={isActive} color="#8b92f6">
             <Brain />
           </IconWrapper>
           <span>Predictive Prefetch</span>
@@ -411,17 +410,17 @@ const PrefetchIndicator: React.FC<PrefetchIndicatorProps> = ({
 };
 
 // Mini indicator for status bar
-const MiniIndicator = styled.div<{ isActive: boolean }>`
+const MiniIndicator = styled.div<{ $isActive: boolean }>`
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 4px 8px;
-  background: ${props => props.isActive
+  background: ${props => props.$isActive
     ? 'rgba(139, 92, 246, 0.1)'
     : 'transparent'};
   border-radius: 6px;
   font-size: 11px;
-  color: ${props => props.isActive ? '#8b92f6' : '#6b7280'};
+  color: ${props => props.$isActive ? '#8b92f6' : '#6b7280'};
   cursor: pointer;
   transition: all 0.2s;
 
@@ -433,7 +432,7 @@ const MiniIndicator = styled.div<{ isActive: boolean }>`
   svg {
     width: 14px;
     height: 14px;
-    animation: ${props => props.isActive ? pulse : 'none'} 2s infinite;
+    animation: ${props => props.$isActive ? pulse : 'none'} 2s infinite;
   }
 `;
 
@@ -443,7 +442,7 @@ export const PrefetchMiniIndicator: React.FC<{
   onClick?: () => void;
 }> = ({ cacheHits, isActive, onClick }) => {
   return (
-    <MiniIndicator isActive={isActive} onClick={onClick} title="Predictive Prefetch Status">
+    <MiniIndicator $isActive={isActive} onClick={onClick} title="Predictive Prefetch Status">
       <Brain />
       <span>{cacheHits} hits</span>
       {isActive && <LoadingSpinner />}

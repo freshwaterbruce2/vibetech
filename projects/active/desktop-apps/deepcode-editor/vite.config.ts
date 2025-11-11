@@ -52,6 +52,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      '@vibetech/shared-ipc': resolve(__dirname, '../../..', 'packages', 'shared-ipc', 'src', 'index.ts'),
     },
   },
 

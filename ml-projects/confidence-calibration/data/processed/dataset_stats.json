@@ -1,0 +1,31 @@
+{
+  "total_samples": 29,
+  "train_samples": 23,
+  "test_samples": 6,
+  "num_features": 15,
+  "feature_names": [
+    "price",
+    "confidence",
+    "hour",
+    "day_of_week",
+    "is_market_hours",
+    "is_weekend",
+    "price_level",
+    "strategy_MeanReversion",
+    "strategy_MicroScalping",
+    "strategy_Momentum",
+    "strategy_Test",
+    "side_encoded",
+    "symbol_XLM/USD",
+    "confidence_rolling_mean_5",
+    "confidence_rolling_std_5"
+  ],
+  "confidence_stats": {
+    "mean": 77.08655172413793,
+    "std": 17.609902505583545,
+    "min": 43.77,
+    "max": 100.0,
+    "median": 80.0
+  },
+  "created_at": "2025-11-09T21:48:49.184374"
+}

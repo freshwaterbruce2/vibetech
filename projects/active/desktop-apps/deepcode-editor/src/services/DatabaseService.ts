@@ -43,7 +43,7 @@ const getDatabasePath = (): string => {
   } else if (typeof window !== 'undefined' && window.electron?.platform) {
     // Electron platform API available
     const platform = (window.electron.platform as any).os;
-    const {homedir} = (window.electron.platform as any);
+    const { homedir } = (window.electron.platform as any);
     const sep = (window.electron.platform as any).pathSeparator;
 
     if (platform === 'win32') {
@@ -66,6 +66,7 @@ const getDatabasePath = (): string => {
 };
 
 const DATABASE_PATH = getDatabasePath();
+const LEARNING_DB_PATH = 'D:\\databases\\database.db'; // Unified learning database (migrated 2025-10-06)
 const STORAGE_FALLBACK_PREFIX = 'deepcode_fallback_';
 
 // Interface definitions
@@ -391,7 +392,7 @@ export class DatabaseService {
         return (result.rows || []).map(this.parseChatMessage);
       } else {
         const result = this.db.exec(sql, [workspace, limit, offset]);
-        if (!result[0]) {return [];}
+        if (!result[0]) { return []; }
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -526,7 +527,7 @@ export class DatabaseService {
         return rows.map(this.parseSnippet);
       } else {
         const result = this.db.exec(sql, params);
-        if (!result[0]) {return [];}
+        if (!result[0]) { return []; }
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -549,7 +550,7 @@ export class DatabaseService {
    * Increment snippet usage count
    */
   async incrementSnippetUsage(id: number): Promise<void> {
-    if (this.useFallback) {return;}
+    if (this.useFallback) { return; }
 
     try {
       const sql = `
@@ -603,7 +604,7 @@ export class DatabaseService {
         return row ? JSON.parse(row.value) : defaultValue;
       } else {
         const result = this.db.exec(sql, [key]);
-        if (!result[0] || result[0].values.length === 0) {return defaultValue;}
+        if (!result[0] || result[0].values.length === 0) { return defaultValue; }
         return JSON.parse(result[0].values[0][0]);
       }
     } catch (error) {
@@ -671,7 +672,7 @@ export class DatabaseService {
         }, {});
       } else {
         const result = this.db.exec(sql);
-        if (!result[0]) {return {};}
+        if (!result[0]) { return {}; }
 
         return result[0].values.reduce((acc: any, row: any[]) => {
           acc[row[0]] = JSON.parse(row[1]);
@@ -692,7 +693,7 @@ export class DatabaseService {
    * Log an analytics event
    */
   async logEvent(eventType: string, eventData?: any): Promise<void> {
-    if (this.useFallback) {return;}
+    if (this.useFallback) { return; }
 
     try {
       const sql = `
@@ -728,7 +729,7 @@ export class DatabaseService {
     endDate?: Date,
     limit: number = 1000
   ): Promise<AnalyticsEvent[]> {
-    if (this.useFallback) {return [];}
+    if (this.useFallback) { return []; }
 
     try {
       let sql = 'SELECT * FROM deepcode_analytics WHERE 1=1';
@@ -769,7 +770,7 @@ export class DatabaseService {
         }));
       } else {
         const result = this.db.exec(sql, params);
-        if (!result[0]) {return [];}
+        if (!result[0]) { return []; }
 
         return result[0].values.map((row: any[]) => ({
           id: row[0],
@@ -792,39 +793,13 @@ export class DatabaseService {
    * Migrate strategy memory from localStorage to database
    */
   async migrateStrategyMemory(): Promise<{ migrated: number; errors: number }> {
-    const STORAGE_KEY = 'deepcode_strategy_memory';
-    let migrated = 0;
-    let errors = 0;
+    // DISABLED: Migration from localStorage no longer needed
+    // All data now stored in centralized D:\databases\database.db
+    // Both NOVA Agent and Vibe Code Studio use the same centralized database
+    // No need to migrate old localStorage data - fresh start with D:\databases\
 
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        logger.debug('[DatabaseService] No strategy patterns to migrate');
-        return { migrated, errors };
-      }
-
-      const patterns = JSON.parse(stored) as StrategyPattern[];
-      logger.debug(`[DatabaseService] Migrating ${patterns.length} strategy patterns...`);
-
-      for (const pattern of patterns) {
-        try {
-          await this.savePattern(pattern);
-          migrated++;
-        } catch (error) {
-          logger.error('[DatabaseService] Failed to migrate pattern:', error);
-          errors++;
-        }
-      }
-
-      // Create backup in localStorage
-      localStorage.setItem(`${STORAGE_KEY}_backup_${Date.now()}`, stored);
-
-      logger.debug(`[DatabaseService] ✅ Migration complete: ${migrated} migrated, ${errors} errors`);
-      return { migrated, errors };
-    } catch (error) {
-      logger.error('[DatabaseService] Migration failed:', error);
-      return { migrated, errors };
-    }
+    logger.debug('[DatabaseService] Migration skipped - using centralized D:\\databases\\ storage');
+    return { migrated: 0, errors: 0 };
   }
 
   /**
@@ -845,6 +820,14 @@ export class DatabaseService {
       const patternHash = pattern.problemSignature;
       const patternData = JSON.stringify(pattern);
 
+      // Convert dates to ISO strings, handling both Date objects and strings
+      const lastUsedAt = pattern.lastUsedAt instanceof Date
+        ? pattern.lastUsedAt.toISOString()
+        : new Date(pattern.lastUsedAt).toISOString();
+      const createdAt = pattern.createdAt instanceof Date
+        ? pattern.createdAt.toISOString()
+        : new Date(pattern.createdAt).toISOString();
+
       if (this.isElectron) {
         // Use IPC for database operations
         const result = await window.electron?.db?.query(sql, [
@@ -852,8 +835,8 @@ export class DatabaseService {
           patternData,
           pattern.successRate,
           pattern.usageCount,
-          pattern.lastUsedAt.toISOString(),
-          pattern.createdAt.toISOString()
+          lastUsedAt,
+          createdAt
         ]);
 
         if (!result?.success) {
@@ -865,8 +848,8 @@ export class DatabaseService {
           patternData,
           pattern.successRate,
           pattern.usageCount,
-          pattern.lastUsedAt.toISOString(),
-          pattern.createdAt.toISOString(),
+          lastUsedAt,
+          createdAt,
         ]);
       }
 
@@ -913,7 +896,7 @@ export class DatabaseService {
         });
       } else {
         const result = this.db.exec(sql, [limit]);
-        if (!result[0]) {return [];}
+        if (!result[0]) { return []; }
 
         return result[0].values.map((row: any[]) => {
           const pattern = JSON.parse(row[0]);
@@ -936,7 +919,7 @@ export class DatabaseService {
    * Update pattern success rate
    */
   async updatePatternSuccess(patternHash: string, success: boolean): Promise<void> {
-    if (this.useFallback) {return;}
+    if (this.useFallback) { return; }
 
     try {
       // Get current pattern
@@ -963,7 +946,7 @@ export class DatabaseService {
         }
       }
 
-      if (!pattern) {return;}
+      if (!pattern) { return; }
 
       // Update success rate
       pattern.usageCount++;
@@ -1037,7 +1020,7 @@ export class DatabaseService {
    * Save database to localStorage (for web mode persistence)
    */
   private async saveToLocalStorage(): Promise<void> {
-    if (this.isElectron || !this.db) {return;}
+    if (this.isElectron || !this.db) { return; }
 
     try {
       const data = this.db.export();
@@ -1075,11 +1058,11 @@ export class DatabaseService {
       created_at: new Date(row.created_at),
       usage_count: row.usage_count,
     };
-    
-    if (row.description) {snippet.description = row.description;}
-    if (row.tags) {snippet.tags = JSON.parse(row.tags);}
-    if (row.last_used) {snippet.last_used = new Date(row.last_used);}
-    
+
+    if (row.description) { snippet.description = row.description; }
+    if (row.tags) { snippet.tags = JSON.parse(row.tags); }
+    if (row.last_used) { snippet.last_used = new Date(row.last_used); }
+
     return snippet;
   }
 
@@ -1106,9 +1089,9 @@ export class DatabaseService {
       ai_response: aiResponse,
       model_used: model,
     };
-    
-    if (tokens !== undefined) {newMessage.tokens_used = tokens;}
-    if (context) {newMessage.workspace_context = JSON.stringify(context);}
+
+    if (tokens !== undefined) { newMessage.tokens_used = tokens; }
+    if (context) { newMessage.workspace_context = JSON.stringify(context); }
 
     messages.push(newMessage);
     localStorage.setItem(key, JSON.stringify(messages));
@@ -1143,9 +1126,9 @@ export class DatabaseService {
       created_at: new Date(),
       usage_count: 0,
     };
-    
-    if (description) {newSnippet.description = description;}
-    if (tags) {newSnippet.tags = JSON.stringify(tags);}
+
+    if (description) { newSnippet.description = description; }
+    if (tags) { newSnippet.tags = JSON.stringify(tags); }
 
     snippets.push(newSnippet);
     localStorage.setItem(key, JSON.stringify(snippets));
@@ -1217,6 +1200,288 @@ export class DatabaseService {
     const key = `${STORAGE_FALLBACK_PREFIX}patterns`;
     const patterns = JSON.parse(localStorage.getItem(key) || '[]');
     return patterns.slice(0, limit);
+  }
+
+  /**
+   * ============================================
+   * LEARNING DATABASE METHODS
+   * Direct access to D:\databases\database.db (unified)
+   * ============================================
+   */
+
+  /**
+   * Log a mistake to the shared learning database
+   */
+  async logMistake(mistake: {
+    mistakeType: string;
+    mistakeCategory?: string;
+    description: string;
+    rootCauseAnalysis?: string;
+    contextWhenOccurred?: string;
+    impactSeverity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    preventionStrategy?: string;
+    resolved?: boolean;
+    platform?: 'Desktop' | 'Web' | 'Mobile' | 'Python' | 'General';
+    recurrenceRisk?: 'LOW' | 'MEDIUM' | 'HIGH';
+    tags?: string[];
+  }): Promise<number> {
+    if (this.useFallback) {
+      logger.warn('[DatabaseService] Cannot log mistake in fallback mode');
+      return 0;
+    }
+
+    try {
+      const sql = `
+        INSERT INTO agent_mistakes (
+          mistake_type, mistake_category, description, root_cause_analysis,
+          context_when_occurred, impact_severity, prevention_strategy,
+          resolved, platform, tags, app_source, identified_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'vibe', CURRENT_TIMESTAMP)
+      `;
+
+      const tagsJson = mistake.tags ? JSON.stringify(mistake.tags) : null;
+      const severity = mistake.impactSeverity.toLowerCase();
+      const platform = mistake.platform?.toLowerCase() || 'general';
+
+      if (this.isElectron) {
+        const result = await window.electron?.db?.query(sql, [
+          mistake.mistakeType,
+          mistake.mistakeCategory || null,
+          mistake.description,
+          mistake.rootCauseAnalysis || null,
+          mistake.contextWhenOccurred || null,
+          severity,
+          mistake.preventionStrategy || null,
+          mistake.resolved ? 1 : 0,
+          platform,
+          tagsJson,
+        ]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Failed to log mistake');
+        }
+
+        return result.lastInsertRowid || 0;
+      } else {
+        // No fallback - all data must go to D:\databases\database.db (unified)
+        // If database unavailable, fail gracefully rather than creating data silos
+        logger.error('[DatabaseService] Database unavailable - cannot log mistake without D:\\databases\\ access');
+        throw new Error('Database not available - centralized storage required');
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to log mistake:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add knowledge entry to the shared learning database
+   */
+  async addKnowledge(knowledge: {
+    title: string;
+    content: string;
+    category?: string;
+    tags?: string[];
+    source?: string;
+  }): Promise<number> {
+    if (this.useFallback) {
+      logger.warn('[DatabaseService] Cannot add knowledge in fallback mode');
+      return 0;
+    }
+
+    try {
+      const sql = `
+        INSERT INTO agent_knowledge (
+          knowledge_type, title, content, tags, app_source, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, 'vibe', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      `;
+
+      const tagsJson = knowledge.tags ? JSON.stringify(knowledge.tags) : null;
+      const knowledgeType = knowledge.category || 'general';
+
+      if (this.isElectron) {
+        const result = await window.electron?.db?.query(sql, [
+          knowledgeType,
+          knowledge.title,
+          knowledge.content,
+          tagsJson,
+        ]);
+
+        if (!result?.success) {
+          throw new Error(result?.error || 'Failed to add knowledge');
+        }
+
+        return result.lastInsertRowid || 0;
+      } else {
+        // No fallback - all data must go to D:\databases\database.db (unified)
+        // If database unavailable, fail gracefully rather than creating data silos
+        logger.error('[DatabaseService] Database unavailable - cannot add knowledge without D:\\databases\\ access');
+        throw new Error('Database not available - centralized storage required');
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to add knowledge:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get mistakes from the shared learning database
+   */
+  async getMistakes(filter?: {
+    severity?: 'low' | 'medium' | 'high' | 'critical';
+    platform?: string;
+    resolved?: boolean;
+    limit?: number;
+  }): Promise<any[]> {
+    if (this.useFallback) {
+      return this.getMistakesFallback(filter);
+    }
+
+    try {
+      let sql = 'SELECT * FROM agent_mistakes WHERE 1=1';
+      const params: any[] = [];
+
+      if (filter?.severity) {
+        sql += ' AND impact_severity = ?';
+        params.push(filter.severity.toLowerCase());
+      }
+
+      if (filter?.platform) {
+        sql += ' AND platform = ?';
+        params.push(filter.platform.toLowerCase());
+      }
+
+      if (filter?.resolved !== undefined) {
+        sql += ' AND resolved = ?';
+        params.push(filter.resolved ? 1 : 0);
+      }
+
+      sql += ' ORDER BY identified_at DESC';
+
+      if (filter?.limit) {
+        sql += ' LIMIT ?';
+        params.push(filter.limit);
+      }
+
+      if (this.isElectron) {
+        const result = await window.electron?.db?.query(sql, params);
+        if (!result?.success) {
+          throw new Error(result?.error || 'Failed to get mistakes');
+        }
+        return (result.rows || []).map((row: any) => ({
+          id: row.id,
+          mistakeType: row.mistake_type,
+          mistakeCategory: row.mistake_category,
+          description: row.description,
+          rootCauseAnalysis: row.root_cause_analysis,
+          contextWhenOccurred: row.context_when_occurred,
+          impactSeverity: row.impact_severity.toUpperCase(),
+          preventionStrategy: row.prevention_strategy,
+          resolved: row.resolved === 1,
+          platform: row.platform,
+          tags: row.tags ? JSON.parse(row.tags) : [],
+          app_source: row.app_source,
+          identified_at: row.identified_at,
+        }));
+      } else {
+        return this.getMistakesFallback(filter);
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to get mistakes:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get knowledge entries from the shared learning database
+   */
+  async getKnowledge(filter?: {
+    category?: string;
+    keyword?: string;
+    limit?: number;
+  }): Promise<any[]> {
+    if (this.useFallback) {
+      return this.getKnowledgeFallback(filter);
+    }
+
+    try {
+      let sql = 'SELECT * FROM agent_knowledge WHERE 1=1';
+      const params: any[] = [];
+
+      if (filter?.category) {
+        sql += ' AND knowledge_type = ?';
+        params.push(filter.category);
+      }
+
+      if (filter?.keyword) {
+        sql += ' AND (title LIKE ? OR content LIKE ?)';
+        const keyword = `%${filter.keyword}%`;
+        params.push(keyword, keyword);
+      }
+
+      sql += ' ORDER BY updated_at DESC';
+
+      if (filter?.limit) {
+        sql += ' LIMIT ?';
+        params.push(filter.limit);
+      }
+
+      if (this.isElectron) {
+        const result = await window.electron?.db?.query(sql, params);
+        if (!result?.success) {
+          throw new Error(result?.error || 'Failed to get knowledge');
+        }
+        return (result.rows || []).map((row: any) => ({
+          id: row.id,
+          knowledgeType: row.knowledge_type,
+          title: row.title,
+          content: row.content,
+          category: row.knowledge_type,
+          tags: row.tags ? JSON.parse(row.tags) : [],
+          app_source: row.app_source,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+        }));
+      } else {
+        return this.getKnowledgeFallback(filter);
+      }
+    } catch (error) {
+      logger.error('[DatabaseService] Failed to get knowledge:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get recent mistakes (convenience method)
+   */
+  async getRecentMistakes(limit: number = 10): Promise<any[]> {
+    return this.getMistakes({ limit, resolved: false });
+  }
+
+  /**
+   * Get recent knowledge (convenience method)
+   */
+  async getRecentKnowledge(limit: number = 10): Promise<any[]> {
+    return this.getKnowledge({ limit });
+  }
+
+  /**
+   * Fallback methods for web environment
+   */
+  private getMistakesFallback(filter?: any): any[] {
+    // No localStorage fallback - return empty if D:\databases\ unavailable
+    // This maintains single source of truth on D: drive
+    // Both NOVA and Vibe share D:\databases\database.db (unified)
+    logger.warn('[DatabaseService] Database unavailable - returning empty mistakes (D:\\databases\\ required)');
+    return [];
+  }
+
+  private getKnowledgeFallback(filter?: any): any[] {
+    // No localStorage fallback - return empty if D:\databases\ unavailable
+    // This maintains single source of truth on D: drive
+    // Both NOVA and Vibe share D:\databases\database.db (unified)
+    logger.warn('[DatabaseService] Database unavailable - returning empty knowledge (D:\\databases\\ required)');
+    return [];
   }
 
   /**

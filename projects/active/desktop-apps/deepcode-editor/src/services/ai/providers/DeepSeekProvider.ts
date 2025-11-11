@@ -1,7 +1,7 @@
 /**
  * DeepSeek Provider - Implementation for DeepSeek API integration
  */
-import { SecureApiKeyManager } from '@vibetech/shared-utils/security';
+import { SecureApiKeyManager } from '../../../utils/SecureApiKeyManager';
 
 import { logger } from '../../../services/Logger';
 import {
@@ -12,7 +12,8 @@ import {
   CompletionResponse,
   IAIProvider,
   MODEL_REGISTRY,
-  StreamCompletionResponse} from '../AIProviderInterface';
+  StreamCompletionResponse
+} from '../AIProviderInterface';
 
 interface DeepSeekMessage {
   role: 'system' | 'user' | 'assistant';
@@ -40,39 +41,66 @@ export class DeepSeekProvider implements IAIProvider {
     estimatedCost: 0,
     requestCount: 0
   };
-  private abortController?: AbortController;
+  private abortController: AbortController | undefined = undefined;
 
   async initialize(config: AIProviderConfig): Promise<void> {
     this.config = config;
 
     // Get API key from secure storage or config
-    const secureKeyManager = SecureApiKeyManager.getInstance(logger);
-    this.apiKey = config.apiKey || await secureKeyManager.getApiKey('deepseek');
+    try {
+      const secureKeyManager = SecureApiKeyManager.getInstance(logger);
+      this.apiKey = config.apiKey || await secureKeyManager.getApiKey('deepseek') || '';
 
-    if (config.baseUrl) {
-      this.baseUrl = config.baseUrl;
-    }
-
-    // Validate configuration
-    if (!this.apiKey) {
-      throw new Error('DeepSeek API key is required. Please configure it in the settings.');
-    }
-
-    // Validate API key format
-    if (!secureKeyManager.validateApiKey(this.apiKey, 'deepseek')) {
-      throw new Error('Invalid DeepSeek API key format');
-    }
-
-    // Store the key securely if it came from config
-    const currentKey = await secureKeyManager.getApiKey('deepseek');
-    if (config.apiKey && config.apiKey !== currentKey) {
-      const stored = await secureKeyManager.storeApiKey('deepseek', config.apiKey);
-      if (!stored) {
-        logger.warn('Failed to store DeepSeek API key securely');
+      if (config.baseUrl) {
+        this.baseUrl = config.baseUrl;
       }
-    }
 
-    await this.validateConnection();
+      // Validate configuration
+      if (!this.apiKey) {
+        logger.warn('DeepSeek API key is not configured. Please configure it in the settings.');
+        // Don't throw error, allow app to start without API key
+        return;
+      }
+
+      // Validate API key format (don't throw, just warn)
+      try {
+        if (!secureKeyManager.validateApiKey(this.apiKey, 'deepseek')) {
+          logger.warn('Invalid DeepSeek API key format. Please check your settings.');
+          // Clear invalid key and allow app to start
+          this.apiKey = '';
+          return;
+        }
+      } catch (error) {
+        logger.warn('API key validation failed:', error);
+        this.apiKey = '';
+        return;
+      }
+
+      // Store the key securely if it came from config
+      try {
+        const currentKey = await secureKeyManager.getApiKey('deepseek');
+        if (config.apiKey && config.apiKey !== currentKey) {
+          const stored = await secureKeyManager.storeApiKey('deepseek', config.apiKey);
+          if (!stored) {
+            logger.warn('Failed to store DeepSeek API key securely');
+          }
+        }
+      } catch (error) {
+        logger.warn('Failed to store API key:', error);
+      }
+
+      // Validate connection (don't throw on failure)
+      try {
+        await this.validateConnection();
+      } catch (error) {
+        logger.warn('API connection validation failed:', error);
+        // Don't fail initialization, just log warning
+      }
+    } catch (error) {
+      logger.error('DeepSeek provider initialization error:', error);
+      // Set empty key and continue (graceful degradation)
+      this.apiKey = '';
+    }
   }
 
   async complete(model: string, options: CompletionOptions): Promise<CompletionResponse> {
@@ -116,7 +144,7 @@ export class DeepSeekProvider implements IAIProvider {
       if (data.usage) {
         this.usageStats.tokensUsed += data.usage.total_tokens;
         this.usageStats.requestCount++;
-        
+
         // Calculate cost based on model
         const modelInfo = MODEL_REGISTRY[model];
         if (modelInfo) {
@@ -204,7 +232,7 @@ export class DeepSeekProvider implements IAIProvider {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) {break;}
+        if (done) { break; }
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -214,7 +242,7 @@ export class DeepSeekProvider implements IAIProvider {
           if (line.startsWith('data: ')) {
             const data = line.slice(6);
             if (data === '[DONE]') {
-                      return;
+              return;
             }
 
             try {
@@ -287,14 +315,14 @@ export class DeepSeekProvider implements IAIProvider {
   }
 
   private calculateCost(usage: any, modelName?: string): number {
-    if (!usage) {return 0;}
+    if (!usage) { return 0; }
 
     const modelInfo = MODEL_REGISTRY[modelName || this.config.model];
-    if (!modelInfo) {return 0;}
+    if (!modelInfo) { return 0; }
 
     const inputCost = (usage.prompt_tokens / 1000000) * modelInfo.costPerMillionInput;
     const outputCost = (usage.completion_tokens / 1000000) * modelInfo.costPerMillionOutput;
-    
+
     return inputCost + outputCost;
   }
 }

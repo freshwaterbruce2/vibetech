@@ -9,8 +9,10 @@ import os from 'node:os';
 
 // Expose protected methods that allow the renderer process
 // to use ipcRenderer without exposing the entire object
-contextBridge.exposeInMainWorld('electron', {
-  isElectron: true,
+try {
+  console.log('[Preload] Attempting to expose electron API via contextBridge...');
+  contextBridge.exposeInMainWorld('electron', {
+    isElectron: true,
 
   // App methods
     app: {
@@ -98,6 +100,16 @@ contextBridge.exposeInMainWorld('electron', {
     get: async (key) => {
       return await ipcRenderer.invoke('storage:get', key);
     },
+    set: async (key, value) => {
+      return await ipcRenderer.invoke('storage:set', key, value);
+    },
+    remove: async (key) => {
+      return await ipcRenderer.invoke('storage:remove', key);
+    },
+    keys: async () => {
+      return await ipcRenderer.invoke('storage:keys');
+    },
+  },
 
   // Database operations
   db: {
@@ -108,14 +120,11 @@ contextBridge.exposeInMainWorld('electron', {
       return await ipcRenderer.invoke('db:initialize');
     },
   },
-    set: async (key, value) => {
-      return await ipcRenderer.invoke('storage:set', key, value);
-    },
-    remove: async (key) => {
-      return await ipcRenderer.invoke('storage:remove', key);
-    },
-    keys: async () => {
-      return await ipcRenderer.invoke('storage:keys');
+
+  // Learning adapter (Python) bridge
+  learning: {
+    run: async (command, payload, options) => {
+      return await ipcRenderer.invoke('learning:run', command, payload, options);
     },
   },
 
@@ -152,5 +161,10 @@ contextBridge.exposeInMainWorld('electron', {
     },
   },
 });
-
-// Type definitions added via global declaration above
+  console.log('[Preload] ✅ Successfully exposed electron API via contextBridge');
+  console.log('[Preload] Note: window.electron is NOT accessible in preload context - this is correct!');
+  console.log('[Preload] The renderer process will have access to window.electron');
+} catch (error) {
+  console.error('[Preload] ❌ FAILED to expose electron API via contextBridge:', error);
+  console.error('[Preload] Error stack:', (error as Error).stack);
+}

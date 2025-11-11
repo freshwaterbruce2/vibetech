@@ -8,7 +8,7 @@ import { logger } from '../services/Logger';
 
 // API key validation patterns
 const API_KEY_PATTERNS = {
-  DEEPSEEK: /^sk-[a-f0-9]{32,}$/i,
+  DEEPSEEK: /^sk-[a-zA-Z0-9]{32,}$/, // Fixed: DeepSeek uses alphanumeric, not just hex
   OPENAI: /^sk-[a-zA-Z0-9]{48,}$/,
   ANTHROPIC: /^sk-ant-[a-zA-Z0-9\-_]{95,}$/,
   GOOGLE: /^AIza[a-zA-Z0-9\-_]{35}$/,
@@ -68,30 +68,35 @@ export class SecureApiKeyManager {
    * Validate API key format and structure
    */
   public validateApiKey(key: string, provider: string): boolean {
-    if (!key || typeof key !== 'string') {
+    try {
+      if (!key || typeof key !== 'string') {
+        return false;
+      }
+
+      // Remove whitespace
+      const cleanKey = key.trim();
+
+      // Check minimum length
+      if (cleanKey.length < 20) {
+        return false;
+      }
+
+      // Check for obvious security issues
+      if (this.containsSuspiciousPatterns(cleanKey)) {
+        return false;
+      }
+
+      // Validate against provider-specific patterns
+      const pattern = API_KEY_PATTERNS[provider.toUpperCase() as keyof typeof API_KEY_PATTERNS];
+      if (pattern && !pattern.test(cleanKey)) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      logger.error('API key validation error:', error);
       return false;
     }
-
-    // Remove whitespace
-    const cleanKey = key.trim();
-
-    // Check minimum length
-    if (cleanKey.length < 20) {
-      return false;
-    }
-
-    // Check for obvious security issues
-    if (this.containsSuspiciousPatterns(cleanKey)) {
-      return false;
-    }
-
-    // Validate against provider-specific patterns
-    const pattern = API_KEY_PATTERNS[provider.toUpperCase() as keyof typeof API_KEY_PATTERNS];
-    if (pattern && !pattern.test(cleanKey)) {
-      return false;
-    }
-
-    return true;
   }
 
   /**
@@ -114,11 +119,11 @@ export class SecureApiKeyManager {
     try {
       const bytes = CryptoJS.AES.decrypt(encryptedKey, this.encryptionKey);
       const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-      
+
       if (!decrypted) {
         throw new Error('Invalid encryption key or corrupted data');
       }
-      
+
       return decrypted;
     } catch (error) {
       logger.error('Failed to decrypt API key:', error);
@@ -130,13 +135,21 @@ export class SecureApiKeyManager {
    * Store API key securely
    */
   public async storeApiKey(provider: string, key: string): Promise<boolean> {
+    console.log('[SecureApiKeyManager] storeApiKey called for provider:', provider);
+    console.log('[SecureApiKeyManager] isElectron:', this.isElectron);
+    console.log('[SecureApiKeyManager] electronStorage exists:', !!this.electronStorage);
+
     try {
       // Validate the key first
+      console.log('[SecureApiKeyManager] Validating API key...');
       if (!this.validateApiKey(key, provider)) {
+        console.error('[SecureApiKeyManager] API key validation FAILED');
         throw new Error(`Invalid ${provider} API key format`);
       }
+      console.log('[SecureApiKeyManager] API key validation passed');
 
       // Encrypt the key
+      console.log('[SecureApiKeyManager] Encrypting API key...');
       const encryptedKey = this.encryptApiKey(key);
 
       // Create metadata
@@ -154,23 +167,35 @@ export class SecureApiKeyManager {
       };
 
       const storageKey = `secure_api_key_${provider.toLowerCase()}`;
+      console.log('[SecureApiKeyManager] Storage key:', storageKey);
 
       // Use Electron storage if available
       if (this.isElectron && this.electronStorage) {
+        console.log('[SecureApiKeyManager] Calling Electron storage.set via IPC...');
         const result = await this.electronStorage.set(storageKey, JSON.stringify(storedKey));
+        console.log('[SecureApiKeyManager] Electron storage.set result:', result);
+
         if (!result.success) {
-          throw new Error('Failed to save to Electron storage');
+          console.error('[SecureApiKeyManager] Electron storage.set returned failure:', result);
+          throw new Error('Failed to save to Electron storage: ' + (result.error || 'unknown error'));
         }
+        console.log('[SecureApiKeyManager] Electron storage.set SUCCESS');
+      } else {
+        console.warn('[SecureApiKeyManager] Electron storage NOT available, isElectron:', this.isElectron);
       }
 
       // Always also save to localStorage as a fallback for immediate use
+      console.log('[SecureApiKeyManager] Saving to localStorage as fallback...');
       this.storage.setItem(storageKey, JSON.stringify(storedKey));
+      console.log('[SecureApiKeyManager] localStorage save complete');
 
       // Also update environment variable for immediate use
       this.updateEnvironmentVariable(provider, key);
 
+      console.log('[SecureApiKeyManager] storeApiKey completed successfully');
       return true;
     } catch (error) {
+      console.error('[SecureApiKeyManager] storeApiKey FAILED:', error);
       logger.error('Failed to store API key:', error);
       return false;
     }
@@ -268,7 +293,7 @@ export class SecureApiKeyManager {
       if (this.isElectron && this.electronStorage) {
         const result = await this.electronStorage.keys();
         if (result.success && result.keys) {
-          keys = result.keys;
+          ({ keys } = result);
         }
       }
 

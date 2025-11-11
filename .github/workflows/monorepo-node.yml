@@ -1,0 +1,97 @@
+name: Node.js Monorepo CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'packages/**'
+      - 'projects/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/monorepo-node.yml'
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect Changed Packages
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            vibetech-shared:
+              - 'packages/vibetech-shared/**'
+            deepcode-editor:
+              - 'projects/active/desktop-apps/deepcode-editor/**'
+            nova-agent:
+              - 'projects/active/desktop-apps/nova-agent-current/**'
+
+  test-node:
+    name: Test Node Packages
+    needs: changes
+    if: needs.changes.outputs.packages != '[]'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [20, 22]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm -r --filter ...[${{ github.event.before }}] typecheck
+        if: github.event_name == 'pull_request'
+
+      - name: Type check all
+        run: pnpm -r typecheck
+        if: github.event_name == 'push'
+
+      - name: Lint
+        run: pnpm -r --filter ...[${{ github.event.before }}] lint
+        if: github.event_name == 'pull_request'
+
+      - name: Lint all
+        run: pnpm -r lint
+        if: github.event_name == 'push'
+
+      - name: Test
+        run: pnpm -r --filter ...[${{ github.event.before }}] test
+        if: github.event_name == 'pull_request'
+
+      - name: Test all
+        run: pnpm -r test
+        if: github.event_name == 'push'
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == 20
+        with:
+          files: ./coverage/coverage-final.json
+          flags: node
