@@ -1,0 +1,31 @@
+{
+  "appId": "com.vibetech.digitalcontentbuilder",
+  "productName": "Digital Content Builder",
+  "asar": false,
+  "directories": {
+    "output": "release-builds",
+    "buildResources": "build"
+  },
+  "files": [
+    "dist/**",
+    "package.json"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
+  }
+}
