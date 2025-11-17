@@ -3,15 +3,21 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
+const {
+  launchBrowser,
+  takeScreenshot,
+  getPerformanceMetrics,
+  analyzeVibeTechDesign,
+  logInfo,
+  logSuccess,
+  logError,
+} = require('./utils');
 
 (async () => {
     console.log('🎯 Puppeteer MCP Server Demonstration\n');
     
     try {
-        const browser = await puppeteer.launch({ 
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
+        const browser = await launchBrowser({ headless: true });
         
         const page = await browser.newPage();
         await page.setViewport({ width: 1920, height: 1080 });
@@ -24,75 +30,22 @@ const path = require('path');
         
         // Take screenshot with emoji update
         const screenshotPath = path.join('screenshots', 'editor-with-emoji.png');
-        await page.screenshot({ 
-            path: screenshotPath, 
-            fullPage: true 
-        });
-        console.log('✅ Screenshot saved:', screenshotPath);
+        await takeScreenshot(page, screenshotPath, { fullPage: true });
         
         // Analyze the page for Vibe Tech elements
         console.log('\n🎨 Analyzing Vibe Tech Design Implementation...');
         
-        const analysis = await page.evaluate(() => {
-            const results = {
-                title: document.title,
-                hasEmoji: false,
-                gradients: [],
-                vibeColors: [],
-                animations: 0
-            };
-            
-            // Check for emoji in title
+        const analysis = await analyzeVibeTechDesign(page);
+        
+        // Check for emoji in title
+        const hasEmoji = await page.evaluate(() => {
             const titleElement = document.querySelector('h1');
-            if (titleElement && titleElement.textContent.includes('🚀')) {
-                results.hasEmoji = true;
-            }
-            
-            // Analyze styles
-            const elements = Array.from(document.querySelectorAll('*')).slice(0, 200);
-            const vibeColorValues = ['#8b5cf6', '#00d4ff', '#0a0a0f', '#1a1a2e'];
-            
-            elements.forEach(el => {
-                const style = window.getComputedStyle(el);
-                
-                // Check for gradients
-                if (style.backgroundImage && style.backgroundImage.includes('gradient')) {
-                    results.gradients.push({
-                        tag: el.tagName,
-                        gradient: style.backgroundImage.substring(0, 50) + '...'
-                    });
-                }
-                
-                // Check for Vibe colors
-                vibeColorValues.forEach(color => {
-                    if (style.backgroundColor.includes(color) || 
-                        style.color.includes(color) || 
-                        style.borderColor.includes(color)) {
-                        results.vibeColors.push({
-                            tag: el.tagName,
-                            color: color,
-                            property: style.backgroundColor.includes(color) ? 'background' : 
-                                     style.color.includes(color) ? 'text' : 'border'
-                        });
-                    }
-                });
-                
-                // Check for animations
-                if (style.animation !== 'none' || style.transition !== 'all 0s ease 0s') {
-                    results.animations++;
-                }
-            });
-            
-            // Remove duplicates
-            results.gradients = results.gradients.slice(0, 5);
-            results.vibeColors = results.vibeColors.slice(0, 10);
-            
-            return results;
+            return titleElement && titleElement.textContent.includes('🚀');
         });
         
         console.log('\n📊 Analysis Results:');
-        console.log('   ✨ Title:', analysis.title);
-        console.log('   🚀 Emoji Added:', analysis.hasEmoji ? 'Yes ✅' : 'No ❌');
+        console.log('   ✨ Title:', await page.title());
+        console.log('   🚀 Emoji Added:', hasEmoji ? 'Yes ✅' : 'No ❌');
         console.log('   🌈 Gradients Found:', analysis.gradients.length);
         if (analysis.gradients.length > 0) {
             analysis.gradients.forEach((g, i) => {
@@ -119,16 +72,16 @@ const path = require('path');
         console.log('   🔘 Interactive Buttons:', buttons.length);
         
         // Performance check
-        const metrics = await page.metrics();
+        const metrics = await getPerformanceMetrics(page);
         console.log('\n⚡ Performance Metrics:');
-        console.log('   💾 Memory Usage:', Math.round(metrics.JSHeapUsedSize / 1024 / 1024), 'MB');
-        console.log('   🌳 DOM Nodes:', metrics.Nodes);
-        console.log('   🎯 Event Listeners:', metrics.JSEventListeners);
-        console.log('   ⏱️  Script Duration:', Math.round(metrics.ScriptDuration * 1000), 'ms');
+        console.log('   💾 Memory Usage:', Math.round(parseFloat(metrics.jsHeapUsedMB)), 'MB');
+        console.log('   🌳 DOM Nodes:', metrics.domNodes);
+        console.log('   🎯 Event Listeners:', metrics.eventListeners);
+        console.log('   ⏱️  Script Duration:', metrics.scriptDurationMs, 'ms');
         
         await browser.close();
         
-        console.log('\n✅ Puppeteer MCP Server Test Complete!');
+        logSuccess('\n✅ Puppeteer MCP Server Test Complete!');
         console.log('\n💡 The automation successfully:');
         console.log('   - Captured screenshots automatically');
         console.log('   - Validated design implementation');
@@ -136,6 +89,6 @@ const path = require('path');
         console.log('   - Tested interactive elements');
         
     } catch (error) {
-        console.error('\n❌ Error:', error.message);
+        logError('\n❌ Error: ' + error.message);
     }
 })();

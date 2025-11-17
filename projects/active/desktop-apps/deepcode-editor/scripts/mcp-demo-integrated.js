@@ -12,6 +12,16 @@ const path = require('path');
 const { exec } = require('child_process');
 const util = require('util');
 const puppeteer = require('puppeteer');
+const { 
+  ensureDirectories: ensureDirs,
+  launchBrowser,
+  takeScreenshot,
+  getPerformanceMetrics,
+  analyzeVibeTechDesign,
+  logInfo,
+  logSuccess,
+  logError,
+} = require('./utils');
 
 const execPromise = util.promisify(exec);
 
@@ -22,8 +32,7 @@ const SCREENSHOTS_DIR = path.join(PROJECT_ROOT, 'screenshots');
 
 // Ensure directories exist
 async function ensureDirectories() {
-  await fs.mkdir(REPORTS_DIR, { recursive: true });
-  await fs.mkdir(SCREENSHOTS_DIR, { recursive: true });
+  await ensureDirs(REPORTS_DIR, SCREENSHOTS_DIR);
 }
 
 // ============================================================================
@@ -131,10 +140,7 @@ describe('${component}', () => {
 async function runVisualTests() {
   console.log('\n🎭 PUPPETEER MCP: Running Visual Tests...\n');
   
-  const browser = await puppeteer.launch({ 
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  const browser = await launchBrowser({ headless: true });
   
   try {
     const page = await browser.newPage();
@@ -157,18 +163,14 @@ async function runVisualTests() {
     const timestamp = Date.now();
     
     // Light theme screenshot
-    await page.screenshot({ 
-      path: path.join(SCREENSHOTS_DIR, `light-theme-${timestamp}.png`) 
-    });
+    await takeScreenshot(page, path.join(SCREENSHOTS_DIR, `light-theme-${timestamp}.png`));
     
     // Try to switch theme
     const themeToggle = await page.$('[data-testid="theme-toggle"], [aria-label*="theme"]');
     if (themeToggle) {
       await themeToggle.click();
       await page.waitForTimeout(500);
-      await page.screenshot({ 
-        path: path.join(SCREENSHOTS_DIR, `dark-theme-${timestamp}.png`) 
-      });
+      await takeScreenshot(page, path.join(SCREENSHOTS_DIR, `dark-theme-${timestamp}.png`));
       console.log('      ✅ Theme switching works');
     }
     
@@ -179,18 +181,18 @@ async function runVisualTests() {
     console.log(`      Found ${violations.length} accessibility issues`);
     
     // Test 5: Memory usage
-    const metrics = await page.metrics();
+    const metrics = await getPerformanceMetrics(page);
     console.log('   💾 Performance metrics:');
-    console.log(`      Heap Size: ${(metrics.JSHeapUsedSize / 1024 / 1024).toFixed(2)}MB`);
-    console.log(`      DOM Nodes: ${metrics.Nodes}`);
-    console.log(`      Event Listeners: ${metrics.JSEventListeners}`);
+    console.log(`      Heap Size: ${metrics.jsHeapUsedMB}MB`);
+    console.log(`      DOM Nodes: ${metrics.domNodes}`);
+    console.log(`      Event Listeners: ${metrics.eventListeners}`);
     
     return {
       loadTime,
       buttonCount: buttons.length,
       themeSupport: !!themeToggle,
       accessibilityIssues: violations.length,
-      memoryUsage: metrics.JSHeapUsedSize
+      memoryUsage: parseFloat(metrics.jsHeapUsedMB) * 1024 * 1024
     };
     
   } finally {

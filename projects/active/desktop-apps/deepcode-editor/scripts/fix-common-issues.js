@@ -1,21 +1,8 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
-const chalk = require('chalk');
+const { runCommand, logInfo, logSuccess, logError } = require('./utils');
 
-// Helper function to run commands and capture output
-function runCommand(command, description) {
-  console.log(`\n${description}...`);
-  try {
-    execSync(command, { stdio: 'inherit' });
-    return true;
-  } catch (error) {
-    console.error(`Failed: ${description}`);
-    return false;
-  }
-}
-
-console.log('🔧 Fixing common code issues...\n');
+logInfo('🔧 Fixing common code issues...\n');
 
 // 1. Fix import sorting
 console.log('📦 Fixing import sorting...');
@@ -41,10 +28,8 @@ console.log(tsSuccess ? '✅ TypeScript: No errors' : '❌ TypeScript: Has error
 console.log(testSuccess ? '✅ Tests: Passing' : '❌ Tests: Failing');
 
 if (!tsSuccess || !testSuccess) {
-  console.log(
-    '\n⚠️  Some issues could not be automatically fixed. Please review the errors above.'
-  );
+  logError('\n⚠️  Some issues could not be automatically fixed. Please review the errors above.');
   process.exit(1);
 } else {
-  console.log('\n✨ All issues fixed successfully!');
+  logSuccess('\n✨ All issues fixed successfully!');
 }

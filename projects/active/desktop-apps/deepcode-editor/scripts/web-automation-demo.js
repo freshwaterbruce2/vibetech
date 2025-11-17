@@ -10,12 +10,17 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
+const {
+  launchBrowser,
+  takeScreenshot,
+  getPerformanceMetrics,
+  countGradientElements,
+  countColorElements,
+  ensureDirectory,
+} = require('./utils');
 
 async function demoWebAutomation() {
-  const browser = await puppeteer.launch({ 
-    headless: false, // Set to true for headless mode
-    defaultViewport: { width: 1920, height: 1080 }
-  });
+  const browser = await launchBrowser({ headless: false });
   
   try {
     const page = await browser.newPage();
@@ -26,9 +31,8 @@ async function demoWebAutomation() {
     
     // Take screenshot of the editor
     const screenshotPath = path.join(__dirname, '..', 'screenshots', 'editor-current.png');
-    await fs.promises.mkdir(path.dirname(screenshotPath), { recursive: true });
-    await page.screenshot({ path: screenshotPath, fullPage: true });
-    console.log(`📸 Screenshot saved: ${screenshotPath}`);
+    await ensureDirectory(path.dirname(screenshotPath));
+    await takeScreenshot(page, screenshotPath, { fullPage: true });
     
     // Demo 2: Test editor interactions
     console.log('🖱️  Demo 2: Testing editor interactions...');
@@ -50,36 +54,22 @@ async function demoWebAutomation() {
     console.log('🎨 Demo 3: Checking Vibe Tech design elements...');
     
     // Check for gradient backgrounds
-    const gradientElements = await page.$$eval('*', elements => {
-      return elements.filter(el => {
-        const style = window.getComputedStyle(el);
-        return style.background.includes('gradient');
-      }).length;
-    });
+    const gradientElements = await countGradientElements(page);
     console.log(`✅ Found ${gradientElements} elements with gradients`);
     
     // Check for Vibe Tech colors
-    const vibeColors = await page.$$eval('*', elements => {
-      const vibeColorValues = ['#8b5cf6', '#00d4ff', '#0a0a0f', '#1a1a2e'];
-      return elements.filter(el => {
-        const style = window.getComputedStyle(el);
-        return vibeColorValues.some(color => 
-          style.color.includes(color) || 
-          style.backgroundColor.includes(color) ||
-          style.borderColor.includes(color)
-        );
-      }).length;
-    });
+    const vibeColorValues = ['#8b5cf6', '#00d4ff', '#0a0a0f', '#1a1a2e'];
+    const vibeColors = await countColorElements(page, vibeColorValues);
     console.log(`✅ Found ${vibeColors} elements with Vibe Tech colors`);
     
     // Demo 4: Performance testing
     console.log('⚡ Demo 4: Performance metrics...');
-    const metrics = await page.metrics();
+    const metrics = await getPerformanceMetrics(page);
     console.log(`📊 Performance metrics:
-      - JSEventListeners: ${metrics.JSEventListeners}
-      - Nodes: ${metrics.Nodes}
-      - JSHeapUsedSize: ${(metrics.JSHeapUsedSize / 1024 / 1024).toFixed(2)} MB
-      - JSHeapTotalSize: ${(metrics.JSHeapTotalSize / 1024 / 1024).toFixed(2)} MB`);
+      - JSEventListeners: ${metrics.eventListeners}
+      - Nodes: ${metrics.domNodes}
+      - JSHeapUsedSize: ${metrics.jsHeapUsedMB} MB
+      - JSHeapTotalSize: ${metrics.jsHeapTotalMB} MB`);
     
   } catch (error) {
     console.error('❌ Error during automation:', error.message);
@@ -93,9 +83,8 @@ async function demoWebAutomation() {
       
       // Take screenshot for design inspiration
       const inspirationPath = path.join(__dirname, '..', 'screenshots', 'vscode-inspiration.png');
-      await fs.promises.mkdir(path.dirname(inspirationPath), { recursive: true });
-      await page.screenshot({ path: inspirationPath, fullPage: true });
-      console.log(`📸 VS Code inspiration screenshot: ${inspirationPath}`);
+      await ensureDirectory(path.dirname(inspirationPath));
+      await takeScreenshot(page, inspirationPath, { fullPage: true });
       
       // Extract color scheme
       const colors = await page.$$eval('*', elements => {

@@ -17,6 +17,7 @@ const { execSync, spawn } = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const { performance } = require('perf_hooks')
+const { logWithTimestamp, execCommand: utilExecCommand, getFileSizes, cleanDirectories } = require('./utils')
 
 class ProductionBuilder {
   constructor() {
@@ -39,16 +40,7 @@ class ProductionBuilder {
   }
 
   log(message, level = 'info') {
-    const timestamp = new Date().toISOString()
-    const colors = {
-      info: '\x1b[36m',    // Cyan
-      success: '\x1b[32m', // Green
-      warning: '\x1b[33m', // Yellow
-      error: '\x1b[31m',   // Red
-      reset: '\x1b[0m'
-    }
-    
-    console.log(`${colors[level]}[${timestamp}] ${message}${colors.reset}`)
+    logWithTimestamp(message, level)
     
     if (level === 'warning') this.buildMetrics.warnings.push(message)
     if (level === 'error') this.buildMetrics.errors.push(message)
@@ -73,18 +65,10 @@ class ProductionBuilder {
   }
 
   execCommand(command, description) {
-    this.log(`Executing: ${description}`)
-    try {
-      const output = execSync(command, { 
-        encoding: 'utf8', 
-        stdio: this.config.verbose ? 'inherit' : 'pipe',
-        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
-      })
-      return output
-    } catch (error) {
-      this.log(`Command failed: ${command}`, 'error')
-      throw error
-    }
+    return utilExecCommand(command, description, {
+      verbose: this.config.verbose,
+      throwOnError: true,
+    })
   }
 
   async validateEnvironment() {
@@ -126,14 +110,8 @@ class ProductionBuilder {
 
   async cleanupPreviousBuilds() {
     return this.timeStage('Cleanup', () => {
-      const dirsToClean = ['dist', 'build', 'release']
-      
-      for (const dir of dirsToClean) {
-        if (fs.existsSync(dir)) {
-          this.log(`Removing ${dir}`)
-          fs.rmSync(dir, { recursive: true, force: true })
-        }
-      }
+      const cleaned = cleanDirectories('dist', 'build', 'release')
+      cleaned.forEach(dir => this.log(`Removed ${dir}`))
 
       // Clean TypeScript build info
       const buildInfoFiles = ['.tsbuildinfo', 'dist/.tsbuildinfo']
@@ -215,7 +193,7 @@ class ProductionBuilder {
 
       // Calculate bundle sizes
       const distPath = path.join(process.cwd(), 'dist')
-      const files = this.getFileSizes(distPath)
+      const files = getFileSizes(distPath)
       
       // Store metrics
       this.buildMetrics.bundleSizes = files
@@ -241,24 +219,7 @@ class ProductionBuilder {
     })
   }
 
-  getFileSizes(dir, relativePath = '') {
-    const files = {}
-    const items = fs.readdirSync(dir)
 
-    for (const item of items) {
-      const fullPath = path.join(dir, item)
-      const relPath = path.join(relativePath, item)
-      const stats = fs.statSync(fullPath)
-
-      if (stats.isDirectory()) {
-        Object.assign(files, this.getFileSizes(fullPath, relPath))
-      } else {
-        files[relPath] = stats.size
-      }
-    }
-
-    return files
-  }
 
   async verifyBuild() {
     return this.timeStage('Build Verification', () => {
