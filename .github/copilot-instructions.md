@@ -1,3 +1,8 @@
+---
+name: "Vibe Tech Monorepo - Main Instructions"
+description: "Primary coding guidelines and architecture overview for the Vibe Tech monorepo"
+---
+
 # AI Coding Agent Instructions - Vibe Tech Monorepo
 
 ## Architecture Overview
@@ -15,10 +20,10 @@ Additional projects: Desktop Commander MCP, Data Processing Pipeline, PowerShell
 ### Development Server Start
 ```powershell
 # Web app (port 3000)
-npm run dev
+pnpm run dev
 
 # Backend API (port 3001)
-cd backend; npm start
+cd backend; pnpm start
 
 # Crypto trading (CAUTION: real money)
 cd projects/crypto-enhanced
@@ -26,14 +31,14 @@ cd projects/crypto-enhanced
 python start_live_trading.py  # Requires YES confirmation
 
 # Parallel execution (multiple services)
-npm run parallel:dev          # Root + crypto + vibe-lovable
-npm run parallel:full-stack   # Root + backend + memory-bank
+pnpm run parallel:dev          # Root + crypto + vibe-lovable
+pnpm run parallel:full-stack   # Root + backend + memory-bank
 ```
 
 ### Quality Checks (Run Before Commits)
 ```powershell
-npm run quality      # lint + typecheck + test + build
-npm run quality:fix  # Auto-fix linting issues
+pnpm run quality      # lint + typecheck + test + build
+pnpm run quality:fix  # Auto-fix linting issues
 ```
 
 ### Database Operations
@@ -206,7 +211,7 @@ result = pipeline.execute()
 2. **CORS Issues**: Update `ALLOWED_ORIGINS` in backend `.env` to match frontend domain
 3. **Port Conflicts**: Root (3000), backend (3001), crypto (8000), vibe-lovable (8080)
 4. **Import Errors**: Always use `@/` alias for src imports
-5. **TypeScript Errors**: Run `npm run typecheck` before committing
+5. **TypeScript Errors**: Run `pnpm run typecheck` before committing
 6. **WebSocket Disconnects**: Initial warnings are normal, auto-reconnect handles recovery
 7. **Database Locks**: SQLite WAL mode prevents most lock issues; use separate connections for read/write
 
@@ -214,9 +219,9 @@ result = pipeline.execute()
 
 ### Web Application
 ```powershell
-npm run test        # Playwright E2E tests
-npm run test:ui     # Interactive debugging
-npm run test:debug  # Debug mode
+pnpm run test        # Playwright E2E tests
+pnpm run test:ui     # Interactive debugging
+pnpm run test:debug  # Debug mode
 ```
 
 ### Crypto Trading
@@ -236,7 +241,7 @@ python check_orders.py                  # Manual order verification
 5. Set up health monitoring for `/health` endpoint
 
 ### Frontend
-1. Run `npm run build:production` with optimized Vite config
+1. Run `pnpm run build:production` with optimized Vite config
 2. Verify CSP headers for production domains
 3. Test lazy-loaded routes
 4. Validate analytics integration
@@ -252,7 +257,7 @@ python check_orders.py                  # Manual order verification
 
 - `CLAUDE.md` - Existing AI assistant guide (comprehensive commands)
 - `README.md` - Monorepo overview and quick commands
-- `package.json` - npm scripts for all workspace operations
+- `package.json` - pnpm scripts for all workspace operations
 - `vite.config.ts` - Build configuration with security headers
 - `src/App.tsx` - Route definitions and lazy loading
 - `projects/crypto-enhanced/start_live_trading.py` - Trading system entry point
