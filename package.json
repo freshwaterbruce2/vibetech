@@ -31,10 +31,5 @@
     "turbo": "^2.5.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
-  },
-  "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
-  },
-  "packageManager": "pnpm@8.15.0"
+  }
 }

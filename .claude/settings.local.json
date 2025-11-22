@@ -32,7 +32,10 @@
       "Bash(do sed -i 's/📊/[DATA]/g; s/✓/OK/g; s/🔧/[PROC]/g; s/⚙️/[FEAT]/g; s/🎯/[TARGET]/g; s/💾/[SAVE]/g; s/✅/[SUCCESS]/g; s/❌/[ERROR]/g; s/📁/[FILES]/g' $dir/src/data_prep.py)",
       "Bash(done)",
       "WebFetch(domain:caniuse.com)",
-      "Read(//d/dev-memory/claude-code/**)"
+      "Read(//d/dev-memory/claude-code/**)",
+      "Bash(cat:*)",
+      "Bash(npx electron-rebuild:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
