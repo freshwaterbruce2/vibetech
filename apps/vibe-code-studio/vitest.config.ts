@@ -7,6 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      'monaco-editor': resolve(__dirname, 'src/__tests__/mocks/monaco-editor-mock.ts'),
     },
   },
   test: {

@@ -53,6 +53,8 @@ import type { FixSuggestion, GeneratedFix } from './services/AutoFixService';
 import { AutoFixService } from './services/AutoFixService';
 import { autoUpdater } from './services/AutoUpdateService';
 import { BackgroundAgentSystem } from './services/BackgroundAgentSystem';
+import { AgentHookSystem } from './services/AgentHookSystem';
+import { AgentMonitoringService } from './services/AgentMonitoringService';
 // Database service
 import { DatabaseService } from './services/DatabaseService';
 import { DesignTokenManager } from './services/DesignTokenManager';
@@ -167,8 +169,17 @@ function App() {
     engine.setLiveStream(liveStream); // Connect live streaming
     return engine;
   });
+
+  // Initialize Agent Monitoring
+  const [agentHookSystem] = useState(() => new AgentHookSystem());
+  const [agentMonitoringService] = useState(() => new AgentMonitoringService(agentHookSystem));
+
+  useEffect(() => {
+    agentMonitoringService.initialize();
+  }, [agentMonitoringService]);
+
   const [backgroundAgentSystem] = useState(() =>
-    new BackgroundAgentSystem(executionEngine, taskPlanner, 3) // Max 3 concurrent tasks
+    new BackgroundAgentSystem(executionEngine, taskPlanner, agentHookSystem, 3) // Max 3 concurrent tasks
   );
 
   // Notifications

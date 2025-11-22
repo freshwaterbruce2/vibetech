@@ -10,6 +10,7 @@ import { EventEmitter } from '../utils/EventEmitter';
 
 import type { ExecutionCallbacks,ExecutionEngine } from './ai/ExecutionEngine';
 import type { TaskPlanner } from './ai/TaskPlanner';
+import type { AgentHookSystem } from './AgentHookSystem';
 
 export interface BackgroundTask {
   id: string;
@@ -45,6 +46,7 @@ export class BackgroundAgentSystem extends EventEmitter {
   constructor(
     private executionEngine: ExecutionEngine,
     private taskPlanner: TaskPlanner,
+    private agentHookSystem: AgentHookSystem,
     maxConcurrent: number = 3
   ) {
     super();
@@ -204,6 +206,23 @@ export class BackgroundAgentSystem extends EventEmitter {
    * Execute task with real agent execution
    */
   private async executeTask(task: BackgroundTask, options: BackgroundTaskOptions): Promise<void> {
+    // Execute Pre-Hooks
+    const hookContext = { agentId: task.agentId, task, startTime: Date.now() };
+    const preHookResult = await this.agentHookSystem.executePreHooks(task.agentId, hookContext);
+
+    if (!preHookResult.shouldContinue) {
+      logger.warn(`[BackgroundAgent] Task ${task.id} blocked by pre-execution hooks`);
+      if (preHookResult.error) {
+        task.status = 'failed';
+        task.error = preHookResult.error;
+        this.emit('failed', task);
+      } else {
+        task.status = 'cancelled';
+        this.emit('cancelled', task);
+      }
+      return;
+    }
+
     task.status = 'running';
     task.startTime = Date.now();
     this.running.add(task.id);
@@ -290,6 +309,9 @@ export class BackgroundAgentSystem extends EventEmitter {
       task.result = executedTask;
       this.emit('completed', task);
 
+      // Execute Post-Hooks
+      await this.agentHookSystem.executePostHooks(task.agentId, { ...hookContext, result: executedTask });
+
     } catch (error) {
       // Check if the task was cancelled
       const currentTask = this.tasks.get(task.id);
@@ -302,6 +324,9 @@ export class BackgroundAgentSystem extends EventEmitter {
         task.endTime = Date.now();
         task.error = error as Error;
         this.emit('failed', task);
+
+        // Execute Error Hooks
+        await this.agentHookSystem.executeErrorHooks(task.agentId, error as Error, hookContext);
 
         // Retry if configured
         if (options.retryOnFailure && (!options.maxRetries || (task.currentStep || 0) < options.maxRetries)) {
@@ -317,6 +342,7 @@ export class BackgroundAgentSystem extends EventEmitter {
       this.processQueue();
     }
   }
+
 
   /**
    * Clear completed tasks
