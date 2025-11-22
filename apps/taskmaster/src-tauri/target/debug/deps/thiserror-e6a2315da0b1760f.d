@@ -1,0 +1,10 @@
+C:\dev\projects\active\desktop-apps\taskmaster\src-tauri\target\debug\deps\libthiserror-e6a2315da0b1760f.rmeta: C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\lib.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\aserror.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\display.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\var.rs
+
+C:\dev\projects\active\desktop-apps\taskmaster\src-tauri\target\debug\deps\libthiserror-e6a2315da0b1760f.rlib: C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\lib.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\aserror.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\display.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\var.rs
+
+C:\dev\projects\active\desktop-apps\taskmaster\src-tauri\target\debug\deps\thiserror-e6a2315da0b1760f.d: C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\lib.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\aserror.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\display.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\var.rs
+
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\lib.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\aserror.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\display.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.16\src\var.rs:

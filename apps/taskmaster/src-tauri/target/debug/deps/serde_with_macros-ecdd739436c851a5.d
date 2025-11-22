@@ -1,0 +1,8 @@
+C:\dev\projects\active\desktop-apps\taskmaster\src-tauri\target\debug\deps\serde_with_macros-ecdd739436c851a5.dll: C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\lib.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\apply.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\lazy_bool.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\utils.rs
+
+C:\dev\projects\active\desktop-apps\taskmaster\src-tauri\target\debug\deps\serde_with_macros-ecdd739436c851a5.d: C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\lib.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\apply.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\lazy_bool.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\utils.rs
+
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\lib.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\apply.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\lazy_bool.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_with_macros-3.14.1\src\utils.rs:

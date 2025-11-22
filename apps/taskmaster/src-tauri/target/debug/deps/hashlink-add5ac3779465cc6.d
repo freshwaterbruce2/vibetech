@@ -1,0 +1,10 @@
+C:\dev\projects\active\desktop-apps\taskmaster\src-tauri\target\debug\deps\libhashlink-add5ac3779465cc6.rmeta: C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\lib.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\linked_hash_map.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\linked_hash_set.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\lru_cache.rs
+
+C:\dev\projects\active\desktop-apps\taskmaster\src-tauri\target\debug\deps\libhashlink-add5ac3779465cc6.rlib: C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\lib.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\linked_hash_map.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\linked_hash_set.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\lru_cache.rs
+
+C:\dev\projects\active\desktop-apps\taskmaster\src-tauri\target\debug\deps\hashlink-add5ac3779465cc6.d: C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\lib.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\linked_hash_map.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\linked_hash_set.rs C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\lru_cache.rs
+
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\lib.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\linked_hash_map.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\linked_hash_set.rs:
+C:\Users\fresh_zxae3v6\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\hashlink-0.10.0\src\lru_cache.rs:
