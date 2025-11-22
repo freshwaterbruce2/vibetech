@@ -5,7 +5,7 @@
     "tsconfig.json",
     "package.json"
   ],
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "build/**", ".next/**", "out/**"],
@@ -29,8 +29,5 @@
       "cache": false,
       "persistent": true
     }
-  },
-  "remoteCache": {
-    "enabled": false
   }
 }

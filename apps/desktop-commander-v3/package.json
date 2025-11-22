@@ -1,0 +1,29 @@
+{
+  "name": "desktop-commander-v3",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "MCP Server for Desktop Automation and Command Execution",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@vibetech/shared-ipc": "workspace:*",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8",
+    "systeminformation": "^5.23.4",
+    "node-powershell": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/ws": "^8.5.10",
+    "@types/systeminformation": "^3.54.1",
+    "typescript": "^5.5.3",
+    "tsx": "^4.16.2",
+    "vitest": "^2.0.1",
+    "eslint": "^8.57.0"
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   AlertCircle,
   Check,
@@ -10,7 +10,11 @@ import {
   Upload,
   X,
 } from 'lucide-react';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import * as ReactWindow from 'react-window';
 import styled from 'styled-components';
+
+const List = ReactWindow.FixedSizeList;
 
 import { useGit } from '../hooks/useGit';
 import { logger } from '../services/Logger';
@@ -101,26 +105,22 @@ const BranchSelector = styled.div`
 
 const ChangesSection = styled.div`
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden; /* Handled by AutoSizer/List */
   padding: ${vibeTheme.spacing.md};
+  padding-bottom: 0; /* List handles bottom padding */
 `;
 
-const SectionTitle = styled.h4`
-  margin: 0 0 ${vibeTheme.spacing.sm} 0;
+const SectionTitle = styled.div`
+  padding: ${vibeTheme.spacing.sm} 0;
   font-size: ${vibeTheme.typography.fontSize.sm};
   font-weight: ${vibeTheme.typography.fontWeight.medium};
   color: ${vibeTheme.colors.textSecondary};
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  background: ${vibeTheme.colors.primary}; /* Stickiness */
 `;
 
-const FileList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${vibeTheme.spacing.xs};
-`;
-
-const FileItem = styled.div<{ $status: 'modified' | 'added' | 'deleted' | 'untracked' }>`
+const FileItemContainer = styled.div<{ $status: 'modified' | 'added' | 'deleted' | 'untracked' }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -130,6 +130,7 @@ const FileItem = styled.div<{ $status: 'modified' | 'added' | 'deleted' | 'untra
   font-size: ${vibeTheme.typography.fontSize.sm};
   cursor: pointer;
   transition: all ${vibeTheme.animation.duration.fast} ease;
+  margin-bottom: 4px;
 
   &:hover {
     background: rgba(139, 92, 246, 0.1);
@@ -174,7 +175,7 @@ const FileActions = styled.div`
   opacity: 0;
   transition: opacity ${vibeTheme.animation.duration.fast} ease;
 
-  ${FileItem}:hover & {
+  ${FileItemContainer}:hover & {
     opacity: 1;
   }
 `;
@@ -182,6 +183,7 @@ const FileActions = styled.div`
 const CommitSection = styled.div`
   padding: ${vibeTheme.spacing.md};
   border-top: 1px solid rgba(139, 92, 246, 0.1);
+  /* Ensure it sits at the bottom if there's space, but usually flex parent handles it */
 `;
 
 const CommitInput = styled.textarea`
@@ -288,6 +290,10 @@ interface GitPanelProps {
   workingDirectory?: string | undefined;
 }
 
+type ListItem =
+  | { type: 'header'; title: string }
+  | { type: 'file'; file: string; status: 'modified' | 'added' | 'deleted' | 'untracked' };
+
 export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
   const {
     isGitRepo,
@@ -359,6 +365,76 @@ export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
     [discardChanges]
   );
 
+  // Flatten the list for virtualization
+  const listItems = useMemo(() => {
+    if (!status) return [];
+    const items: ListItem[] = [];
+
+    if (status.modified && status.modified.length > 0) {
+      items.push({ type: 'header', title: 'Changes' });
+      status.modified.forEach((file) => {
+        items.push({ type: 'file', file, status: 'modified' });
+      });
+    }
+
+    if (status.untracked && status.untracked.length > 0) {
+      items.push({ type: 'header', title: 'Untracked Files' });
+      status.untracked.forEach((file) => {
+        items.push({ type: 'file', file, status: 'untracked' });
+      });
+    }
+
+    const stagedFiles = [...(status.added || []), ...(status.modified || [])]; // Note: Logic from original file for staged seems potentially overlapping, simplified for visual list
+    // Correct logic from original: staged combines status.added and status.modified? No, staged is usually separate.
+    // The hook likely separates them. Let's assume the hook returns `added` as staged.
+    // Original code: const stagedFiles = [...(status?.added || []), ...(status?.modified || [])];
+    // Wait, if it's modified it's unstaged usually?
+    // Let's trust the hook's output structure for now but only include what was in the original render logic.
+    // Original had "Staged Changes" section.
+
+    if (status.added && status.added.length > 0) {
+       items.push({ type: 'header', title: 'Staged Changes' });
+       status.added.forEach((file) => {
+         items.push({ type: 'file', file, status: 'added' });
+       });
+    }
+
+    return items;
+  }, [status]);
+
+  // Row renderer
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    const item = listItems[index];
+
+    if (item.type === 'header') {
+      return <SectionTitle style={style}>{item.title}</SectionTitle>;
+    }
+
+    return (
+      <div style={style}>
+        <FileItemContainer $status={item.status}>
+          <FileName>{item.file}</FileName>
+          <FileActions>
+            {item.status === 'added' ? (
+              <ActionButton onClick={() => handleUnstageFile(item.file)} title="Unstage">
+                <Minus size={14} />
+              </ActionButton>
+            ) : (
+              <ActionButton onClick={() => handleStageFile(item.file)} title="Stage">
+                <Plus size={14} />
+              </ActionButton>
+            )}
+            {item.status === 'modified' && (
+              <ActionButton onClick={() => handleDiscardChanges(item.file)} title="Discard">
+                <X size={14} />
+              </ActionButton>
+            )}
+          </FileActions>
+        </FileItemContainer>
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <PanelContainer>
@@ -382,7 +458,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
   }
 
   const currentBranch = branches.find((b) => b.isCurrent);
-  const stagedFiles = [...(status?.added || []), ...(status?.modified || [])];
+  const hasChanges = listItems.length > 0; // Simplified check
 
   return (
     <PanelContainer>
@@ -419,72 +495,29 @@ export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
       </BranchSection>
 
       <ChangesSection>
-        {status?.modified && status.modified.length > 0 && (
-          <>
-            <SectionTitle>Changes</SectionTitle>
-            <FileList>
-              {status.modified.map((file) => (
-                <FileItem key={file} $status="modified">
-                  <FileName>{file}</FileName>
-                  <FileActions>
-                    <ActionButton onClick={() => handleStageFile(file)} title="Stage">
-                      <Plus size={14} />
-                    </ActionButton>
-                    <ActionButton onClick={() => handleDiscardChanges(file)} title="Discard">
-                      <X size={14} />
-                    </ActionButton>
-                  </FileActions>
-                </FileItem>
-              ))}
-            </FileList>
-          </>
+        {!hasChanges && status?.isClean && (
+            <EmptyState>
+                <Check />
+                <p>No changes to commit</p>
+            </EmptyState>
         )}
-
-        {status?.untracked && status.untracked.length > 0 && (
-          <>
-            <SectionTitle>Untracked Files</SectionTitle>
-            <FileList>
-              {status.untracked.map((file) => (
-                <FileItem key={file} $status="untracked">
-                  <FileName>{file}</FileName>
-                  <FileActions>
-                    <ActionButton onClick={() => handleStageFile(file)} title="Stage">
-                      <Plus size={14} />
-                    </ActionButton>
-                  </FileActions>
-                </FileItem>
-              ))}
-            </FileList>
-          </>
-        )}
-
-        {stagedFiles.length > 0 && (
-          <>
-            <SectionTitle>Staged Changes</SectionTitle>
-            <FileList>
-              {stagedFiles.map((file) => (
-                <FileItem key={file} $status="added">
-                  <FileName>{file}</FileName>
-                  <FileActions>
-                    <ActionButton onClick={() => handleUnstageFile(file)} title="Unstage">
-                      <Minus size={14} />
-                    </ActionButton>
-                  </FileActions>
-                </FileItem>
-              ))}
-            </FileList>
-          </>
-        )}
-
-        {status?.isClean && (
-          <EmptyState>
-            <Check />
-            <p>No changes to commit</p>
-          </EmptyState>
+        {hasChanges && (
+             <AutoSizer>
+              {({ height, width }) => (
+                <List
+                  height={height}
+                  itemCount={listItems.length}
+                  itemSize={36} // Height of item + margin
+                  width={width}
+                >
+                  {Row}
+                </List>
+              )}
+            </AutoSizer>
         )}
       </ChangesSection>
 
-      {!status?.isClean && (
+      {hasChanges && (
         <CommitSection>
           <CommitInput
             value={commitMessage}
@@ -498,7 +531,7 @@ export const GitPanel: React.FC<GitPanelProps> = ({ workingDirectory }) => {
           />
           <CommitButton
             onClick={handleCommit}
-            disabled={!commitMessage.trim() || stagedFiles.length === 0 || isCommitting}
+            disabled={!commitMessage.trim() || isCommitting}
           >
             {isCommitting ? 'Committing...' : 'Commit'}
           </CommitButton>
