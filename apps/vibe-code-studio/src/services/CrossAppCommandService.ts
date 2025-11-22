@@ -7,6 +7,7 @@
 
 import { IPCMessageType, CommandExecutePayload, CommandResultPayload } from '@vibetech/shared-ipc';
 import { ipcClient } from './IPCClient';
+import { logger } from './Logger';
 
 export interface CommandRequest {
     commandId: string;
@@ -71,7 +72,7 @@ export class CrossAppCommandService {
         ipcClient.on(IPCMessageType.COMMAND_EXECUTE, async (payload: CommandExecutePayload & { originalSource?: string; originalMessageId?: string; correlationId?: string }) => {
             const { commandId, command, args = [], text } = payload;
 
-            console.log(`[Vibe] Executing command: ${command}`, args);
+            logger.debug(`[Vibe] Executing command: ${command}`, args);
 
             const startedAt = Date.now();
 
@@ -140,7 +141,7 @@ export class CrossAppCommandService {
         if (!file) throw new Error('File path required');
 
         // TODO: Integrate with Vibe's file opening system
-        console.log(`Opening file: ${file}`);
+        logger.debug(`Opening file: ${file}`);
 
         return {
             file,

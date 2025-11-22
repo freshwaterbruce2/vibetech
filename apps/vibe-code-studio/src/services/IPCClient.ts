@@ -24,6 +24,7 @@ import {
   IPCMessageType,
   AppSource,
 } from '@vibetech/shared-ipc';
+import { logger } from './Logger';
 
 // Simple EventEmitter for browser/Electron compatibility
 class SimpleEventEmitter {
@@ -151,12 +152,12 @@ class IPCClient extends SimpleEventEmitter {
    */
   public connect(): void {
     if (this.status === 'connecting' || this.status === 'connected') {
-      console.log('[IPC] Already connected or connecting');
+      logger.debug('[IPC] Already connected or connecting');
       return;
     }
 
     this.setStatus('connecting');
-    console.log(`[IPC] Connecting to ${this.options.url}...`);
+    logger.info(`[IPC] Connecting to ${this.options.url}...`);
 
     try {
       this.ws = new WebSocket(this.options.url);
@@ -166,7 +167,7 @@ class IPCClient extends SimpleEventEmitter {
       this.ws.onerror = (error) => this.handleError(error);
       this.ws.onmessage = (event) => this.handleMessage(event);
     } catch (error) {
-      console.error('[IPC] WebSocket connection failed:', error);
+      logger.error('[IPC] WebSocket connection failed:', error);
       this.setStatus('error');
       this.scheduleReconnect();
     }
@@ -176,7 +177,7 @@ class IPCClient extends SimpleEventEmitter {
    * Disconnect from IPC Bridge
    */
   public disconnect(): void {
-    console.log('[IPC] Disconnecting...');
+    logger.info('[IPC] Disconnecting...');
 
     // Prevent auto-reconnect
     this.reconnectAttempts = this.options.maxReconnectAttempts;
@@ -201,7 +202,7 @@ class IPCClient extends SimpleEventEmitter {
    */
   public send(message: OutgoingIPCMessage): boolean {
     if (this.status !== 'connected' || !this.ws) {
-      console.warn('[IPC] Not connected, queueing message:', message.type);
+      logger.warn('[IPC] Not connected, queueing message:', message.type);
       this.queueMessage(message);
       return false;
     }
@@ -216,10 +217,10 @@ class IPCClient extends SimpleEventEmitter {
       };
 
       this.ws.send(JSON.stringify(fullMessage));
-      console.log('[IPC] ✓ Sent message:', message.type);
+      logger.debug('[IPC] ✓ Sent message:', message.type);
       return true;
     } catch (error) {
-      console.error('[IPC] Failed to send message:', error);
+      logger.error('[IPC] Failed to send message:', error);
       this.queueMessage(message);
       return false;
     }
@@ -329,7 +330,7 @@ class IPCClient extends SimpleEventEmitter {
 
     const sent = this.send(message);
     if (!sent) {
-      console.warn('[IPC] Command request queued (connection pending)');
+      logger.warn('[IPC] Command request queued (connection pending)');
     }
 
     return resultPromise;
@@ -367,7 +368,7 @@ class IPCClient extends SimpleEventEmitter {
   // Private Methods
 
   private handleOpen(): void {
-    console.log('[IPC] ✓ Connected to IPC Bridge');
+    logger.info('[IPC] ✓ Connected to IPC Bridge');
     this.reconnectAttempts = 0;
     this.setStatus('connected');
     this.startPing();
@@ -375,7 +376,7 @@ class IPCClient extends SimpleEventEmitter {
   }
 
   private handleClose(event: CloseEvent): void {
-    console.log(`[IPC] Disconnected (code: ${event.code}, reason: ${event.reason || 'none'})`);
+    logger.info(`[IPC] Disconnected (code: ${event.code}, reason: ${event.reason || 'none'})`);
     this.stopPing();
     this.setStatus('disconnected');
     this.rejectAllPendingCommands(new Error('IPC Bridge disconnected'));
@@ -387,7 +388,7 @@ class IPCClient extends SimpleEventEmitter {
   }
 
   private handleError(error: Event): void {
-    console.error('[IPC] WebSocket error:', error);
+    logger.error('[IPC] WebSocket error:', error);
     this.setStatus('error');
     this.rejectAllPendingCommands(new Error('IPC Bridge encountered an error'));
   }
@@ -436,9 +437,9 @@ class IPCClient extends SimpleEventEmitter {
         this.emit(message.type as keyof IPCClientEvents, message.payload);
       }
 
-      console.log('[IPC] Received message:', message.type);
+      logger.debug('[IPC] Received message:', message.type);
     } catch (error) {
-      console.error('[IPC] Failed to parse message:', error);
+      logger.error('[IPC] Failed to parse message:', error);
     }
   }
 
@@ -447,12 +448,12 @@ class IPCClient extends SimpleEventEmitter {
 
     this.status = status;
     this.emit('status', status);
-    console.log(`[IPC] Status changed: ${status}`);
+    logger.info(`[IPC] Status changed: ${status}`);
   }
 
   private scheduleReconnect(): void {
     if (this.reconnectAttempts >= this.options.maxReconnectAttempts) {
-      console.log('[IPC] Max reconnect attempts reached');
+      logger.warn('[IPC] Max reconnect attempts reached');
       return;
     }
 
@@ -462,7 +463,7 @@ class IPCClient extends SimpleEventEmitter {
       30000
     );
 
-    console.log(`[IPC] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts + 1}/${this.options.maxReconnectAttempts})`);
+    logger.info(`[IPC] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts + 1}/${this.options.maxReconnectAttempts})`);
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectAttempts++;
@@ -492,18 +493,18 @@ class IPCClient extends SimpleEventEmitter {
   private queueMessage(message: OutgoingIPCMessage): void {
     // Prevent queue from growing too large
     if (this.messageQueue.length >= this.options.messageQueueMax) {
-      console.warn('[IPC] Message queue full, dropping oldest message');
+      logger.warn('[IPC] Message queue full, dropping oldest message');
       this.messageQueue.shift();
     }
 
     this.messageQueue.push({ ...message });
-    console.log(`[IPC] Queued message (${this.messageQueue.length} in queue)`);
+    logger.debug(`[IPC] Queued message (${this.messageQueue.length} in queue)`);
   }
 
   private flushMessageQueue(): void {
     if (this.messageQueue.length === 0) return;
 
-    console.log(`[IPC] Flushing ${this.messageQueue.length} queued messages...`);
+    logger.debug(`[IPC] Flushing ${this.messageQueue.length} queued messages...`);
 
     const messages = [...this.messageQueue];
     this.messageQueue = [];
@@ -518,7 +519,7 @@ class IPCClient extends SimpleEventEmitter {
       clearTimeout(pending.timeout);
       pending.reject(error);
       this.pendingCommands.delete(commandId);
-      console.warn(`[IPC] Pending command rejected (${commandId}): ${error.message}`);
+      logger.warn(`[IPC] Pending command rejected (${commandId}): ${error.message}`);
     }
   }
 
@@ -534,7 +535,7 @@ export const ipcClient = new IPCClient();
 if (typeof window !== 'undefined') {
   // Wait a bit for app to initialize
   setTimeout(() => {
-    console.log('[IPC] Auto-connecting to IPC Bridge...');
+    logger.info('[IPC] Auto-connecting to IPC Bridge...');
     ipcClient.connect();
   }, 1000);
 }

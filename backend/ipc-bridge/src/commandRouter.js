@@ -20,11 +20,13 @@ export class CommandRouter {
         const text = message.payload?.text || '';
         const explicitTarget = message.payload?.target;
 
-        if (explicitTarget && (explicitTarget === 'nova' || explicitTarget === 'vibe')) {
+        const validTargets = ['nova', 'vibe', 'desktop-commander-v3'];
+
+        if (explicitTarget && validTargets.includes(explicitTarget)) {
             return text.length > 0;
         }
 
-        return text.startsWith('@nova ') || text.startsWith('@vibe ');
+        return validTargets.some(target => text.startsWith(`@${target} `));
     }
 
     /**
@@ -44,7 +46,7 @@ export class CommandRouter {
 
         // Extract target from leading @ mention when explicit target not provided
         if (!target) {
-            const targetMatch = trimmed.match(/^@(nova|vibe)\s+(.+)/i);
+            const targetMatch = trimmed.match(/^@(nova|vibe|desktop-commander-v3)\s+(.+)/i);
             if (!targetMatch) {
                 return null;
             }
@@ -53,7 +55,7 @@ export class CommandRouter {
             commandText = targetMatch[2];
         }
 
-        if (target !== 'nova' && target !== 'vibe') {
+        if (target !== 'nova' && target !== 'vibe' && target !== 'desktop-commander-v3') {
             return null;
         }
 

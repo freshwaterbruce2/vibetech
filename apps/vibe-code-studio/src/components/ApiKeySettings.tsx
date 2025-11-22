@@ -365,7 +365,7 @@ const ApiKeySettings: React.FC = () => {
     const key = apiKeys[provider];
 
     // Developer diagnostics (survives production builds)
-    console.log('[ApiKeySettings] Save attempt:', {
+    logger.debug('[ApiKeySettings] Save attempt:', {
       provider,
       keyLength: key?.length,
       keyPrefix: key?.substring(0, 5),
@@ -409,7 +409,7 @@ const ApiKeySettings: React.FC = () => {
         setErrors(prev => ({ ...prev, [provider]: 'Failed to save API key. Check console for details.' }));
       }
     } catch (error) {
-      console.error('[ApiKeySettings] Save error:', error);
+      logger.error('[ApiKeySettings] Save error:', error);
       setErrors(prev => ({ ...prev, [provider]: error instanceof Error ? error.message : 'Failed to save API key' }));
     }
   };

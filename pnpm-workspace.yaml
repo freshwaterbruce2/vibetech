@@ -1,37 +1,4 @@
-# pnpm workspace configuration
-# Defines all packages in the monorepo
-
 packages:
-  # Shared packages and libraries
+  - 'apps/*'
+  - 'backend/*'
   - 'packages/*'
-
-  # Active desktop applications
-  - 'projects/active/desktop-apps/deepcode-editor'
-  - 'projects/active/desktop-apps/nova-agent-current'
-  - 'projects/active/desktop-apps/taskmaster'
-
-  # Active web applications
-  - 'projects/active/web-apps/business-booking-platform'
-  - 'projects/active/web-apps/shipping-pwa'
-  - 'projects/active/web-apps/vibe-tech-lovable'
-  - 'projects/active/web-apps/dev-tools'
-  - 'projects/active/web-apps/digital-content-builder'
-  - 'projects/active/web-apps/iconforge'
-  - 'projects/active/web-apps/memory-bank'
-
-  # Mobile applications
-  - 'projects/active/mobile-apps/kids-app-lock'
-  - 'projects/active/desktop-apps/nova-agent-current/nova-mobile-app'
-
-  # Other projects
-  - 'projects/Vibe-Subscription-Guard'
-  - 'desktop-commander-v3'
-  - 'workflow-hub-mcp'
-  - 'Vibe-Tutor'
-
-  # Backend services
-  - 'backend/ipc-bridge'
-  - 'backend/dap-proxy'
-  - 'backend/lsp-proxy'
-  - 'backend/search-service'
-  - 'backend/workflow-engine'

@@ -6,6 +6,7 @@ import Sidebar from '../components/Sidebar';
 import { DeepSeekService } from '../services/DeepSeekService';
 import { useEditorStore } from '../stores/useEditorStore';
 import { vibeTheme } from '../styles/theme';
+import { logger } from '../services/Logger';
 
 const PageContainer = styled.div`
   display: flex;
@@ -37,7 +38,7 @@ const EditorPage: React.FC = () => {
 
   const handleShowSettings = () => {
     // TODO: Implement settings modal
-    console.log('Settings clicked - to be implemented');
+    logger.debug('Settings clicked - to be implemented');
   };
 
   return (

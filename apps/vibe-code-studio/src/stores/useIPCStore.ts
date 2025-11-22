@@ -19,6 +19,7 @@ import { useMemo } from 'react';
 import { create } from 'zustand';
 import type { ConnectionStatus } from '../services/IPCClient';
 import { ipcClient } from '../services/IPCClient';
+import { logger } from '../services/Logger';
 
 export interface RemoteLearningData {
   id: string;
@@ -83,7 +84,7 @@ export const useIPCStore = create<IPCStore>((set, get) => ({
     const currentStatus = get().status;
     if (currentStatus !== status) {
       set({ status });
-      console.log('[IPC Store] Status updated:', status);
+      logger.debug('[IPC Store] Status updated:', status);
     }
   },
 
@@ -113,24 +114,24 @@ export const useIPCStore = create<IPCStore>((set, get) => ({
     set((state) => ({
       remoteLearningData: [...state.remoteLearningData, data]
     }));
-    console.log('[IPC Store] Added remote learning data:', data.id);
+    logger.debug('[IPC Store] Added remote learning data:', data.id);
   },
 
   addRemoteProjectUpdate: (update: RemoteProjectUpdate) => {
     set((state) => ({
       remoteProjectUpdates: [...state.remoteProjectUpdates, update]
     }));
-    console.log('[IPC Store] Added project update:', update.projectName);
+    logger.debug('[IPC Store] Added project update:', update.projectName);
   },
 
   clearRemoteLearningData: () => {
     set({ remoteLearningData: [] });
-    console.log('[IPC Store] Cleared remote learning data');
+    logger.debug('[IPC Store] Cleared remote learning data');
   },
 
   clearRemoteProjectUpdates: () => {
     set({ remoteProjectUpdates: [] });
-    console.log('[IPC Store] Cleared remote project updates');
+    logger.debug('[IPC Store] Cleared remote project updates');
   },
 
   // Connection Control
@@ -165,13 +166,13 @@ export const initializeIPCStore = () => {
   // Guard against multiple initializations (React 18 StrictMode calls effects twice in dev)
   // WARNING: Removing this guard will cause duplicate event listeners and infinite loops!
   if (isIPCStoreInitialized) {
-    console.log('[IPC Store] Already initialized, skipping...');
+    logger.debug('[IPC Store] Already initialized, skipping...');
     return;
   }
 
   const store = useIPCStore.getState();
 
-  console.log('[IPC Store] Initializing...');
+  logger.info('[IPC Store] Initializing...');
   isIPCStoreInitialized = true;
 
   // Listen to connection status changes
@@ -202,9 +203,9 @@ export const initializeIPCStore = () => {
       };
 
       store.addRemoteLearningData(learningData);
-      console.log('[IPC Store] Received learning sync from NOVA');
+      logger.debug('[IPC Store] Received learning sync from NOVA');
     } catch (error) {
-      console.error('[IPC Store] Failed to process learning sync:', error);
+      logger.error('[IPC Store] Failed to process learning sync:', error);
     }
   });
 
@@ -220,15 +221,15 @@ export const initializeIPCStore = () => {
       };
 
       store.addRemoteProjectUpdate(update);
-      console.log('[IPC Store] Received project update from NOVA');
+      logger.debug('[IPC Store] Received project update from NOVA');
     } catch (error) {
-      console.error('[IPC Store] Failed to process project update:', error);
+      logger.error('[IPC Store] Failed to process project update:', error);
     }
   });
 
   // Listen for file open requests from NOVA
   ipcClient.on('file:open', (payload) => {
-    console.log('[IPC Store] Received file open request:', payload);
+    logger.debug('[IPC Store] Received file open request:', payload);
     // This will be handled by the file opening implementation (Task 20)
     // For now, just emit a custom event
     if (typeof window !== 'undefined') {
@@ -238,7 +239,7 @@ export const initializeIPCStore = () => {
 
   // Listen for notifications from NOVA
   ipcClient.on('notification', (payload) => {
-    console.log('[IPC Store] Received notification:', payload);
+    logger.debug('[IPC Store] Received notification:', payload);
     // This will be handled by the notification implementation (Task 18)
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('ipc:notification', { detail: payload }));
@@ -251,7 +252,7 @@ export const initializeIPCStore = () => {
     store.updateQueuedMessageCount(count);
   }, 5000);
 
-  console.log('[IPC Store] Initialized successfully');
+  logger.info('[IPC Store] Initialized successfully');
 };
 
 /**

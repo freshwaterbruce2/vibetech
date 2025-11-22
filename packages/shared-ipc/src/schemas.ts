@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Message sources/targets
-export const appSourceSchema = z.enum(['nova', 'vibe', 'bridge']);
+export const appSourceSchema = z.enum(['nova', 'vibe', 'bridge', 'desktop-commander-v3']);
 export type AppSource = z.infer<typeof appSourceSchema>;
 
 // Message types enum

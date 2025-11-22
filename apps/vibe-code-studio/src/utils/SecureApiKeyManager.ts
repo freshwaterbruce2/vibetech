@@ -135,21 +135,21 @@ export class SecureApiKeyManager {
    * Store API key securely
    */
   public async storeApiKey(provider: string, key: string): Promise<boolean> {
-    console.log('[SecureApiKeyManager] storeApiKey called for provider:', provider);
-    console.log('[SecureApiKeyManager] isElectron:', this.isElectron);
-    console.log('[SecureApiKeyManager] electronStorage exists:', !!this.electronStorage);
+    logger.debug('[SecureApiKeyManager] storeApiKey called for provider:', provider);
+    logger.debug('[SecureApiKeyManager] isElectron:', this.isElectron);
+    logger.debug('[SecureApiKeyManager] electronStorage exists:', !!this.electronStorage);
 
     try {
       // Validate the key first
-      console.log('[SecureApiKeyManager] Validating API key...');
+      logger.debug('[SecureApiKeyManager] Validating API key...');
       if (!this.validateApiKey(key, provider)) {
-        console.error('[SecureApiKeyManager] API key validation FAILED');
+        logger.error('[SecureApiKeyManager] API key validation FAILED');
         throw new Error(`Invalid ${provider} API key format`);
       }
-      console.log('[SecureApiKeyManager] API key validation passed');
+      logger.debug('[SecureApiKeyManager] API key validation passed');
 
       // Encrypt the key
-      console.log('[SecureApiKeyManager] Encrypting API key...');
+      logger.debug('[SecureApiKeyManager] Encrypting API key...');
       const encryptedKey = this.encryptApiKey(key);
 
       // Create metadata
@@ -167,35 +167,35 @@ export class SecureApiKeyManager {
       };
 
       const storageKey = `secure_api_key_${provider.toLowerCase()}`;
-      console.log('[SecureApiKeyManager] Storage key:', storageKey);
+      logger.debug('[SecureApiKeyManager] Storage key:', storageKey);
 
       // Use Electron storage if available
       if (this.isElectron && this.electronStorage) {
-        console.log('[SecureApiKeyManager] Calling Electron storage.set via IPC...');
+        logger.debug('[SecureApiKeyManager] Calling Electron storage.set via IPC...');
         const result = await this.electronStorage.set(storageKey, JSON.stringify(storedKey));
-        console.log('[SecureApiKeyManager] Electron storage.set result:', result);
+        logger.debug('[SecureApiKeyManager] Electron storage.set result:', result);
 
         if (!result.success) {
-          console.error('[SecureApiKeyManager] Electron storage.set returned failure:', result);
+          logger.error('[SecureApiKeyManager] Electron storage.set returned failure:', result);
           throw new Error('Failed to save to Electron storage: ' + (result.error || 'unknown error'));
         }
-        console.log('[SecureApiKeyManager] Electron storage.set SUCCESS');
+        logger.debug('[SecureApiKeyManager] Electron storage.set SUCCESS');
       } else {
-        console.warn('[SecureApiKeyManager] Electron storage NOT available, isElectron:', this.isElectron);
+        logger.warn('[SecureApiKeyManager] Electron storage NOT available, isElectron:', this.isElectron);
       }
 
       // Always also save to localStorage as a fallback for immediate use
-      console.log('[SecureApiKeyManager] Saving to localStorage as fallback...');
+      logger.debug('[SecureApiKeyManager] Saving to localStorage as fallback...');
       this.storage.setItem(storageKey, JSON.stringify(storedKey));
-      console.log('[SecureApiKeyManager] localStorage save complete');
+      logger.debug('[SecureApiKeyManager] localStorage save complete');
 
       // Also update environment variable for immediate use
       this.updateEnvironmentVariable(provider, key);
 
-      console.log('[SecureApiKeyManager] storeApiKey completed successfully');
+      logger.debug('[SecureApiKeyManager] storeApiKey completed successfully');
       return true;
     } catch (error) {
-      console.error('[SecureApiKeyManager] storeApiKey FAILED:', error);
+      logger.error('[SecureApiKeyManager] storeApiKey FAILED:', error);
       logger.error('Failed to store API key:', error);
       return false;
     }
