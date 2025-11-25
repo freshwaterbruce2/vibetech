@@ -6,35 +6,39 @@ import styled from 'styled-components';
 import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
 
 // New AI components
-import ComposerMode from './components/AgentMode/ComposerMode';
 import { BackgroundTaskPanel } from './components/BackgroundTaskPanel';
-import { ComponentLibrary } from './components/ComponentLibrary';
 import { CrossAppCommandPalette } from './components/CrossAppCommandPalette';
-import Editor from './components/Editor';
 import { EditorStreamPanel } from './components/EditorStreamPanel';
 import { ModernErrorBoundary } from './components/ErrorBoundary/index';
 import { ErrorFixPanel } from './components/ErrorFixPanel';
-import GitPanel from './components/GitPanel';
 import { GlobalSearch } from './components/GlobalSearch';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts';
 import { LearningPanel } from './components/LearningPanel';
 // Lazy loaded components
-import { LazyAIChat, LazyCommandPalette, LazySettings } from './components/LazyComponents';
+import {
+  LazyAIChat,
+  LazyCommandPalette,
+  LazySettings,
+  LazyVisualEditor,
+  LazyScreenshotToCodePanel,
+  LazyComponentLibrary,
+  LazyTerminalPanel,
+  LazyComposerMode,
+  LazyMultiFileEditApprovalPanel,
+  LazyGitPanel,
+  LazyTaskExecutionPanel,
+  LazyEditor,
+} from './components/LazyComponents';
 import ModelSelector from './components/ModelSelector/ModelSelector';
-import { MultiFileEditApprovalPanel } from './components/MultiFileEditApprovalPanel';
 // Components
 import { NotificationContainer } from './components/Notification';
 import { PreviewPanel } from './components/PreviewPanel';
 // Visual no-code features
-import { ScreenshotToCodePanel } from './components/ScreenshotToCodePanel';
 import Sidebar from './components/Sidebar';
 import StatusBar from './components/StatusBar';
-import { TaskExecutionPanel } from './components/TaskExecutionPanel';
 import { TaskPanel } from './components/TaskPanel';
-import { TerminalPanel } from './components/TerminalPanel';
 // Components - Using lazy loading for heavy components
 import TitleBar from './components/TitleBar';
-import { VisualEditor } from './components/VisualEditor';
 import WelcomeScreen from './components/WelcomeScreen';
 import { useAIChat } from './hooks/useAIChat';
 import { useAICommandPalette } from './hooks/useAICommandPalette';
@@ -56,7 +60,7 @@ import { BackgroundAgentSystem } from './services/BackgroundAgentSystem';
 import { AgentHookSystem } from './services/AgentHookSystem';
 import { AgentMonitoringService } from './services/AgentMonitoringService';
 // Database service
-import { DatabaseService } from './services/DatabaseService';
+import { DatabaseService, databaseService } from './services/DatabaseService';
 import { DesignTokenManager } from './services/DesignTokenManager';
 import type { DetectedError } from './services/ErrorDetector';
 import { ErrorDetector } from './services/ErrorDetector';
@@ -89,10 +93,11 @@ let dbInitError: Error | null = null;
 
 const getDatabase = async (): Promise<DatabaseService> => {
   if (!dbService) {
-    dbService = new DatabaseService();
+    // Use the wrapped singleton from DatabaseService (includes IPC sync)
+    dbService = databaseService as any;
     try {
       await dbService.initialize();
-      logger.info('[App] Database initialized successfully');
+      logger.info('[App] Database initialized successfully with IPC sync enabled');
     } catch (error) {
       dbInitError = error as Error;
       logger.warn('[App] Database initialization failed, using localStorage fallback:', error);
@@ -103,7 +108,7 @@ const getDatabase = async (): Promise<DatabaseService> => {
     if (process.env.NODE_ENV === 'development') {
       (window as any).__deepcodeDB = dbService;
       (window as any).__deepcodeDBStatus = () => dbService?.getStatus();
-      logger.debug('[App] Database service exposed to window.__deepcodeDB for debugging');
+      logger.debug('[App] Database service with IPC sync exposed to window.__deepcodeDB for debugging');
     }
   }
   return dbService;
@@ -309,7 +314,7 @@ function App() {
   // Auto-Fix Error Panel state
   const [currentError, setCurrentError] = useState<DetectedError | null>(null);
   const [currentFix, setCurrentFix] = useState<GeneratedFix | null>(null);
-  const [errorFixPanelOpen, setErrorFixPanelOpen] = useState(false);
+  const [errorFixPanelOpen, setErrorFixPanel] = useState(false);
   const [fixLoading, setFixLoading] = useState(false);
   const [fixError, setFixError] = useState<string>('');
   const [terminalOpen, setTerminalOpen] = useState(false);
@@ -341,7 +346,7 @@ function App() {
       onError: (error: DetectedError) => {
         logger.debug('[AutoFix] Error detected:', error);
         setCurrentError(error);
-        setErrorFixPanelOpen(true);
+        setErrorFixPanel(true);
         setFixLoading(true);
         setFixError('');
         setCurrentFix(null);
@@ -363,7 +368,7 @@ function App() {
         logger.debug('[AutoFix] Error resolved:', errorId);
         // Auto-dismiss panel if error is resolved
         if (currentError?.id === errorId) {
-          setErrorFixPanelOpen(false);
+          setErrorFixPanel(false);
           setCurrentError(null);
           setCurrentFix(null);
         }
@@ -428,7 +433,7 @@ function App() {
       showSuccess('Fix Applied', suggestion.title);
 
       // Close panel
-      setErrorFixPanelOpen(false);
+      setErrorFixPanel(false);
       setCurrentError(null);
       setCurrentFix(null);
 
@@ -1070,7 +1075,7 @@ I'm now your context-aware coding companion! 🎯`,
   useEffect(() => {
     const loadApiKey = async () => {
       try {
-        const keyManager = SecureApiKeyManager.getInstance(logger);
+        const keyManager = SecureApiKeyManager.getInstance();
         const key = await keyManager.getApiKey('deepseek');
         if (key) {
           setDeepseekApiKey(key);
@@ -1182,447 +1187,480 @@ I'm now your context-aware coding companion! 🎯`,
   if (isLoading) {
     return (
       <AnimatePresence>
-        <LoadingScreen
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+      <LoadingScreen
+          initial= {{ opacity: 0 }
+  }
+  animate = {{ opacity: 1 }
+}
+exit = {{ opacity: 0 }}
+transition = {{ duration: 0.5 }}
         >
-          <LoadingLogo>⚡ DeepCode</LoadingLogo>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            style={{
-              width: 40,
-              height: 40,
-              border: '3px solid rgba(255,255,255,0.3)',
-              borderRadius: '50%',
-              borderTopColor: '#00d2ff',
+  <LoadingLogo>⚡ DeepCode </LoadingLogo>
+    < motion.div
+animate = {{ rotate: 360 }}
+transition = {{ duration: 1, repeat: Infinity, ease: 'linear' }}
+style = {{
+  width: 40,
+    height: 40,
+      border: '3px solid rgba(255,255,255,0.3)',
+        borderRadius: '50%',
+          borderTopColor: '#00d2ff',
             }}
           />
-        </LoadingScreen>
-      </AnimatePresence>
+  </LoadingScreen>
+  </AnimatePresence>
     );
   }
 
-  return (
-    <ModernErrorBoundary
-      onError={(error, errorInfo) => {
-        logger.error('App Error:', error, errorInfo);
-        showError('Application Error', 'An unexpected error occurred. Please refresh the page.');
-      }}
-      onReset={() => {
-        // Clear any error state
-        window.location.reload();
-      }}
+return (
+  <ModernErrorBoundary
+      onError= {(error, errorInfo) => {
+  logger.error('App Error:', error, errorInfo);
+  showError('Application Error', 'An unexpected error occurred. Please refresh the page.');
+}}
+onReset = {() => {
+  // Clear any error state
+  window.location.reload();
+}}
     >
-      <Router>
-        <AppContainer data-testid="app-container">
-          <TitleBar
-            onSettingsClick={() => setSettingsOpen(true)}
-            onNewFile={handleNewFile}
-            onOpenFolder={handleOpenFolderDialog}
-            onSaveAll={handleSaveAll}
-            onCloseFolder={handleCloseFolder}
-            onScreenshotToCode={() => setActiveVisualPanel(activeVisualPanel === 'screenshot' ? 'none' : 'screenshot')}
-            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-            onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
-            onTogglePreview={() => setPreviewOpen(!previewOpen)}
-            onToggleBackgroundPanel={() => setBackgroundPanelOpen(!backgroundPanelOpen)}
-            previewOpen={previewOpen}
-          >
-            <ModelSelector
-              currentModel={currentModel}
-              onModelChange={handleModelChange}
-            />
-          </TitleBar>
-          <MainContent>
-            {sidebarOpen && (
-              <Sidebar
-                workspaceFolder={workspaceFolder}
-                onOpenFile={handleOpenFile}
-                onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
-                aiChatOpen={aiChatOpen}
-                fileSystemService={fileSystemService}
-                onDeleteFile={handleDeleteFile}
-                onOpenFolder={handleOpenFolderDialog}
-                onShowSettings={() => setSettingsOpen(true)}
-              />
-            )}
-
-            <EditorSection>
-              {currentFile ? (
-                <>
-                  <Editor
-                    file={currentFile}
-                    openFiles={openFiles}
-                    onFileChange={handleFileChange}
-                    onCloseFile={handleCloseFile}
-                    onSaveFile={handleSaveFile}
-                    onFileSelect={setCurrentFile}
-                    aiService={aiService}
-                    workspaceContext={workspaceContext || undefined}
-                    getFileContext={getFileContext}
-                    settings={editorSettings}
-                    liveStream={liveStream}
-                    onEditorMount={handleEditorMount}
-                  />
-                  {previewOpen && (
-                    <PreviewPanel
-                      code={currentFile.content}
-                      fileName={currentFile.name}
-                      language={currentFile.language}
-                      onClose={() => setPreviewOpen(false)}
-                    />
-                  )}
-                </>
-              ) : (
-                <WelcomeScreen
-                  onOpenFolder={handleOpenFolder}
-                  onCreateFile={handleCreateFile}
-                  onOpenAIChat={() => setAiChatOpen(true)}
-                  onShowSettings={() => setSettingsOpen(true)}
-                  workspaceContext={workspaceContext}
-                  isIndexing={isIndexing}
-                  indexingProgress={indexingProgress}
+  <Router>
+  <AppContainer data-testid="app-container" >
+    <TitleBar
+            onSettingsClick={ () => setSettingsOpen(true) }
+onNewFile = { handleNewFile }
+onOpenFolder = { handleOpenFolderDialog }
+onSaveAll = { handleSaveAll }
+onCloseFolder = { handleCloseFolder }
+onScreenshotToCode = {() => setActiveVisualPanel(activeVisualPanel === 'screenshot' ? 'none' : 'screenshot')}
+onToggleSidebar = {() => setSidebarOpen(!sidebarOpen)}
+onToggleAIChat = {() => setAiChatOpen(!aiChatOpen)}
+onTogglePreview = {() => setPreviewOpen(!previewOpen)}
+onToggleBackgroundPanel = {() => setBackgroundPanelOpen(!backgroundPanelOpen)}
+previewOpen = { previewOpen }
+  >
+  <ModelSelector
+              currentModel={ currentModel }
+onModelChange = { handleModelChange }
+  />
+  </TitleBar>
+  <MainContent>
+{
+  sidebarOpen && (
+    <Sidebar
+                  workspaceFolder={ workspaceFolder }
+  onOpenFile = { handleOpenFile }
+  onToggleAIChat = {() => setAiChatOpen(!aiChatOpen)
+}
+aiChatOpen = { aiChatOpen }
+fileSystemService = { fileSystemService }
+onDeleteFile = { handleDeleteFile }
+onOpenFolder = { handleOpenFolderDialog }
+onShowSettings = {() => setSettingsOpen(true)}
                 />
               )}
-            </EditorSection>
 
-            {aiChatOpen && (
-              <Suspense fallback={<div>Loading AI Chat...</div>}>
-                <LazyAIChat
-                  data-testid="ai-chat"
-                  messages={aiMessages}
-                  onSendMessage={handleAIMessage}
-                  onClose={() => setAiChatOpen(false)}
-                  showReasoningProcess={editorSettings.showReasoningProcess}
-                  currentModel={editorSettings.aiModel}
-                  mode={chatMode}
-                  onModeChange={setChatMode}
-                  taskPlanner={taskPlanner}
-                  executionEngine={executionEngine}
-                  workspaceContext={
-                    workspaceFolder
-                      ? {
-                        workspaceRoot: workspaceFolder,
-                        currentFile: currentFile?.path,
-                        openFiles: openFiles.map((f) => f.path),
-                        recentFiles: openFiles.slice(0, 5).map((f) => f.path),
-                      }
-                      : undefined
-                  }
-                  onAddMessage={addAiMessage}
-                  onUpdateMessage={updateAiMessage}
-                  onFileChanged={(filePath, action) => {
-                    logger.debug('[App] Agent file changed:', filePath, action);
-                    if (action === 'created' || action === 'modified') {
-                      // Open the file in editor
-                      handleOpenFile(filePath);
-                      // Immediately refresh workspace index to show new files in explorer
-                      if (workspaceFolder) {
-                        refreshIndex().catch(err => logger.error('[App] Failed to refresh workspace:', err));
-                      }
-                    }
-                  }}
-                  onTaskComplete={(task) => {
-                    showSuccess('Task Completed', `Successfully executed: ${task.title}`);
-                  }}
-                  onTaskError={(task, error) => {
-                    showError('Task Failed', `Failed to execute ${task.title}: ${error.message}`);
-                  }}
-                  onTaskStart={handleTaskStart}
-                  onStepStart={handleStepStart}
-                  onStepComplete={handleStepComplete}
-                  onTaskCompleteCallback={handleTaskComplete}
-                />
-              </Suspense>
-            )}
+<EditorSection>
+  {
+    currentFile?(
+                  <>
+  <LazyEditor
+                      file={ currentFile }
+openFiles = { openFiles }
+onFileChange = { handleFileChange }
+onCloseFile = { handleCloseFile }
+onSaveFile = { handleSaveFile }
+onFileSelect = { setCurrentFile }
+aiService = { aiService }
+workspaceContext = { workspaceContext || undefined}
+getFileContext = { getFileContext }
+settings = { editorSettings }
+liveStream = { liveStream }
+onEditorMount = { handleEditorMount }
+  />
+  { previewOpen && (
+    <PreviewPanel
+                        code={ currentFile.content }
+filename = { currentFile.name }
+language = { currentFile.language }
+onClose = {() => setPreviewOpen(false)}
+                      />
+                    )}
+</>
+                ) : (
+  <WelcomeScreen
+                    onOpenFolder= { handleOpenFolder }
+onCreateFile = { handleCreateFile }
+onOpenAIChat = {() => setAiChatOpen(true)}
+onShowSettings = {() => setSettingsOpen(true)}
+workspaceContext = { workspaceContext }
+isIndexing = { isIndexing }
+indexingProgress = { indexingProgress }
+  />
+                )}
+</EditorSection>
 
-            {gitPanelOpen && <GitPanel workingDirectory={workspaceFolder || undefined} />}
+{
+  aiChatOpen && (
+    <Suspense fallback={ <div>Loading AI Chat...</div> }>
+      <LazyAIChat
+                    data-testid="ai-chat"
+  messages = { aiMessages }
+  onSendMessage = { handleAIMessage }
+  onClose = {() => setAiChatOpen(false)
+}
+showReasoningProcess = { editorSettings.showReasoningProcess }
+currentModel = { editorSettings.aiModel }
+mode = { chatMode }
+onModeChange = { setChatMode }
+taskPlanner = { taskPlanner }
+executionEngine = { executionEngine }
+{...(workspaceFolder ? {
+  workspaceContext: {
+    workspaceRoot: workspaceFolder,
+    openFiles: openFiles.map((f) => f.path),
+    recentFiles: openFiles.slice(0, 5).map((f) => f.path),
+    ...(currentFile?.path ? { currentFile: currentFile.path } : {}),
+  }
+} : {})
+}
+onAddMessage = { addAiMessage }
+onUpdateMessage = { updateAiMessage }
+onFileChanged = {(filePath, action) => {
+  logger.debug('[App] Agent file changed:', filePath, action);
+  if (action === 'created' || action === 'modified') {
+    // Open the file in editor
+    handleOpenFile(filePath);
+    // Immediately refresh workspace index to show new files in explorer
+    if (workspaceFolder) {
+      refreshIndex().catch(err => logger.error('[App] Failed to refresh workspace:', err));
+    }
+  }
+}}
+onTaskComplete = {(task) => {
+  showSuccess('Task Completed', `Successfully executed: ${task.title}`);
+}}
+onTaskError = {(task, error) => {
+  showError('Task Failed', `Failed to execute ${task.title}: ${error.message}`);
+}}
+onTaskStart = { handleTaskStart }
+onStepStart = { handleStepStart }
+onStepComplete = { handleStepComplete }
+onTaskCompleteCallback = { handleTaskComplete }
+  />
+  </Suspense>
+              )}
 
-            {learningPanelOpen && dbService && (
-              <div style={{
-                position: 'fixed',
-                right: 0,
-                top: '40px',
-                bottom: '40px',
-                width: '400px',
+{ gitPanelOpen && <LazyGitPanel workingDirectory={ workspaceFolder || undefined } /> }
+
+{
+  learningPanelOpen && dbService && (
+    <div style={
+    {
+      position: 'fixed',
+        right: 0,
+          top: '40px',
+            bottom: '40px',
+              width: '400px',
                 zIndex: 1000,
-                background: '#1e1e1e',
-                borderLeft: '1px solid #3e3e3e',
-                boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.3)',
-              }}>
-                <LearningPanel
-                  databaseService={dbService}
-                  onClose={() => setLearningPanelOpen(false)}
+                  background: '#1e1e1e',
+                    borderLeft: '1px solid #3e3e3e',
+                      boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.3)',
+                  }
+  }>
+    <LearningPanel
+                    databaseService={ dbService }
+  onClose = {() => setLearningPanelOpen(false)
+}
+                  />
+  </div>
+              )}
+
+{
+  backgroundPanelOpen && (
+    <BackgroundTaskPanel
+                  backgroundAgent={ backgroundAgentSystem }
+  onTaskClick = {(task) => {
+    logger.debug('[App] Background task clicked:', task);
+    // Optional: Show task details in a modal or expand inline
+  }
+}
                 />
-              </div>
-            )}
+              )}
+</MainContent>
 
-            {backgroundPanelOpen && (
-              <BackgroundTaskPanel
-                backgroundAgent={backgroundAgentSystem}
-                onTaskClick={(task) => {
-                  logger.debug('[App] Background task clicked:', task);
-                  // Optional: Show task details in a modal or expand inline
-                }}
-              />
-            )}
-          </MainContent>
-
-          <StatusBar
-            currentFile={currentFile}
-            aiChatOpen={aiChatOpen}
-            backgroundPanelOpen={backgroundPanelOpen}
-            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-            onToggleAIChat={() => setAiChatOpen(!aiChatOpen)}
-            onToggleBackgroundPanel={() => setBackgroundPanelOpen(!backgroundPanelOpen)}
-            onOpenAgentMode={() => {
-              if (!aiChatOpen) { setAiChatOpen(true); }
-              setChatMode('agent');
-            }}
-            onOpenComposerMode={() => {
-              if (!aiChatOpen) { setAiChatOpen(true); }
-              setChatMode('composer');
-            }}
-            onOpenTerminal={() => {/* Terminal disabled */ }}
-            onToggleScreenshot={handleToggleScreenshotPanel}
-            onToggleLibrary={handleToggleComponentLibrary}
-            onToggleVisualEditor={handleToggleVisualEditor}
-            onToggleLearningPanel={() => setLearningPanelOpen(!learningPanelOpen)}
+  < StatusBar
+currentFile = { currentFile }
+aiChatOpen = { aiChatOpen }
+backgroundPanelOpen = { backgroundPanelOpen }
+onToggleSidebar = {() => setSidebarOpen(!sidebarOpen)}
+onToggleAIChat = {() => setAiChatOpen(!aiChatOpen)}
+onToggleBackgroundPanel = {() => setBackgroundPanelOpen(!backgroundPanelOpen)}
+onOpenAgentMode = {() => {
+  if (!aiChatOpen) { setAiChatOpen(true); }
+  setChatMode('agent');
+}}
+onOpenComposerMode = {() => {
+  if (!aiChatOpen) { setAiChatOpen(true); }
+  setChatMode('composer');
+}}
+onOpenTerminal = {() => {/* Terminal disabled */ }}
+onToggleScreenshot = { handleToggleScreenshotPanel }
+onToggleLibrary = { handleToggleComponentLibrary }
+onToggleVisualEditor = { handleToggleVisualEditor }
+onToggleLearningPanel = {() => setLearningPanelOpen(!learningPanelOpen)}
           />
 
-          <NotificationContainer notifications={notifications} onClose={removeNotification} />
+  < NotificationContainer notifications = { notifications } onClose = { removeNotification } />
 
 
-          {/* Real-time Task Execution Panel */}
-          <TaskExecutionPanel
-            currentStep={currentExecutingStep}
-            totalSteps={totalSteps}
-            currentStepIndex={currentStepIndex}
-            isExecuting={isTaskExecuting}
+    {/* Real-time Task Execution Panel */ }
+    < LazyTaskExecutionPanel
+currentStep = { currentExecutingStep }
+totalSteps = { totalSteps }
+currentStepIndex = { currentStepIndex }
+isExecuting = { isTaskExecuting }
+  />
+  {/* PHASE 7: Live Editor Streaming Control Panel */ }
+  < EditorStreamPanel
+isStreaming = { liveStream.isCurrentlyStreaming() }
+onApprove = {(filePath) => {
+  logger.debug(`[App] Approved changes for: ${filePath}`);
+  showSuccess('Changes Approved', `Applied changes to ${filePath}`);
+}}
+onReject = {(filePath) => {
+  logger.debug(`[App] Rejected changes for: ${filePath}`);
+  showWarning('Changes Rejected', `Discarded changes to ${filePath}`);
+}}
           />
-          {/* PHASE 7: Live Editor Streaming Control Panel */}
-          <EditorStreamPanel
-            isStreaming={liveStream.isCurrentlyStreaming()}
-            onApprove={(filePath) => {
-              logger.debug(`[App] Approved changes for: ${filePath}`);
-              showSuccess('Changes Approved', `Applied changes to ${filePath}`);
-            }}
-            onReject={(filePath) => {
-              logger.debug(`[App] Rejected changes for: ${filePath}`);
-              showWarning('Changes Rejected', `Discarded changes to ${filePath}`);
-            }}
-          />
 
-          {/* Auto-Fix Error Panel */}
-          {errorFixPanelOpen && currentError && (
-            <div style={{
-              position: 'fixed',
-              bottom: '80px',
-              right: '20px',
-              zIndex: 2000,
+{/* Auto-Fix Error Panel */ }
+{
+  errorFixPanelOpen && currentError && (
+    <div style={
+    {
+      position: 'fixed',
+        bottom: '80px',
+          right: '20px',
+            zIndex: 2000,
               maxWidth: '600px',
-            }}>
-              <ErrorFixPanel
-                error={currentError}
-                fix={currentFix}
-                isLoading={fixLoading}
-                errorMessage={fixError}
-                showDiff={true}
-                onApplyFix={handleApplyFix}
-                onDismiss={() => {
-                  setErrorFixPanelOpen(false);
-                  setCurrentError(null);
-                  setCurrentFix(null);
-                }}
-                onRetry={() => {
-                  if (currentError && editorRef.current && autoFixServiceRef.current) {
-                    setFixLoading(true);
-                    setFixError('');
-                    autoFixServiceRef.current.generateFix(currentError, editorRef.current)
-                      .then((fix) => {
-                        setCurrentFix(fix);
-                        setFixLoading(false);
-                      })
-                      .catch((err) => {
-                        setFixError(err.message || 'Failed to generate fix');
-                        setFixLoading(false);
-                      });
-                  }
-                }}
-              />
-            </div>
-          )}
-
-          <Suspense fallback={<div>Loading Settings...</div>}>
-            <LazySettings
-              isOpen={settingsOpen}
-              onClose={() => setSettingsOpen(false)}
-              settings={editorSettings}
-              onSettingsChange={async (newSettings) => {
-                updateEditorSettings(newSettings);
-                // Update AI service if model changed
-                if (newSettings.aiModel && newSettings.aiModel !== editorSettings.aiModel) {
-                  try {
-                    await aiService.setModel(newSettings.aiModel);
-                    showSuccess('Settings Updated', 'Your preferences have been saved');
-                  } catch (error) {
-                    showError(
-                      'Model Error',
-                      error instanceof Error ? error.message : 'Failed to update AI model'
-                    );
-                  }
-                } else {
-                  showSuccess('Settings Updated', 'Your preferences have been saved');
                 }
-              }}
-            />
-          </Suspense>
+  }>
+    <ErrorFixPanel
+                  error={ currentError }
+  fix = { currentFix }
+  isLoading = { fixLoading }
+  errorMessage = { fixError }
+  showDiff = { true}
+  onApplyFix = { handleApplyFix }
+  onDismiss = {() => {
+    setErrorFixPanel(false);
+    setCurrentError(null);
+    setCurrentFix(null);
+  }
+}
+onRetry = {() => {
+  if (currentError && editorRef.current && autoFixServiceRef.current) {
+    setFixLoading(true);
+    setFixError('');
+    autoFixServiceRef.current.generateFix(currentError, editorRef.current)
+      .then((fix) => {
+        setCurrentFix(fix);
+        setFixLoading(false);
+      })
+      .catch((err) => {
+        setFixError(err.message || 'Failed to generate fix');
+        setFixLoading(false);
+      });
+  }
+}}
+                />
+  </div>
+            )}
 
-          <Suspense fallback={<div>Loading Command Palette...</div>}>
-            <LazyCommandPalette
-              isOpen={commandPaletteOpen}
-              onClose={() => setCommandPaletteOpen(false)}
-              commands={commands}
+<Suspense fallback={ <div>Loading Settings...</div> }>
+  <LazySettings
+              isOpen={ settingsOpen }
+onClose = {() => setSettingsOpen(false)}
+settings = { editorSettings }
+onSettingsChange = { async(newSettings) => {
+  updateEditorSettings(newSettings);
+  // Update AI service if model changed
+  if (newSettings.aiModel && newSettings.aiModel !== editorSettings.aiModel) {
+    try {
+      await aiService.setModel(newSettings.aiModel);
+      showSuccess('Settings Updated', 'Your preferences have been saved');
+    } catch (error) {
+      showError(
+        'Model Error',
+        error instanceof Error ? error.message : 'Failed to update AI model'
+      );
+    }
+  } else {
+    showSuccess('Settings Updated', 'Your preferences have been saved');
+  }
+}}
             />
-          </Suspense>
+  </Suspense>
 
-          {/* Global Search */}
-          <GlobalSearch
-            isOpen={globalSearchOpen}
-            onClose={() => setGlobalSearchOpen(false)}
-            onOpenFile={handleOpenFileFromSearch}
-            onReplaceInFile={handleReplaceInFile}
-            workspaceFiles={openFiles.map(f => f.path) || []}
+  < Suspense fallback = {< div > Loading Command Palette...</div>}>
+    <LazyCommandPalette
+              isOpen={ commandPaletteOpen }
+onClose = {() => setCommandPaletteOpen(false)}
+commands = { commands }
+  />
+  </Suspense>
+
+{/* Global Search */ }
+<GlobalSearch
+            isOpen={ globalSearchOpen }
+onClose = {() => setGlobalSearchOpen(false)}
+onOpenFile = { handleOpenFileFromSearch }
+onReplaceInFile = { handleReplaceInFile }
+workspaceFiles = { openFiles.map(f => f.path) || [] }
+  />
+
+  {/* Keyboard Shortcuts */ }
+  < KeyboardShortcuts
+isOpen = { keyboardShortcutsOpen }
+onClose = {() => setKeyboardShortcutsOpen(false)}
           />
 
-          {/* Keyboard Shortcuts */}
-          <KeyboardShortcuts
-            isOpen={keyboardShortcutsOpen}
-            onClose={() => setKeyboardShortcutsOpen(false)}
-          />
+{/* Cross-App Command Palette - P3 Integration */ }
+{
+  crossAppPaletteOpen && (
+    <CrossAppCommandPalette onClose={ () => setCrossAppPaletteOpen(false) } />
+            )
+}
 
-          {/* Cross-App Command Palette - P3 Integration */}
-          {crossAppPaletteOpen && (
-            <CrossAppCommandPalette onClose={() => setCrossAppPaletteOpen(false)} />
-          )}
+{/* Task Intelligence Panel - P3 Integration */ }
+{
+  taskPanelOpen && (
+    <TaskPanel onClose={ () => setTaskPanelOpen(false) } />
+            )
+}
 
-          {/* Task Intelligence Panel - P3 Integration */}
-          {taskPanelOpen && (
-            <TaskPanel onClose={() => setTaskPanelOpen(false)} />
-          )}
-
-          {/* Composer Mode */}
-          <ComposerMode
-            isOpen={composerModeOpen}
-            onClose={() => setComposerModeOpen(false)}
-            onApplyChanges={handleComposerModeApply}
-            workspaceContext={{
-              recentFiles: openFiles.map(f => f.path),
-              openFiles: openFiles.map(f => f.path),
-              gitBranch: 'main', // TODO: Get from Git service
+{/* Composer Mode */ }
+<LazyComposerMode
+            isOpen={ composerModeOpen }
+onClose = {() => setComposerModeOpen(false)}
+onApplyChanges = { handleComposerModeApply }
+workspaceContext = {{
+  recentFiles: openFiles.map(f => f.path),
+    openFiles: openFiles.map(f => f.path),
+      gitBranch: 'main', // TODO: Get from Git service
             }}
-            currentModel={currentModel}
-            initialFiles={openFiles.map(f => ({
-              id: f.path,
-              path: f.path,
-              content: f.content,
-              originalContent: f.content,
-              language: f.language,
-              isDirty: false,
-              isNew: false,
-            }))}
-          />
+currentModel = { currentModel }
+initialFiles = {
+  openFiles.map(f => ({
+    id: f.path,
+    path: f.path,
+    content: f.content,
+    originalContent: f.content,
+    language: f.language,
+    isDirty: false,
+    isNew: false,
+  }))
+}
+  />
 
-          {/* Visual No-Code Panels */}
-          <AnimatePresence>
-            {activeVisualPanel === 'screenshot' && (
-              <motion.div
-                initial={{ opacity: 0, x: 300 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 300 }}
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: '450px',
-                  zIndex: 100,
-                  boxShadow: '-4px 0 20px rgba(0,0,0,0.3)',
-                }}
-              >
-                <ScreenshotToCodePanel
-                  apiKey={deepseekApiKey}
-                  onInsertCode={handleInsertCode}
-                />
-              </motion.div>
-            )}
-
-            {activeVisualPanel === 'library' && (
-              <motion.div
-                initial={{ opacity: 0, x: 300 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 300 }}
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: '450px',
-                  zIndex: 100,
-                  boxShadow: '-4px 0 20px rgba(0,0,0,0.3)',
-                }}
-              >
-                <ComponentLibrary onInsertComponent={handleInsertCode} />
-              </motion.div>
-            )}
-
-            {activeVisualPanel === 'visual' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  zIndex: 200,
-                  background: 'rgba(0,0,0,0.95)',
-                }}
-              >
-                <VisualEditor
-                  onSave={(elements, code) => {
-                    handleInsertCode(code);
-                    setActiveVisualPanel('none');
+  {/* Visual No-Code Panels */ }
+  <AnimatePresence>
+{
+  activeVisualPanel === 'screenshot' && (
+    <motion.div
+                  initial={ { opacity: 0, x: 300 } }
+  animate = {{ opacity: 1, x: 0 }
+}
+exit = {{ opacity: 0, x: 300 }}
+style = {{
+  position: 'absolute',
+    right: 0,
+      top: 0,
+        bottom: 0,
+          width: '450px',
+            zIndex: 100,
+              boxShadow: '-4px 0 20px rgba(0,0,0,0.3)',
                   }}
-                />
-              </motion.div>
-            )}
+                >
+  <LazyScreenshotToCodePanel
+                    apiKey={ deepseekApiKey }
+onInsertCode = { handleInsertCode }
+  />
+  </motion.div>
+              )}
 
-            {/* Multi-File Edit Approval Panel */}
-            {multiFileApprovalOpen && multiFileEditPlan && (
-              <MultiFileEditApprovalPanel
-                plan={multiFileEditPlan}
-                changes={multiFileChanges}
-                onApply={handleApplyMultiFileChanges}
-                onReject={handleRejectMultiFileChanges}
-              />
-            )}
-          </AnimatePresence>
+{
+  activeVisualPanel === 'library' && (
+    <motion.div
+                  initial={ { opacity: 0, x: 300 } }
+  animate = {{ opacity: 1, x: 0 }
+}
+exit = {{ opacity: 0, x: 300 }}
+style = {{
+  position: 'absolute',
+    right: 0,
+      top: 0,
+        bottom: 0,
+          width: '450px',
+            zIndex: 100,
+              boxShadow: '-4px 0 20px rgba(0,0,0,0.3)',
+                  }}
+                >
+  <LazyComponentLibrary onInsertComponent={ handleInsertCode } />
+    </motion.div>
+              )}
 
-          {/* Terminal Panel */}
-          <TerminalPanel
-            isOpen={terminalOpen}
-            onClose={() => setTerminalOpen(false)}
+{
+  activeVisualPanel === 'visual' && (
+    <motion.div
+                  initial={ { opacity: 0 } }
+  animate = {{ opacity: 1 }
+}
+exit = {{ opacity: 0 }}
+style = {{
+  position: 'absolute',
+    left: 0,
+      top: 0,
+        right: 0,
+          bottom: 0,
+            zIndex: 200,
+              background: 'rgba(0,0,0,0.95)',
+                  }}
+                >
+  <LazyVisualEditor
+                    onSave={
+  (elements, code) => {
+    handleInsertCode(code);
+    setActiveVisualPanel('none');
+  }
+}
+                  />
+  </motion.div>
+              )}
+
+{/* Multi-File Edit Approval Panel */ }
+{
+  multiFileApprovalOpen && multiFileEditPlan && (
+    <LazyMultiFileEditApprovalPanel
+                  plan={ multiFileEditPlan }
+  changes = { multiFileChanges }
+  onApply = { handleApplyMultiFileChanges }
+  onReject = { handleRejectMultiFileChanges }
+    />
+              )
+}
+</AnimatePresence>
+
+{/* Terminal Panel */ }
+<LazyTerminalPanel
+            isOpen={ terminalOpen }
+onClose = {() => setTerminalOpen(false)}
           />
-        </AppContainer>
-      </Router>
-    </ModernErrorBoundary>
+  </AppContainer>
+  </Router>
+  </ModernErrorBoundary>
   );
 }
 
 export default App;
+

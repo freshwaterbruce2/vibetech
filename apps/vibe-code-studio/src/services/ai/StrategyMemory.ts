@@ -10,6 +10,7 @@
  * @see Phase 4: ReActExecutor for cycle generation
  */
 import { logger } from '../../services/Logger';
+import { databaseService } from '../../services/DatabaseService';
 import {
   ActionType,
   AgentStep,
@@ -74,6 +75,19 @@ export class StrategyMemory {
       logger.debug(`[StrategyMemory] Updated existing pattern: ${problemSignature}`);
       logger.debug(`[StrategyMemory]   Usage count: ${existingPattern.usageCount}`);
       logger.debug(`[StrategyMemory]   Confidence: ${existingPattern.confidence}%`);
+
+      // Log pattern reuse as knowledge (only on every 5th use to avoid spam)
+      if (existingPattern.usageCount % 5 === 0) {
+        await databaseService.addKnowledge({
+          title: `Pattern Reused: ${existingPattern.problemDescription}`,
+          content: `Successfully reused ${existingPattern.usageCount} times\nConfidence: ${existingPattern.confidence}%\nSuccess Rate: ${existingPattern.successRate}%`,
+          category: 'pattern_reuse',
+          tags: ['pattern', 'reuse', `usage-${existingPattern.usageCount}`, 'validated'],
+          source: 'strategy_memory'
+        }).catch(dbError => {
+          logger.warn('[StrategyMemory] Failed to log pattern reuse:', dbError);
+        });
+      }
     } else {
       // Create new pattern
       const newPattern: StrategyPattern = {
@@ -97,6 +111,17 @@ export class StrategyMemory {
       logger.debug(`[StrategyMemory] ✅ Stored new pattern: ${problemSignature}`);
       logger.debug(`[StrategyMemory]   Approach: ${newPattern.successfulApproach}`);
       logger.debug(`[StrategyMemory]   Confidence: ${newPattern.confidence}%`);
+
+      // Log successful strategy pattern as knowledge
+      await databaseService.addKnowledge({
+        title: `Strategy Pattern: ${newPattern.problemDescription}`,
+        content: `Approach: ${newPattern.successfulApproach}\nConfidence: ${newPattern.confidence}%\nAction Type: ${newPattern.actionType}\nProblem Signature: ${problemSignature}`,
+        category: 'strategy_pattern',
+        tags: ['pattern', String(newPattern.actionType), 'success', 'reusable', 'strategy-memory'],
+        source: 'strategy_memory'
+      }).catch(dbError => {
+        logger.warn('[StrategyMemory] Failed to log pattern to database:', dbError);
+      });
     }
 
     // Enforce max patterns limit (remove oldest, least used)

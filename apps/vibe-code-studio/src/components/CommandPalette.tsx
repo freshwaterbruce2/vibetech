@@ -58,7 +58,7 @@ const SearchContainer = styled.div`
   gap: ${vibeTheme.spacing.md};
 `;
 
-const SearchIcon = styled(Search)`
+const SearchIcon = styled(Search as any)`
   width: 20px;
   height: 20px;
   color: ${vibeTheme.colors.textMuted};
@@ -241,7 +241,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
   );
 
   const formatShortcut = (shortcut: string) => {
-    return shortcut.split('+').map((key, i) => <Key key={i}>{key}</Key>);
+    return shortcut.split('+').map((key, i) => <Key key={ i } > { key } </Key>);
   };
 
   if (!isOpen) {
@@ -251,56 +251,64 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
   let commandIndex = 0;
 
   return (
-    <Overlay $isOpen={isOpen} onClick={onClose}>
-      <Container onClick={(e) => e.stopPropagation()}>
+    <Overlay $isOpen= { isOpen } onClick = { onClose } >
+      <Container onClick={ (e) => e.stopPropagation() }>
         <SearchContainer>
-          <SearchIcon />
-          <SearchInput
-            ref={inputRef}
-            type="text"
-            placeholder="Type a command or search..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setActiveIndex(0);
-            }}
+        <SearchIcon />
+        < SearchInput
+  ref = { inputRef }
+  type = "text"
+  placeholder = "Type a command or search..."
+  value = { search }
+  onChange = {(e) => {
+  setSearch(e.target.value);
+  setActiveIndex(0);
+}}
           />
-        </SearchContainer>
+  </SearchContainer>
 
-        <CommandList>
-          {Object.entries(groupedCommands).map(([category, categoryCommands]) => (
-            <div key={category}>
-              <CommandCategory>{category}</CommandCategory>
-              {categoryCommands.map((cmd) => {
-                const currentIndex = commandIndex++;
-                return (
-                  <CommandItem
-                    key={cmd.id}
-                    $isActive={currentIndex === activeIndex}
-                    onClick={() => {
-                      cmd.action();
-                      onClose();
-                    }}
-                    onMouseEnter={() => setActiveIndex(currentIndex)}
+  <CommandList>
+{
+  Object.entries(groupedCommands).map(([category, categoryCommands]) => (
+    <div key= { category } >
+    <CommandCategory>{ category } </CommandCategory>
+              {
+      categoryCommands.map((cmd) => {
+        const currentIndex = commandIndex++;
+        return (
+          <CommandItem
+                    key= { cmd.id }
+        $isActive = { currentIndex === activeIndex
+      }
+                    onClick = {() => {
+        cmd.action();
+        onClose();
+      }}
+                    onMouseEnter = {() => setActiveIndex(currentIndex)}
                   >
-                    <CommandIcon>{cmd.icon || <Command />}</CommandIcon>
-                    <CommandContent>
-                      <CommandTitle>{cmd.title}</CommandTitle>
-                      {cmd.description && (
-                        <CommandDescription>{cmd.description}</CommandDescription>
-                      )}
-                    </CommandContent>
-                    {cmd.shortcut && (
-                      <CommandShortcut>{formatShortcut(cmd.shortcut)}</CommandShortcut>
-                    )}
-                  </CommandItem>
+  <CommandIcon>{
+    cmd.icon || <Command />}</CommandIcon >
+      <CommandContent>
+      <CommandTitle>{ cmd.title } </CommandTitle>
+                      {
+  cmd.description && (
+    <CommandDescription>{ cmd.description } </CommandDescription>
+  )
+}
+</CommandContent>
+{
+  cmd.shortcut && (
+    <CommandShortcut>{ formatShortcut(cmd.shortcut) } </CommandShortcut>
+  )
+}
+</CommandItem>
                 );
               })}
-            </div>
+</div>
           ))}
-        </CommandList>
-      </Container>
-    </Overlay>
+</CommandList>
+  </Container>
+  </Overlay>
   );
 };
 

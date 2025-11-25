@@ -34,7 +34,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
     const currentValue = value !== undefined ? value : internalValue;
 
     const handleValueChange = (newValue: string) => {
-      if (disabled) {return;}
+      if (disabled) { return; }
       if (value === undefined) {
         setInternalValue(newValue);
       }
@@ -43,18 +43,19 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
 
     return (
       <RadioGroupContext.Provider
-        value={{
-          value: currentValue,
-          onValueChange: handleValueChange,
+        value= {{
+      value: currentValue,
+        onValueChange: handleValueChange,
           disabled,
           name,
-        }}
+        }
+  }
       >
-        <StyledRadioGroup ref={ref} className={className} role="radiogroup">
-          {children}
-        </StyledRadioGroup>
-      </RadioGroupContext.Provider>
-    );
+  <StyledRadioGroup ref={ ref } className = { className } role = "radiogroup" >
+  { children as any }
+  </StyledRadioGroup>
+  </RadioGroupContext.Provider>
+);
   }
 );
 
@@ -143,28 +144,28 @@ export const RadioGroupItem = forwardRef<HTMLInputElement, RadioGroupItemProps>(
 
     return (
       <RadioItemContainer>
-        <HiddenRadio
-          ref={ref}
-          id={inputId}
-          name={context.name}
-          value={value}
-          checked={isChecked}
-          disabled={isDisabled}
-          onChange={handleChange}
-          {...props}
+      <HiddenRadio
+          ref= { ref }
+    id = { inputId }
+    name = { context.name }
+    value = { value }
+    checked = { isChecked }
+    disabled = { isDisabled }
+    onChange = { handleChange }
+    {...props}
         />
-        <CustomRadio
-          className="radio-custom"
-          $checked={isChecked}
-          $disabled={isDisabled}
-          onClick={handleChange}
-        />
-        {children && (
-          <RadioLabel htmlFor={inputId} onClick={handleChange}>
-            {children}
-          </RadioLabel>
+  < CustomRadio
+className = "radio-custom"
+$checked = { isChecked }
+$disabled = { isDisabled }
+onClick = { handleChange }
+  />
+  { children && (
+    <RadioLabel htmlFor={ inputId } onClick = { handleChange } >
+      { children as any }
+      </RadioLabel>
         )}
-      </RadioItemContainer>
+</RadioItemContainer>
     );
   }
 );

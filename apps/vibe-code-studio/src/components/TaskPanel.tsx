@@ -6,7 +6,11 @@
 import React, { useState, useEffect } from 'react';
 import { taskIntelligenceService, Task, TaskInsights } from '../services/TaskIntelligenceService';
 
-export const TaskPanel: React.FC = () => {
+interface TaskPanelProps {
+    onClose?: () => void;
+}
+
+export const TaskPanel: React.FC<TaskPanelProps> = ({ onClose }) => {
     const [currentTask, setCurrentTask] = useState<Task | null>(null);
     const [insights, setInsights] = useState<TaskInsights | null>(null);
     const [activeTasks, setActiveTasks] = useState<Task[]>([]);
@@ -48,119 +52,147 @@ export const TaskPanel: React.FC = () => {
 
     if (!apiAvailable) {
         return (
-            <div className="task-panel task-panel-unavailable">
-                <h3>📋 Task Intelligence</h3>
-                <p className="status-message">
+            <div className= "task-panel task-panel-unavailable" >
+            <h3>📋 Task Intelligence </h3>
+                < p className = "status-message" >
                     Task Intelligence API not available
-                </p>
-                <button onClick={checkApiAvailability} className="btn-refresh">
-                    Retry Connection
-                </button>
-            </div>
+                        </p>
+                        < button onClick = { checkApiAvailability } className = "btn-refresh" >
+                            Retry Connection
+                                </button>
+                                </div>
         );
     }
 
-    return (
-        <div className="task-panel">
-            <div className="task-panel-header">
-                <h3>📋 Task Intelligence</h3>
+return (
+    <div className= "task-panel" >
+    <div className="task-panel-header" >
+        <h3>📋 Task Intelligence </h3>
+            < div style = {{ display: 'flex', gap: '8px' }}>
                 <button
-                    onClick={refreshTasks}
-                    className="btn-refresh"
-                    disabled={loading}
-                >
-                    {loading ? '⏳' : '🔄'}
-                </button>
-            </div>
+                        onClick={ refreshTasks }
+className = "btn-refresh"
+disabled = { loading }
+title = "Refresh"
+    >
+    { loading? '⏳': '🔄' }
+    </button>
+{
+    onClose && (
+        <button
+                            onClick={ onClose }
+    className = "btn-refresh"
+    title = "Close"
+        >
+                            ❌
+    </button>
+                    )
+}
+</div>
+    </div>
 
-            {currentTask ? (
-                <div className="current-task">
-                    <div className="task-header">
-                        <h4>Current Task</h4>
-                        <span className={`task-type-badge ${currentTask.task_type}`}>
-                            {currentTask.task_type}
-                        </span>
-                    </div>
+{
+    currentTask ? (
+        <div className= "current-task" >
+        <div className="task-header" >
+            <h4>Current Task </h4>
+                < span className = {`task-type-badge ${currentTask.task_type}`
+}>
+    { currentTask.task_type }
+    </span>
+    </div>
 
-                    <div className="task-info">
-                        <p><strong>ID:</strong> {currentTask.task_id}</p>
-                        <p><strong>Status:</strong> {currentTask.status}</p>
+    < div className = "task-info" >
+        <p><strong>ID: </strong> {currentTask.task_id}</p >
+            <p><strong>Status: </strong> {currentTask.status}</p >
 
-                        {insights?.completion_prediction && (
-                            <div className="prediction">
-                                <strong>⏱️ Estimated Time:</strong>
-                                <p className="prediction-value">
-                                    {insights.completion_prediction.predicted_hours.toFixed(1)} hours
-                                    <span className="confidence">
-                                        ({Math.round(insights.completion_prediction.confidence * 100)}% confident)
-                                    </span>
-                                </p>
-                                <p className="prediction-message">
-                                    {insights.completion_prediction.message}
-                                </p>
-                            </div>
-                        )}
-
-                        {insights && (
-                            <>
-                                {insights.related_mistakes.length > 0 && (
-                                    <div className="insights-section">
-                                        <strong>⚠️ Related Mistakes:</strong>
-                                        <p>{insights.related_mistakes.length} mistakes to avoid</p>
-                                    </div>
-                                )}
-
-                                {insights.related_knowledge.length > 0 && (
-                                    <div className="insights-section">
-                                        <strong>💡 Related Knowledge:</strong>
-                                        <p>{insights.related_knowledge.length} helpful insights</p>
-                                    </div>
-                                )}
-
-                                {insights.recommendations.length > 0 && (
-                                    <div className="insights-section">
-                                        <strong>✨ Recommendations:</strong>
-                                        <ul className="recommendations-list">
-                                            {insights.recommendations.map((rec, idx) => (
-                                                <li key={idx}>{rec}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
-
-                    <button
-                        onClick={() => taskIntelligenceService.stopTask(currentTask.task_id)}
-                        className="btn-stop-task"
-                    >
-                        Stop Task
-                    </button>
-                </div>
-            ) : (
-                <div className="no-current-task">
-                    <p>No active task in Vibe Code Studio</p>
-                    {activeTasks.length > 0 && (
-                        <div className="other-tasks">
-                            <h4>Active in other apps:</h4>
-                            <ul>
-                                {activeTasks.map(task => (
-                                    <li key={task.task_id}>
-                                        <span className={`task-type-badge ${task.task_type}`}>
-                                            {task.task_type}
+                { insights?.completion_prediction && (
+                    <div className="prediction" >
+                        <strong>⏱️ Estimated Time: </strong>
+                            < p className = "prediction-value" >
+                                { insights.completion_prediction.predicted_hours.toFixed(1) } hours
+                                    < span className = "confidence" >
+                                        ({ Math.round(insights.completion_prediction.confidence * 100) } % confident)
                                         </span>
-                                        {task.task_id}
-                                        <span className="app-badge">{task.app_source}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                                        </p>
+                                        < p className = "prediction-message" >
+                                            { insights.completion_prediction.message }
+                                            </p>
+                                            </div>
+                        )}
+
+{
+    insights && (
+        <>
+        {
+            insights.related_mistakes.length > 0 && (
+                <div className="insights-section">
+                    <strong>⚠️ Related Mistakes: </strong>
+                        < p > { insights.related_mistakes.length } mistakes to avoid</ p >
+        </div>
+    )
+}
+
+{
+    insights.related_knowledge.length > 0 && (
+        <div className="insights-section" >
+            <strong>💡 Related Knowledge: </strong>
+                < p > { insights.related_knowledge.length } helpful insights </p>
+                    </div>
+                                )
+}
+
+{
+    insights.recommendations.length > 0 && (
+        <div className="insights-section" >
+            <strong>✨ Recommendations: </strong>
+                < ul className = "recommendations-list" >
+                {
+                    insights.recommendations.map((rec, idx) => (
+                        <li key= { idx } > { rec } </li>
+                    ))
+                }
+                    </ul>
+                    </div>
+                                )
+}
+</>
+                        )}
+</div>
+
+    < button
+onClick = {() => taskIntelligenceService.stopTask(currentTask.task_id)}
+className = "btn-stop-task"
+    >
+    Stop Task
+        </button>
+        </div>
+            ) : (
+    <div className= "no-current-task" >
+    <p>No active task in Vibe Code Studio </p>
+{
+    activeTasks.length > 0 && (
+        <div className="other-tasks" >
+            <h4>Active in other apps: </h4>
+                <ul>
+    {
+        activeTasks.map(task => (
+            <li key= { task.task_id } >
+            <span className={`task-type-badge ${task.task_type}`}>
+                { task.task_type }
+                </span>
+    { task.task_id }
+    <span className="app-badge" > { task.app_source } </span>
+        </li>
+                                ))
+}
+</ul>
+    </div>
                     )}
-                </div>
+</div>
             )}
 
-            <style jsx>{`
+<style jsx > {`
                 .task-panel {
                     padding: 16px;
                     background: var(--vscode-editor-background);
@@ -354,6 +386,6 @@ export const TaskPanel: React.FC = () => {
                     font-size: 10px;
                 }
             `}</style>
-        </div>
+    </div>
     );
 };

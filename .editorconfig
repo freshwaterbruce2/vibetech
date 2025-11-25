@@ -1,0 +1,89 @@
+# EditorConfig for Monorepo Rules Enforcement
+# https://editorconfig.org
+# MANDATORY: All editors and AI agents must respect these settings
+
+root = true
+
+# Universal settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# CRITICAL: File size limit enforcement notice
+# ⚠️ MAX 360 LINES PER FILE - This is a HARD RULE ⚠️
+# Editors should warn when approaching this limit
+max_line_length = 120
+
+# JavaScript/TypeScript files
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_size = 2
+quote_type = single
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Python files (if any)
+[*.py]
+indent_size = 4
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Package files
+[package.json]
+indent_size = 2
+
+# Configuration files
+[.*rc]
+indent_size = 2
+
+# Git files
+[.git*]
+indent_size = 2
+
+# Special rule enforcement files
+[MONOREPO_RULES.md]
+# Never modify without authorization
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[.claude/rules.md]
+# AI agent instruction file - handle with care
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Planning documents
+[.deepcode/plans/*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Build outputs - ignore
+[dist/**]
+indent_style = ignore
+indent_size = ignore
+
+[node_modules/**]
+indent_style = ignore
+indent_size = ignore
+
+[.turbo/**]
+indent_style = ignore
+indent_size = ignore
+
+# ENFORCEMENT NOTICE
+# These settings work in conjunction with:
+# - MONOREPO_RULES.md (main rules document)
+# - .claude/rules.md (AI agent instructions)
+# - package.json scripts (automated validation)
+# - Git hooks (pre-commit enforcement)

@@ -3,6 +3,7 @@
  * Analyzes code changes and provides intelligent feedback
  */
 import { logger } from '../services/Logger';
+import { databaseService } from './DatabaseService';
 
 import type { UnifiedAIService } from './ai/UnifiedAIService';
 
@@ -213,6 +214,37 @@ export class AICodeReviewer {
 
     this.cacheReview(cacheKey, review);
 
+    // Log critical code review issues to learning database
+    const criticalIssues = comments.filter(c => c.severity === 'error');
+    for (const issue of criticalIssues) {
+      await databaseService.logMistake({
+        mistakeType: 'code_review_issue',
+        mistakeCategory: issue.category,
+        description: issue.message,
+        contextWhenOccurred: `${issue.file}:${issue.line}`,
+        impactSeverity: issue.severity === 'error' ? 'HIGH' : issue.severity === 'warning' ? 'MEDIUM' : 'LOW',
+        preventionStrategy: issue.suggestion || 'Apply best practices and review guidelines',
+        resolved: false,
+        tags: ['code-review', issue.category, 'ai-detected', issue.type]
+      }).catch(dbError => {
+        logger.warn('[AICodeReviewer] Failed to log review issue:', dbError);
+      });
+    }
+
+    // Log review insights as knowledge if review passed
+    if (verdict === 'approve' && qualityScore >= 80) {
+      const totalIssues = issueCount.errors + issueCount.warnings + issueCount.info;
+      await databaseService.addKnowledge({
+        title: 'High-Quality Code Review',
+        content: `Quality Score: ${qualityScore}%\nVerdict: ${verdict}\nIssues: ${totalIssues}\nComments: ${comments.length}`,
+        category: 'code_review',
+        tags: ['review', 'quality', 'approved', `score-${qualityScore}`],
+        source: 'ai_code_reviewer'
+      }).catch(dbError => {
+        logger.warn('[AICodeReviewer] Failed to log review knowledge:', dbError);
+      });
+    }
+
     return review;
   }
 
@@ -303,7 +335,7 @@ Respond in JSON format with keys: summary, suggestions (array), strengths (array
    */
   private analyzeLineForIssues(file: string, line: DiffLine): ReviewComment[] {
     const comments: ReviewComment[] = [];
-    const {content} = line;
+    const { content } = line;
 
     // Null reference
     if (content.match(/\bnull\s*\.\s*\w+|\.toString\(\)|\.toUpperCase\(\)/)) {
@@ -421,7 +453,7 @@ Respond in JSON format with keys: summary, suggestions (array), strengths (array
    */
   private getFromCache(key: string): CodeReview | null {
     const cached = this.reviewCache.get(key);
-    if (!cached) {return null;}
+    if (!cached) { return null; }
 
     if (Date.now() - cached.timestamp > this.cacheTimeout) {
       this.reviewCache.delete(key);

@@ -115,11 +115,13 @@ export class WorkspaceManager {
 
       if (!result.canceled && result.filePaths.length > 0) {
         const selected = result.filePaths[0];
-        this.currentWorkspace = selected;
-        this.addToRecent(selected);
-        this.saveToStorage();
-        this.emitWorkspaceChanged();
-        return selected;
+        if (selected) {
+          this.currentWorkspace = selected;
+          this.addToRecent(selected);
+          this.saveToStorage();
+          this.emitWorkspaceChanged();
+          return selected;
+        }
       }
 
       return null;
@@ -174,10 +176,10 @@ export class WorkspaceManager {
    * @returns Workspace folder name or null
    */
   getWorkspaceName(): string | null {
-    if (!this.currentWorkspace) {return null;}
+    if (!this.currentWorkspace) { return null; }
 
     // Extract folder name from path
-    const parts = this.currentWorkspace.split(/[/\\]/);
+    const parts = this.currentWorkspace.split(/[/\\]/).filter(p => p.length > 0);
     return parts[parts.length - 1] || null;
   }
 

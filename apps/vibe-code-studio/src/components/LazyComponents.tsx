@@ -52,8 +52,8 @@ export const LoadingFallback: React.FC<LoadingFallbackProps> = ({
   message = 'Loading component...',
 }) => (
   <LoadingContainer>
-    <Loader2 size={24} />
-    <LoadingText>{message}</LoadingText>
+  <Loader2 size= { 24} />
+  <LoadingText>{ message } </LoadingText>
   </LoadingContainer>
 );
 
@@ -84,14 +84,12 @@ export function withLazyLoading(
   });
 
   const WrappedComponent: React.FC<any> = (props) => (
-    <Suspense fallback={<LoadingFallback message={fallbackMessage} />}>
-      <LazyComponent {...props} />
-    </Suspense>
+    <Suspense fallback= {< LoadingFallback message = { fallbackMessage } />}>
+      <LazyComponent { ...props } />
+      </Suspense>
   );
 
-  WrappedComponent.displayName = `Lazy(${exportName || 'Component'})`;
-
-  return WrappedComponent;
+WrappedComponent.displayName = `Lazy(${exportName ?? 'Component'})`; return WrappedComponent;
 }
 
 // Lazy-loaded heavy components
@@ -103,13 +101,68 @@ export const LazySettings = lazy(() => import('./Settings'));
 
 export const LazyCommandPalette = lazy(() => import('./CommandPalette'));
 
-export const LazyErrorBoundaryExamples = lazy(() => 
+export const LazyErrorBoundaryExamples = lazy(() =>
   import('./ErrorBoundary/ErrorBoundaryExamples').then(module => ({
     default: module.ErrorBoundaryExamples
   }))
 );
 
 export const LazyAICodeEditor = lazy(() => import('./AICodeEditor'));
+
+// New Lazy Components for Phase 5 Optimization
+export const LazyVisualEditor = withLazyLoading(
+  () => import('./VisualEditor'),
+  'VisualEditor',
+  'Loading Visual Editor...'
+);
+
+export const LazyScreenshotToCodePanel = withLazyLoading(
+  () => import('./ScreenshotToCodePanel'),
+  'ScreenshotToCodePanel',
+  'Loading Screenshot Tool...'
+);
+
+export const LazyComponentLibrary = withLazyLoading(
+  () => import('./ComponentLibrary'),
+  'ComponentLibrary',
+  'Loading Component Library...'
+);
+
+export const LazyTerminalPanel = withLazyLoading(
+  () => import('./TerminalPanel'),
+  'TerminalPanel',
+  'Loading Terminal...'
+);
+
+export const LazyComposerMode = withLazyLoading(
+  () => import('./AgentMode/ComposerMode'),
+  'default',
+  'Loading Composer Mode...'
+);
+
+export const LazyMultiFileEditApprovalPanel = withLazyLoading(
+  () => import('./MultiFileEditApprovalPanel'),
+  'MultiFileEditApprovalPanel',
+  'Loading Approval Panel...'
+);
+
+export const LazyGitPanel = withLazyLoading(
+  () => import('./GitPanel'),
+  'default',
+  'Loading Git Panel...'
+);
+
+export const LazyTaskExecutionPanel = withLazyLoading(
+  () => import('./TaskExecutionPanel'),
+  'TaskExecutionPanel',
+  'Loading Task Execution...'
+);
+
+export const LazyEditor = withLazyLoading(
+  () => import('./Editor'),
+  'default',
+  'Loading Editor...'
+);
 
 // Route-based code splitting
 export const routes = {
@@ -167,6 +220,11 @@ const preloadMap = {
   settings: () => import('./Settings'),
   commandPalette: () => import('./CommandPalette'),
   aiCodeEditor: () => import('./AICodeEditor'),
+  visualEditor: () => import('./VisualEditor'),
+  screenshotToCode: () => import('./ScreenshotToCodePanel'),
+  componentLibrary: () => import('./ComponentLibrary'),
+  terminal: () => import('./TerminalPanel'),
+  composer: () => import('./AgentMode/ComposerMode'),
 };
 
 // Bundle size optimization utilities

@@ -30,7 +30,7 @@ describe('ApiKeySettings Component', () => {
     // Default mock responses
     keyManager.getStoredProviders.mockReturnValue([]);
     keyManager.validateApiKey.mockReturnValue(true);
-    keyManager.storeApiKey.mockReturnValue(true);
+    keyManager.storeApiKey.mockReturnValue({ success: true });
     keyManager.testApiKey.mockResolvedValue(true);
     keyManager.removeApiKey.mockReturnValue(true);
   });

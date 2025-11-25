@@ -1,0 +1,161 @@
+# Agent Delegation Configuration
+# This file defines which AI models handle specific tasks
+# MANDATORY: All agents must follow these role assignments
+
+version: 1.0.0
+enforcement: MANDATORY
+
+# Model Capabilities and Assignments
+agents:
+  planning:
+    primary:
+      - model: "Claude Opus 4.1"
+        capabilities:
+          - architectural_design
+          - multi_file_planning
+          - risk_assessment
+          - dependency_analysis
+          - test_strategy_design
+        restrictions:
+          - no_direct_implementation
+          - planning_documents_only
+
+      - model: "Claude Code"
+        capabilities:
+          - architectural_design
+          - multi_file_planning
+          - risk_assessment
+          - dependency_analysis
+          - test_strategy_design
+        restrictions:
+          - no_direct_implementation
+          - planning_documents_only
+
+  implementation:
+    primary:
+      - model: "Claude Sonnet 4.5"
+        capabilities:
+          - code_implementation
+          - bug_fixes
+          - refactoring
+          - test_writing
+          - documentation_updates
+        restrictions:
+          - no_architectural_decisions
+          - follow_approved_plans_only
+          - enforce_360_line_limit
+          - no_file_renaming
+
+  review:
+    primary:
+      - model: "Claude Opus 4.1"
+        capabilities:
+          - code_review
+          - architecture_validation
+          - compliance_checking
+          - performance_analysis
+        restrictions:
+          - review_only_no_implementation
+
+# Task Delegation Rules
+delegation_rules:
+  planning_threshold:
+    files_modified: 3  # 3+ files requires planning
+    complexity_indicators:
+      - new_feature
+      - breaking_change
+      - cross_module_dependency
+      - database_migration
+      - api_modification
+      - security_change
+
+  workflow:
+    - step: 1
+      name: "Assessment"
+      handler: "Any Agent"
+      actions:
+        - count_affected_files
+        - check_complexity
+        - determine_planning_need
+
+    - step: 2
+      name: "Planning"
+      handler: "Claude Opus 4.1 / Claude Code"
+      trigger: "files >= 3 OR complexity_indicator"
+      outputs:
+        - planning_document
+        - risk_assessment
+        - implementation_steps
+
+    - step: 3
+      name: "Implementation"
+      handler: "Claude Sonnet 4.5"
+      requires: "approved_plan OR files < 3"
+      constraints:
+        - max_lines_per_file: 360
+        - architecture: "modular_only"
+        - file_naming: "immutable"
+
+    - step: 4
+      name: "Review"
+      handler: "Claude Opus 4.1"
+      trigger: "implementation_complete"
+      actions:
+        - validate_compliance
+        - check_architecture
+        - verify_tests
+
+# Enforcement Mechanisms
+enforcement:
+  pre_implementation:
+    - verify_agent_role
+    - check_planning_requirement
+    - validate_file_sizes
+
+  during_implementation:
+    - monitor_line_count
+    - prevent_file_renaming
+    - enforce_modular_structure
+
+  post_implementation:
+    - validate_all_rules
+    - generate_compliance_report
+    - log_violations
+
+# Communication Protocols
+communication:
+  planning_to_implementation:
+    format: "markdown"
+    location: ".deepcode/plans/"
+    required_sections:
+      - objective
+      - affected_files
+      - implementation_steps
+      - risks
+      - testing_approach
+
+  implementation_feedback:
+    format: "json"
+    includes:
+      - files_modified
+      - lines_per_file
+      - tests_added
+      - compliance_status
+
+# Override Authority
+overrides:
+  allowed: false
+  exception_process: "None - Rules are immutable"
+
+# Monitoring and Logging
+monitoring:
+  track:
+    - agent_assignments
+    - rule_violations
+    - file_size_breaches
+    - unauthorized_renames
+
+  reports:
+    - location: ".deepcode/reports/"
+    - frequency: "per_session"
+    - format: "markdown"

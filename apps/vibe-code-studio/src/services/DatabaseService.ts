@@ -1495,5 +1495,13 @@ export class DatabaseService {
   }
 }
 
-// Export singleton instance
-export const databaseService = new DatabaseService();
+// Import the sync wrapper
+import { DatabaseServiceWithSync } from './LearningSyncService';
+
+// Create base database service
+const baseDatabaseService = new DatabaseService();
+
+// Export wrapped service with IPC sync capabilities
+// TODO: AI agents should use logMistake() and addKnowledge() methods to log learning data
+// This will automatically sync to nova-agent via IPC Bridge for real-time learning
+export const databaseService = new DatabaseServiceWithSync(baseDatabaseService);

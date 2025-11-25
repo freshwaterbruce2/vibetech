@@ -1,7 +1,7 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SecureApiKeyManager } from '../utils/SecureApiKeyManager';
 import { motion } from 'framer-motion';
-import { AlertTriangle, CheckCircle,Eye, EyeOff, Save, Shield, TestTube, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Eye, EyeOff, Save, Shield, TestTube, Trash2 } from 'lucide-react';
 import styled from 'styled-components';
 
 import { logger } from '../services/Logger';
@@ -160,7 +160,7 @@ const ButtonGroup = styled.div`
   gap: ${vibeTheme.spacing.sm};
 `;
 
-const Button = styled(motion.button)<{ variant?: 'primary' | 'secondary' | 'danger' }>`
+const Button = styled(motion.button) <{ variant?: 'primary' | 'secondary' | 'danger' }>`
   background: ${props => {
     switch (props.variant) {
       case 'primary': return vibeTheme.gradients.primary;
@@ -386,12 +386,12 @@ const ApiKeySettings: React.FC = () => {
         const expectedFormat = provider === 'deepseek'
           ? 'sk-[32+ alphanumeric characters]'
           : provider === 'openai'
-          ? 'sk-[48+ alphanumeric characters]'
-          : provider === 'anthropic'
-          ? 'sk-ant-[95+ characters]'
-          : provider === 'google'
-          ? 'AIza[35 characters]'
-          : 'valid API key format';
+            ? 'sk-[48+ alphanumeric characters]'
+            : provider === 'anthropic'
+              ? 'sk-ant-[95+ characters]'
+              : provider === 'google'
+                ? 'AIza[35 characters]'
+                : 'valid API key format';
 
         setErrors(prev => ({
           ...prev,
@@ -400,13 +400,13 @@ const ApiKeySettings: React.FC = () => {
         return;
       }
 
-      const saved = await keyManager.storeApiKey(provider, key);
-      if (saved) {
+      const result = await keyManager.storeApiKey(provider, key);
+      if (result.success) {
         setSuccesses(prev => ({ ...prev, [provider]: 'API key saved securely' }));
         setApiKeys(prev => ({ ...prev, [provider]: '' }));
         await loadApiKeyStatuses();
       } else {
-        setErrors(prev => ({ ...prev, [provider]: 'Failed to save API key. Check console for details.' }));
+        setErrors(prev => ({ ...prev, [provider]: `Failed to save API key: ${result.error || 'Unknown error'}` }));
       }
     } catch (error) {
       logger.error('[ApiKeySettings] Save error:', error);
@@ -445,136 +445,147 @@ const ApiKeySettings: React.FC = () => {
   };
 
   const getStatusBadge = (status: ApiKeyStatus) => {
-    if (!status.hasKey) {return 'unknown';}
+    if (!status.hasKey) { return 'unknown'; }
     return status.isValid ? 'valid' : 'invalid';
   };
 
   const getStatusText = (status: ApiKeyStatus) => {
-    if (!status.hasKey) {return 'Not configured';}
+    if (!status.hasKey) { return 'Not configured'; }
     return status.isValid ? 'Valid' : 'Invalid';
   };
 
   const getStatusIcon = (status: ApiKeyStatus) => {
-    if (!status.hasKey) {return <AlertTriangle size={12} />;}
-    return status.isValid ? <CheckCircle size={12} /> : <AlertTriangle size={12} />;
+    if (!status.hasKey) { return <AlertTriangle size={ 12 } />; }
+    return status.isValid ? <CheckCircle size={ 12 } /> : <AlertTriangle size={12} / >;
   };
 
   return (
     <Container>
-      <Header>
-        <Shield size={24} color={vibeTheme.colors.cyan} />
-        <Title>API Key Security Settings</Title>
-      </Header>
+    <Header>
+    <Shield size= { 24} color = { vibeTheme.colors.cyan } />
+      <Title>API Key Security Settings </Title>
+        </Header>
 
-      <SecurityNote>
-        <Shield size={16} color={vibeTheme.colors.cyan} />
-        <SecurityText>
+        < SecurityNote >
+        <Shield size={ 16 } color = { vibeTheme.colors.cyan } />
+          <SecurityText>
           All API keys are encrypted using AES-256 before being stored locally. 
           Keys are validated for format and security before storage. 
           Never share your API keys or store them in version control.
         </SecurityText>
-      </SecurityNote>
+    </SecurityNote>
 
-      {PROVIDERS.map(provider => {
-        const status = statuses[provider.id] || { provider: provider.id, hasKey: false, isValid: false };
-        
-        return (
-          <ProviderSection key={provider.id}>
-            <ProviderHeader>
-              <ProviderTitle>{provider.name}</ProviderTitle>
-              <StatusBadge $status={getStatusBadge(status)}>
-                {getStatusIcon(status)}
-                {getStatusText(status)}
-              </StatusBadge>
-            </ProviderHeader>
+  {
+    PROVIDERS.map(provider => {
+      const status = statuses[provider.id] || { provider: provider.id, hasKey: false, isValid: false };
 
-            <InputGroup>
-              <Label htmlFor={provider.id}>API Key</Label>
-              <InputWrapper>
-                <Input
-                  id={provider.id}
-                  type={showKeys[provider.id] ? 'text' : 'password'}
-                  value={apiKeys[provider.id] || ''}
-                  onChange={(e) => handleKeyChange(provider.id, e.target.value)}
-                  placeholder={provider.placeholder}
-                />
-                <IconButton
-                  onClick={() => toggleShowKey(provider.id)}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+      return (
+        <ProviderSection key= { provider.id } >
+        <ProviderHeader>
+        <ProviderTitle>{ provider.name } </ProviderTitle>
+        < StatusBadge $status = { getStatusBadge(status) } >
+          { getStatusIcon(status) }
+      { getStatusText(status) }
+      </StatusBadge>
+        </ProviderHeader>
+
+        < InputGroup >
+        <Label htmlFor={ provider.id }> API Key </Label>
+          < InputWrapper >
+          <Input
+                  id={ provider.id }
+      type = { showKeys[provider.id]? 'text' : 'password'}
+      value = { apiKeys[provider.id] || '' }
+      onChange = {(e) => handleKeyChange(provider.id, e.target.value)}
+placeholder = { provider.placeholder }
+  />
+  <IconButton
+                  onClick={ () => toggleShowKey(provider.id) }
+whileHover = {{ scale: 1.1 }}
+whileTap = {{ scale: 0.9 }}
                 >
-                  {showKeys[provider.id] ? <EyeOff size={16} /> : <Eye size={16} />}
-                </IconButton>
-              </InputWrapper>
+  { showKeys[provider.id]?<EyeOff size = { 16 } /> : <Eye size={ 16 } />}
+</IconButton>
+  </InputWrapper>
 
-              {errors[provider.id] && (
-                <ErrorMessage>{errors[provider.id]}</ErrorMessage>
-              )}
+{
+  errors[provider.id] && (
+    <ErrorMessage>{ errors[provider.id]} </ErrorMessage>
+  )
+}
 
-              {successes[provider.id] && (
-                <SuccessMessage>{successes[provider.id]}</SuccessMessage>
-              )}
-            </InputGroup>
+{
+  successes[provider.id] && (
+    <SuccessMessage>{ successes[provider.id]} </SuccessMessage>
+  )
+}
+</InputGroup>
 
-            <ButtonGroup>
-              <Button
+  < ButtonGroup >
+  <Button
                 variant="primary"
-                onClick={() => saveApiKey(provider.id)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+onClick = {() => saveApiKey(provider.id)}
+whileHover = {{ scale: 1.02 }}
+whileTap = {{ scale: 0.98 }}
               >
-                <Save size={16} />
+  <Save size={ 16 } />
                 Save Key
-              </Button>
+  </Button>
 
-              {status.hasKey && (
-                <>
-                  <Button
-                    onClick={() => testApiKey(provider.id)}
-                    disabled={testing[provider.id]}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+{
+  status.hasKey && (
+    <>
+    <Button
+                    onClick={ () => testApiKey(provider.id) }
+  disabled = { testing[provider.id]}
+  whileHover = {{ scale: 1.02 }
+}
+whileTap = {{ scale: 0.98 }}
                   >
-                    <TestTube size={16} />
-                    {testing[provider.id] ? 'Testing...' : 'Test Key'}
-                  </Button>
+  <TestTube size={ 16 } />
+{ testing[provider.id] ? 'Testing...' : 'Test Key' }
+</Button>
 
-                  <Button
-                    variant="danger"
-                    onClick={() => removeApiKey(provider.id)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+  < Button
+variant = "danger"
+onClick = {() => removeApiKey(provider.id)}
+whileHover = {{ scale: 1.02 }}
+whileTap = {{ scale: 0.98 }}
                   >
-                    <Trash2 size={16} />
-                    Remove
-                  </Button>
-                </>
+  <Trash2 size={ 16 } />
+Remove
+  </Button>
+  </>
               )}
-            </ButtonGroup>
+</ButtonGroup>
 
-            {provider.models && provider.models.length > 0 && (
-              <PricingSection>
-                <PricingTitle>Available Models & Pricing (per 1M tokens)</PricingTitle>
-                <PricingTable>
-                  <PricingHeader>Model</PricingHeader>
-                  <PricingHeader>Input</PricingHeader>
-                  <PricingHeader>Output</PricingHeader>
-                  <PricingHeader>Context</PricingHeader>
-                  {provider.models.map((model, idx) => (
-                    <React.Fragment key={idx}>
-                      <PricingCell>{model.name}</PricingCell>
-                      <PricingCell>{model.input}</PricingCell>
-                      <PricingCell>{model.output}</PricingCell>
-                      <PricingCell>{model.context}</PricingCell>
-                    </React.Fragment>
-                  ))}
-                </PricingTable>
-              </PricingSection>
-            )}
-          </ProviderSection>
+{
+  provider.models && provider.models.length > 0 && (
+    <PricingSection>
+    <PricingTitle>Available Models & Pricing(per 1M tokens) </PricingTitle>
+      < PricingTable >
+      <PricingHeader>Model </PricingHeader>
+      < PricingHeader > Input </PricingHeader>
+      < PricingHeader > Output </PricingHeader>
+      < PricingHeader > Context </PricingHeader>
+  {
+    provider.models.map((model, idx) => (
+      <React.Fragment key= { idx } >
+      <PricingCell>{ model.name } </PricingCell>
+      < PricingCell > { model.input } </PricingCell>
+      < PricingCell > { model.output } </PricingCell>
+      < PricingCell > { model.context } </PricingCell>
+      </React.Fragment>
+    ))
+  }
+  </PricingTable>
+    </PricingSection>
+            )
+}
+</ProviderSection>
         );
       })}
-    </Container>
+</Container>
   );
 };
 

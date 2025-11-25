@@ -20,13 +20,14 @@ export class TerminalService {
 
   constructor() {
     this.isElectron = typeof window !== 'undefined' &&
-                     (window as any).electron !== undefined;
+      (window as any).electron !== undefined;
   }
 
   /**
    * Create a new terminal session
    */
-  createSession(cwd: string = process.cwd()): string {
+  createSession(cwd?: string): string {
+    const effectiveCwd = cwd || (typeof process !== 'undefined' ? process.cwd() : '/');
     const id = `terminal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     const shell = this.getDefaultShell();
@@ -34,7 +35,7 @@ export class TerminalService {
     const session: TerminalSession = {
       id,
       process: null,
-      cwd,
+      cwd: effectiveCwd,
       shell,
       createdAt: new Date(),
     };
@@ -150,6 +151,10 @@ export class TerminalService {
    * Get default shell for the platform
    */
   private getDefaultShell(): string {
+    if (typeof process === 'undefined') {
+      return 'web-shell';
+    }
+
     if (process.platform === 'win32') {
       return process.env.COMSPEC || 'cmd.exe';
     } else {
@@ -179,7 +184,7 @@ export class TerminalService {
     return new Promise((resolve, reject) => {
       const shell = this.getDefaultShell();
       const proc = spawn(shell, ['-c', command], {
-        cwd: cwd || process.cwd(),
+        cwd: cwd || (typeof process !== 'undefined' ? process.cwd() : '/'),
       });
 
       let stdout = '';

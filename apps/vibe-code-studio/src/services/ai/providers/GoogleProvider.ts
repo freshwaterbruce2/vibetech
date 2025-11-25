@@ -12,7 +12,8 @@ import {
   CompletionResponse,
   IAIProvider,
   MODEL_REGISTRY,
-  StreamCompletionResponse} from '../AIProviderInterface';
+  StreamCompletionResponse
+} from '../AIProviderInterface';
 
 interface GoogleMessage {
   role: 'user' | 'model';
@@ -44,7 +45,7 @@ export class GoogleProvider implements IAIProvider {
     this.config = config;
 
     // Get API key from secure storage or config
-    const secureKeyManager = SecureApiKeyManager.getInstance(logger);
+    const secureKeyManager = SecureApiKeyManager.getInstance();
     this.apiKey = config.apiKey || await secureKeyManager.getApiKey('google') || '';
 
     if (config.baseUrl) {
@@ -63,9 +64,9 @@ export class GoogleProvider implements IAIProvider {
 
     // Store the key securely if it came from config
     if (config.apiKey && config.apiKey !== await secureKeyManager.getApiKey('google')) {
-      const stored = await secureKeyManager.storeApiKey('google', config.apiKey);
-      if (!stored) {
-        logger.warn('Failed to store Google API key securely');
+      const result = await secureKeyManager.storeApiKey('google', config.apiKey);
+      if (!result.success) {
+        logger.warn('Failed to store Google API key securely:', result.error);
       }
     }
 
@@ -213,7 +214,7 @@ export class GoogleProvider implements IAIProvider {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) {break;}
+        if (done) { break; }
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -293,10 +294,10 @@ export class GoogleProvider implements IAIProvider {
   }
 
   private calculateCost(usage: any, modelName?: string): number {
-    if (!usage) {return 0;}
+    if (!usage) { return 0; }
 
     const modelInfo = MODEL_REGISTRY[modelName || this.config.model];
-    if (!modelInfo) {return 0;}
+    if (!modelInfo) { return 0; }
 
     const inputCost = (usage.promptTokenCount / 1000000) * modelInfo.costPerMillionInput;
     const outputCost = (usage.candidatesTokenCount / 1000000) * modelInfo.costPerMillionOutput;

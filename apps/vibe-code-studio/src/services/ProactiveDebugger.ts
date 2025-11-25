@@ -3,6 +3,7 @@
  * Predicts and prevents errors before they occur
  */
 import { logger } from '../services/Logger';
+import { databaseService } from './DatabaseService';
 
 import type { UnifiedAIService } from './ai/UnifiedAIService';
 import type { DetectedError } from './ErrorDetector';
@@ -126,6 +127,25 @@ export class ProactiveDebugger {
       predictions.push(...aiPredictions);
     } catch (error) {
       logger.warn('AI prediction failed:', error);
+    }
+
+    // Log predicted errors as potential bugs
+    if (predictions.length > 0) {
+      for (const prediction of predictions) {
+        await databaseService.logMistake({
+          mistakeType: 'potential_bug',
+          mistakeCategory: 'proactive_analysis',
+          description: prediction.message,
+          contextWhenOccurred: `File: ${file}, Line: ${prediction.line}, Column: ${prediction.column}`,
+          rootCauseAnalysis: `Predicted ${prediction.category} issue with ${Math.round(prediction.confidence * 100)}% confidence`,
+          impactSeverity: prediction.confidence > 0.8 ? 'HIGH' : prediction.confidence > 0.5 ? 'MEDIUM' : 'LOW',
+          preventionStrategy: prediction.suggestion,
+          resolved: false,
+          tags: ['proactive', 'potential', prediction.category, `confidence-${Math.round(prediction.confidence * 100)}`]
+        }).catch(dbError => {
+          logger.warn('[ProactiveDebugger] Failed to log predicted error:', dbError);
+        });
+      }
     }
 
     return predictions;

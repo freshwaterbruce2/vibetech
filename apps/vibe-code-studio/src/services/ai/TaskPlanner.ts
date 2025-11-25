@@ -29,6 +29,9 @@ import { UnifiedAIService } from './UnifiedAIService';
 export class TaskPlanner {
   private structureDetector: ProjectStructureDetector | null = null;
   private strategyMemory: StrategyMemory;
+  private pendingTaskChunks: Map<string, AgentStep[][]> = new Map();
+  private readonly MAX_STEPS_PER_CHUNK = Number(import.meta.env.VITE_MAX_STEPS_PER_TASK) || 5;
+  private readonly ENABLE_CHUNKING = import.meta.env.VITE_ENABLE_TASK_CHUNKING === 'true';
 
   constructor(
     private aiService: UnifiedAIService,
@@ -113,12 +116,218 @@ export class TaskPlanner {
     const reasoning = this.extractReasoning(aiResponse.content);
     const warnings = this.extractWarnings(aiResponse.content, task);
 
+    // Apply task chunking if enabled and needed
+    const { currentChunk, hasMore } = this.chunkTask(task);
+
+    if (hasMore) {
+      warnings.push(
+        `Task is large and has been split into ${currentChunk.metadata?.totalChunks || 'multiple'} chunks. ` +
+        'Each chunk will be executed progressively to prevent timeouts.'
+      );
+      logger.info(
+        `[TaskPlanner] Task chunked: ${task.steps.length} total steps, ` +
+        `returning chunk 1 with ${currentChunk.steps.length} steps`
+      );
+    }
+
     return {
-      task,
+      task: currentChunk,
       reasoning,
-      estimatedTime: this.estimateTime(task.steps.length),
+      estimatedTime: this.estimateTime(currentChunk.steps.length),
       warnings,
+      hasMore,
+      metadata: {
+        isChunked: hasMore,
+        totalSteps: task.steps.length,
+        currentChunkSteps: currentChunk.steps.length,
+      },
     };
+  }
+
+  /**
+   * Chunks a task into smaller manageable pieces for progressive execution
+   * This prevents API timeouts and enables better progress tracking
+   * Uses smart chunking to group related steps together
+   */
+  private chunkTask(task: AgentTask): { currentChunk: AgentTask; hasMore: boolean } {
+    if (!this.ENABLE_CHUNKING || task.steps.length <= this.MAX_STEPS_PER_CHUNK) {
+      // No chunking needed
+      return { currentChunk: task, hasMore: false };
+    }
+
+    logger.debug(`[TaskPlanner] Smart chunking task with ${task.steps.length} steps`);
+
+    // Use smart chunking algorithm
+    const chunks = this.smartChunkSteps(task.steps);
+
+    // Store remaining chunks for later
+    if (chunks.length > 1) {
+      this.pendingTaskChunks.set(task.id, chunks.slice(1));
+    }
+
+    // Create first chunk task
+    const firstChunkTask: AgentTask = {
+      ...task,
+      title: `${task.title} (Part 1/${chunks.length})`,
+      steps: chunks[0],
+      metadata: {
+        ...task.metadata,
+        isChunked: true,
+        chunkIndex: 0,
+        totalChunks: chunks.length,
+        originalStepCount: task.steps.length,
+      },
+    };
+
+    logger.info(`[TaskPlanner] Created chunk 1/${chunks.length} with ${chunks[0].length} steps (smart grouped)`);
+
+    return {
+      currentChunk: firstChunkTask,
+      hasMore: chunks.length > 1,
+    };
+  }
+
+  /**
+   * Smart chunking algorithm that groups related steps together
+   * Respects logical boundaries and dependencies between steps
+   */
+  private smartChunkSteps(steps: AgentStep[]): AgentStep[][] {
+    const chunks: AgentStep[][] = [];
+    let currentChunk: AgentStep[] = [];
+
+    // Group types that should stay together
+    const cohesiveGroups = {
+      file_operations: ['read_file', 'write_file', 'edit_file', 'delete_file'],
+      analysis: ['analyze_code', 'review_project', 'search_codebase'],
+      generation: ['generate_code', 'refactor_code'],
+      execution: ['run_command', 'run_tests'],
+      git: ['git_commit', 'git_push', 'git_pull'],
+    };
+
+    // Function to get group for an action type
+    const getActionGroup = (actionType: string): string | null => {
+      for (const [group, types] of Object.entries(cohesiveGroups)) {
+        if (types.includes(actionType)) {
+          return group;
+        }
+      }
+      return null;
+    };
+
+    let lastGroup: string | null = null;
+
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const currentGroup = getActionGroup(step.action.type);
+
+      // Decide whether to start a new chunk
+      let shouldStartNewChunk = false;
+
+      if (currentChunk.length >= this.MAX_STEPS_PER_CHUNK) {
+        // Chunk is at max size
+        shouldStartNewChunk = true;
+      } else if (currentChunk.length > 0 && currentChunk.length >= Math.floor(this.MAX_STEPS_PER_CHUNK * 0.7)) {
+        // Chunk is near max size, check if we should break
+        if (currentGroup !== lastGroup) {
+          // Different group type, good place to break
+          shouldStartNewChunk = true;
+        }
+      }
+
+      // Special cases for logical boundaries
+      if (step.action.type === 'generate_code' && step.description.toLowerCase().includes('synthesis')) {
+        // Synthesis steps should start their own chunk
+        if (currentChunk.length > 0) {
+          chunks.push(currentChunk);
+          currentChunk = [];
+        }
+      }
+
+      if (shouldStartNewChunk && currentChunk.length > 0) {
+        chunks.push(currentChunk);
+        currentChunk = [];
+        lastGroup = null;
+      }
+
+      currentChunk.push(step);
+      lastGroup = currentGroup;
+
+      // Check for natural boundaries
+      if (step.action.type === 'run_tests' || step.action.type === 'git_commit') {
+        // These actions often mark the end of a logical unit
+        if (currentChunk.length >= 2) {
+          chunks.push(currentChunk);
+          currentChunk = [];
+          lastGroup = null;
+        }
+      }
+    }
+
+    // Add remaining steps
+    if (currentChunk.length > 0) {
+      chunks.push(currentChunk);
+    }
+
+    // Log chunking decisions
+    logger.debug('[TaskPlanner] Smart chunking results:');
+    chunks.forEach((chunk, index) => {
+      const types = chunk.map(s => s.action.type).join(', ');
+      logger.debug(`  Chunk ${index + 1}: ${chunk.length} steps [${types}]`);
+    });
+
+    return chunks;
+  }
+
+  /**
+   * Gets the next chunk for a previously chunked task
+   */
+  async getNextTaskChunk(taskId: string): Promise<AgentTask | null> {
+    const remainingChunks = this.pendingTaskChunks.get(taskId);
+
+    if (!remainingChunks || remainingChunks.length === 0) {
+      this.pendingTaskChunks.delete(taskId);
+      return null;
+    }
+
+    const nextChunk = remainingChunks.shift()!;
+    const chunkIndex = (this.pendingTaskChunks.get(taskId)?.length || 0) === 0
+      ? this.pendingTaskChunks.size
+      : this.pendingTaskChunks.size - remainingChunks.length;
+
+    const totalChunks = chunkIndex + remainingChunks.length + 1;
+
+    // Update stored chunks
+    if (remainingChunks.length === 0) {
+      this.pendingTaskChunks.delete(taskId);
+    }
+
+    const nextTask: AgentTask = {
+      id: `${taskId}_chunk_${chunkIndex + 1}`,
+      title: `Continuing task (Part ${chunkIndex + 2}/${totalChunks})`,
+      description: 'Continuing execution of chunked task',
+      userRequest: '',
+      steps: nextChunk,
+      status: 'awaiting_approval',
+      createdAt: new Date(),
+      metadata: {
+        isChunked: true,
+        chunkIndex: chunkIndex + 1,
+        totalChunks,
+        parentTaskId: taskId,
+      },
+    };
+
+    logger.info(`[TaskPlanner] Retrieved chunk ${chunkIndex + 2}/${totalChunks} with ${nextChunk.length} steps`);
+
+    return nextTask;
+  }
+
+  /**
+   * Checks if a task has pending chunks
+   */
+  hasRemainingChunks(taskId: string): boolean {
+    return this.pendingTaskChunks.has(taskId) &&
+           (this.pendingTaskChunks.get(taskId)?.length || 0) > 0;
   }
 
   /**
@@ -372,7 +581,7 @@ export class TaskPlanner {
     projectStructure?: any,
     projectAnalysis?: string
   ): string {
-    const maxSteps = options?.maxSteps || 10;
+    const maxSteps = this.ENABLE_CHUNKING ? this.MAX_STEPS_PER_CHUNK * 3 : (options?.maxSteps || 10);
     const allowDestructive = options?.allowDestructiveActions ?? true;
 
     // Build project structure section
@@ -439,8 +648,9 @@ Example synthesis descriptions:
 - "Generate executive summary of code quality across reviewed files"
 
 CONSTRAINTS:
-- Maximum steps: ${maxSteps}
-- Destructive actions (delete, overwrite): ${allowDestructive ? 'Allowed' : 'Not allowed'}
+- Maximum steps: ${maxSteps}${this.ENABLE_CHUNKING ? ' (Tasks will be automatically chunked if larger)' : ''}
+- Destructive actions (delete, overwrite): ${allowDestructive ? 'Allowed' : 'Not allowed'}${this.ENABLE_CHUNKING ? `
+- Task Chunking: ENABLED - Large tasks will be split into chunks of ${this.MAX_STEPS_PER_CHUNK} steps for progressive execution` : ''}
 
 AVAILABLE ACTIONS (with required parameter schemas):
 

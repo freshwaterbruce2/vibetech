@@ -1,6 +1,6 @@
-import React, { forwardRef, useEffect,useRef, useState } from 'react';
-import { AnimatePresence,motion } from 'framer-motion';
-import { Check,ChevronDown } from 'lucide-react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, ChevronDown } from 'lucide-react';
 import styled, { css } from 'styled-components';
 
 import { vibeTheme } from '../../styles/theme';
@@ -183,7 +183,7 @@ const ChevronIcon = styled(motion.div)`
   color: ${vibeTheme.colors.textSecondary};
 `;
 
-const DropdownMenu = styled(motion.div)<{ $size: SelectSize }>`
+const DropdownMenu = styled(motion.div) <{ $size: SelectSize }>`
   position: absolute;
   top: calc(100% + ${vibeTheme.spacing[1]});
   left: 0;
@@ -254,7 +254,7 @@ const Option = styled.div<{ $size: SelectSize; $isSelected: boolean; $isDisabled
   }
 `;
 
-const CheckIcon = styled(Check)`
+const CheckIcon = styled(Check as any)`
   color: ${vibeTheme.colors.cyan};
   flex-shrink: 0;
 `;
@@ -337,70 +337,76 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     };
 
     return (
-      <SelectWrapper ref={wrapperRef} $fullWidth={fullWidth} className={className}>
-        {label && <Label>{label}</Label>}
+      <SelectWrapper ref= { wrapperRef } $fullWidth = { fullWidth } className = { className } >
+        { label && <Label>{ label } </Label>
+  }
 
         <SelectTrigger
-          ref={ref}
-          $variant={variant}
-          $size={size}
-          $error={error}
-          $isOpen={isOpen}
-          $fullWidth={fullWidth}
-          data-disabled={disabled}
-          onClick={handleToggle}
-          tabIndex={disabled ? -1 : 0}
-          role="button"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-          {...props}
+          ref={ ref }
+          $variant = { variant }
+          $size = { size }
+          $error = { error }
+          $isOpen = { isOpen }
+          $fullWidth = { fullWidth }
+          data-disabled={ disabled }
+          onClick = { handleToggle }
+          tabIndex = { disabled? - 1 : 0}
+role = "button"
+aria-haspopup="listbox"
+aria-expanded={ isOpen }
+{...props }
         >
-          <SelectedValue $isPlaceholder={!selectedOption}>
-            {selectedOption ? selectedOption.label : placeholder}
-          </SelectedValue>
+  <SelectedValue $isPlaceholder={ !selectedOption }>
+    { selectedOption? selectedOption.label : placeholder }
+    </SelectedValue>
 
-          <ChevronIcon
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
+    < ChevronIcon
+animate = {{ rotate: isOpen ? 180 : 0 }}
+transition = {{ duration: 0.2 }}
           >
-            <ChevronDown />
-          </ChevronIcon>
-        </SelectTrigger>
+  {< ChevronDown /> as any}
+</ChevronIcon>
+  </SelectTrigger>
 
-        <AnimatePresence>
-          {isOpen && (
-            <DropdownMenu
-              $size={size}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.15 }}
-              role="listbox"
-            >
-              {options.map((option) => (
-                <Option
-                  key={option.value}
-                  $size={size}
-                  $isSelected={option.value === value}
-                  $isDisabled={!!option.disabled}
-                  data-disabled={option.disabled}
-                  onClick={() => !option.disabled && handleSelect(option.value)}
-                  role="option"
-                  aria-selected={option.value === value}
-                  aria-disabled={option.disabled}
+  <AnimatePresence>
+{
+  isOpen && (
+    <DropdownMenu
+              $size={ size }
+  initial = {{ opacity: 0, y: -10 }
+}
+animate = {{ opacity: 1, y: 0 }}
+exit = {{ opacity: 0, y: -10 }}
+transition = {{ duration: 0.15 }}
+role = "listbox"
+  >
+{
+  options.map((option) => (
+    <Option
+                  key= { option.value }
+                  $size = { size }
+                  $isSelected = { option.value === value }
+                  $isDisabled = {!!option.disabled}
+data-disabled={ option.disabled }
+onClick = {() => !option.disabled && handleSelect(option.value)}
+role = "option"
+aria-selected={ option.value === value }
+aria-disabled={ option.disabled }
                 >
-                  {option.label}
-                  {option.value === value && <CheckIcon size={size === 'sm' ? 14 : size === 'md' ? 16 : 18} />}
-                </Option>
+  { option.label }
+{ option.value === value && (<CheckIcon size={ size === 'sm' ? 14 : size === 'md' ? 16 : 18 } /> as any) }
+</Option>
               ))}
-            </DropdownMenu>
+</DropdownMenu>
           )}
-        </AnimatePresence>
+</AnimatePresence>
 
-        {helperText && (
-          <HelperText $error={error}>{helperText}</HelperText>
-        )}
-      </SelectWrapper>
+{
+  helperText && (
+    <HelperText $error={ error }> { helperText } </HelperText>
+        )
+}
+</SelectWrapper>
     );
   }
 );

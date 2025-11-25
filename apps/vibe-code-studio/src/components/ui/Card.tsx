@@ -67,7 +67,7 @@ const variantStyles = {
   `,
 };
 
-const StyledCard = styled(motion.div)<{
+const StyledCard = styled(motion.div) <{
   $variant: CardVariant;
   $padding: CardPadding;
   $hoverable: boolean;
@@ -161,36 +161,39 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 
     return (
       <StyledCard
-        ref={ref}
-        $variant={variant}
-        $padding={padding}
-        $hoverable={hoverable}
-        $clickable={clickable}
-        $hasHeader={hasHeader}
-        $hasFooter={hasFooter}
-        className={className}
-        tabIndex={clickable ? 0 : undefined}
-        role={clickable ? 'button' : undefined}
-        whileHover={hoverable ? { scale: 1.01 } : undefined}
-        whileTap={clickable ? { scale: 0.99 } : undefined}
-        {...props}
+        ref= { ref }
+    $variant = { variant }
+    $padding = { padding }
+    $hoverable = { hoverable }
+    $clickable = { clickable }
+    $hasHeader = { hasHeader }
+    $hasFooter = { hasFooter }
+    className = { className }
+    tabIndex = { clickable? 0: undefined }
+    role = { clickable? 'button': undefined }
+    whileHover = { hoverable? { scale: 1.01 } : undefined
+  }
+        whileTap = { clickable? { scale: 0.99 } : undefined}
+{...props }
       >
-        {hasHeader && (
-          <CardHeader>
-            {header}
-          </CardHeader>
-        )}
+  { hasHeader && (
+    <CardHeader>
+    { header as any }
+    </CardHeader>
+  )}
 
-        <CardContent>
-          {children}
-        </CardContent>
+<CardContent>
+  { children as any }
+  </CardContent>
 
-        {hasFooter && (
-          <CardFooter>
-            {footer}
-          </CardFooter>
-        )}
-      </StyledCard>
+{
+  hasFooter && (
+    <CardFooter>
+    { footer as any }
+    </CardFooter>
+  )
+}
+</StyledCard>
     );
   }
 );

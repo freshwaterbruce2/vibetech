@@ -7,7 +7,7 @@
  */
 import { promises as fs } from 'fs';
 import { existsSync } from 'fs';
-import { basename, dirname, extname,join, relative, resolve } from 'path';
+import { basename, extname, join, relative, resolve } from 'path';
 
 import { logger } from '../services/Logger';
 
@@ -106,7 +106,6 @@ export class TestRunner {
   private defaultTimeout: number = 60000; // 1 minute
   private workspaceRoot: string;
   private logger: (message: string, level?: 'info' | 'warn' | 'error') => void;
-  private frameworkCache: Map<string, TestFrameworkInfo> = new Map();
 
   constructor(
     workspaceRoot?: string,
@@ -132,10 +131,10 @@ export class TestRunner {
    */
   async detectFrameworks(): Promise<TestFrameworkInfo[]> {
     const frameworks: TestFrameworkInfo[] = [];
-    
+
     try {
       const packageJsonPath = join(this.workspaceRoot, 'package.json');
-      
+
       if (existsSync(packageJsonPath)) {
         const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
         const allDeps = {
@@ -149,7 +148,7 @@ export class TestRunner {
           frameworks.push({
             name: 'vitest',
             version: allDeps.vitest,
-            configFile,
+            ...(configFile ? { configFile } : {}),
             command: 'npx',
             args: ['vitest'],
             patterns: ['**/*.{test,spec}.{js,ts,jsx,tsx}', '**/__tests__/**/*.{js,ts,jsx,tsx}'],
@@ -169,7 +168,7 @@ export class TestRunner {
           frameworks.push({
             name: 'jest',
             version: allDeps.jest || allDeps['@jest/core'],
-            configFile,
+            ...(configFile ? { configFile } : {}),
             command: 'npx',
             args: ['jest'],
             patterns: ['**/*.{test,spec}.{js,ts,jsx,tsx}', '**/__tests__/**/*.{js,ts,jsx,tsx}'],
@@ -189,7 +188,7 @@ export class TestRunner {
           frameworks.push({
             name: 'mocha',
             version: allDeps.mocha,
-            configFile,
+            ...(configFile ? { configFile } : {}),
             command: 'npx',
             args: ['mocha'],
             patterns: ['test/**/*.{js,ts}', '**/*.test.{js,ts}'],
@@ -209,7 +208,7 @@ export class TestRunner {
           frameworks.push({
             name: 'playwright',
             version: allDeps['@playwright/test'],
-            configFile,
+            ...(configFile ? { configFile } : {}),
             command: 'npx',
             args: ['playwright', 'test'],
             patterns: ['tests/**/*.{js,ts}', 'e2e/**/*.{js,ts}'],
@@ -229,7 +228,7 @@ export class TestRunner {
           frameworks.push({
             name: 'cypress',
             version: allDeps.cypress,
-            configFile,
+            ...(configFile ? { configFile } : {}),
             command: 'npx',
             args: ['cypress', 'run'],
             patterns: ['cypress/e2e/**/*.{js,ts}', 'cypress/integration/**/*.{js,ts}'],
@@ -266,14 +265,14 @@ export class TestRunner {
   async discoverTests(options: TestRunnerOptions = {}): Promise<TestDiscoveryResult> {
     const frameworks = await this.detectFrameworks();
     const framework = await this.selectFramework(options.testFramework, frameworks);
-    
+
     if (!framework) {
       throw new Error('No test framework detected. Please install jest, vitest, mocha, or another supported framework.');
     }
 
     const testFiles = await this.findTestFiles(framework.patterns, options.testMatch, options.testIgnore);
     const totalTests = await this.countTests(testFiles, framework);
-    
+
     return {
       framework,
       testFiles,
@@ -308,7 +307,7 @@ export class TestRunner {
       }
     }
 
-    return available[0];
+    return available[0] || null;
   }
 
   private async findTestFiles(
@@ -352,20 +351,20 @@ export class TestRunner {
     options: { cwd: string; absolute: boolean; ignore?: string[] }
   ): Promise<string[]> {
     const files: string[] = [];
-    
+
     const walkDir = async (dir: string): Promise<void> => {
       try {
         const entries = await fs.readdir(dir, { withFileTypes: true });
-        
+
         for (const entry of entries) {
           const fullPath = join(dir, entry.name);
           const relativePath = relative(options.cwd, fullPath);
-          
+
           // Check ignore patterns
           if (options.ignore?.some(ignore => relativePath.includes(ignore))) {
             continue;
           }
-          
+
           if (entry.isDirectory()) {
             await walkDir(fullPath);
           } else if (entry.isFile()) {
@@ -379,21 +378,21 @@ export class TestRunner {
         // Skip directories we can't read
       }
     };
-    
+
     await walkDir(options.cwd);
     return files;
   }
 
-  private matchesPattern(filename: string, pattern: string): boolean {
+  private matchesPattern(filename: string, _pattern: string): boolean {
     // Very basic pattern matching - just check for test/spec files
     const name = filename.toLowerCase();
-    return name.includes('.test.') || name.includes('.spec.') || 
-           name.includes('test') || name.includes('spec');
+    return name.includes('.test.') || name.includes('.spec.') ||
+      name.includes('test') || name.includes('spec');
   }
 
-  private async countTests(testFiles: string[], framework: TestFrameworkInfo): Promise<number> {
+  private async countTests(testFiles: string[], _framework: TestFrameworkInfo): Promise<number> {
     let totalCount = 0;
-    
+
     for (const file of testFiles) {
       try {
         const content = await fs.readFile(file, 'utf-8');
@@ -404,7 +403,7 @@ export class TestRunner {
         // Skip files we can't read
       }
     }
-    
+
     return totalCount;
   }
 
@@ -416,18 +415,18 @@ export class TestRunner {
     options: TestRunnerOptions = {}
   ): Promise<TestSuite> {
     const startTime = Date.now();
-    
+
     try {
       this.logger(`Running tests for pattern: ${filePattern}`);
-      
+
       const discovery = await this.discoverTests(options);
-      const {framework} = discovery;
-      
+      const { framework } = discovery;
+
       // Filter test files by pattern
-      const matchingFiles = discovery.testFiles.filter(file => 
+      const matchingFiles = discovery.testFiles.filter(file =>
         file.includes(filePattern) || relative(this.workspaceRoot, file).includes(filePattern)
       );
-      
+
       if (matchingFiles.length === 0) {
         this.logger(`No test files found matching pattern: ${filePattern}`, 'warn');
         return {
@@ -439,23 +438,23 @@ export class TestRunner {
           duration: Date.now() - startTime
         };
       }
-      
+
       const result = await this.executeTests(framework, matchingFiles, options);
-      
+
       this.logger(`Test execution completed for ${filePattern}: ${result.passedTests}/${result.totalTests} passed`);
-      
+
       return {
         ...result,
         name: filePattern,
         duration: Date.now() - startTime
       };
-      
+
     } catch (error) {
       const duration = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
       this.logger(`Test execution failed: ${errorMessage}`, 'error');
-      
+
       return {
         name: filePattern,
         tests: [{
@@ -478,13 +477,13 @@ export class TestRunner {
    */
   async runAllTests(options: TestRunnerOptions = {}): Promise<TestSuite[]> {
     const startTime = Date.now();
-    
+
     try {
       this.logger('Running all tests in the project');
-      
+
       const discovery = await this.discoverTests(options);
-      const {framework} = discovery;
-      
+      const { framework } = discovery;
+
       if (discovery.testFiles.length === 0) {
         this.logger('No test files found in the project', 'warn');
         return [{
@@ -496,16 +495,16 @@ export class TestRunner {
           duration: Date.now() - startTime
         }];
       }
-      
+
       const result = await this.executeTests(framework, discovery.testFiles, options);
-      
+
       // Group results by test file if there are multiple files
       const suites: TestSuite[] = [];
-      
+
       if (discovery.testFiles.length > 1) {
         // Group tests by file
         const testsByFile = new Map<string, TestResult[]>();
-        
+
         for (const test of result.tests) {
           const file = test.location?.file || 'Unknown';
           if (!testsByFile.has(file)) {
@@ -513,7 +512,7 @@ export class TestRunner {
           }
           testsByFile.get(file)!.push(test);
         }
-        
+
         for (const [file, tests] of testsByFile) {
           suites.push({
             name: relative(this.workspaceRoot, file),
@@ -532,20 +531,20 @@ export class TestRunner {
           duration: Date.now() - startTime
         });
       }
-      
+
       const totalPassed = suites.reduce((sum, s) => sum + s.passedTests, 0);
       const totalTests = suites.reduce((sum, s) => sum + s.totalTests, 0);
-      
+
       this.logger(`All tests completed: ${totalPassed}/${totalTests} passed`);
-      
+
       return suites;
-      
+
     } catch (error) {
       const duration = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
       this.logger(`Failed to run all tests: ${errorMessage}`, 'error');
-      
+
       return [{
         name: 'All Tests',
         tests: [{
@@ -570,10 +569,10 @@ export class TestRunner {
   ): Promise<TestSuite> {
     return new Promise((resolve, reject) => {
       const args = [...framework.args];
-      
+
       // Add test files
       args.push(...testFiles.map(f => relative(this.workspaceRoot, f)));
-      
+
       // Add options
       if (options.coverage && framework.supports.coverage) {
         if (framework.name === 'vitest') {
@@ -582,11 +581,11 @@ export class TestRunner {
           args.push('--coverage');
         }
       }
-      
+
       if (options.verbose) {
         args.push('--verbose');
       }
-      
+
       if (options.bail && framework.supports.bail) {
         if (framework.name === 'vitest') {
           args.push('--bail=1');
@@ -594,7 +593,7 @@ export class TestRunner {
           args.push('--bail');
         }
       }
-      
+
       if (options.reporter) {
         args.push('--reporter', options.reporter);
       } else {
@@ -605,11 +604,11 @@ export class TestRunner {
           args.push('--json');
         }
       }
-      
+
       if (options.maxWorkers && framework.supports.parallel) {
         args.push('--maxWorkers', options.maxWorkers.toString());
       }
-      
+
       // Set timeout
       const timeout = options.timeout || this.defaultTimeout;
       if (framework.name === 'vitest') {
@@ -617,11 +616,11 @@ export class TestRunner {
       } else if (framework.name === 'jest') {
         args.push('--testTimeout', timeout.toString());
       }
-      
+
       this.logger(`Executing: ${framework.command} ${args.join(' ')}`);
 
       // Check if running in Electron
-      if (typeof window === 'undefined' || !window.electron?.shell) {
+      if (typeof window === 'undefined' || !window.electron || !window.electron.shell) {
         reject(new Error('Test execution requires Electron environment'));
         return;
       }
@@ -632,7 +631,7 @@ export class TestRunner {
       // Use IIFE to handle async in Promise
       (async () => {
         try {
-          const result = await window.electron.shell.execute(
+          const result = await window.electron!.shell.execute(
             command,
             options.workingDirectory || this.workspaceRoot
           );
@@ -659,7 +658,7 @@ export class TestRunner {
   ): TestSuite {
     const tests: TestResult[] = [];
     let coverage: CoverageInfo | undefined;
-    
+
     try {
       if (framework.name === 'vitest' || framework.name === 'jest') {
         // Try to parse JSON output
@@ -681,25 +680,25 @@ export class TestRunner {
           }
         }
       }
-      
+
       // Fallback to text parsing if JSON parsing failed
       if (tests.length === 0) {
         tests.push(...this.parseTextOutput(stdout, stderr, framework));
       }
-      
+
     } catch (error) {
       this.logger(`Failed to parse test output: ${error}`, 'warn');
-      
+
       // Create a single test result based on exit code
       tests.push({
         passed: exitCode === 0,
         testName: 'Test Execution',
         output: stdout,
-        error: exitCode !== 0 ? stderr || 'Tests failed' : undefined,
+        ...(exitCode !== 0 ? { error: stderr || 'Tests failed' } : {}),
         duration: 0
       });
     }
-    
+
     return {
       name: 'Test Results',
       tests,
@@ -707,47 +706,46 @@ export class TestRunner {
       passedTests: tests.filter(t => t.passed).length,
       failedTests: tests.filter(t => !t.passed).length,
       duration: tests.reduce((sum, t) => sum + t.duration, 0),
-      coverage
+      ...(coverage ? { coverage } : {})
     };
   }
 
   private parseJestVitestJson(result: any): { tests: TestResult[]; coverage?: CoverageInfo } {
     const tests: TestResult[] = [];
     let coverage: CoverageInfo | undefined;
-    
+
     // Handle Jest format
     if (result.testResults) {
       for (const testResult of result.testResults) {
         const file = testResult.name;
-        
+
         for (const assertionResult of testResult.assertionResults || []) {
           tests.push({
             passed: assertionResult.status === 'passed',
             testName: assertionResult.fullName || assertionResult.title,
             output: assertionResult.failureMessages?.join('\n') || '',
-            error: assertionResult.status === 'failed' ? 
-              assertionResult.failureMessages?.join('\n') : undefined,
+            ...(assertionResult.status === 'failed' ? { error: assertionResult.failureMessages?.join('\n') } : {}),
             duration: assertionResult.duration || 0,
             location: {
               file,
-              line: assertionResult.location?.line,
-              column: assertionResult.location?.column
+              ...(assertionResult.location?.line ? { line: assertionResult.location.line } : {}),
+              ...(assertionResult.location?.column ? { column: assertionResult.location.column } : {})
             }
           });
         }
       }
-      
+
       // Parse coverage if available
       if (result.coverageMap) {
         coverage = this.parseCoverage(result.coverageMap);
       }
     }
-    
+
     // Handle Vitest format
     if (result.results) {
       for (const suiteResult of result.results) {
-        const {file} = suiteResult;
-        
+        const { file } = suiteResult;
+
         const extractTests = (tasks: any[]): void => {
           for (const task of tasks) {
             if (task.type === 'test') {
@@ -755,13 +753,12 @@ export class TestRunner {
                 passed: task.result?.state === 'pass',
                 testName: task.name,
                 output: task.result?.error?.message || '',
-                error: task.result?.state === 'fail' ? 
-                  task.result?.error?.message : undefined,
+                ...(task.result?.state === 'fail' ? { error: task.result?.error?.message } : {}),
                 duration: task.result?.duration || 0,
                 location: {
                   file,
-                  line: task.location?.line,
-                  column: task.location?.column
+                  ...(task.location?.line ? { line: task.location.line } : {}),
+                  ...(task.location?.column ? { column: task.location.column } : {})
                 }
               });
             } else if (task.tasks) {
@@ -769,34 +766,36 @@ export class TestRunner {
             }
           }
         };
-        
+
         if (suiteResult.tasks) {
           extractTests(suiteResult.tasks);
         }
       }
     }
-    
-    return { tests, coverage };
+
+    return { tests, ...(coverage ? { coverage } : {}) };
   }
 
   private parseTextOutput(stdout: string, stderr: string, framework: TestFrameworkInfo): TestResult[] {
     const tests: TestResult[] = [];
     const output = stdout + stderr;
-    
+
     // Simple regex-based parsing for different frameworks
     if (framework.name === 'mocha') {
       // Parse Mocha output
       const testRegex = /\s*(✓|×|\d+\))\s+(.+?)(?:\s+\((\d+)ms\))?/g;
       let match;
-      
+
       while ((match = testRegex.exec(output)) !== null) {
         const [, status, name, duration] = match;
-        tests.push({
-          passed: status === '✓' || /^\d+\)/.test(status),
-          testName: name.trim(),
-          output: '',
-          duration: duration ? parseInt(duration) : 0
-        });
+        if (status) {
+          tests.push({
+            passed: status === '✓' || /^\d+\)/.test(status),
+            testName: (name || '').trim(),
+            output: '',
+            duration: duration ? parseInt(duration) : 0
+          });
+        }
       }
     } else {
       // Generic parsing - look for common test patterns
@@ -826,7 +825,7 @@ export class TestRunner {
         }
       }
     }
-    
+
     // If no tests found, create a summary result
     if (tests.length === 0) {
       const passed = !stderr && stdout.includes('pass');
@@ -834,11 +833,11 @@ export class TestRunner {
         passed,
         testName: 'Test Suite',
         output: stdout,
-        error: passed ? undefined : stderr || 'Tests failed',
+        ...(!passed ? { error: stderr || 'Tests failed' } : {}),
         duration: 0
       });
     }
-    
+
     return tests;
   }
 
@@ -850,22 +849,22 @@ export class TestRunner {
     let totalFunctions = 0, coveredFunctions = 0;
     let totalBranches = 0, coveredBranches = 0;
     let totalStatements = 0, coveredStatements = 0;
-    
+
     for (const [filePath, fileCoverage] of Object.entries(coverageMap || {})) {
       const fc = fileCoverage as any;
-      
+
       if (fc.s && fc.f && fc.b) {
         const linesCov = Object.values(fc.s as Record<string, number>);
         const funcsCov = Object.values(fc.f as Record<string, number>);
         const branchesCov = Object.values(fc.b as Record<string, number[]>).flat();
-        
+
         const fileCoveredLines = linesCov.filter(v => v > 0).length;
         const fileTotalLines = linesCov.length;
         const fileCoveredFunctions = funcsCov.filter(v => v > 0).length;
         const fileTotalFunctions = funcsCov.length;
         const fileCoveredBranches = branchesCov.filter(v => v > 0).length;
         const fileTotalBranches = branchesCov.length;
-        
+
         files.push({
           file: filePath,
           lines: {
@@ -889,7 +888,7 @@ export class TestRunner {
             percentage: fileTotalLines > 0 ? (fileCoveredLines / fileTotalLines) * 100 : 0
           }
         });
-        
+
         totalLines += fileTotalLines;
         coveredLines += fileCoveredLines;
         totalFunctions += fileTotalFunctions;
@@ -900,7 +899,7 @@ export class TestRunner {
         coveredStatements += fileCoveredLines;
       }
     }
-    
+
     return {
       lines: {
         covered: coveredLines,
@@ -937,18 +936,18 @@ export class TestRunner {
     try {
       const frameworks = await this.detectFrameworks();
       const framework = await this.selectFramework(options.testFramework, frameworks);
-      
+
       if (!framework) {
         throw new Error('No test framework detected for test generation');
       }
-      
+
       const ext = extname(filename);
       const baseName = basename(filename, ext);
       const isTypeScript = ext === '.ts' || ext === '.tsx';
       const isReact = ext === '.jsx' || ext === '.tsx';
-      
+
       let template = '';
-      
+
       if (framework.name === 'vitest') {
         template = this.generateVitestTemplate(code, baseName, isTypeScript, isReact);
       } else if (framework.name === 'jest') {
@@ -959,10 +958,10 @@ export class TestRunner {
         // Generic template
         template = this.generateGenericTemplate(code, baseName, isTypeScript, isReact);
       }
-      
+
       this.logger(`Generated test template for ${filename} using ${framework.name}`);
       return template;
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger(`Failed to generate test: ${errorMessage}`, 'error');
@@ -970,87 +969,88 @@ export class TestRunner {
     }
   }
 
-  private generateVitestTemplate(code: string, baseName: string, isTypeScript: boolean, isReact: boolean): string {
+  private generateVitestTemplate(code: string, baseName: string, _isTypeScript: boolean, isReact: boolean): string {
     const imports = [
       "import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';"
     ];
-    
+
     if (isReact) {
       imports.push("import { render, screen, fireEvent, cleanup } from '@testing-library/react';");
       imports.push("import { userEvent } from '@testing-library/user-event';");
     }
-    
+
     imports.push(`import { ${this.extractExports(code).join(', ')} } from './${baseName}';`);
-    
+
     const tests = this.generateTestCases(code, baseName, isReact);
-    
+
     return `${imports.join('\n')}\n\n${tests}`;
   }
 
-  private generateJestTemplate(code: string, baseName: string, isTypeScript: boolean, isReact: boolean): string {
+  private generateJestTemplate(code: string, baseName: string, _isTypeScript: boolean, isReact: boolean): string {
     const imports = [];
-    
+
     if (isReact) {
       imports.push("import { render, screen, fireEvent, cleanup } from '@testing-library/react';");
       imports.push("import userEvent from '@testing-library/user-event';");
     }
-    
+
     imports.push(`import { ${this.extractExports(code).join(', ')} } from './${baseName}';`);
-    
+
     const tests = this.generateTestCases(code, baseName, isReact);
-    
+
     return `${imports.join('\n')}\n\n${tests}`;
   }
 
-  private generateMochaTemplate(code: string, baseName: string, isTypeScript: boolean): string {
+  private generateMochaTemplate(code: string, baseName: string, _isTypeScript: boolean): string {
     const imports = [
       "import { expect } from 'chai';",
       `import { ${this.extractExports(code).join(', ')} } from './${baseName}';`
     ];
-    
+
     const tests = this.generateTestCases(code, baseName, false, 'mocha');
-    
+
     return `${imports.join('\n')}\n\n${tests}`;
   }
 
-  private generateGenericTemplate(code: string, baseName: string, isTypeScript: boolean, isReact: boolean): string {
+  private generateGenericTemplate(code: string, baseName: string, _isTypeScript: boolean, isReact: boolean): string {
     const imports = [
       `import { ${this.extractExports(code).join(', ')} } from './${baseName}';`
     ];
-    
-    const tests = this.generateTestCases(code, baseName, isReact);
-    
-    return `${imports.join('\n')}\n\n${tests}`;
-  }
 
-  private extractExports(code: string): string[] {
+    const tests = this.generateTestCases(code, baseName, isReact);
+
+    return `${imports.join('\n')}\n\n${tests}`;
+  } private extractExports(code: string): string[] {
     const exports: string[] = [];
-    
+
     // Extract named exports
     const namedExports = code.match(/export\s+(?:const|let|var|function|class)\s+(\w+)/g);
     if (namedExports) {
       exports.push(...namedExports.map(exp => exp.split(/\s+/).pop()!));
     }
-    
+
     // Extract default export
     const defaultExport = code.match(/export\s+default\s+(\w+)/);
-    if (defaultExport) {
+    if (defaultExport && defaultExport[1]) {
       exports.push(defaultExport[1]);
     }
-    
+
     // Extract export { ... } statements
     const exportStatements = code.match(/export\s*\{([^}]+)\}/g);
     if (exportStatements) {
       for (const statement of exportStatements) {
-        const names = statement.match(/\{([^}]+)\}/)?.[1]
-          .split(',')
-          .map(name => name.trim().split(/\s+as\s+/)[0].trim());
-        if (names) {
-          exports.push(...names);
+        const match = statement.match(/\{([^}]+)\}/);
+        if (match && match[1]) {
+          const names = match[1]
+            .split(',')
+            .map(name => name.trim().split(/\s+as\s+/)[0]!.trim());
+          if (names) {
+            exports.push(...names);
+          }
         }
       }
     }
-    
+
     return exports.length > 0 ? exports : ['default'];
   }
 
@@ -1058,21 +1058,21 @@ export class TestRunner {
     const functions = this.extractFunctions(code);
     const classes = this.extractClasses(code);
     const testFunction = framework === 'mocha' ? 'it' : 'it';
-    
+
     let tests = `describe('${baseName}', () => {\n`;
-    
+
     if (isReact) {
       tests += `  afterEach(() => {\n    cleanup();\n  });\n\n`;
     }
-    
+
     // Generate tests for functions
     for (const func of functions) {
       tests += `  describe('${func}', () => {\n`;
       tests += `    ${testFunction}('should be defined', () => {\n`;
       tests += `      expect(${func}).toBeDefined();\n`;
       tests += `    });\n\n`;
-      
-      if (isReact && (func.includes('Component') || func[0] === func[0].toUpperCase())) {
+
+      if (isReact && func.length > 0 && (func.includes('Component') || func[0]! === func[0]!.toUpperCase())) {
         tests += `    ${testFunction}('should render without crashing', () => {\n`;
         tests += `      render(<${func} />);\n`;
         tests += `    });\n\n`;
@@ -1083,10 +1083,10 @@ export class TestRunner {
         tests += `      // expect(result).toBe(expected);\n`;
         tests += `    });\n\n`;
       }
-      
+
       tests += `  });\n\n`;
     }
-    
+
     // Generate tests for classes
     for (const cls of classes) {
       tests += `  describe('${cls}', () => {\n`;
@@ -1096,7 +1096,7 @@ export class TestRunner {
       tests += `    });\n\n`;
       tests += `  });\n\n`;
     }
-    
+
     // If no functions or classes found, generate a basic test
     if (functions.length === 0 && classes.length === 0) {
       tests += `  ${testFunction}('should be defined', () => {\n`;
@@ -1104,38 +1104,42 @@ export class TestRunner {
       tests += `    // TODO: Add actual tests\n`;
       tests += `  });\n\n`;
     }
-    
+
     tests += `});`;
-    
+
     return tests;
   }
 
   private extractFunctions(code: string): string[] {
     const functions: string[] = [];
-    
+
     // Extract function declarations
     const funcDeclarations = code.match(/(?:export\s+)?(?:async\s+)?function\s+(\w+)/g);
     if (funcDeclarations) {
       functions.push(...funcDeclarations.map(func => func.split(/\s+/).pop()!));
     }
-    
+
     // Extract arrow functions
     const arrowFunctions = code.match(/(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/g);
     if (arrowFunctions) {
-      functions.push(...arrowFunctions.map(func => func.split(/\s+/)[1]));
+      const extracted = arrowFunctions.map(func => {
+        const match = func.match(/(?:const|let|var)\s+(\w+)/);
+        return match ? match[1] : '';
+      }).filter((name): name is string => !!name);
+      functions.push(...extracted);
     }
-    
+
     return functions;
   }
 
   private extractClasses(code: string): string[] {
     const classes: string[] = [];
-    
+
     const classDeclarations = code.match(/(?:export\s+)?(?:abstract\s+)?class\s+(\w+)/g);
     if (classDeclarations) {
       classes.push(...classDeclarations.map(cls => cls.split(/\s+/).pop()!));
     }
-    
+
     return classes;
   }
 
@@ -1145,21 +1149,21 @@ export class TestRunner {
   async getCoverage(filePattern?: string): Promise<CoverageInfo> {
     try {
       this.logger('Getting test coverage information');
-      
+
       const frameworks = await this.detectFrameworks();
       const framework = frameworks.find(f => f.supports.coverage);
-      
+
       if (!framework) {
         this.logger('No framework found that supports coverage', 'warn');
         return this.getDefaultCoverage();
       }
-      
+
       // Run tests with coverage
       const options: TestRunnerOptions = {
         coverage: true,
         testFramework: framework.name as any
       };
-      
+
       let result: TestSuite;
       if (filePattern) {
         result = await this.runTests(filePattern, options);
@@ -1167,9 +1171,9 @@ export class TestRunner {
         const suites = await this.runAllTests(options);
         result = this.combineSuites(suites);
       }
-      
+
       return result.coverage || this.getDefaultCoverage();
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger(`Failed to get coverage: ${errorMessage}`, 'error');
@@ -1189,7 +1193,9 @@ export class TestRunner {
   private combineSuites(suites: TestSuite[]): TestSuite {
     const allTests = suites.flatMap(s => s.tests);
     const totalDuration = suites.reduce((sum, s) => sum + s.duration, 0);
-    
+
+    const coverage = suites.find(s => s.coverage)?.coverage;
+
     return {
       name: 'Combined Results',
       tests: allTests,
@@ -1197,7 +1203,7 @@ export class TestRunner {
       passedTests: allTests.filter(t => t.passed).length,
       failedTests: allTests.filter(t => !t.passed).length,
       duration: totalDuration,
-      coverage: suites.find(s => s.coverage)?.coverage
+      ...(coverage ? { coverage } : {})
     };
   }
 
@@ -1207,11 +1213,11 @@ export class TestRunner {
   async watchTests(options: TestRunnerOptions = {}): Promise<() => void> {
     const frameworks = await this.detectFrameworks();
     const framework = await this.selectFramework(options.testFramework, frameworks);
-    
+
     if (!framework || !framework.supports.watch) {
       throw new Error('Selected framework does not support watch mode');
     }
-    
+
     this.logger('Watch mode is not supported in IPC mode (requires interactive terminal)', 'warn');
 
     // TODO: Implement terminal streaming IPC handler for watch mode support

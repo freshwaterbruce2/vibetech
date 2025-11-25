@@ -4,17 +4,15 @@
  * Displays and manages background agent tasks
  */
 
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Activity,
   AlertCircle,
   CheckCircle,
   Clock,
   Loader,
-  Pause,
-  Play,
-  TrendingUp,
-  X} from 'lucide-react';
+  X
+} from 'lucide-react';
 import styled from 'styled-components';
 
 import { BackgroundAgentSystem, BackgroundTask } from '../services/BackgroundAgentSystem';
@@ -24,6 +22,137 @@ interface BackgroundTaskPanelProps {
   backgroundAgent: BackgroundAgentSystem;
   onTaskClick?: (task: BackgroundTask) => void;
 }
+
+// Memoized Task Item Component
+const TaskItemRenderer = React.memo(({
+  task,
+  onClick,
+  onCancel
+}: {
+  task: BackgroundTask;
+  onClick: (task: BackgroundTask) => void;
+  onCancel: (id: string) => void;
+}) => {
+  const formatDuration = (task: BackgroundTask): string => {
+    if (!task.startTime) { return '-'; }
+
+    const endTime = task.endTime ?? Date.now();
+    const duration = endTime - task.startTime;
+    const seconds = Math.floor(duration / 1000);
+
+    if (seconds < 60) { return `${seconds}s`; }
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}m ${seconds % 60}s`;
+  };
+
+  const getStatusIcon = (status: BackgroundTask['status']) => {
+    switch (status) {
+      case 'pending':
+        return <Clock size={ 16 } />;
+      case 'running':
+        return <Loader size={ 16 } className = "spinning" />;
+      case 'completed':
+        return <CheckCircle size={ 16 } />;
+      case 'failed':
+        return <AlertCircle size={ 16 } />;
+      case 'cancelled':
+        return <X size={ 16 } />;
+    }
+  };
+
+  const getStatusColor = (status: BackgroundTask['status']): string => {
+    switch (status) {
+      case 'pending':
+        return '#6b7280';
+      case 'running':
+        return '#3b82f6';
+      case 'completed':
+        return '#10b981';
+      case 'failed':
+        return '#ef4444';
+      case 'cancelled':
+        return '#f59e0b';
+    }
+  };
+
+  return (
+    <TaskItem onClick= {() => onClick(task)}>
+      <TaskHeader>
+      <TaskStatus color={ getStatusColor(task.status) }>
+        { getStatusIcon(task.status) }
+        < span > { task.status } </span>
+        </TaskStatus>
+        <TaskActions>
+{
+  task.status === 'running' && (
+    <ActionButton
+              onClick={
+    (e) => {
+      e.stopPropagation();
+      onCancel(task.id);
+    }
+  }
+  title = "Cancel task"
+    >
+    <X size={ 16 } />
+      </ActionButton>
+          )
+}
+</TaskActions>
+  </TaskHeader>
+
+  < TaskContent >
+  <TaskTitle>{ task.userRequest } </TaskTitle>
+{
+  task.stepDescription && task.status === 'running' && (
+    <TaskStep>{ task.stepDescription } </TaskStep>
+  )
+}
+
+{
+  task.status === 'running' && (
+    <ProgressBar>
+    <ProgressFill progress={ task.progress ?? 0 } />
+      <ProgressText>
+  { Math.round(task.progress ?? 0) }%
+  {
+    task.currentStep && task.totalSteps && (
+      <> · Step { task.currentStep } /{task.totalSteps}</ >
+              )
+}
+</ProgressText>
+  </ProgressBar>
+        )}
+
+{
+  task.error && (
+    <ErrorMessage>{ task.error.message } </ErrorMessage>
+  )
+}
+</TaskContent>
+
+  < TaskFooter >
+  <TaskMeta>
+  <MetaItem>
+  <Clock size={ 12 } />
+{ formatDuration(task) }
+</MetaItem>
+  < MetaItem > Agent: { task.agentId } </MetaItem>
+    </TaskMeta>
+    </TaskFooter>
+    </TaskItem>
+  );
+}, (prev, next) => {
+  // Custom comparison to prevent unnecessary re-renders
+  return (
+    prev.task.id === next.task.id &&
+    prev.task.status === next.task.status &&
+    prev.task.progress === next.task.progress &&
+    prev.task.stepDescription === next.task.stepDescription &&
+    prev.task.error === next.task.error &&
+    prev.task.endTime === next.task.endTime
+  );
+});
 
 export const BackgroundTaskPanel: React.FC<BackgroundTaskPanelProps> = ({
   backgroundAgent,
@@ -39,6 +168,12 @@ export const BackgroundTaskPanel: React.FC<BackgroundTaskPanelProps> = ({
     failed: 0,
     cancelled: 0
   });
+
+  const updateTasks = React.useCallback(() => {
+    const allTasks = backgroundAgent.getAllTasks();
+    setTasks(allTasks);
+    setStats(backgroundAgent.getStats());
+  }, [backgroundAgent]);
 
   useEffect(() => {
     // Initial load
@@ -62,13 +197,7 @@ export const BackgroundTaskPanel: React.FC<BackgroundTaskPanelProps> = ({
       backgroundAgent.off('failed', onTaskUpdate);
       backgroundAgent.off('cancelled', onTaskUpdate);
     };
-  }, [backgroundAgent]);
-
-  const updateTasks = () => {
-    const allTasks = backgroundAgent.getAllTasks();
-    setTasks(allTasks);
-    setStats(backgroundAgent.getStats());
-  };
+  }, [backgroundAgent, updateTasks]);
 
   const handleCancel = (taskId: string) => {
     backgroundAgent.cancel(taskId);
@@ -79,7 +208,7 @@ export const BackgroundTaskPanel: React.FC<BackgroundTaskPanelProps> = ({
     updateTasks();
   };
 
-  const getFilteredTasks = (): BackgroundTask[] => {
+  const filteredTasks = React.useMemo(() => {
     switch (filter) {
       case 'running':
         return tasks.filter(t => t.status === 'running' || t.status === 'pending');
@@ -90,178 +219,88 @@ export const BackgroundTaskPanel: React.FC<BackgroundTaskPanelProps> = ({
       default:
         return tasks;
     }
-  };
-
-  const formatDuration = (task: BackgroundTask): string => {
-    if (!task.startTime) {return '-';}
-
-    const endTime = task.endTime || Date.now();
-    const duration = endTime - task.startTime;
-    const seconds = Math.floor(duration / 1000);
-
-    if (seconds < 60) {return `${seconds}s`;}
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes}m ${seconds % 60}s`;
-  };
-
-  const getStatusIcon = (status: BackgroundTask['status']) => {
-    switch (status) {
-      case 'pending':
-        return <Clock size={16} />;
-      case 'running':
-        return <Loader size={16} className="spinning" />;
-      case 'completed':
-        return <CheckCircle size={16} />;
-      case 'failed':
-        return <AlertCircle size={16} />;
-      case 'cancelled':
-        return <X size={16} />;
-    }
-  };
-
-  const getStatusColor = (status: BackgroundTask['status']): string => {
-    switch (status) {
-      case 'pending':
-        return '#6b7280';
-      case 'running':
-        return '#3b82f6';
-      case 'completed':
-        return '#10b981';
-      case 'failed':
-        return '#ef4444';
-      case 'cancelled':
-        return '#f59e0b';
-    }
-  };
+  }, [tasks, filter]);
 
   return (
     <Container>
-      <Header>
-        <Title>
-          <Activity size={20} />
-          Background Tasks
-        </Title>
-        <Stats>
-          <StatItem>
-            <StatLabel>Running</StatLabel>
-            <StatValue color="#3b82f6">{stats.running}</StatValue>
+    <Header>
+    <Title>
+    <Activity size= { 20} />
+    Background Tasks
+      </Title>
+      < Stats >
+      <StatItem>
+      <StatLabel>Running </StatLabel>
+      < StatValue color = "#3b82f6" > { stats.running } </StatValue>
+        </StatItem>
+        < StatItem >
+        <StatLabel>Completed </StatLabel>
+        < StatValue color = "#10b981" > { stats.completed } </StatValue>
           </StatItem>
-          <StatItem>
-            <StatLabel>Completed</StatLabel>
-            <StatValue color="#10b981">{stats.completed}</StatValue>
-          </StatItem>
-          <StatItem>
-            <StatLabel>Failed</StatLabel>
-            <StatValue color="#ef4444">{stats.failed}</StatValue>
-          </StatItem>
-        </Stats>
-      </Header>
+          < StatItem >
+          <StatLabel>Failed </StatLabel>
+          < StatValue color = "#ef4444" > { stats.failed } </StatValue>
+            </StatItem>
+            </Stats>
+            </Header>
 
-      <FilterBar>
-        <FilterButton
-          active={filter === 'all'}
-          onClick={() => setFilter('all')}
+            < FilterBar >
+            <FilterButton
+          active={ filter === 'all' }
+  onClick = {() => setFilter('all')}
         >
-          All ({tasks.length})
-        </FilterButton>
-        <FilterButton
-          active={filter === 'running'}
-          onClick={() => setFilter('running')}
+  All({ tasks.length })
+  </FilterButton>
+  < FilterButton
+active = { filter === 'running'}
+onClick = {() => setFilter('running')}
         >
-          Active ({stats.running + stats.pending})
-        </FilterButton>
-        <FilterButton
-          active={filter === 'completed'}
-          onClick={() => setFilter('completed')}
+  Active({ stats.running + stats.pending })
+  </FilterButton>
+  < FilterButton
+active = { filter === 'completed'}
+onClick = {() => setFilter('completed')}
         >
-          Completed ({stats.completed})
-        </FilterButton>
-        <FilterButton
-          active={filter === 'failed'}
-          onClick={() => setFilter('failed')}
+  Completed({ stats.completed })
+  </FilterButton>
+  < FilterButton
+active = { filter === 'failed'}
+onClick = {() => setFilter('failed')}
         >
-          Failed ({stats.failed})
-        </FilterButton>
+  Failed({ stats.failed })
+  </FilterButton>
 
-        {stats.completed > 0 && (
-          <ClearButton onClick={handleClearCompleted}>
-            Clear Completed
-          </ClearButton>
-        )}
-      </FilterBar>
+{
+  stats.completed > 0 && (
+    <ClearButton onClick={ handleClearCompleted }>
+      Clear Completed
+        </ClearButton>
+        )
+}
+</FilterBar>
 
-      <TaskList>
-        {getFilteredTasks().length === 0 ? (
-          <EmptyState>
-            <Activity size={48} />
-            <EmptyText>No tasks yet</EmptyText>
-            <EmptySubtext>
+  <TaskList>
+{
+  filteredTasks.length === 0 ? (
+    <EmptyState>
+    <Activity size= { 48} />
+    <EmptyText>No tasks yet </EmptyText>
+      <EmptySubtext>
               Background tasks will appear here when you run agents
-            </EmptySubtext>
-          </EmptyState>
+    </EmptySubtext>
+    </EmptyState>
         ) : (
-          getFilteredTasks().map(task => (
-            <TaskItem
-              key={task.id}
-              onClick={() => onTaskClick?.(task)}
-            >
-              <TaskHeader>
-                <TaskStatus color={getStatusColor(task.status)}>
-                  {getStatusIcon(task.status)}
-                  <span>{task.status}</span>
-                </TaskStatus>
-                <TaskActions>
-                  {task.status === 'running' && (
-                    <ActionButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancel(task.id);
-                      }}
-                      title="Cancel task"
-                    >
-                      <X size={16} />
-                    </ActionButton>
-                  )}
-                </TaskActions>
-              </TaskHeader>
-
-              <TaskContent>
-                <TaskTitle>{task.userRequest}</TaskTitle>
-                {task.stepDescription && task.status === 'running' && (
-                  <TaskStep>{task.stepDescription}</TaskStep>
-                )}
-
-                {task.status === 'running' && (
-                  <ProgressBar>
-                    <ProgressFill progress={task.progress || 0} />
-                    <ProgressText>
-                      {Math.round(task.progress || 0)}%
-                      {task.currentStep && task.totalSteps && (
-                        <> · Step {task.currentStep}/{task.totalSteps}</>
-                      )}
-                    </ProgressText>
-                  </ProgressBar>
-                )}
-
-                {task.error && (
-                  <ErrorMessage>{task.error.message}</ErrorMessage>
-                )}
-              </TaskContent>
-
-              <TaskFooter>
-                <TaskMeta>
-                  <MetaItem>
-                    <Clock size={12} />
-                    {formatDuration(task)}
-                  </MetaItem>
-                  <MetaItem>Agent: {task.agentId}</MetaItem>
-                </TaskMeta>
-              </TaskFooter>
-            </TaskItem>
+    filteredTasks.map(task => (
+      <TaskItemRenderer
+              key= { task.id }
+              task = { task }
+              onClick = { onTaskClick ?? (() => { })}
+onCancel = { handleCancel }
+  />
           ))
         )}
-      </TaskList>
-    </Container>
+</TaskList>
+  </Container>
   );
 };
 

@@ -16,6 +16,10 @@ const PROVIDER_PATTERNS: Record<AIProvider, RegExp[]> = {
   [AIProvider.ANTHROPIC]: [/claude/i],
   [AIProvider.DEEPSEEK]: [/deepseek/i],
   [AIProvider.GOOGLE]: [/gemini/i, /palm/i],
+  [AIProvider.GROQ]: [/groq/i, /llama/i, /mixtral/i],
+  [AIProvider.PERPLEXITY]: [/perplexity/i, /sonar/i],
+  [AIProvider.TOGETHER]: [/together/i],
+  [AIProvider.OLLAMA]: [/ollama/i],
 };
 
 export class AIProviderDetector {
@@ -87,6 +91,10 @@ export class AIProviderDetector {
       [AIProvider.OPENAI]: 'https://api.openai.com/v1',
       [AIProvider.ANTHROPIC]: 'https://api.anthropic.com/v1',
       [AIProvider.GOOGLE]: 'https://generativelanguage.googleapis.com/v1',
+      [AIProvider.GROQ]: 'https://api.groq.com/openai/v1',
+      [AIProvider.PERPLEXITY]: 'https://api.perplexity.ai',
+      [AIProvider.TOGETHER]: 'https://api.together.xyz/v1',
+      [AIProvider.OLLAMA]: 'http://localhost:11434/v1',
     };
 
     return urls[provider] || '';
@@ -101,6 +109,10 @@ export class AIProviderDetector {
       [AIProvider.OPENAI]: ['gpt-4-turbo', 'gpt-4o', 'gpt-3.5-turbo', 'o1-preview', 'o1-mini'],
       [AIProvider.ANTHROPIC]: ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku', 'claude-3-5-sonnet'],
       [AIProvider.GOOGLE]: ['gemini-pro', 'gemini-pro-vision', 'gemini-ultra'],
+      [AIProvider.GROQ]: ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768'],
+      [AIProvider.PERPLEXITY]: ['sonar-small-chat', 'sonar-medium-chat'],
+      [AIProvider.TOGETHER]: ['meta-llama/Llama-3-70b-chat-hf'],
+      [AIProvider.OLLAMA]: ['llama3', 'mistral'],
     };
 
     return models[provider] || [];

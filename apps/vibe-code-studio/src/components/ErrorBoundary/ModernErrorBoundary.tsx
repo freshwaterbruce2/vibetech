@@ -229,58 +229,58 @@ URL: ${window.location.href}
 
   return (
     <ErrorContainer>
-      <ErrorCard>
-        <IconWrapper>
-          <AlertTriangle />
-        </IconWrapper>
+    <ErrorCard>
+    <IconWrapper>
+    <AlertTriangle />
+    </IconWrapper>
 
-        <ErrorTitle>Oops! Something went wrong</ErrorTitle>
+    < ErrorTitle > Oops! Something went wrong </ErrorTitle>
 
-        <ErrorMessage>
-          DeepCode Editor encountered an unexpected error. Don&apos;t worry, your work is saved. You
+      <ErrorMessage>
+          DeepCode Editor encountered an unexpected error.Don & apos;t worry, your work is saved.You
           can try refreshing the page or return to the home screen.
         </ErrorMessage>
 
-        <ActionButtons>
-          <Button $variant="primary" onClick={resetErrorBoundary}>
-            <RefreshCw size={16} />
+    < ActionButtons >
+    <Button $variant="primary" onClick = { resetErrorBoundary } >
+      <RefreshCw size={ 16 } />
             Try Again
-          </Button>
+    </Button>
 
-          <Button $variant="secondary" onClick={goHome}>
-            <Home size={16} />
+    < Button $variant = "secondary" onClick = { goHome } >
+      <Home size={ 16 } />
             Go Home
-          </Button>
+    </Button>
 
-          <Button $variant="secondary" onClick={copyErrorToClipboard}>
-            <Copy size={16} />
-            {copied ? 'Copied!' : 'Copy Error'}
-          </Button>
-        </ActionButtons>
+    < Button $variant = "secondary" onClick = { copyErrorToClipboard } >
+      <Copy size={ 16 } />
+  { copied ? 'Copied!' : 'Copy Error' }
+  </Button>
+    </ActionButtons>
 
-        <DetailsSection>
-          <summary>
-            <Bug size={16} />
+    < DetailsSection >
+    <summary>
+    <Bug size={ 16 } />
             Technical Details
-          </summary>
-          <ErrorDetails>
-            <h4>Error Message</h4>
-            <pre>{error.message}</pre>
+    </summary>
+    < ErrorDetails >
+    <h4>Error Message </h4>
+      < pre > { error.message } </pre>
 
-            <h4>Stack Trace</h4>
-            <pre>{error.stack}</pre>
+      < h4 > Stack Trace </h4>
+        < pre > { error.stack } </pre>
 
-            <h4>Environment</h4>
-            <pre>
-              Mode: {import.meta.env.MODE}
-              Browser: {navigator.userAgent.split(' ').slice(-2).join(' ')}
-              Time: {new Date().toLocaleString()}
-            </pre>
-          </ErrorDetails>
-        </DetailsSection>
+        < h4 > Environment </h4>
+        <pre>
+  Mode: { import.meta.env.MODE }
+  Browser: { navigator.userAgent.split(' ').slice(-2).join(' ') }
+  Time: { new Date().toLocaleString() }
+  </pre>
+    </ErrorDetails>
+    </DetailsSection>
 
-        {reportSent && <StatusBar>✅ Error report sent automatically</StatusBar>}
-      </ErrorCard>
+  { reportSent && <StatusBar>✅ Error report sent automatically </StatusBar> }
+  </ErrorCard>
     </ErrorContainer>
   );
 }
@@ -309,8 +309,8 @@ export function ModernErrorBoundary({
   };
 
   return (
-    <ReactErrorBoundary {...props}>
-      {children}
+    <ReactErrorBoundary { ...props } >
+    { children as any }
     </ReactErrorBoundary>
   );
 }
@@ -324,8 +324,8 @@ export function withErrorBoundary<P extends object>(
   errorBoundaryProps?: Omit<ModernErrorBoundaryProps, 'children'>
 ) {
   const WrappedComponent = (props: P) => (
-    <ModernErrorBoundary {...errorBoundaryProps}>
-      <Component {...props} />
+    <ModernErrorBoundary { ...errorBoundaryProps } >
+    <Component { ...props } />
     </ModernErrorBoundary>
   );
 

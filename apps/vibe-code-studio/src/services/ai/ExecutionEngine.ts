@@ -5,6 +5,7 @@
  * Implements 2025 best practices for agentic AI workflows.
  */
 import { logger } from '../../services/Logger';
+import { databaseService } from '../../services/DatabaseService';
 import {
   ActionType,
   AgentStep,
@@ -48,6 +49,8 @@ export interface ExecutionCallbacks {
   onTaskComplete?: (task: AgentTask) => void;
   onTaskError?: (task: AgentTask, error: Error) => void;
   onFileChanged?: (filePath: string, action: 'created' | 'modified' | 'deleted') => void;
+  onChunkComplete?: (task: AgentTask, hasMoreChunks: boolean) => Promise<void>;
+  onRequestNextChunk?: (taskId: string) => Promise<AgentTask | null>;
 }
 
 export class ExecutionEngine {
@@ -131,7 +134,7 @@ export class ExecutionEngine {
     }
 
     logger.debug(`[ExecutionEngine] Resuming task: ${persistedTask.originalTask.title} from step ${persistedTask.currentStepIndex + 1}`);
-    
+
     // Set up task context
     this.currentTaskState.task = persistedTask.originalTask;
     this.currentTaskState.userRequest = persistedTask.metadata.userRequest;
@@ -140,7 +143,7 @@ export class ExecutionEngine {
     // Resume from the next step
     const resumedTask = { ...persistedTask.originalTask };
     resumedTask.status = 'in_progress';
-    
+
     return await this.executeTaskFromStep(resumedTask, persistedTask.currentStepIndex + 1, callbacks);
   }
 
@@ -160,10 +163,90 @@ export class ExecutionEngine {
   /**
    * Executes a complete task with all its steps
    * Implements sequential orchestration pattern from 2025 best practices
+   * Supports progressive chunk execution for large tasks
    */
   async executeTask(task: AgentTask, callbacks?: ExecutionCallbacks): Promise<AgentTask> {
     this.currentTaskState.task = task;
+
+    // Check if this is a chunked task
+    const isChunked = task.metadata?.isChunked === true;
+
+    if (isChunked) {
+      logger.info(
+        `[ExecutionEngine] Executing chunked task: chunk ${(task.metadata?.chunkIndex ?? 0) + 1}/${task.metadata?.totalChunks ?? 1}`
+      );
+    }
+
     return await this.executeTaskFromStep(task, 0, callbacks);
+  }
+
+  /**
+   * Executes a task with progressive chunks
+   * Automatically fetches and executes subsequent chunks after each completion
+   */
+  async executeTaskWithChunks(
+    initialTask: AgentTask,
+    callbacks?: ExecutionCallbacks
+  ): Promise<AgentTask[]> {
+    const executedTasks: AgentTask[] = [];
+    let currentTask: AgentTask | null = initialTask;
+
+    while (currentTask) {
+      // Execute current chunk
+      const executedTask = await this.executeTask(currentTask, callbacks);
+      executedTasks.push(executedTask);
+
+      // Check if task was completed successfully and if there are more chunks
+      if (executedTask.status === 'completed' && executedTask.metadata?.isChunked) {
+        const hasMore = await this.checkForMoreChunks(executedTask);
+
+        if (hasMore) {
+          logger.info('[ExecutionEngine] Task chunk completed, fetching next chunk...');
+
+          // Notify that chunk is complete
+          if (callbacks?.onChunkComplete) {
+            await callbacks.onChunkComplete(executedTask, true);
+          }
+
+          // Request next chunk
+          if (callbacks?.onRequestNextChunk) {
+            const parentId = executedTask.metadata?.parentTaskId || executedTask.id;
+            currentTask = await callbacks.onRequestNextChunk(parentId);
+
+            if (currentTask) {
+              logger.info(
+                `[ExecutionEngine] Retrieved next chunk: ${currentTask.metadata?.chunkIndex ?? 0 + 1}/${currentTask.metadata?.totalChunks ?? 1}`
+              );
+            }
+          } else {
+            logger.warn('[ExecutionEngine] No onRequestNextChunk callback provided, cannot continue with chunks');
+            currentTask = null;
+          }
+        } else {
+          logger.info('[ExecutionEngine] All task chunks completed successfully');
+          currentTask = null;
+        }
+      } else {
+        // Task failed or is not chunked
+        currentTask = null;
+      }
+    }
+
+    return executedTasks;
+  }
+
+  /**
+   * Checks if there are more chunks remaining for a task
+   */
+  private async checkForMoreChunks(task: AgentTask): Promise<boolean> {
+    if (!task.metadata?.isChunked) {
+      return false;
+    }
+
+    const currentChunk = task.metadata.chunkIndex ?? 0;
+    const totalChunks = task.metadata.totalChunks ?? 1;
+
+    return currentChunk < totalChunks - 1;
   }
 
   /**
@@ -205,7 +288,7 @@ export class ExecutionEngine {
         }
 
         const step = task.steps[i];
-        if (!step) {continue;} // Safety check
+        if (!step) { continue; } // Safety check
 
         // Check if approval is required (human-in-the-loop pattern)
         if (step.requiresApproval && !step.approved) {
@@ -288,6 +371,21 @@ export class ExecutionEngine {
         logger.debug('[ExecutionEngine] Calling onTaskComplete callback...');
 
         if (callbacks?.onTaskComplete) {
+          // Log successful task completion as knowledge
+          const completedSteps = task.steps.filter(s => s.status === 'completed').length;
+          const totalSteps = task.steps.length;
+          const duration = task.completedAt ? Date.now() - new Date(task.createdAt).getTime() : 0;
+
+          await databaseService.addKnowledge({
+            title: `Task Completed: ${task.title}`,
+            content: `Successfully completed: ${task.description}\nSteps: ${completedSteps}/${totalSteps}\nDuration: ${duration}ms\nStatus: ${task.status}`,
+            category: 'task_completion',
+            tags: ['success', 'task', task.metadata?.chunkIndex ? 'chunked' : 'full', 'execution-engine'],
+            source: 'execution_engine'
+          }).catch(dbError => {
+            logger.warn('[ExecutionEngine] Failed to log task completion:', dbError);
+          });
+
           callbacks.onTaskComplete(task);
           logger.debug('[ExecutionEngine] ✅ onTaskComplete callback fired');
         } else {
@@ -558,10 +656,10 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         // 2025 ENHANCEMENT Phase 3: Check if agent is stuck before final failure
         const stuckAnalysis = this.currentTaskState.task
           ? await this.metacognitiveLayer.analyzeStuckPattern(
-              step,
-              this.currentTaskState.task,
-              error as Error
-            )
+            step,
+            this.currentTaskState.task,
+            error as Error
+          )
           : { isStuck: false, recommendation: '', confidence: 0 };
 
         if (stuckAnalysis.isStuck && 'shouldSeekHelp' in stuckAnalysis && stuckAnalysis.shouldSeekHelp && this.currentTaskState.task) {
@@ -627,11 +725,35 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
         );
 
         if (alternativeStrategy) {
+          // Log successful self-correction strategy as knowledge
+          await databaseService.addKnowledge({
+            title: 'Self-Correction Success',
+            content: `Original failure: ${errorMessage}\nAlternative: ${alternativeStrategy.type}\nAttempt: ${step.retryCount}\nStep: ${step.title}`,
+            category: 'self_correction',
+            tags: ['recovery', 'alternative', 'learning', alternativeStrategy.type],
+            source: 'execution_engine'
+          }).catch(dbError => {
+            logger.warn('[ExecutionEngine] Failed to log self-correction success:', dbError);
+          });
+
           // Update step action to use alternative strategy
           logger.debug(`[ExecutionEngine] ✅ Using alternative: ${alternativeStrategy.type}`);
           step.action = alternativeStrategy;
           // Continue loop to try new strategy
         } else {
+          // Log self-correction failure
+          await databaseService.logMistake({
+            mistakeType: 'self_correction_failure',
+            mistakeCategory: 'recovery',
+            description: `Failed to generate alternative strategy: ${errorMessage}`,
+            contextWhenOccurred: `Step: ${step.title}, Retry: ${step.retryCount}/${step.maxRetries}`,
+            impactSeverity: 'HIGH',
+            preventionStrategy: 'Improve alternative strategy generation or request human help',
+            tags: ['self-correction', 'failed', 'needs-help']
+          }).catch(dbError => {
+            logger.warn('[ExecutionEngine] Failed to log self-correction failure:', dbError);
+          });
+
           // No alternative found, use exponential backoff before retry
           logger.debug(`[ExecutionEngine] ⚠️  No alternative found, retrying original action...`);
           const backoffMs = Math.min(1000 * Math.pow(2, step.retryCount - 1), 10000);
@@ -770,7 +892,7 @@ Generate ONE alternative strategy that's DIFFERENT from the original approach.`;
     // Extract filename from path
     const pathParts = requestedPath.split(/[/\\]/);
     const fileName = pathParts[pathParts.length - 1];
-    const {workspaceRoot} = this.currentTaskState;
+    const { workspaceRoot } = this.currentTaskState;
 
     if (!workspaceRoot) {
       return null;
@@ -1266,7 +1388,7 @@ Keep it concise (3-5 bullet points).`;
 
       // Check if this is a large code generation task that should be chunked
       const shouldChunk = params.chunked === true || params.description.length > 2000;
-      
+
       if (shouldChunk && params.chunks) {
         return await this.executeChunkedCodeGeneration(params, prompt);
       } else {
@@ -1280,23 +1402,23 @@ Keep it concise (3-5 bullet points).`;
   private buildCodeGenerationPrompt(params: any): string {
     const language = params.targetLanguage || 'TypeScript';
     const fileType = params.fileType || 'source code';
-    
+
     let prompt = `Generate ${language} ${fileType}:\n\n${params.description}`;
-    
+
     if (params.context) {
       prompt += `\n\nContext: ${params.context}`;
     }
-    
+
     if (params.requirements) {
       prompt += `\n\nRequirements:\n${params.requirements.map((req: string) => `- ${req}`).join('\n')}`;
     }
-    
+
     if (params.existingCode) {
       prompt += `\n\nExisting code to reference:\n\`\`\`${language}\n${params.existingCode}\n\`\`\``;
     }
-    
+
     prompt += `\n\nProvide complete, working ${language} code with proper imports, error handling, and documentation.`;
-    
+
     return prompt;
   }
 
@@ -1338,33 +1460,33 @@ Keep it concise (3-5 bullet points).`;
     try {
       const chunks = params.chunks || [];
       const generatedChunks: string[] = [];
-      
+
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         const chunkPrompt = `${basePrompt}\n\nGenerate part ${i + 1}/${chunks.length}: ${chunk.description}`;
-        
+
         const chunkResult = await this.executeSingleCodeGeneration({
           ...params,
           description: chunkPrompt,
         }, chunkPrompt);
-        
+
         if (!chunkResult.success) {
           throw new Error(`Chunk ${i + 1} generation failed: ${chunkResult.message}`);
         }
-        
+
         generatedChunks.push((chunkResult.data as any)?.generatedCode || chunkResult.data || '');
-        
+
         // Add delay between chunks to respect rate limits
         if (i < chunks.length - 1) {
           await this.sleep(1000);
         }
       }
-      
+
       const combinedCode = generatedChunks.join('\n\n');
-      
+
       return {
         success: true,
-        data: { 
+        data: {
           generatedCode: combinedCode,
           chunks: generatedChunks
         },
@@ -1379,15 +1501,15 @@ Keep it concise (3-5 bullet points).`;
     // Extract code blocks from markdown-formatted response
     const codeBlockRegex = /```(?:\w+)?\n?([\s\S]*?)```/g;
     const matches = Array.from(response.matchAll(codeBlockRegex));
-    
+
     if (matches.length > 0) {
       // Return the largest code block (likely the main one)
       const codeBlocks = matches.map(match => match[1]?.trim() || '').filter(Boolean);
-      return codeBlocks.reduce((longest, current) => 
+      return codeBlocks.reduce((longest, current) =>
         current.length > longest.length ? current : longest
       );
     }
-    
+
     // If no code blocks found, return the full response (might be plain code)
     return response.trim();
   }
@@ -1411,8 +1533,8 @@ Keep it concise (3-5 bullet points).`;
   private async detectTestCommand(): Promise<string> {
     // Check if project uses pnpm, yarn, or npm
     try {
-      const {workspaceRoot} = this.currentTaskState;
-      if (!workspaceRoot) {return 'npm test';}
+      const { workspaceRoot } = this.currentTaskState;
+      if (!workspaceRoot) { return 'npm test'; }
 
       // Check for pnpm-lock.yaml (pnpm)
       try {
@@ -1474,11 +1596,11 @@ Project Quality Report:
 ${report.filesWithIssues > 0 ? `
 Top 5 Files Needing Attention:
 ${report.fileReports
-  .filter(f => f.issues.length > 0)
-  .sort((a, b) => a.quality - b.quality)
-  .slice(0, 5)
-  .map((f, i) => `${i + 1}. ${f.filePath} (Quality: ${Math.round(f.quality)}, Issues: ${f.issues.length})`)
-  .join('\n')}
+            .filter(f => f.issues.length > 0)
+            .sort((a, b) => a.quality - b.quality)
+            .slice(0, 5)
+            .map((f, i) => `${i + 1}. ${f.filePath} (Quality: ${Math.round(f.quality)}, Issues: ${f.issues.length})`)
+            .join('\n')}
 ` : '✓ No quality issues found!'}
       `.trim();
 
@@ -1622,7 +1744,7 @@ Be detailed, specific, and actionable. Reference specific files when making poin
       // Reverse the steps
       for (let i = stepResults.length - 1; i >= 0; i--) {
         const result = stepResults[i];
-        if (!result) {continue;}
+        if (!result) { continue; }
 
         // Attempt to reverse the action
         if (result.filesCreated) {

@@ -15,7 +15,7 @@ export const codeAnalysisExecutor: TaskExecutor = {
     onProgress: (progress: TaskProgress) => void
   ): Promise<TaskResult> {
     try {
-      const files = task.metadata?.files || [];
+      const files = task.metadata?.['files'] || [];
       const total = files.length;
 
       for (let i = 0; i < total; i++) {
@@ -61,7 +61,7 @@ export const fileIndexingExecutor: TaskExecutor = {
     onProgress: (progress: TaskProgress) => void
   ): Promise<TaskResult> {
     try {
-      const workspacePath = task.metadata?.workspacePath || '';
+      const workspacePath = task.metadata?.['workspacePath'] || '';
       const steps = ['Scanning files', 'Parsing content', 'Building index', 'Optimizing'];
       const total = steps.length;
 
@@ -72,7 +72,7 @@ export const fileIndexingExecutor: TaskExecutor = {
           current: i + 1,
           total,
           percentage: Math.round(((i + 1) / total) * 100),
-          message: steps[i],
+          message: steps[i]!,
         });
       }
 
@@ -106,7 +106,7 @@ export const multiFileEditExecutor: TaskExecutor = {
     onProgress: (progress: TaskProgress) => void
   ): Promise<TaskResult> {
     try {
-      const changes = task.metadata?.changes || [];
+      const changes = task.metadata?.['changes'] || [];
       const total = changes.length;
       const appliedFiles: string[] = [];
       const failedFiles: string[] = [];
@@ -169,7 +169,7 @@ export const gitOperationExecutor: TaskExecutor = {
     onProgress: (progress: TaskProgress) => void
   ): Promise<TaskResult> {
     try {
-      const operation = task.metadata?.operation || 'status';
+      const operation = task.metadata?.['operation'] || 'status';
       const steps = ['Preparing', 'Executing', 'Verifying'];
       const total = steps.length;
 
@@ -180,7 +180,7 @@ export const gitOperationExecutor: TaskExecutor = {
           current: i + 1,
           total,
           percentage: Math.round(((i + 1) / total) * 100),
-          message: `${steps[i]} git ${operation}...`,
+          message: `${steps[i]!} git ${operation}...`,
         });
       }
 
@@ -227,7 +227,7 @@ export const buildExecutor: TaskExecutor = {
           current: i + 1,
           total,
           percentage: Math.round(((i + 1) / total) * 100),
-          message: steps[i],
+          message: steps[i]!,
         });
       }
 
@@ -251,9 +251,9 @@ export const buildExecutor: TaskExecutor = {
     }
   },
 
-  async cancel(task: BackgroundTask): Promise<void> {
+  async cancel(_task: BackgroundTask): Promise<void> {
     // Kill build process
-    logger.debug(`Canceling build task: ${task.id}`);
+    logger.debug(`Canceling build task: ${_task.id}`);
   },
 };
 
@@ -267,7 +267,7 @@ export const testExecutor: TaskExecutor = {
     onProgress: (progress: TaskProgress) => void
   ): Promise<TaskResult> {
     try {
-      const testFiles = task.metadata?.testFiles || [];
+      const testFiles = task.metadata?.['testFiles'] || [];
       const total = testFiles.length || 10;
       let passed = 0;
       let failed = 0;
@@ -315,8 +315,8 @@ export const testExecutor: TaskExecutor = {
     }
   },
 
-  async cancel(task: BackgroundTask): Promise<void> {
-    logger.debug(`Canceling test execution: ${task.id}`);
+  async cancel(_task: BackgroundTask): Promise<void> {
+    logger.debug(`Canceling test execution: ${_task.id}`);
   },
 };
 
@@ -330,7 +330,7 @@ export const aiCompletionExecutor: TaskExecutor = {
     onProgress: (progress: TaskProgress) => void
   ): Promise<TaskResult> {
     try {
-      const context = task.metadata?.context || '';
+      const context = task.metadata?.['context'] || '';
       const steps = ['Preparing context', 'Calling AI model', 'Parsing response'];
       const total = steps.length;
 
@@ -341,7 +341,7 @@ export const aiCompletionExecutor: TaskExecutor = {
           current: i + 1,
           total,
           percentage: Math.round(((i + 1) / total) * 100),
-          message: steps[i],
+          message: steps[i]!,
         });
       }
 

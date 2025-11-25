@@ -89,6 +89,14 @@ export function VirtualList<T>({
 
   // Calculate visible range
   const getVisibleRange = useCallback(() => {
+    // Optimization for fixed height items
+    if (typeof itemHeight === 'number') {
+      const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+      const visibleCount = Math.ceil(height / itemHeight) + 2 * overscan;
+      const endIndex = Math.min(items.length - 1, startIndex + visibleCount);
+      return { startIndex, endIndex };
+    }
+
     let accumulatedHeight = 0;
     let startIndex = 0;
     let endIndex = items.length - 1;
@@ -141,22 +149,38 @@ export function VirtualList<T>({
   const { startIndex, endIndex } = getVisibleRange();
   const visibleItems: Array<{ item: T; index: number; top: number }> = [];
 
-  let accumulatedHeight = 0;
-  for (let i = 0; i < items.length; i++) {
-    const itemHeight = getItemHeight(i);
-
-    if (i >= startIndex && i <= endIndex) {
+  // Optimization for fixed height items
+  if (typeof itemHeight === 'number') {
+    for (let i = startIndex; i <= endIndex; i++) {
       const currentItem = items[i];
       if (currentItem !== undefined) {
         visibleItems.push({
           item: currentItem,
           index: i,
-          top: accumulatedHeight,
+          top: i * itemHeight,
         });
       }
     }
+  } else {
+    let accumulatedHeight = 0;
+    for (let i = 0; i < items.length; i++) {
+      const currentHeight = getItemHeight(i);
 
-    accumulatedHeight += itemHeight;
+      if (i >= startIndex && i <= endIndex) {
+        const currentItem = items[i];
+        if (currentItem !== undefined) {
+          visibleItems.push({
+            item: currentItem,
+            index: i,
+            top: accumulatedHeight,
+          });
+        }
+      }
+
+      accumulatedHeight += currentHeight;
+      // Optimization: Stop calculating if we passed the end index
+      if (i > endIndex) { break; }
+    }
   }
 
   // Cleanup timeout on unmount
@@ -170,31 +194,34 @@ export function VirtualList<T>({
 
   return (
     <Container
-      ref={scrollElementRef}
-      style={{ height }}
-      onScroll={handleScroll}
-      className={className}
+      ref= { scrollElementRef }
+  style = {{ height }
+}
+onScroll = { handleScroll }
+className = { className }
+  >
+  <ScrollContainer style={ { height: totalHeight } }>
+  {
+    visibleItems.map(({ item, index, top }) => (
+      <ItemContainer
+            key= { index }
+            style = {{
+      transform: `translateY(${top}px)`,
+      height: getItemHeight(index),
+    }}
     >
-      <ScrollContainer style={{ height: totalHeight }}>
-        {visibleItems.map(({ item, index, top }) => (
-          <ItemContainer
-            key={index}
-            style={{
-              transform: `translateY(${top}px)`,
-              height: getItemHeight(index),
-            }}
-          >
-            {renderItem(item, index, {
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: getItemHeight(index),
-            })}
-          </ItemContainer>
+    {
+      renderItem(item, index, {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: getItemHeight(index),
+            }) as any}
+</ItemContainer>
         ))}
-      </ScrollContainer>
-    </Container>
+</ScrollContainer>
+  </Container>
   );
 }
 

@@ -1,0 +1,211 @@
+{
+  "$schema": "./data-storage.schema.json",
+  "version": "1.0.0",
+  "enforcement": "MANDATORY",
+  "lastUpdated": "2025-11-24",
+
+  "basePaths": {
+    "dataRoot": "D:\\",
+    "projectRoot": "C:\\dev",
+    "description": "ALL data, logs, databases, and learning systems MUST be stored on D:\\ drive"
+  },
+
+  "standardDirectories": {
+    "logs": {
+      "path": "D:\\logs",
+      "structure": "D:\\logs\\[project-name]\\[environment]\\[date]\\",
+      "examples": [
+        "D:\\logs\\vibe-code-studio\\production\\2025-11-24\\",
+        "D:\\logs\\nova-agent\\development\\2025-11-24\\"
+      ],
+      "retention": "30 days",
+      "rotation": "daily"
+    },
+
+    "databases": {
+      "path": "D:\\databases",
+      "structure": "D:\\databases\\[project-name]\\[db-type]\\",
+      "examples": [
+        "D:\\databases\\vibe-code-studio\\sqlite\\main.db",
+        "D:\\databases\\nova-agent\\postgres\\",
+        "D:\\databases\\business-booking\\mongodb\\"
+      ],
+      "backup": "D:\\backups\\databases\\[project-name]\\"
+    },
+
+    "data": {
+      "path": "D:\\data",
+      "structure": "D:\\data\\[project-name]\\[data-type]\\",
+      "examples": [
+        "D:\\data\\vibe-code-studio\\cache\\",
+        "D:\\data\\nova-agent\\uploads\\",
+        "D:\\data\\shipping-pwa\\exports\\"
+      ],
+      "maxFileSize": "100MB",
+      "largeFiles": "D:\\data\\large\\"
+    },
+
+    "learning": {
+      "path": "D:\\learning",
+      "structure": "D:\\learning\\[project-name]\\[model-type]\\",
+      "examples": [
+        "D:\\learning\\vibe-code-studio\\models\\",
+        "D:\\learning\\nova-agent\\training-data\\",
+        "D:\\learning\\ml-models\\checkpoints\\"
+      ],
+      "modelStorage": "D:\\learning\\models\\",
+      "trainingData": "D:\\learning\\datasets\\"
+    },
+
+    "backups": {
+      "path": "D:\\backups",
+      "structure": "D:\\backups\\[type]\\[project-name]\\[date]\\",
+      "examples": [
+        "D:\\backups\\databases\\nova-agent\\2025-11-24\\",
+        "D:\\backups\\logs\\vibe-code-studio\\2025-11-24\\",
+        "D:\\backups\\data\\shipping-pwa\\2025-11-24\\"
+      ],
+      "retention": "90 days",
+      "frequency": "daily"
+    },
+
+    "temp": {
+      "path": "D:\\temp",
+      "structure": "D:\\temp\\[project-name]\\[session-id]\\",
+      "examples": [
+        "D:\\temp\\vibe-code-studio\\session-abc123\\",
+        "D:\\temp\\nova-agent\\build-temp\\"
+      ],
+      "cleanup": "on-session-end",
+      "maxAge": "24 hours"
+    },
+
+    "cache": {
+      "path": "D:\\cache",
+      "structure": "D:\\cache\\[project-name]\\[cache-type]\\",
+      "examples": [
+        "D:\\cache\\vibe-code-studio\\api\\",
+        "D:\\cache\\nova-agent\\build\\",
+        "D:\\cache\\shared\\npm\\"
+      ],
+      "maxSize": "10GB",
+      "eviction": "LRU"
+    }
+  },
+
+  "projectMappings": {
+    "vibe-code-studio": {
+      "logs": "D:\\logs\\vibe-code-studio\\",
+      "database": "D:\\databases\\vibe-code-studio\\",
+      "data": "D:\\data\\vibe-code-studio\\",
+      "learning": "D:\\learning\\vibe-code-studio\\",
+      "temp": "D:\\temp\\vibe-code-studio\\"
+    },
+    "nova-agent": {
+      "logs": "D:\\logs\\nova-agent\\",
+      "database": "D:\\databases\\nova-agent\\",
+      "data": "D:\\data\\nova-agent\\",
+      "learning": "D:\\learning\\nova-agent\\",
+      "temp": "D:\\temp\\nova-agent\\"
+    },
+    "business-booking-platform": {
+      "logs": "D:\\logs\\business-booking\\",
+      "database": "D:\\databases\\business-booking\\",
+      "data": "D:\\data\\business-booking\\",
+      "temp": "D:\\temp\\business-booking\\"
+    },
+    "shipping-pwa": {
+      "logs": "D:\\logs\\shipping-pwa\\",
+      "database": "D:\\databases\\shipping-pwa\\",
+      "data": "D:\\data\\shipping-pwa\\",
+      "temp": "D:\\temp\\shipping-pwa\\"
+    },
+    "iconforge": {
+      "logs": "D:\\logs\\iconforge\\",
+      "data": "D:\\data\\iconforge\\",
+      "temp": "D:\\temp\\iconforge\\"
+    }
+  },
+
+  "environmentVariables": {
+    "LOG_PATH": "D:\\logs",
+    "DATA_PATH": "D:\\data",
+    "DB_PATH": "D:\\databases",
+    "LEARNING_PATH": "D:\\learning",
+    "BACKUP_PATH": "D:\\backups",
+    "TEMP_PATH": "D:\\temp",
+    "CACHE_PATH": "D:\\cache"
+  },
+
+  "dockerVolumes": {
+    "logs": {
+      "host": "D:\\logs",
+      "container": "/var/log/app"
+    },
+    "data": {
+      "host": "D:\\data",
+      "container": "/data"
+    },
+    "databases": {
+      "host": "D:\\databases",
+      "container": "/var/lib/db"
+    }
+  },
+
+  "forbiddenPaths": {
+    "never_use": [
+      "C:\\dev\\logs",
+      "C:\\dev\\data",
+      "C:\\dev\\databases",
+      "C:\\dev\\apps\\*/logs",
+      "C:\\dev\\apps\\*/data",
+      "C:\\dev\\apps\\*/db",
+      "./logs",
+      "./data",
+      "./database"
+    ],
+    "reason": "All data must be stored on D:\\ drive for performance and backup purposes"
+  },
+
+  "validation": {
+    "checks": [
+      {
+        "name": "no_data_in_repo",
+        "description": "Ensure no data files in repository",
+        "patterns": ["*.db", "*.sqlite", "*.log", "*.csv", "*.json.data"]
+      },
+      {
+        "name": "config_paths_valid",
+        "description": "All config files must point to D:\\ paths",
+        "files": ["*.config.js", "*.config.ts", ".env", "appsettings.json"]
+      },
+      {
+        "name": "gitignore_updated",
+        "description": "Ensure .gitignore excludes all data patterns",
+        "required_patterns": ["*.db", "*.log", "*.sqlite", "data/", "logs/"]
+      }
+    ]
+  },
+
+  "migrationGuide": {
+    "steps": [
+      "1. Check for existing data in C:\\ drive locations",
+      "2. Create D:\\ drive directory structure",
+      "3. Move existing data to D:\\ paths",
+      "4. Update all configuration files",
+      "5. Update environment variables",
+      "6. Test applications with new paths",
+      "7. Clean up old C:\\ drive data"
+    ]
+  },
+
+  "quickReference": {
+    "rules": [
+      "ALL logs → D:\\logs\\[project]\\",
+      "ALL databases → D:\\databases\\[project]\\",
+      "ALL data files → D:\\data\\[project]\\",
+      "ALL ML models → D:\\learning\\[project]\\",
+      "NEVER store data in C:\\dev\\"
+    ]
+  }
+}

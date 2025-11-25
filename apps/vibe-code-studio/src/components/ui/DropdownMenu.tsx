@@ -34,7 +34,7 @@ const DropdownContainer = styled.div`
   display: inline-block;
 `;
 
-const DropdownContent = styled(motion.div)<{ $align: 'left' | 'right'; $width?: string }>`
+const DropdownContent = styled(motion.div) <{ $align: 'left' | 'right'; $width?: string }>`
   position: absolute;
   top: calc(100% + 4px);
   ${(props) => (props.$align === 'right' ? 'right: 0;' : 'left: 0;')}
@@ -48,15 +48,15 @@ const DropdownContent = styled(motion.div)<{ $align: 'left' | 'right'; $width?: 
   overflow: visible;
 `;
 
-const MenuItemWrapper = styled(motion.div)<{ $disabled?: boolean; $danger?: boolean }>`
+const MenuItemWrapper = styled(motion.div) <{ $disabled?: boolean; $danger?: boolean }>`
   display: flex;
   align-items: center;
   padding: ${vibeTheme.spacing[2]} ${vibeTheme.spacing[3]};
   cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   font-size: ${vibeTheme.typography.fontSize.sm};
   color: ${(props) => {
-    if (props.$disabled) {return vibeTheme.colors.textDisabled;}
-    if (props.$danger) {return vibeTheme.colors.error;}
+    if (props.$disabled) { return vibeTheme.colors.textDisabled; }
+    if (props.$danger) { return vibeTheme.colors.error; }
     return vibeTheme.colors.text;
   }};
   background: transparent;
@@ -153,6 +153,95 @@ const SubMenuContent = styled(DropdownContent)`
   z-index: 10001;
 `;
 
+// MenuItem Subcomponent with Submenu Support
+interface MenuItemProps {
+  item: DropdownMenuItem;
+  isFocused: boolean;
+  onClick: () => void;
+}
+
+const MenuItem: React.FC<MenuItemProps> = ({ item, isFocused, onClick }) => {
+  const [showSubmenu, setShowSubmenu] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    logger.debug('MenuItem clicked:', item.label, 'Has submenu:', !!item.submenu, 'Current showSubmenu:', showSubmenu);
+    if (item.submenu) {
+      setShowSubmenu(!showSubmenu);
+    } else {
+      onClick();
+    }
+  };
+
+  return (
+    <MenuItemWrapper
+      $disabled= { item.disabled }
+  $danger = { item.danger }
+  onClick = { handleClick }
+  onMouseEnter = {() => item.submenu && setShowSubmenu(true)}
+onMouseLeave = {() => item.submenu && setShowSubmenu(false)}
+tabIndex = { item.disabled ? -1 : 0 }
+role = "menuitem"
+aria-disabled={ item.disabled }
+whileHover = {!item.disabled ? { x: 2 } : undefined}
+style = {{
+  background: isFocused && !item.disabled ? vibeTheme.colors.hover : undefined,
+      }}
+    >
+{
+  item.checked !== undefined && (
+    <CheckIcon>{
+      item.checked && <Check />}</CheckIcon >
+      )
+    }
+
+      { item.icon && <MenuItemIcon>{ item.icon as any } </MenuItemIcon> }
+
+<MenuItemLabel>{ item.label } </MenuItemLabel>
+
+{ item.shortcut && <MenuItemShortcut>{ item.shortcut } </MenuItemShortcut> }
+
+{
+  item.submenu && (
+    <>
+    <MenuItemSubmenuIndicator>
+    <ChevronRight />
+    </MenuItemSubmenuIndicator>
+
+    <AnimatePresence>
+            {
+    showSubmenu && (
+      <SubMenuContent
+                $align="left"
+    initial = {{ opacity: 0, x: -10 }
+  }
+  animate = {{ opacity: 1, x: 0 }
+}
+exit = {{ opacity: 0, x: -10 }}
+transition = {{ duration: 0.15 }}
+              >
+  {
+    item.submenu.map((subItem, subIndex) =>
+      subItem.divider ? (
+        <MenuDivider key= {`divider-${subIndex}`} />
+                  ) : (
+  <MenuItem
+                      key= { subItem.id }
+item = { subItem }
+isFocused = { false}
+onClick = {() => subItem.onClick?.()}
+                    />
+                  )
+                )}
+</SubMenuContent>
+            )}
+</AnimatePresence>
+  </>
+      )}
+</MenuItemWrapper>
+  );
+};
+
 // Component
 export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
   ({ items, trigger, align = 'left', width, onClose }, ref) => {
@@ -180,7 +269,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
     };
 
     const handleItemClick = (item: DropdownMenuItem) => {
-      if (item.disabled || item.submenu) {return;}
+      if (item.disabled || item.submenu) { return; }
 
       if (item.onClick) {
         item.onClick();
@@ -204,7 +293,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
 
     // Keyboard navigation
     useEffect(() => {
-      if (!isOpen) {return;}
+      if (!isOpen) { return; }
 
       const validItems = items.filter((item) => !item.divider && !item.disabled);
 
@@ -238,128 +327,51 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
     }, [isOpen, focusedIndex, items]);
 
     return (
-      <DropdownContainer ref={ref || dropdownRef}>
-        <div onClick={handleToggle}>{trigger}</div>
+      <DropdownContainer ref= { ref || dropdownRef
+  }>
+<div onClick={ handleToggle } > { trigger } </div>
 
-        <AnimatePresence>
-          {isOpen && (
-            <DropdownContent
-              $align={align}
-              $width={width}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{
-                duration: 0.15,
-                ease: [0.4, 0, 0.2, 1],
+<AnimatePresence>
+          { isOpen && (
+    <DropdownContent
+              $align={ align }
+              $width = { width }
+              initial = {{ opacity: 0, y: -10 }}
+animate = {{ opacity: 1, y: 0 }}
+exit = {{ opacity: 0, y: -10 }}
+transition = {{
+  duration: 0.15,
+    ease: [0.4, 0, 0.2, 1],
               }}
             >
-              {items.map((item, index) => {
-                if (item.divider) {
-                  return <MenuDivider key={`divider-${index}`} />;
-                }
+{
+  items.map((item, index) => {
+    if (item.divider) {
+      return <MenuDivider key={ `divider-${index}` } />;
+    }
 
-                const validIndex = items
-                  .slice(0, index)
-                  .filter((i) => !i.divider && !i.disabled).length;
-                const isFocused = validIndex === focusedIndex;
+    const validIndex = items
+      .slice(0, index)
+      .filter((i) => !i.divider && !i.disabled).length;
+    const isFocused = validIndex === focusedIndex;
 
-                return (
-                  <MenuItem
-                    key={item.id}
-                    item={item}
-                    isFocused={isFocused}
-                    onClick={() => handleItemClick(item)}
+    return (
+      <MenuItem
+                    key= { item.id }
+    item = { item }
+    isFocused = { isFocused }
+    onClick = {() => handleItemClick(item)
+  }
                   />
-                );
-              })}
-            </DropdownContent>
+  );
+})}
+</DropdownContent>
           )}
-        </AnimatePresence>
-      </DropdownContainer>
+</AnimatePresence>
+  </DropdownContainer>
     );
   }
 );
 
 DropdownMenu.displayName = 'DropdownMenu';
 
-// MenuItem Subcomponent with Submenu Support
-interface MenuItemProps {
-  item: DropdownMenuItem;
-  isFocused: boolean;
-  onClick: () => void;
-}
-
-const MenuItem: React.FC<MenuItemProps> = ({ item, isFocused, onClick }) => {
-  const [showSubmenu, setShowSubmenu] = useState(false);
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    logger.debug('MenuItem clicked:', item.label, 'Has submenu:', !!item.submenu, 'Current showSubmenu:', showSubmenu);
-    if (item.submenu) {
-      setShowSubmenu(!showSubmenu);
-    } else {
-      onClick();
-    }
-  };
-
-  return (
-    <MenuItemWrapper
-      $disabled={item.disabled}
-      $danger={item.danger}
-      onClick={handleClick}
-      onMouseEnter={() => item.submenu && setShowSubmenu(true)}
-      onMouseLeave={() => item.submenu && setShowSubmenu(false)}
-      tabIndex={item.disabled ? -1 : 0}
-      role="menuitem"
-      aria-disabled={item.disabled}
-      whileHover={!item.disabled ? { x: 2 } : undefined}
-      style={{
-        background: isFocused && !item.disabled ? vibeTheme.colors.hover : undefined,
-      }}
-    >
-      {item.checked !== undefined && (
-        <CheckIcon>{item.checked && <Check />}</CheckIcon>
-      )}
-
-      {item.icon && <MenuItemIcon>{item.icon}</MenuItemIcon>}
-
-      <MenuItemLabel>{item.label}</MenuItemLabel>
-
-      {item.shortcut && <MenuItemShortcut>{item.shortcut}</MenuItemShortcut>}
-
-      {item.submenu && (
-        <>
-          <MenuItemSubmenuIndicator>
-            <ChevronRight />
-          </MenuItemSubmenuIndicator>
-
-          <AnimatePresence>
-            {showSubmenu && (
-              <SubMenuContent
-                $align="left"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.15 }}
-              >
-                {item.submenu.map((subItem, subIndex) =>
-                  subItem.divider ? (
-                    <MenuDivider key={`divider-${subIndex}`} />
-                  ) : (
-                    <MenuItem
-                      key={subItem.id}
-                      item={subItem}
-                      isFocused={false}
-                      onClick={() => subItem.onClick?.()}
-                    />
-                  )
-                )}
-              </SubMenuContent>
-            )}
-          </AnimatePresence>
-        </>
-      )}
-    </MenuItemWrapper>
-  );
-};

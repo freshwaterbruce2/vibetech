@@ -5,7 +5,7 @@
 
 // Simple HTML entities encoding to prevent XSS
 function escapeHtml(text: string): string {
-  const map: { [key: string]: string } = {
+  const map: Record<string, string> = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
@@ -14,7 +14,7 @@ function escapeHtml(text: string): string {
     '/': '&#x2F;',
   };
 
-  return text.replace(/[&<>"'/]/g, (char) => map[char]);
+  return text.replace(/[&<>"'/]/g, (char) => map[char] ?? char);
 }
 
 // Safe markdown-like formatting that doesn't allow arbitrary HTML
@@ -25,35 +25,35 @@ export function formatMessageSafely(content: string): string {
   // Apply safe formatting patterns
   // Code blocks with language specification
   formatted = formatted.replace(
-    /```(\w+)?\n([\s\S]*?)\n```/g, 
+    /```(\w+)?\n([\s\S]*?)\n```/g,
     '<pre class="code-block"><code class="language-$1">$2</code></pre>'
   );
 
   // Inline code
   formatted = formatted.replace(
-    /`([^`]+)`/g, 
+    /`([^`]+)`/g,
     '<code class="inline-code">$1</code>'
   );
 
   // Bold text
   formatted = formatted.replace(
-    /\*\*(.*?)\*\*/g, 
+    /\*\*(.*?)\*\*/g,
     '<strong>$1</strong>'
   );
 
   // Italic text
   formatted = formatted.replace(
-    /\*(.*?)\*/g, 
+    /\*(.*?)\*/g,
     '<em>$1</em>'
   );
 
   // Headers (only allow h3-h6 for safety)
   formatted = formatted.replace(
-    /^### (.*$)/gm, 
+    /^### (.*$)/gm,
     '<h3>$1</h3>'
   );
   formatted = formatted.replace(
-    /^#### (.*$)/gm, 
+    /^#### (.*$)/gm,
     '<h4>$1</h4>'
   );
 
@@ -72,8 +72,7 @@ export interface MessagePart {
 
 export function parseMessageSafely(content: string): MessagePart[] {
   const parts: MessagePart[] = [];
-  const _remaining = content;
-  
+
   // Process code blocks first
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)\n```/g;
   let match;
@@ -111,7 +110,6 @@ export function parseMessageSafely(content: string): MessagePart[] {
 
 function parseInlineElements(text: string): MessagePart[] {
   const parts: MessagePart[] = [];
-  const _remaining = text;
 
   // Split by inline code first
   const codeRegex = /`([^`]+)`/g;
@@ -147,9 +145,6 @@ function parseTextFormatting(text: string): MessagePart[] {
   const parts: MessagePart[] = [];
 
   // Handle bold and italic formatting
-  const _boldRegex = /\*\*(.*?)\*\*/g;
-  const _italicRegex = /\*(.*?)\*/g;
-  
   // For simplicity, just return as text for now
   // In a full implementation, you'd parse these recursively
   if (text.trim()) {

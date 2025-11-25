@@ -12,6 +12,7 @@
 
 import { EventSourceParserStream } from 'eventsource-parser/stream';
 import DOMPurify from 'isomorphic-dompurify';
+import { databaseService } from '../../services/DatabaseService';
 
 // Types for 2025 AI patterns
 export interface AIProvider {
@@ -89,11 +90,35 @@ export class DeepSeekStreamingClient extends BaseStreamingClient {
       const response = await fetch(`${this.provider.baseUrl}/chat/completions`, fetchOptions);
 
       if (!response.ok) {
+        // Log streaming HTTP error
+        await databaseService.logMistake({
+          mistakeType: 'streaming_error',
+          mistakeCategory: 'http',
+          description: `Streaming failed: HTTP ${response.status} ${response.statusText}`,
+          contextWhenOccurred: `Provider: ${this.provider.name}, Model: ${this.provider.models[0] || 'unknown'}`,
+          impactSeverity: 'MEDIUM',
+          preventionStrategy: 'Check API status before streaming',
+          tags: ['streaming', 'sse', this.provider.name, 'http-error']
+        }).catch(dbError => {
+          console.warn('[StreamingAIService] Failed to log HTTP error:', dbError);
+        });
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       // Use EventSource parser for proper SSE handling
       if (!response.body) {
+        // Log empty response body error
+        await databaseService.logMistake({
+          mistakeType: 'streaming_error',
+          mistakeCategory: 'empty_body',
+          description: 'Response body is empty',
+          contextWhenOccurred: `Provider: ${this.provider.name}`,
+          impactSeverity: 'MEDIUM',
+          preventionStrategy: 'Ensure streaming is supported by the endpoint',
+          tags: ['streaming', 'empty-body', this.provider.name]
+        }).catch(dbError => {
+          console.warn('[StreamingAIService] Failed to log empty body error:', dbError);
+        });
         throw new Error('Response body is empty');
       }
       const parser = response
@@ -146,6 +171,18 @@ export class DeepSeekStreamingClient extends BaseStreamingClient {
 
       onComplete?.(fullText);
     } catch (error) {
+      // Log streaming error
+      await databaseService.logMistake({
+        mistakeType: 'streaming_error',
+        mistakeCategory: 'general',
+        description: `Streaming error: ${error instanceof Error ? error.message : String(error)}`,
+        contextWhenOccurred: `Provider: ${this.provider.name}`,
+        impactSeverity: 'HIGH',
+        preventionStrategy: 'Improve error handling and recovery',
+        tags: ['streaming', 'error', this.provider.name]
+      }).catch(dbError => {
+        console.warn('[StreamingAIService] Failed to log streaming error:', dbError);
+      });
       onError?.(error as Error);
       throw error;
     }

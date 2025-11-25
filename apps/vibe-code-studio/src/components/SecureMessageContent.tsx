@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
-import { MessagePart,parseMessageSafely, validateMessageContent } from '../utils/messageFormatter';
+import { MessagePart, parseMessageSafely, validateMessageContent } from '../utils/messageFormatter';
 
 const MessageContainer = styled.div<{ role: 'user' | 'assistant' }>`
   background: ${(props) =>
@@ -86,72 +86,72 @@ const SecureMessageContent: React.FC<SecureMessageContentProps> = ({ content, ro
   // Validate content first
   if (!validateMessageContent(content)) {
     return (
-      <MessageContainer role={role}>
-        <ErrorMessage>
+      <MessageContainer role= { role } >
+      <ErrorMessage>
           ⚠️ Message blocked: potentially unsafe content detected
-        </ErrorMessage>
-      </MessageContainer>
+  </ErrorMessage>
+  </MessageContainer>
     );
   }
 
-  // Parse content into safe parts
-  const messageParts = parseMessageSafely(content);
+// Parse content into safe parts
+const messageParts = parseMessageSafely(content);
 
-  const renderPart = (part: MessagePart, index: number): React.ReactNode => {
-    switch (part.type) {
-      case 'codeblock':
-        return (
-          <CodeBlock key={index}>
-            <code className={`language-${part.language}`}>
-              {part.content}
-            </code>
+const renderPart = (part: MessagePart, index: number): React.ReactNode => {
+  switch (part.type) {
+    case 'codeblock':
+      return (
+        <CodeBlock key= { index } >
+        <code className={ `language-${part.language}` }>
+          { part.content }
+          </code>
           </CodeBlock>
         );
       
       case 'code':
-        return (
-          <InlineCode key={index}>
-            {part.content}
-          </InlineCode>
+return (
+  <InlineCode key= { index } >
+  { part.content }
+  </InlineCode>
         );
       
       case 'bold':
-        return (
-          <BoldText key={index}>
-            {part.content}
-          </BoldText>
+return (
+  <BoldText key= { index } >
+  { part.content }
+  </BoldText>
         );
       
       case 'italic':
-        return (
-          <ItalicText key={index}>
-            {part.content}
-          </ItalicText>
+return (
+  <ItalicText key= { index } >
+  { part.content }
+  </ItalicText>
         );
       
       case 'header':
-        return (
-          <HeaderText key={index}>
-            {part.content}
-          </HeaderText>
+return (
+  <HeaderText key= { index } >
+  { part.content }
+  </HeaderText>
         );
       
       case 'text':
       default:
-        // Split by line breaks and render each line
-        return part.content.split('\n').map((line, lineIndex) => (
-          <React.Fragment key={`${index}-${lineIndex}`}>
-            {line}
-            {lineIndex < part.content.split('\n').length - 1 && <br />}
-          </React.Fragment>
-        ));
+// Split by line breaks and render each line
+return part.content.split('\n').map((line, lineIndex) => (
+  <React.Fragment key= {`${index}-${lineIndex}`}>
+{ line }
+            { lineIndex<part.content.split('\n').length - 1 && <br /> }
+  </React.Fragment>
+));
     }
   };
 
-  return (
-    <MessageContainer role={role}>
-      {messageParts.map((part, index) => renderPart(part, index))}
-    </MessageContainer>
+return (
+  <MessageContainer role= { role } >
+  { messageParts.map((part, index) => renderPart(part, index)) as any }
+  </MessageContainer>
   );
 };
 

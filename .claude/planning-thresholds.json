@@ -1,0 +1,174 @@
+{
+  "$schema": "./planning-thresholds.schema.json",
+  "version": "1.0.0",
+  "enforcement": "MANDATORY",
+  "lastUpdated": "2025-11-24",
+
+  "thresholds": {
+    "fileCount": {
+      "planningRequired": 3,
+      "description": "Planning is mandatory when modifying 3 or more files",
+      "exceptions": "NONE"
+    },
+
+    "linesChanged": {
+      "planningRequired": 500,
+      "description": "Planning required when total lines changed exceeds 500 across all files",
+      "calculation": "additions + deletions"
+    },
+
+    "fileSize": {
+      "hardLimit": 360,
+      "warningThreshold": 300,
+      "description": "Files approaching or exceeding 360 lines must be split",
+      "enforcement": "AUTOMATIC_REJECTION"
+    }
+  },
+
+  "complexityTriggers": {
+    "automatic": [
+      {
+        "trigger": "NEW_FEATURE",
+        "description": "Any new feature implementation",
+        "requiresPlanning": true
+      },
+      {
+        "trigger": "BREAKING_CHANGE",
+        "description": "Any change that breaks existing API or interfaces",
+        "requiresPlanning": true
+      },
+      {
+        "trigger": "CROSS_MODULE",
+        "description": "Changes spanning multiple modules",
+        "requiresPlanning": true
+      },
+      {
+        "trigger": "DATABASE_CHANGE",
+        "description": "Any database schema or migration changes",
+        "requiresPlanning": true
+      },
+      {
+        "trigger": "SECURITY_CHANGE",
+        "description": "Any security-related modifications",
+        "requiresPlanning": true
+      },
+      {
+        "trigger": "ARCHITECTURE_CHANGE",
+        "description": "Changes to system architecture or design patterns",
+        "requiresPlanning": true
+      },
+      {
+        "trigger": "DEPENDENCY_UPDATE",
+        "description": "Major dependency updates or additions",
+        "requiresPlanning": true
+      },
+      {
+        "trigger": "REFACTOR_MAJOR",
+        "description": "Large-scale refactoring operations",
+        "requiresPlanning": true
+      }
+    ]
+  },
+
+  "planningRequirements": {
+    "mandatorySections": [
+      "objective",
+      "scope",
+      "affectedFiles",
+      "implementationSteps",
+      "riskAssessment",
+      "testingStrategy",
+      "rollbackPlan"
+    ],
+
+    "outputFormat": {
+      "type": "markdown",
+      "location": ".deepcode/plans/",
+      "naming": "PLAN_YYYY-MM-DD_HH-MM-SS_[description].md",
+      "template": ".claude/templates/plan-template.md"
+    },
+
+    "approvalWorkflow": {
+      "autoApprove": false,
+      "requiredApprovers": ["Claude Opus 4.1", "Claude Code"],
+      "implementers": ["Claude Sonnet 4.5"]
+    }
+  },
+
+  "metrics": {
+    "trackingEnabled": true,
+    "metricsToTrack": [
+      "filesModified",
+      "linesAdded",
+      "linesDeleted",
+      "modulesAffected",
+      "testsAdded",
+      "planningTime",
+      "implementationTime"
+    ],
+
+    "reporting": {
+      "location": ".deepcode/metrics/",
+      "format": "json",
+      "frequency": "per_task"
+    }
+  },
+
+  "validation": {
+    "preCommitChecks": [
+      {
+        "check": "file_count",
+        "action": "block_if_exceeds_threshold_without_plan"
+      },
+      {
+        "check": "file_size",
+        "action": "block_if_exceeds_360_lines"
+      },
+      {
+        "check": "file_naming",
+        "action": "block_if_existing_file_renamed"
+      },
+      {
+        "check": "plan_existence",
+        "action": "block_if_required_but_missing"
+      }
+    ],
+
+    "cicdChecks": [
+      {
+        "check": "all_rules_compliance",
+        "action": "fail_build_on_violation"
+      },
+      {
+        "check": "modular_architecture",
+        "action": "fail_if_not_modular"
+      },
+      {
+        "check": "test_coverage",
+        "action": "warn_if_below_threshold"
+      }
+    ]
+  },
+
+  "escalation": {
+    "violations": {
+      "firstOffense": "warning_with_correction_required",
+      "secondOffense": "automatic_rollback",
+      "thirdOffense": "lock_repository_access"
+    },
+
+    "reportingChain": [
+      "immediate_agent_notification",
+      "session_summary_report",
+      "persistent_violation_log"
+    ]
+  },
+
+  "quickReference": {
+    "simpleRule": "3+ files = Plan Required",
+    "exceptions": "NONE - This is mandatory",
+    "planner": "Opus 4.1 or Claude Code ONLY",
+    "implementer": "Sonnet 4.5 ONLY",
+    "fileLimit": "360 lines MAX per file"
+  }
+}

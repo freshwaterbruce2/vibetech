@@ -20,6 +20,11 @@ export interface AgentTask {
     model?: string;
     tokensUsed?: number;
     executionTimeMs?: number;
+    isChunked?: boolean;
+    chunkIndex?: number;
+    totalChunks?: number;
+    parentTaskId?: string;
+    originalStepCount?: number;
   };
 }
 
@@ -29,6 +34,7 @@ export interface AgentStep {
   order: number;
   title: string;
   description: string;
+  type?: string;
   action: StepAction;
   status: StepStatus;
   requiresApproval: boolean;
@@ -39,6 +45,14 @@ export interface AgentStep {
   completedAt?: Date;
   retryCount: number;
   maxRetries: number;
+  metadata?: {
+    filePath?: string;
+    operationType?: 'create' | 'update' | 'delete' | 'rename';
+    content?: string;
+    oldContent?: string;
+    position?: { line: number; column: number };
+    [key: string]: any;
+  };
 }
 
 export interface StepAction {
@@ -158,6 +172,13 @@ export interface TaskPlanResponse {
   reasoning: string;
   estimatedTime?: string;
   warnings?: string[];
+  hasMore?: boolean;
+  metadata?: {
+    isChunked?: boolean;
+    totalSteps?: number;
+    currentChunkSteps?: number;
+    [key: string]: any;
+  };
 }
 
 export interface ApprovalRequest {

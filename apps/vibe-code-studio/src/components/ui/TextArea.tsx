@@ -165,7 +165,7 @@ const StyledTextArea = styled.textarea<{
       background: rgba(139, 92, 246, 0.5);
     }
   }
-`;
+` as any;
 
 const HelperText = styled.span<{ $error: boolean }>`
   font-size: ${vibeTheme.typography.fontSize.xs};
@@ -189,24 +189,25 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     ref
   ) => {
     return (
-      <TextAreaWrapper $fullWidth={fullWidth}>
-        {label && <Label>{label}</Label>}
+      <TextAreaWrapper $fullWidth= { fullWidth } >
+      { label && <Label>{ label } </Label>
+  }
 
         <StyledTextArea
-          ref={ref}
-          $variant={variant}
-          $size={size}
-          $error={error}
-          $resize={resize}
-          $fullWidth={fullWidth}
-          className={className}
-          {...props}
-        />
+          ref={ ref }
+          $variant = { variant }
+          $size = { size }
+          $error = { error }
+          $resize = { resize }
+          $fullWidth = { fullWidth }
+          className = { className }
+          { ...props }
+  />
 
-        {helperText && (
-          <HelperText $error={error}>{helperText}</HelperText>
-        )}
-      </TextAreaWrapper>
+  { helperText && (
+    <HelperText $error={ error } > { helperText } </HelperText>
+)}
+</TextAreaWrapper>
     );
   }
 );

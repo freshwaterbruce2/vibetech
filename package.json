@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "NOVA Agent and Vibe Code Studio monorepo",
+  "packageManager": "pnpm@9.0.0",
   "type": "module",
   "scripts": {
     "build": "turbo run build",
@@ -19,7 +20,15 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "validate": "pnpm run validate:size && pnpm run validate:structure",
+    "validate:size": "node scripts/validate-file-size.js",
+    "validate:structure": "node scripts/validate-modular.js",
+    "plan": "node scripts/create-plan.js",
+    "check:rules": "cat MONOREPO_RULES.md",
+    "check:agent-rules": "cat .claude/rules.md",
+    "pre-commit": "pnpm run validate && pnpm run format:check && pnpm run lint",
+    "enforce:all": "pnpm run validate && pnpm run test && pnpm run typecheck"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.17.0",

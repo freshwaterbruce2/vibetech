@@ -92,14 +92,14 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ variant = 'default', size = 'md', children, className, ...props }, ref) => {
     return (
       <StyledBadge
-        ref={ref}
-        $variant={variant}
-        $size={size}
-        className={className}
-        {...props}
+        ref= { ref }
+    $variant = { variant }
+    $size = { size }
+    className = { className }
+    {...props}
       >
-        {children}
-      </StyledBadge>
+  { children as any }
+  </StyledBadge>
     );
   }
 );

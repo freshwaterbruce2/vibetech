@@ -11,6 +11,7 @@
  * - ReAct + self-reflection patterns
  */
 import { logger } from '../../services/Logger';
+import { databaseService } from '../../services/DatabaseService';
 import { AgentStep, AgentTask } from '../../types';
 
 import { UnifiedAIService } from './UnifiedAIService';
@@ -79,6 +80,21 @@ export class MetacognitiveLayer {
     const repeatedErrorPattern = this.detectRepeatedErrors(step, error);
     if (repeatedErrorPattern) {
       logger.debug('[Metacognitive] 🔴 Detected repeated error pattern');
+
+      // Log stuck pattern to learning database
+      await databaseService.logMistake({
+        mistakeType: 'stuck_pattern',
+        mistakeCategory: 'metacognitive',
+        description: `Agent stuck: ${repeatedErrorPattern.description}`,
+        rootCauseAnalysis: 'Same error occurring repeatedly despite retries',
+        contextWhenOccurred: `Pattern type: ${repeatedErrorPattern.type}, Step: ${step.title}, Task: ${task.title}`,
+        impactSeverity: repeatedErrorPattern.severity === 'high' ? 'HIGH' : repeatedErrorPattern.severity === 'medium' ? 'MEDIUM' : 'LOW',
+        preventionStrategy: 'Seek help or try alternative approach',
+        tags: ['stuck', 'metacognitive', repeatedErrorPattern.type, 'repeated-error']
+      }).catch(dbError => {
+        logger.warn('[MetacognitiveLayer] Failed to log stuck pattern:', dbError);
+      });
+
       return {
         isStuck: true,
         pattern: repeatedErrorPattern,
@@ -92,6 +108,21 @@ export class MetacognitiveLayer {
     const timeoutPattern = this.detectTimeout(step);
     if (timeoutPattern) {
       logger.debug('[Metacognitive] ⏰ Detected timeout pattern');
+
+      // Log timeout stuck pattern
+      await databaseService.logMistake({
+        mistakeType: 'stuck_pattern',
+        mistakeCategory: 'metacognitive',
+        description: `Agent stuck: ${timeoutPattern.description}`,
+        rootCauseAnalysis: 'Operation taking excessive time, possibly infinite loop or blocking call',
+        contextWhenOccurred: `Pattern type: ${timeoutPattern.type}, Step: ${step.title}`,
+        impactSeverity: timeoutPattern.severity === 'high' ? 'HIGH' : timeoutPattern.severity === 'medium' ? 'MEDIUM' : 'LOW',
+        preventionStrategy: 'Add timeout limits and async processing',
+        tags: ['stuck', 'metacognitive', timeoutPattern.type, 'timeout']
+      }).catch(dbError => {
+        logger.warn('[MetacognitiveLayer] Failed to log timeout pattern:', dbError);
+      });
+
       return {
         isStuck: true,
         pattern: timeoutPattern,
@@ -105,6 +136,21 @@ export class MetacognitiveLayer {
     const noProgressPattern = this.detectNoProgress(task);
     if (noProgressPattern) {
       logger.debug('[Metacognitive] 📉 Detected no progress pattern');
+
+      // Log no progress stuck pattern
+      await databaseService.logMistake({
+        mistakeType: 'stuck_pattern',
+        mistakeCategory: 'metacognitive',
+        description: `Agent stuck: ${noProgressPattern.description}`,
+        rootCauseAnalysis: 'Multiple consecutive failures indicating wrong approach',
+        contextWhenOccurred: `Pattern type: ${noProgressPattern.type}, Task: ${task.title}`,
+        impactSeverity: noProgressPattern.severity === 'high' ? 'HIGH' : noProgressPattern.severity === 'medium' ? 'MEDIUM' : 'LOW',
+        preventionStrategy: 'Request human help or try completely different approach',
+        tags: ['stuck', 'metacognitive', noProgressPattern.type, 'no-progress']
+      }).catch(dbError => {
+        logger.warn('[MetacognitiveLayer] Failed to log no progress pattern:', dbError);
+      });
+
       return {
         isStuck: true,
         pattern: noProgressPattern,

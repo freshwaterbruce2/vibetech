@@ -48,13 +48,13 @@ const envSchema = z.object({
   // Feature Flags
   VITE_ENABLE_TELEMETRY: z
     .string()
-    .transform((val) => val === 'true')
-    .default('false'),
+    .default('false')
+    .transform((val) => val === 'true'),
 
   VITE_ENABLE_AUTO_UPDATE: z
     .string()
-    .transform((val) => val === 'true')
-    .default('true'),
+    .default('true')
+    .transform((val) => val === 'true'),
 });
 
 /**

@@ -48,7 +48,7 @@ export class DeepSeekProvider implements IAIProvider {
 
     // Get API key from secure storage or config
     try {
-      const secureKeyManager = SecureApiKeyManager.getInstance(logger);
+      const secureKeyManager = SecureApiKeyManager.getInstance();
       this.apiKey = config.apiKey || await secureKeyManager.getApiKey('deepseek') || '';
 
       if (config.baseUrl) {
@@ -80,9 +80,9 @@ export class DeepSeekProvider implements IAIProvider {
       try {
         const currentKey = await secureKeyManager.getApiKey('deepseek');
         if (config.apiKey && config.apiKey !== currentKey) {
-          const stored = await secureKeyManager.storeApiKey('deepseek', config.apiKey);
-          if (!stored) {
-            logger.warn('Failed to store DeepSeek API key securely');
+          const result = await secureKeyManager.storeApiKey('deepseek', config.apiKey);
+          if (!result.success) {
+            logger.warn('Failed to store DeepSeek API key securely:', result.error);
           }
         }
       } catch (error) {

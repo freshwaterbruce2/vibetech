@@ -4,8 +4,8 @@ import styled, { css } from 'styled-components';
 
 import { vibeTheme } from '../../styles/theme';
 
-export type InputVariant = 'default' | 'filled' | 'outline';
-export type InputSize = 'sm' | 'md' | 'lg';
+export type InputVariant= 'default' | 'filled' | 'outline';
+export type InputSize= 'sm' | 'md' | 'lg';
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   variant?: InputVariant;
@@ -114,7 +114,7 @@ const InputWrapper = styled.div<{ $fullWidth?: boolean }>`
   width: ${props => props.$fullWidth ? '100%' : 'auto'};
 `;
 
-const Label = styled.label`
+const label= styled.label`
   font-size: ${vibeTheme.typography.fontSize.sm};
   font-weight: ${vibeTheme.typography.fontWeight.medium};
   color: ${vibeTheme.colors.text};
@@ -153,11 +153,11 @@ const StyledInput = styled.input<{
 
   /* Icon padding adjustments */
   ${props => props.$hasLeftIcon && css`
-    padding-left: ${props.$size === 'sm' ? '36px' : props.$size === 'md' ? '40px' : '44px'};
+    padding-left: ${props.$size=== 'sm' ? '36px' : props.$size=== 'md' ? '40px' : '44px'};
   `}
 
   ${props => props.$hasRightIcon && css`
-    padding-right: ${props.$size === 'sm' ? '36px' : props.$size === 'md' ? '40px' : '44px'};
+    padding-right: ${props.$size=== 'sm' ? '36px' : props.$size=== 'md' ? '40px' : '44px'};
   `}
 
   /* Error state */
@@ -190,14 +190,14 @@ const StyledInput = styled.input<{
     -webkit-box-shadow: 0 0 0px 1000px ${vibeTheme.colors.tertiary} inset;
     transition: background-color 5000s ease-in-out 0s;
   }
-`;
+` as any;
 
 const IconWrapper = styled.div<{ $position: 'left' | 'right'; $size: InputSize }>`
   position: absolute;
   ${props => props.$position}: ${props =>
-    props.$size === 'sm' ? '12px' :
-    props.$size === 'md' ? '14px' :
-    '16px'
+    props.$size=== 'sm' ? '12px' :
+      props.$size=== 'md' ? '14px' :
+        '16px'
   };
   display: flex;
   align-items: center;
@@ -207,24 +207,24 @@ const IconWrapper = styled.div<{ $position: 'left' | 'right'; $size: InputSize }
 
   svg {
     width: ${props =>
-      props.$size === 'sm' ? '16px' :
-      props.$size === 'md' ? '18px' :
-      '20px'
-    };
+    props.$size=== 'sm' ? '16px' :
+      props.$size=== 'md' ? '18px' :
+        '20px'
+  };
     height: ${props =>
-      props.$size === 'sm' ? '16px' :
-      props.$size === 'md' ? '18px' :
-      '20px'
-    };
+    props.$size=== 'sm' ? '16px' :
+      props.$size=== 'md' ? '18px' :
+        '20px'
+  };
   }
 `;
 
 const ActionButton = styled.button<{ $size: InputSize }>`
   position: absolute;
   right: ${props =>
-    props.$size === 'sm' ? '8px' :
-    props.$size === 'md' ? '10px' :
-    '12px'
+    props.$size=== 'sm' ? '8px' :
+      props.$size=== 'md' ? '10px' :
+        '12px'
   };
   display: flex;
   align-items: center;
@@ -249,19 +249,19 @@ const ActionButton = styled.button<{ $size: InputSize }>`
 
   svg {
     width: ${props =>
-      props.$size === 'sm' ? '14px' :
-      props.$size === 'md' ? '16px' :
-      '18px'
-    };
+    props.$size=== 'sm' ? '14px' :
+      props.$size=== 'md' ? '16px' :
+        '18px'
+  };
     height: ${props =>
-      props.$size === 'sm' ? '14px' :
-      props.$size === 'md' ? '16px' :
-      '18px'
-    };
+    props.$size=== 'sm' ? '14px' :
+      props.$size=== 'md' ? '16px' :
+        '18px'
+  };
   }
 `;
 
-const HelperText = styled.span<{ $error: boolean }>`
+const helperText= styled.span<{ $error: boolean }>`
   font-size: ${vibeTheme.typography.fontSize.xs};
   color: ${props => props.$error ? vibeTheme.colors.error : vibeTheme.colors.textSecondary};
   margin-top: ${vibeTheme.spacing[1]};
@@ -270,17 +270,17 @@ const HelperText = styled.span<{ $error: boolean }>`
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
-      variant = 'default',
-      size = 'md',
-      error = false,
+      variant= 'default',
+      size= 'md',
+      error= false,
       helperText,
       label,
       leftIcon,
       rightIcon,
       clearable = false,
       onClear,
-      fullWidth = false,
-      type = 'text',
+      fullWidth= false,
+      type= 'text',
       value,
       className,
       ...props
@@ -290,8 +290,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const [showPassword, setShowPassword] = useState(false);
     const [internalValue, setInternalValue] = useState(value || '');
 
-    const currentValue = value !== undefined ? value : internalValue;
-    const isPassword = type === 'password';
+    const currentValue= value !== undefined ? value : internalValue;
+    const isPassword = type=== 'password';
     const showClearButton = clearable && currentValue && !props.disabled;
     const showPasswordToggle = isPassword && !props.disabled;
 
@@ -304,75 +304,85 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (value === undefined) {
+      if (value=== undefined) {
         setInternalValue(e.target.value);
       }
       props.onChange?.(e);
     };
 
     return (
-      <InputWrapper $fullWidth={fullWidth}>
-        {label && <Label>{label}</Label>}
+      <InputWrapper $fullWidth= { fullWidth } >
+      { label && <Label>{ label } </Label>
+  }
 
-        <InputContainer $fullWidth={fullWidth}>
-          {leftIcon && (
-            <IconWrapper $position="left" $size={size}>
-              {leftIcon}
-            </IconWrapper>
-          )}
+        <InputContainer $fullWidth={ fullWidth } >
+{ leftIcon && (
+  <IconWrapper $position="left" $size= { size } >
+  { leftIcon as any }
+  </IconWrapper>
+)}
 
-          <StyledInput
-            ref={ref}
-            type={isPassword && !showPassword ? 'password' : 'text'}
-            value={currentValue}
-            onChange={handleChange}
-            $variant={variant}
-            $size={size}
-            $hasLeftIcon={!!leftIcon}
-            $hasRightIcon={!!rightIcon || showClearButton || showPasswordToggle}
-            $error={error}
-            $fullWidth={fullWidth}
-            className={className}
-            {...props}
+<StyledInput
+            ref={ ref }
+type= { isPassword && !showPassword ? 'password' : 'text'}
+value= { currentValue }
+onChange= { handleChange }
+$variant= { variant }
+$size= { size }
+$hasLefticon= {!!leftIcon}
+$hasRighticon= {!!rightIcon || showClearButton || showPasswordToggle}
+$error= { error }
+$fullWidth= { fullWidth }
+className= { className }
+{...props }
           />
 
-          {rightIcon && !showClearButton && !showPasswordToggle && (
-            <IconWrapper $position="right" $size={size}>
-              {rightIcon}
-            </IconWrapper>
-          )}
+{
+  rightIcon && !showClearButton && !showPasswordToggle && (
+    <IconWrapper $position="right" $size= { size } >
+      { rightIcon as any }
+      </IconWrapper>
+          )
+}
 
-          {showPasswordToggle && (
-            <ActionButton
+{
+  showPasswordToggle && (
+    <ActionButton
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              $size={size}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+  onClick= {() => setShowPassword(!showPassword)
+}
+$size= { size }
+aria-label={ showPassword ? 'Hide password' : 'Show password' }
             >
-              {showPassword ? <EyeOff /> : <Eye />}
-            </ActionButton>
+  { showPassword?<EyeOff /> : <Eye />}
+</ActionButton>
           )}
 
-          {showClearButton && !showPasswordToggle && (
-            <ActionButton
+{
+  showClearButton && !showPasswordToggle && (
+    <ActionButton
               type="button"
-              onClick={handleClear}
-              $size={size}
-              aria-label="Clear input"
-            >
-              <X />
-            </ActionButton>
-          )}
-        </InputContainer>
+  onClick= { handleClear }
+  $size= { size }
+  aria-label="Clear input"
+    >
+    <X />
+    </ActionButton>
+          )
+}
+</InputContainer>
 
-        {helperText && (
-          <HelperText $error={error}>{helperText}</HelperText>
-        )}
-      </InputWrapper>
+{
+  helperText && (
+    <HelperText $error={ error }> { helperText } </HelperText>
+        )
+}
+</InputWrapper>
     );
   }
 );
 
-Input.displayName = 'Input';
+Input.displayName= 'Input';
 
 export default Input;
+

@@ -4,6 +4,7 @@
  */
 
 import * as monaco from 'monaco-editor';
+import { databaseService } from './DatabaseService';
 
 export interface DetectedError {
   id: string;
@@ -120,6 +121,9 @@ export class ErrorDetector {
         if (this.onError && !this.isDisposed) {
           this.onError(error);
         }
+
+        // Log detected error to learning database
+        this.logErrorToDatabase(error);
       }
     }
 
@@ -142,6 +146,27 @@ export class ErrorDetector {
 
     // Notify legacy listeners
     this.notifyListeners();
+  }
+
+  /**
+   * Log detected error to the learning database
+   */
+  private async logErrorToDatabase(error: DetectedError): Promise<void> {
+    try {
+      await databaseService.logMistake({
+        mistakeType: 'code_error',
+        mistakeCategory: error.type,
+        description: error.message,
+        contextWhenOccurred: `File: ${error.file}, Line: ${error.line}, Column: ${error.column}`,
+        impactSeverity: error.severity === 'error' ? 'HIGH' : error.severity === 'warning' ? 'MEDIUM' : 'LOW',
+        preventionStrategy: error.suggestion || 'Follow coding standards and type safety',
+        resolved: false,
+        tags: ['code-quality', error.type, 'detected', error.severity]
+      });
+    } catch (dbError) {
+      // Log but don't fail if database logging fails
+      console.warn('[ErrorDetector] Failed to log error to database:', dbError);
+    }
   }
 
   /**

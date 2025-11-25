@@ -28,10 +28,10 @@ interface StoredApiKey {
 }
 
 interface ElectronStorageAPI {
-  get: (key: string) => Promise<{ success: boolean; value: any }>;
-  set: (key: string, value: any) => Promise<{ success: boolean }>;
-  remove: (key: string) => Promise<{ success: boolean }>;
-  keys: () => Promise<{ success: boolean; keys: string[] }>;
+  get: (key: string) => Promise<{ success: boolean; value: any; error?: string }>;
+  set: (key: string, value: any) => Promise<{ success: boolean; error?: string }>;
+  remove: (key: string) => Promise<{ success: boolean; error?: string }>;
+  keys: () => Promise<{ success: boolean; keys: string[]; error?: string }>;
 }
 
 export class SecureApiKeyManager {
@@ -134,7 +134,7 @@ export class SecureApiKeyManager {
   /**
    * Store API key securely
    */
-  public async storeApiKey(provider: string, key: string): Promise<boolean> {
+  public async storeApiKey(provider: string, key: string): Promise<{ success: boolean; error?: string }> {
     logger.debug('[SecureApiKeyManager] storeApiKey called for provider:', provider);
     logger.debug('[SecureApiKeyManager] isElectron:', this.isElectron);
     logger.debug('[SecureApiKeyManager] electronStorage exists:', !!this.electronStorage);
@@ -193,11 +193,11 @@ export class SecureApiKeyManager {
       this.updateEnvironmentVariable(provider, key);
 
       logger.debug('[SecureApiKeyManager] storeApiKey completed successfully');
-      return true;
+      return { success: true };
     } catch (error) {
       logger.error('[SecureApiKeyManager] storeApiKey FAILED:', error);
       logger.error('Failed to store API key:', error);
-      return false;
+      return { success: false, error: error instanceof Error ? error.message : String(error) };
     }
   }
 
@@ -301,7 +301,7 @@ export class SecureApiKeyManager {
       if (keys.length === 0) {
         for (let i = 0; i < this.storage.length; i++) {
           const key = this.storage.key(i);
-          if (key) {keys.push(key);}
+          if (key) { keys.push(key); }
         }
       }
 
@@ -371,38 +371,6 @@ export class SecureApiKeyManager {
     }
   }
 
-  private async getOrCreateEncryptionKeyAsync(): Promise<string> {
-    const keyName = 'deepcode_encryption_key';
-    let key = null;
-
-    // Try Electron storage first
-    if (this.isElectron && this.electronStorage) {
-      const result = await this.electronStorage.get(keyName);
-      if (result.success && result.value) {
-        key = result.value;
-      }
-    }
-
-    // Fallback to localStorage
-    if (!key) {
-      key = this.storage.getItem(keyName);
-    }
-
-    if (!key) {
-      // Generate a new encryption key
-      key = CryptoJS.lib.WordArray.random(256/8).toString();
-
-      // Save to Electron storage if available
-      if (this.isElectron && this.electronStorage) {
-        await this.electronStorage.set(keyName, key);
-      }
-
-      // Also save to localStorage
-      this.storage.setItem(keyName, key);
-    }
-
-    return key;
-  }
 
   private getOrCreateEncryptionKey(): string {
     const keyName = 'deepcode_encryption_key';
@@ -410,7 +378,7 @@ export class SecureApiKeyManager {
 
     if (!key) {
       // Generate a new encryption key
-      key = CryptoJS.lib.WordArray.random(256/8).toString();
+      key = CryptoJS.lib.WordArray.random(256 / 8).toString();
       this.storage.setItem(keyName, key);
 
       // Also save to Electron storage if available (non-blocking)

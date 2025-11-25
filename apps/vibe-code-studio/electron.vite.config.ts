@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import { builtinModules } from 'module'
 import { resolve } from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   /**
@@ -48,7 +49,15 @@ export default defineConfig({
     root: '.',
     base: './',
 
-    plugins: [react()],
+    plugins: [
+      react(),
+      process.env.ANALYZE && visualizer({
+        filename: './dist/stats.html',
+        open: false, // Don't open automatically in CI/headless
+        gzipSize: true,
+        brotliSize: true
+      })
+    ].filter(Boolean),
 
     resolve: {
       alias: {

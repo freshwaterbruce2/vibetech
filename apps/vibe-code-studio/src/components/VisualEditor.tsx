@@ -9,7 +9,7 @@
  * - Lovable.dev-style interface
  */
 
-import React, { useMemo,useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   closestCenter,
   DndContext,
@@ -30,7 +30,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
-import { Code2, Copy, Eye, Plus, Save,Settings, Trash2 } from 'lucide-react';
+import { Code2, Copy, Eye, Plus, Save, Settings, Trash2 } from 'lucide-react';
 import styled from 'styled-components';
 
 import { vibeTheme } from '../styles/theme';
@@ -124,7 +124,7 @@ const SortableItem = styled.div<{ isDragging: boolean }>`
   padding: 16px;
   border-radius: 8px;
   border: 2px solid ${props => props.isDragging ? vibeTheme.colors.cyan : vibeTheme.colors.border};
-  background: ${props => props.isDragging ? `${vibeTheme.colors.cyan  }10` : 'white'};
+  background: ${props => props.isDragging ? `${vibeTheme.colors.cyan}10` : 'white'};
   cursor: move;
   position: relative;
   transition: all 0.2s;
@@ -265,20 +265,20 @@ const SortableElement: React.FC<SortableElementProps> = ({ element, onDelete, on
 
   return (
     <SortableItem
-      ref={setNodeRef}
-      style={style}
-      isDragging={isDragging}
-      onClick={() => onSelect(element.id)}
-      {...attributes}
-      {...listeners}
+      ref= { setNodeRef }
+  style = { style }
+  isDragging = { isDragging }
+  onClick = {() => onSelect(element.id)}
+{...attributes }
+{...listeners }
     >
-      <ItemActions>
-        <IconButton onClick={(e) => { e.stopPropagation(); onDelete(element.id); }}>
-          <Trash2 size={14} />
-        </IconButton>
+  <ItemActions>
+  <IconButton onClick={ (e) => { e.stopPropagation(); onDelete(element.id); } }>
+    <Trash2 size={ 14 } />
+      </IconButton>
       </ItemActions>
-      {renderElement(element)}
-    </SortableItem>
+{ renderElement(element) as any }
+</SortableItem>
   );
 };
 
@@ -287,31 +287,33 @@ function renderElement(element: UIElement): React.ReactElement {
   switch (element.type) {
     case 'button':
       return (
-        <button style={{ padding: '10px 20px', borderRadius: '6px', border: 'none', background: '#3b82f6', color: 'white', cursor: 'pointer' }}>
-          {element.props.text || 'Button'}
-        </button>
+        <button style= {{ padding: '10px 20px', borderRadius: '6px', border: 'none', background: '#3b82f6', color: 'white', cursor: 'pointer' }
+  }>
+    { element.props.text || 'Button' }
+    </button>
       );
     case 'input':
-      return (
-        <input type="text" placeholder={element.props.placeholder || 'Enter text...'} style={{ padding: '10px', borderRadius: '6px', border: '1px solid #e5e7eb', width: '100%' }} />
+  return (
+    <input type= "text" placeholder = { element.props.placeholder || 'Enter text...' } style = {{ padding: '10px', borderRadius: '6px', border: '1px solid #e5e7eb', width: '100%' }
+} />
       );
     case 'text':
-      return <p style={{ margin: 0, fontSize: '14px', color: '#1f2937' }}>{element.props.content || 'Text content'}</p>;
+return <p style={ { margin: 0, fontSize: '14px', color: '#1f2937' } }> { element.props.content || 'Text content' } </p>;
     case 'card':
-      return (
-        <div style={{ padding: '20px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb' }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600' }}>{element.props.title || 'Card Title'}</h3>
-          <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>{element.props.description || 'Card description'}</p>
+return (
+  <div style= {{ padding: '20px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb' }}>
+    <h3 style={ { margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600' } }> { element.props.title || 'Card Title' } </h3>
+      < p style = {{ margin: 0, fontSize: '14px', color: '#6b7280' }}> { element.props.description || 'Card description' } </p>
         </div>
       );
     case 'container':
-      return (
-        <div style={{ padding: '16px', borderRadius: '8px', border: '1px dashed #d1d5db', background: '#f3f4f6' }}>
-          Container (can nest elements here)
-        </div>
+return (
+  <div style= {{ padding: '16px', borderRadius: '8px', border: '1px dashed #d1d5db', background: '#f3f4f6' }}>
+    Container(can nest elements here)
+    </div>
       );
     default:
-      return <div>Unknown element</div>;
+return <div>Unknown element </div>;
   }
 }
 
@@ -380,7 +382,7 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onSave }) => {
   };
 
   const handleUpdateProperty = (key: string, value: any) => {
-    if (!selectedElement) {return;}
+    if (!selectedElement) { return; }
 
     setElements(
       elements.map((el) =>
@@ -409,143 +411,158 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ onSave }) => {
 
   return (
     <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      sensors= { sensors }
+  collisionDetection = { closestCenter }
+  onDragStart = { handleDragStart }
+  onDragEnd = { handleDragEnd }
     >
-      <EditorContainer>
-        {/* Component Palette */}
-        <Palette>
-          <PaletteSection>
-            <PaletteTitle>Components</PaletteTitle>
-            {PALETTE_ITEMS.map((item) => (
-              <PaletteItem
-                key={item.type}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleAddElement(item.type as UIElement['type'])}
+    <EditorContainer>
+    {/* Component Palette */ }
+    < Palette >
+    <PaletteSection>
+    <PaletteTitle>Components </PaletteTitle>
+  {
+    PALETTE_ITEMS.map((item) => (
+      <PaletteItem
+                key= { item.type }
+                whileHover = {{ scale: 1.02 }}
+  whileTap = {{ scale: 0.98 }
+}
+onClick = {() => handleAddElement(item.type as UIElement['type'])}
               >
-                <span>{item.icon}</span>
-                {item.label}
-              </PaletteItem>
+  <span>{ item.icon } </span>
+{ item.label }
+</PaletteItem>
             ))}
-          </PaletteSection>
-        </Palette>
+</PaletteSection>
+  </Palette>
 
-        {/* Canvas */}
-        <Canvas>
-          <Toolbar>
-            <ToolbarButton whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Eye size={16} />
-              Preview
-            </ToolbarButton>
-            <ToolbarButton whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleSave}>
-              <Save size={16} />
-              Save
-            </ToolbarButton>
-            <ToolbarButton whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigator.clipboard.writeText(generateCode())}>
-              <Code2 size={16} />
+{/* Canvas */ }
+<Canvas>
+  <Toolbar>
+  <ToolbarButton whileHover={ { scale: 1.05 } } whileTap = {{ scale: 0.95 }}>
+    <Eye size={ 16 } />
+Preview
+  </ToolbarButton>
+  < ToolbarButton whileHover = {{ scale: 1.05 }} whileTap = {{ scale: 0.95 }} onClick = { handleSave } >
+    <Save size={ 16 } />
+Save
+  </ToolbarButton>
+  < ToolbarButton whileHover = {{ scale: 1.05 }} whileTap = {{ scale: 0.95 }} onClick = {() => navigator.clipboard.writeText(generateCode())}>
+    <Code2 size={ 16 } />
               Export Code
-            </ToolbarButton>
-          </Toolbar>
+  </ToolbarButton>
+  </Toolbar>
 
-          <CanvasContent>
-            <SortableContext items={elements.map(el => el.id)} strategy={verticalListSortingStrategy}>
-              <DropZone isEmpty={elements.length === 0}>
-                {elements.length === 0 ? (
-                  <EmptyState>
-                    <Plus size={48} style={{ color: vibeTheme.colors.textSecondary, marginBottom: 16 }} />
-                    <p>Drag components here to start building</p>
-                  </EmptyState>
+  < CanvasContent >
+  <SortableContext items={ elements.map(el => el.id) } strategy = { verticalListSortingStrategy } >
+    <DropZone isEmpty={ elements.length === 0 }>
+    {
+      elements.length === 0 ? (
+        <EmptyState>
+        <Plus size= { 48} style={{ color: vibeTheme.colors.textSecondary, marginBottom: 16 }} />
+          < p > Drag components here to start building </p>
+            </EmptyState>
                 ) : (
-                  elements.map((element) => (
-                    <SortableElement
-                      key={element.id}
-                      element={element}
-                      onDelete={handleDeleteElement}
-                      onSelect={handleSelectElement}
-                    />
+  elements.map((element) => (
+    <SortableElement
+                      key= { element.id }
+                      element = { element }
+                      onDelete = { handleDeleteElement }
+                      onSelect = { handleSelectElement }
+    />
                   ))
                 )}
-              </DropZone>
-            </SortableContext>
-          </CanvasContent>
-        </Canvas>
+</DropZone>
+  </SortableContext>
+  </CanvasContent>
+  </Canvas>
 
-        {/* Properties Panel */}
-        <PropertiesPanel>
-          <PropertiesTitle>Properties</PropertiesTitle>
-          {selectedElement ? (
-            <>
-              <PropertyGroup>
-                <Label>Element Type</Label>
-                <Input value={selectedElement.type} disabled />
-              </PropertyGroup>
+{/* Properties Panel */ }
+<PropertiesPanel>
+  <PropertiesTitle>Properties </PropertiesTitle>
+{
+  selectedElement ? (
+    <>
+    <PropertyGroup>
+    <Label>Element Type </Label>
+      < Input value = { selectedElement.type } disabled />
+        </PropertyGroup>
 
-              {selectedElement.type === 'button' && (
-                <PropertyGroup>
-                  <Label>Button Text</Label>
-                  <Input
-                    value={selectedElement.props.text || ''}
-                    onChange={(e) => handleUpdateProperty('text', e.target.value)}
+  {
+    selectedElement.type === 'button' && (
+      <PropertyGroup>
+      <Label>Button Text </Label>
+        < Input
+    value = { selectedElement.props.text || '' }
+    onChange = {(e) => handleUpdateProperty('text', e.target.value)
+  }
                   />
-                </PropertyGroup>
+    </PropertyGroup>
+              )
+}
+
+{
+  selectedElement.type === 'input' && (
+    <PropertyGroup>
+    <Label>Placeholder </Label>
+    < Input
+                    value = { selectedElement.props.placeholder || '' }
+  onChange = {(e) => handleUpdateProperty('placeholder', e.target.value)
+}
+                  />
+  </PropertyGroup>
               )}
 
-              {selectedElement.type === 'input' && (
-                <PropertyGroup>
-                  <Label>Placeholder</Label>
-                  <Input
-                    value={selectedElement.props.placeholder || ''}
-                    onChange={(e) => handleUpdateProperty('placeholder', e.target.value)}
+{
+  selectedElement.type === 'text' && (
+    <PropertyGroup>
+    <Label>Content </Label>
+    < Input
+                    value = { selectedElement.props.content || '' }
+  onChange = {(e) => handleUpdateProperty('content', e.target.value)
+}
                   />
-                </PropertyGroup>
+  </PropertyGroup>
               )}
 
-              {selectedElement.type === 'text' && (
-                <PropertyGroup>
-                  <Label>Content</Label>
-                  <Input
-                    value={selectedElement.props.content || ''}
-                    onChange={(e) => handleUpdateProperty('content', e.target.value)}
-                  />
-                </PropertyGroup>
-              )}
-
-              {selectedElement.type === 'card' && (
-                <>
-                  <PropertyGroup>
-                    <Label>Card Title</Label>
-                    <Input
-                      value={selectedElement.props.title || ''}
-                      onChange={(e) => handleUpdateProperty('title', e.target.value)}
+{
+  selectedElement.type === 'card' && (
+    <>
+    <PropertyGroup>
+    <Label>Card Title </Label>
+      < Input
+  value = { selectedElement.props.title || '' }
+  onChange = {(e) => handleUpdateProperty('title', e.target.value)
+}
                     />
-                  </PropertyGroup>
-                  <PropertyGroup>
-                    <Label>Card Description</Label>
-                    <Input
-                      value={selectedElement.props.description || ''}
-                      onChange={(e) => handleUpdateProperty('description', e.target.value)}
+  </PropertyGroup>
+  < PropertyGroup >
+  <Label>Card Description </Label>
+    < Input
+value = { selectedElement.props.description || '' }
+onChange = {(e) => handleUpdateProperty('description', e.target.value)}
                     />
-                  </PropertyGroup>
-                </>
+  </PropertyGroup>
+  </>
               )}
-            </>
+</>
           ) : (
-            <EmptyState style={{ marginTop: 40 }}>Select an element to edit properties</EmptyState>
+  <EmptyState style= {{ marginTop: 40 }}> Select an element to edit properties </EmptyState>
           )}
-        </PropertiesPanel>
+</PropertiesPanel>
 
-        <DragOverlay>
-          {activeId ? (
-            <SortableItem isDragging>
-              {renderElement(elements.find(el => el.id === activeId)!)}
-            </SortableItem>
-          ) : null}
-        </DragOverlay>
-      </EditorContainer>
-    </DndContext>
+  <DragOverlay>
+{
+  activeId ? (
+    <SortableItem isDragging >
+    { renderElement(elements.find(el => el.id === activeId)!) as any }
+    </SortableItem>
+  ) : null
+}
+</DragOverlay>
+  </EditorContainer>
+  </DndContext>
   );
 };
 

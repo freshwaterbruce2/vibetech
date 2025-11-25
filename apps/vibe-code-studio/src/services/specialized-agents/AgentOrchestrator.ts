@@ -6,7 +6,7 @@ import { logger } from '../../utils/logger';
 import { DeepSeekService } from '../DeepSeekService';
 
 import { BackendEngineerAgent } from './BackendEngineerAgent';
-import { AgentCapability,AgentContext, AgentResponse, BaseSpecializedAgent } from './BaseSpecializedAgent';
+import { AgentCapability, AgentContext, AgentResponse, BaseSpecializedAgent } from './BaseSpecializedAgent';
 import { FrontendEngineerAgent } from './FrontendEngineerAgent';
 import { PerformanceAgent } from './PerformanceAgent';
 import { SecurityAgent } from './SecurityAgent';
@@ -70,7 +70,6 @@ export interface OrchestratorResponse {
 export class AgentOrchestrator {
   private agents: Map<string, BaseSpecializedAgent> = new Map();
   private activeTasks: Map<string, CoordinatedTask> = new Map();
-  private taskQueue: OrchestratorTask[] = [];
   private performanceHistory: Array<{
     timestamp: Date;
     taskType: string;
@@ -135,7 +134,7 @@ export class AgentOrchestrator {
       // Analyze request and determine optimal agent coordination
       const coordination = await this.analyzeAndCoordinate(request, context);
       const selectedAgents = coordination.agents;
-      
+
       task.requiredAgents = selectedAgents;
       task.assignedAgents = selectedAgents;
 
@@ -182,7 +181,7 @@ export class AgentOrchestrator {
 
     } catch (error) {
       logger.error('Request processing failed:', error);
-      
+
       // Update task failure
       const task = this.activeTasks.get(taskId);
       if (task) {
@@ -191,7 +190,7 @@ export class AgentOrchestrator {
       }
 
       this.recordPerformance(request, [], Date.now() - startTime, false);
-      
+
       throw error;
     }
   }
@@ -261,13 +260,13 @@ export class AgentOrchestrator {
       reasoning = 'Request pattern unclear, defaulting to technical leadership';
       confidence = 0.6;
     } else if (sortedAgents.length === 1) {
-      agents.push(sortedAgents[0]);
+      agents.push(sortedAgents[0]!);
       reasoning = `Single specialized agent selected: ${sortedAgents[0]}`;
       strategy = 'sequential';
     } else {
       // Multi-agent coordination
       agents.push(...sortedAgents.slice(0, 3)); // Limit to top 3 for efficiency
-      
+
       // Determine coordination strategy
       if (agents.includes('technical_lead') && agents.length > 2) {
         strategy = 'hierarchical';
@@ -282,7 +281,7 @@ export class AgentOrchestrator {
         reasoning = 'Parallel processing by multiple specialists';
         parallelism = Math.min(agents.length, 3);
       }
-      
+
       confidence = Math.min(0.9, 0.7 + (Math.max(...Object.values(scores)) / 10));
     }
 
@@ -310,21 +309,19 @@ export class AgentOrchestrator {
     context: AgentContext,
     strategy: string
   ): Promise<Record<string, AgentResponse>> {
-    const responses: Record<string, AgentResponse> = {};
-
     switch (strategy) {
       case 'sequential':
         return this.executeSequential(agentKeys, request, context);
-      
+
       case 'parallel':
         return this.executeParallel(agentKeys, request, context);
-      
+
       case 'hierarchical':
         return this.executeHierarchical(agentKeys, request, context);
-      
+
       case 'collaborative':
         return this.executeCollaborative(agentKeys, request, context);
-      
+
       default:
         return this.executeParallel(agentKeys, request, context);
     }
@@ -347,7 +344,7 @@ export class AgentOrchestrator {
         try {
           const response = await agent.process(request, enhancedContext);
           responses[agentKey] = response;
-          
+
           // Enhance context with previous agent's insights
           if (response.suggestions) {
             enhancedContext.userPreferences = {
@@ -374,7 +371,7 @@ export class AgentOrchestrator {
   ): Promise<Record<string, AgentResponse>> {
     const promises = agentKeys.map(async (agentKey) => {
       const agent = this.agents.get(agentKey);
-      if (!agent) {return null;}
+      if (!agent) { return null; }
 
       try {
         const response = await agent.process(request, context);
@@ -407,16 +404,16 @@ export class AgentOrchestrator {
     context: AgentContext
   ): Promise<Record<string, AgentResponse>> {
     const responses: Record<string, AgentResponse> = {};
-    
+
     // Technical lead provides initial analysis
     const techLeadKey = 'technical_lead';
     const techLead = this.agents.get(techLeadKey);
-    
+
     if (techLead && agentKeys.includes(techLeadKey)) {
       try {
         const techLeadResponse = await techLead.process(request, context);
         responses[techLeadKey] = techLeadResponse;
-        
+
         // Enhance context with technical lead's guidance
         const enhancedContext = {
           ...context,
@@ -430,7 +427,7 @@ export class AgentOrchestrator {
         // Execute other agents in parallel with enhanced context
         const remainingAgents = agentKeys.filter(key => key !== techLeadKey);
         const remainingResponses = await this.executeParallel(remainingAgents, request, enhancedContext);
-        
+
         Object.assign(responses, remainingResponses);
       } catch (error) {
         logger.error('Technical lead failed in hierarchical execution:', error);
@@ -451,10 +448,10 @@ export class AgentOrchestrator {
     context: AgentContext
   ): Promise<Record<string, AgentResponse>> {
     const responses: Record<string, AgentResponse> = {};
-    
+
     // First round: parallel initial responses
     const initialResponses = await this.executeParallel(agentKeys, request, context);
-    
+
     // Second round: agents review each other's responses
     const collaborativeContext = {
       ...context,
@@ -471,7 +468,7 @@ export class AgentOrchestrator {
     // Refined responses based on collaboration
     const refinedPromises = agentKeys.map(async (agentKey) => {
       const agent = this.agents.get(agentKey);
-      if (!agent) {return null;}
+      if (!agent) { return null; }
 
       try {
         const refinedRequest = `${request}\n\nPlease refine your response considering peer insights and ensure coordination with other specialists.`;
@@ -480,12 +477,13 @@ export class AgentOrchestrator {
       } catch (error) {
         logger.error(`Agent ${agentKey} failed in collaborative refinement:`, error);
         // Fallback to initial response
-        return { agentKey, response: initialResponses[agentKey] };
+        const fallback = initialResponses[agentKey];
+        return fallback ? { agentKey, response: fallback } : null;
       }
     });
 
     const results = await Promise.allSettled(refinedPromises);
-    
+
     results.forEach((result) => {
       if (result.status === 'fulfilled' && result.value) {
         const { agentKey, response } = result.value;
@@ -500,17 +498,26 @@ export class AgentOrchestrator {
    * Synthesize multiple agent responses into coherent output
    */
   private synthesizeResponse(
-    request: string,
+    _request: string,
     agentResponses: Record<string, AgentResponse>,
     coordination: any
   ): { content: string; recommendations: string[] } {
     const agentKeys = Object.keys(agentResponses);
-    
+
     if (agentKeys.length === 1) {
-      const response = agentResponses[agentKeys[0]];
+      if (agentKeys.length > 0) {
+        const response = agentResponses[agentKeys[0]!];
+        if (response) {
+          return {
+            content: response.content,
+            recommendations: response.suggestions || []
+          };
+        }
+      }
+
       return {
-        content: response.content,
-        recommendations: response.suggestions || []
+        content: 'No response generated',
+        recommendations: []
       };
     }
 
@@ -522,15 +529,15 @@ export class AgentOrchestrator {
     agentKeys.forEach(agentKey => {
       const response = agentResponses[agentKey];
       const agent = this.agents.get(agentKey);
-      
+
       if (agent && response) {
         const agentName = agent.getName();
         const role = agent.getRole();
-        
+
         content += `### ${agentName} Perspective\n`;
         content += `*${role}*\n\n`;
         content += `${response.content}\n\n`;
-        
+
         if (response.suggestions && response.suggestions.length > 0) {
           content += `**Key Recommendations:**\n`;
           response.suggestions.forEach(suggestion => {
@@ -568,21 +575,21 @@ export class AgentOrchestrator {
     }
 
     let summary = `#### Key Points of Agreement\n\n`;
-    
+
     // Simple keyword analysis for common themes
     const allSuggestions = responses.flatMap(r => r.suggestions || []);
     const suggestionCounts = new Map<string, number>();
-    
+
     allSuggestions.forEach(suggestion => {
       const key = suggestion.toLowerCase();
       suggestionCounts.set(key, (suggestionCounts.get(key) || 0) + 1);
     });
-    
+
     const commonSuggestions = Array.from(suggestionCounts.entries())
       .filter(([_, count]) => count > 1)
       .sort(([_, a], [__, b]) => b - a)
       .slice(0, 3);
-    
+
     if (commonSuggestions.length > 0) {
       commonSuggestions.forEach(([suggestion, count]) => {
         summary += `- ${suggestion} (mentioned by ${count} agents)\n`;
@@ -590,26 +597,26 @@ export class AgentOrchestrator {
     } else {
       summary += `- All agents provided complementary perspectives\n`;
     }
-    
+
     summary += `\n#### Areas Requiring Coordination\n\n`;
-    
+
     // Identify potential conflicts based on confidence levels
     const lowConfidenceResponses = responses.filter(r => r.confidence < 0.7);
     if (lowConfidenceResponses.length > 0) {
       summary += `- ${lowConfidenceResponses.length} agents expressed lower confidence, requiring additional verification\n`;
     }
-    
+
     // Check for conflicting approaches
     const hasCodeChanges = responses.some(r => r.codeChanges && r.codeChanges.length > 0);
     if (hasCodeChanges) {
       summary += `- Multiple agents proposed code changes - ensure compatibility\n`;
     }
-    
+
     summary += `\n#### Recommended Next Steps\n\n`;
     summary += `1. Review all agent recommendations for conflicts\n`;
     summary += `2. Prioritize suggestions based on project constraints\n`;
     summary += `3. Implement changes incrementally with testing\n`;
-    
+
     return summary;
   }
 
@@ -622,9 +629,15 @@ export class AgentOrchestrator {
   ): Promise<AgentResponse> {
     const request = task.title ? `${task.title}: ${task.description}` : task.description;
     const result = await this.processRequest(request, context);
-    
+
     // Return the primary response (first agent's response)
     const firstAgentKey = Object.keys(result.agentResponses)[0];
+    if (!firstAgentKey) {
+      return {
+        content: result.response,
+        confidence: 0.8
+      };
+    }
     return result.agentResponses[firstAgentKey] || {
       content: result.response,
       confidence: 0.8
@@ -640,11 +653,11 @@ export class AgentOrchestrator {
 
   private calculateAgentTimes(agentResponses: Record<string, AgentResponse>): Record<string, number> {
     const times: Record<string, number> = {};
-    
+
     Object.entries(agentResponses).forEach(([agentKey, response]) => {
       times[agentKey] = response.performance?.processingTime || 0;
     });
-    
+
     return times;
   }
 
@@ -670,14 +683,14 @@ export class AgentOrchestrator {
 
   private categorizeRequest(request: string): string {
     const requestLower = request.toLowerCase();
-    
-    if (requestLower.includes('component') || requestLower.includes('ui')) {return 'ui-development';}
-    if (requestLower.includes('api') || requestLower.includes('backend')) {return 'api-development';}
-    if (requestLower.includes('security') || requestLower.includes('auth')) {return 'security';}
-    if (requestLower.includes('performance') || requestLower.includes('optimization')) {return 'optimization';}
-    if (requestLower.includes('test') || requestLower.includes('testing')) {return 'testing';}
-    if (requestLower.includes('architecture') || requestLower.includes('design')) {return 'architecture';}
-    
+
+    if (requestLower.includes('component') || requestLower.includes('ui')) { return 'ui-development'; }
+    if (requestLower.includes('api') || requestLower.includes('backend')) { return 'api-development'; }
+    if (requestLower.includes('security') || requestLower.includes('auth')) { return 'security'; }
+    if (requestLower.includes('performance') || requestLower.includes('optimization')) { return 'optimization'; }
+    if (requestLower.includes('test') || requestLower.includes('testing')) { return 'testing'; }
+    if (requestLower.includes('architecture') || requestLower.includes('design')) { return 'architecture'; }
+
     return 'general';
   }
 
@@ -687,7 +700,7 @@ export class AgentOrchestrator {
   getAvailableAgents(): AgentInfo[] {
     return Array.from(this.agents.entries()).map(([key, agent]) => {
       const stats = agent.getLearningStats();
-      
+
       return {
         name: agent.getName(),
         role: agent.getRole(),
@@ -705,10 +718,10 @@ export class AgentOrchestrator {
 
   private calculateAgentWorkload(agentKey: string): number {
     const recentTasks = this.performanceHistory
-      .filter(h => h.agents.includes(agentKey) && 
-                   (Date.now() - h.timestamp.getTime()) < 60 * 60 * 1000) // Last hour
+      .filter(h => h.agents.includes(agentKey) &&
+        (Date.now() - h.timestamp.getTime()) < 60 * 60 * 1000) // Last hour
       .length;
-    
+
     return Math.min(recentTasks / 10, 1); // Normalize to 0-1
   }
 
@@ -733,7 +746,7 @@ export class AgentOrchestrator {
     context?: any;
   }): Promise<CoordinatedTask> {
     const taskId = task.id || this.generateTaskId();
-    
+
     const coordinatedTask: CoordinatedTask = {
       id: taskId,
       description: task.description,
@@ -758,11 +771,11 @@ export class AgentOrchestrator {
     topTaskTypes: Array<{ type: string; count: number }>;
   } {
     const recentHistory = this.performanceHistory.slice(-100);
-    
+
     const successRate = recentHistory.length > 0
       ? recentHistory.filter(h => h.success).length / recentHistory.length
       : 0;
-    
+
     const avgResponseTime = recentHistory.length > 0
       ? recentHistory.reduce((sum, h) => sum + h.duration, 0) / recentHistory.length
       : 0;
@@ -774,7 +787,7 @@ export class AgentOrchestrator {
       h.agents.forEach(agent => {
         agentUtilization[agent] = (agentUtilization[agent] || 0) + 1;
       });
-      
+
       taskTypeCounts[h.taskType] = (taskTypeCounts[h.taskType] || 0) + 1;
     });
 

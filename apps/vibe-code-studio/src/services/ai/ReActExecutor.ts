@@ -13,6 +13,7 @@
  * @see https://arxiv.org/abs/2210.03629 (ReAct paper)
  */
 import { logger } from '../../services/Logger';
+import { databaseService } from '../../services/DatabaseService';
 import {
   AgentStep,
   AgentTask,
@@ -29,7 +30,7 @@ import { UnifiedAIService } from './UnifiedAIService';
 export class ReActExecutor {
   private cycleHistory: Map<string, ReActCycle[]> = new Map();
 
-  constructor(private aiService: UnifiedAIService) {}
+  constructor(private aiService: UnifiedAIService) { }
 
   /**
    * Phase 1: THOUGHT - Reason about approach before acting
@@ -361,6 +362,34 @@ Reflect deeply on what happened. Should we retry with changes, or is this good e
 
     logger.debug(`[ReAct] ✅ Cycle #${cycleNumber} complete in ${cycle.totalDurationMs}ms`);
     logger.debug(`[ReAct]    Success: ${observation.success}, Retry: ${reflection.shouldRetry}\n`);
+
+    // Log successful ReAct cycle as knowledge
+    if (observation.success) {
+      await databaseService.addKnowledge({
+        title: `ReAct Success: ${step.title}`,
+        content: `Approach: ${thought.approach}\nAction: ${step.action.type}\nResult: ${observation.actualOutcome}\nConfidence: ${thought.confidence}%\nDuration: ${cycle.totalDurationMs}ms\nOutcome: ${observation.learnings.join(', ')}`,
+        category: 'react_pattern',
+        tags: ['react', 'success', String(step.action.type), 'reasoning', `cycle-${cycleNumber}`],
+        source: 'react_executor'
+      }).catch(dbError => {
+        logger.warn('[ReActExecutor] Failed to log successful cycle:', dbError);
+      });
+    } else if (reflection.shouldRetry) {
+      // Log failed cycle that will be retried
+      await databaseService.logMistake({
+        mistakeType: 'react_failure',
+        mistakeCategory: 'execution',
+        description: `ReAct cycle failed: ${observation.actualOutcome}`,
+        contextWhenOccurred: `Step: ${step.title}, Cycle: ${cycleNumber}`,
+        rootCauseAnalysis: observation.unexpectedEvents?.join(', ') || 'Unknown failure',
+        impactSeverity: 'LOW',
+        preventionStrategy: reflection.suggestedChanges.join(', ') || 'Retry with adjustments',
+        resolved: false,
+        tags: ['react', 'failure', 'retry', String(step.action.type)]
+      }).catch(dbError => {
+        logger.warn('[ReActExecutor] Failed to log cycle failure:', dbError);
+      });
+    }
 
     return cycle;
   }

@@ -6,8 +6,8 @@ import styled, { css } from 'styled-components';
 import { vibeTheme } from '../../styles/theme';
 
 // Button Variants
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
-export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type ButtonVariant= 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
+export type ButtonSize= 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onDrag' | 'onDragStart' | 'onDragEnd'> {
   variant?: ButtonVariant;
@@ -165,7 +165,7 @@ const variantStyles = {
   `,
 };
 
-const StyledButton = styled(motion.button)<{
+const StyledButton = styled(motion.button) <{
   $variant: ButtonVariant;
   $size: ButtonSize;
   $fullWidth?: boolean;
@@ -217,7 +217,7 @@ const StyledButton = styled(motion.button)<{
       opacity: 0;
     }
   }
-`;
+` as any;
 
 const LoadingSpinner = styled(motion.div)`
   position: absolute;
@@ -252,55 +252,59 @@ const ButtonContent = styled.span`
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      variant = 'primary',
-      size = 'md',
-      loading = false,
-      disabled = false,
+      variant= 'primary',
+      size= 'md',
+      loading= false,
+      disabled= false,
       icon,
       iconPosition = 'left',
-      fullWidth = false,
+      fullWidth= false,
       children,
       className,
-      type = 'button',
+      type= 'button',
       ...props
     },
     ref
   ) => {
-    const isDisabled = disabled || loading;
+    const isDisabled= disabled || loading;
 
     return (
       <StyledButton
-        ref={ref}
-        type={type}
-        disabled={isDisabled}
-        data-loading={loading}
-        $variant={variant}
-        $size={size}
-        $fullWidth={fullWidth}
-        className={className}
-        whileTap={!isDisabled ? { scale: 0.98 } : undefined}
-        {...props}
-      >
-        <ButtonContent>
-          {icon && iconPosition === 'left' && icon}
-          {children}
-          {icon && iconPosition === 'right' && icon}
-        </ButtonContent>
+        ref= { ref }
+    type= { type }
+    disabled= { isDisabled }
+    data-loading={ loading }
+    $variant= { variant }
+    $size= { size }
+    $fullWidth= { fullWidth }
+    className= { className }
+    whileTap= {!isDisabled ? { scale: 0.98 } : undefined
+  }
+        { ...props }
+  >
+  <ButtonContent>
+  { icon && iconPosition === 'left' && (icon as any)}
+{ children as any }
+{ icon && iconPosition === 'right' && (icon as any) }
+</ButtonContent>
 
-        {loading && (
-          <LoadingSpinner
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+{
+  loading && (
+    <LoadingSpinner
+            initial={ { opacity: 0 } }
+  animate= {{ opacity: 1 }
+}
+exit= {{ opacity: 0 }}
           >
-            <Loader2 size={size === 'xs' ? 14 : size === 'sm' ? 16 : 18} />
-          </LoadingSpinner>
+  <Loader2 size={ size=== 'xs' ? 14 : size=== 'sm' ? 16 : 18 } />
+    </LoadingSpinner>
         )}
-      </StyledButton>
+</StyledButton>
     );
   }
 );
 
-Button.displayName = 'Button';
+Button.displayName= 'Button';
 
 export default Button;
+

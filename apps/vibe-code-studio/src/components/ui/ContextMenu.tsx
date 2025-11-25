@@ -35,7 +35,7 @@ const ContextMenuOverlay = styled(motion.div)`
   background: transparent;
 `;
 
-const ContextMenuContent = styled(motion.div)<{ $x: number; $y: number }>`
+const ContextMenuContent = styled(motion.div) <{ $x: number; $y: number }>`
   position: fixed;
   left: ${(props) => props.$x}px;
   top: ${(props) => props.$y}px;
@@ -50,15 +50,15 @@ const ContextMenuContent = styled(motion.div)<{ $x: number; $y: number }>`
   user-select: none;
 `;
 
-const MenuItem = styled(motion.div)<{ $disabled?: boolean; $danger?: boolean }>`
+const MenuItem = styled(motion.div) <{ $disabled?: boolean; $danger?: boolean }>`
   display: flex;
   align-items: center;
   padding: ${vibeTheme.spacing[2]} ${vibeTheme.spacing[3]};
   cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   font-size: ${vibeTheme.typography.fontSize.sm};
   color: ${(props) => {
-    if (props.$disabled) {return vibeTheme.colors.textDisabled;}
-    if (props.$danger) {return vibeTheme.colors.error;}
+    if (props.$disabled) { return vibeTheme.colors.textDisabled; }
+    if (props.$danger) { return vibeTheme.colors.error; }
     return vibeTheme.colors.text;
   }};
   background: transparent;
@@ -154,7 +154,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ items, x, y, onClose }
 
   // Handle item click
   const handleItemClick = (item: ContextMenuItem) => {
-    if (item.disabled || item.divider) {return;}
+    if (item.disabled || item.divider) { return; }
 
     if (item.onClick) {
       item.onClick();
@@ -197,64 +197,67 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ items, x, y, onClose }
 
   const content = (
     <ContextMenuOverlay
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.1 }}
-      onClick={onClose}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        onClose();
-      }}
+      initial= {{ opacity: 0 }
+}
+animate = {{ opacity: 1 }}
+exit = {{ opacity: 0 }}
+transition = {{ duration: 0.1 }}
+onClick = { onClose }
+onContextMenu = {(e) => {
+  e.preventDefault();
+  onClose();
+}}
     >
-      <ContextMenuContent
-        ref={menuRef}
-        $x={position.x}
-        $y={position.y}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{
-          duration: 0.15,
-          ease: [0.4, 0, 0.2, 1],
+  <ContextMenuContent
+        ref={ menuRef }
+$x = { position.x }
+$y = { position.y }
+initial = {{ opacity: 0, scale: 0.95 }}
+animate = {{ opacity: 1, scale: 1 }}
+exit = {{ opacity: 0, scale: 0.95 }}
+transition = {{
+  duration: 0.15,
+    ease: [0.4, 0, 0.2, 1],
         }}
-        onClick={(e) => e.stopPropagation()}
-        onContextMenu={(e) => e.preventDefault()}
+onClick = {(e) => e.stopPropagation()}
+onContextMenu = {(e) => e.preventDefault()}
       >
-        {items.map((item, index) => {
-          if (item.divider) {
-            return <MenuDivider key={`divider-${index}`} />;
-          }
+{
+  items.map((item, index) => {
+    if (item.divider) {
+      return <MenuDivider key={ `divider-${index}` } />;
+    }
 
-          const validIndex = items.slice(0, index).filter((i) => !i.divider && !i.disabled).length;
-          const isFocused = validIndex === focusedIndex;
+    const validIndex = items.slice(0, index).filter((i) => !i.divider && !i.disabled).length;
+    const isFocused = validIndex === focusedIndex;
 
-          return (
-            <MenuItem
-              key={item.id}
-              $disabled={item.disabled}
-              $danger={item.danger}
-              onClick={() => handleItemClick(item)}
-              tabIndex={item.disabled ? -1 : 0}
-              role="menuitem"
-              aria-disabled={item.disabled}
-              whileHover={!item.disabled ? { x: 2 } : undefined}
-              style={{
-                background: isFocused && !item.disabled ? vibeTheme.colors.hover : undefined,
+    return (
+      <MenuItem
+              key= { item.id }
+    $disabled = { item.disabled }
+    $danger = { item.danger }
+    onClick = {() => handleItemClick(item)
+  }
+              tabIndex = { item.disabled ? -1 : 0 }
+              role = "menuitem"
+              aria-disabled={ item.disabled }
+              whileHover = {!item.disabled ? { x: 2 } : undefined}
+style = {{
+  background: isFocused && !item.disabled ? vibeTheme.colors.hover : undefined,
               }}
             >
-              {item.icon && <MenuItemIcon>{item.icon}</MenuItemIcon>}
-              <MenuItemLabel>{item.label}</MenuItemLabel>
-              {item.shortcut && <MenuItemShortcut>{item.shortcut}</MenuItemShortcut>}
-            </MenuItem>
+  { item.icon && <MenuItemIcon>{ item.icon as any } </MenuItemIcon> }
+  < MenuItemLabel > { item.label } </MenuItemLabel>
+{ item.shortcut && <MenuItemShortcut>{ item.shortcut } </MenuItemShortcut> }
+</MenuItem>
           );
         })}
-      </ContextMenuContent>
-    </ContextMenuOverlay>
+</ContextMenuContent>
+  </ContextMenuOverlay>
   );
 
-  // Render using portal to escape DOM hierarchy
-  return createPortal(content, document.body);
+// Render using portal to escape DOM hierarchy
+return createPortal(content, document.body);
 };
 
 // Hook for managing context menu state
@@ -285,3 +288,4 @@ export const useContextMenu = () => {
     hideContextMenu,
   };
 };
+

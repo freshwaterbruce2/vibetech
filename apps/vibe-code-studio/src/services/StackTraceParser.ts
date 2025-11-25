@@ -43,13 +43,13 @@ export class StackTraceParser {
     const firstLine = lines[0] || '';
     const errorMatch = firstLine.match(/([\w]+(?:Error)?|UnhandledPromiseRejection):\s*(.+)/);
 
-    const type = errorMatch ? errorMatch[1] : 'Error';
-    const message = errorMatch ? errorMatch[2].trim() : firstLine.trim();
+    const type = errorMatch ? errorMatch[1]! : 'Error';
+    const message = errorMatch ? errorMatch[2]!.trim() : firstLine.trim();
 
     // Parse stack frames
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i];
-      if (!line) {continue;}
+      if (!line) { continue; }
 
       const frame = this.parseFrameLine(line);
       if (frame) {
@@ -86,9 +86,9 @@ export class StackTraceParser {
     if (match) {
       return {
         functionName: 'Module',
-        file: this.normalizeFilePath(match[2]),
-        line: parseInt(match[3], 10),
-        column: parseInt(match[4], 10),
+        file: this.normalizeFilePath(match[2]!),
+        line: parseInt(match[3]!, 10),
+        column: parseInt(match[4]!, 10),
         source: line.trim()
       };
     }
@@ -98,9 +98,9 @@ export class StackTraceParser {
     if (match) {
       return {
         functionName: match[1] || '<anonymous>',
-        file: this.normalizeFilePath(match[2]),
-        line: parseInt(match[3], 10),
-        column: parseInt(match[4], 10),
+        file: this.normalizeFilePath(match[2]!),
+        line: parseInt(match[3]!, 10),
+        column: parseInt(match[4]!, 10),
         source: line.trim()
       };
     }
@@ -109,10 +109,10 @@ export class StackTraceParser {
     match = browserRegex.exec(line.trim());
     if (match) {
       return {
-        functionName: match[1],
-        file: match[2],
-        line: parseInt(match[3], 10),
-        column: parseInt(match[4], 10),
+        functionName: match[1]!,
+        file: match[2]!,
+        line: parseInt(match[3]!, 10),
+        column: parseInt(match[4]!, 10),
         source: line.trim()
       };
     }
@@ -121,9 +121,9 @@ export class StackTraceParser {
     match = simpleRegex.exec(line);
     if (match) {
       return {
-        file: this.normalizeFilePath(match[1]),
-        line: parseInt(match[2], 10),
-        column: parseInt(match[3], 10),
+        file: this.normalizeFilePath(match[1]!),
+        line: parseInt(match[2]!, 10),
+        column: parseInt(match[3]!, 10),
         source: line.trim()
       };
     }
@@ -135,7 +135,7 @@ export class StackTraceParser {
    * Get the top frame (first frame in the stack)
    */
   getTopFrame(parsed: ParsedStackTrace): StackFrame | null {
-    return parsed.frames.length > 0 ? parsed.frames[0] : null;
+    return parsed.frames.length > 0 ? parsed.frames[0] || null : null;
   }
 
   /**
@@ -152,7 +152,7 @@ export class StackTraceParser {
 
       // Filter out common internal modules
       if (file.includes('node_modules') &&
-          (file.includes('/loader.js') || file.includes('/task_queues'))) {
+        (file.includes('/loader.js') || file.includes('/task_queues'))) {
         return false;
       }
 
@@ -250,7 +250,7 @@ export class StackTraceParser {
     for (const block of errorBlocks) {
       const parsed = this.parse(block);
       if (parsed && parsed.frames.length > 0) {
-        const topFrame = parsed.frames[0];
+        const topFrame = parsed.frames[0]!;
 
         errors.push({
           id: `runtime-${topFrame.file}-${topFrame.line}`,

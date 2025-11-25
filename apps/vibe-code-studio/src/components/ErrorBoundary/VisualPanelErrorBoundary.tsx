@@ -22,7 +22,7 @@ const ErrorContainer = styled.div`
   margin: 1rem;
 `;
 
-const ErrorIcon = styled(AlertTriangle)`
+const ErrorIcon = styled(AlertTriangle as any)`
   color: #ef4444;
   margin-bottom: 1rem;
 `;
@@ -192,48 +192,54 @@ export class VisualPanelErrorBoundary extends Component<Props, State> {
 
       // Use custom fallback if provided
       if (this.props.fallback) {
-        return <>{this.props.fallback}</>;
+        return <>{ this.props.fallback } </>;
       }
 
       return (
         <ErrorContainer>
-          <ErrorIcon size={48} />
-          <ErrorTitle>{this.props.componentName} Error</ErrorTitle>
+        <ErrorIcon size= { 48} />
+        <ErrorTitle>{ this.props.componentName } Error </ErrorTitle>
           <ErrorMessage>
-            {error?.message || 'An unexpected error occurred in this component.'}
-          </ErrorMessage>
+      { error?.message || 'An unexpected error occurred in this component.' }
+      </ErrorMessage>
 
-          {errorCount > 2 && (
-            <ErrorMessage style={{ color: '#fbbf24', marginTop: '0.5rem' }}>
-              ⚠️ This component has crashed {errorCount} times. Consider reloading the application.
+      {
+        errorCount > 2 && (
+          <ErrorMessage style={ { color: '#fbbf24', marginTop: '0.5rem' } }>
+              ⚠️ This component has crashed { errorCount } times.Consider reloading the application.
             </ErrorMessage>
-          )}
+          )
+      }
 
-          <ErrorDetails>
-            <summary>Error Details</summary>
-            <pre>
-              {error?.stack || 'No stack trace available'}
-              {errorInfo?.componentStack && (
-                <>
-                  {'\n\n'}Component Stack:
-                  {errorInfo.componentStack}
-                </>
-              )}
-            </pre>
-          </ErrorDetails>
+      <ErrorDetails>
+        <summary>Error Details </summary>
+          <pre>
+      { error?.stack || 'No stack trace available' }
+      {
+        errorInfo?.componentStack && (
+          <>
+          { '\n\n'}Component Stack:
+        { errorInfo.componentStack }
+        </>
+              )
+      }
+      </pre>
+        </ErrorDetails>
 
-          <ActionButtons>
-            <ActionButton onClick={this.handleReset}>
-              <RefreshCw />
+        < ActionButtons >
+        <ActionButton onClick={ this.handleReset }>
+          <RefreshCw />
               Try Again
-            </ActionButton>
-            {this.props.onClose && (
-              <CloseButton onClick={this.handleClose}>
-                <X />
+        </ActionButton>
+      {
+        this.props.onClose && (
+          <CloseButton onClick={ this.handleClose }>
+            <X />
                 Close Panel
-              </CloseButton>
-            )}
-          </ActionButtons>
+          </CloseButton>
+            )
+      }
+      </ActionButtons>
         </ErrorContainer>
       );
     }
@@ -249,8 +255,8 @@ export const withVisualErrorBoundary = <P extends object>(
   onClose?: () => void
 ) => {
   return (props: P) => (
-    <VisualPanelErrorBoundary componentName={componentName} onClose={onClose}>
-      <Component {...props} />
-    </VisualPanelErrorBoundary>
+    <VisualPanelErrorBoundary componentName= { componentName } onClose = { onClose } >
+      <Component { ...props } />
+      </VisualPanelErrorBoundary>
   );
 };

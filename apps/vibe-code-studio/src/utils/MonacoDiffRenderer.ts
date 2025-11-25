@@ -43,10 +43,9 @@ export class MonacoDiffRenderer {
    * @param options - Optional rendering options
    */
   highlightDeletions(
-    lines: number[],
-    _options: DiffRenderOptions = {}
+    lines: number[]
   ): void {
-    if (!this.editor || lines.length === 0) {return;}
+    if (!this.editor || lines.length === 0) { return; }
 
     const decorationsArray: monaco.editor.IModelDeltaDecoration[] = lines.map(
       (lineNumber) => ({
@@ -73,10 +72,9 @@ export class MonacoDiffRenderer {
    * @param options - Optional rendering options
    */
   highlightAdditions(
-    lines: number[],
-    _options: DiffRenderOptions = {}
+    lines: number[]
   ): void {
-    if (!this.editor || lines.length === 0) {return;}
+    if (!this.editor || lines.length === 0) { return; }
 
     const decorationsArray: monaco.editor.IModelDeltaDecoration[] = lines.map(
       (lineNumber) => ({
@@ -102,7 +100,7 @@ export class MonacoDiffRenderer {
    * @param lines - Array of line numbers to highlight
    */
   highlightModifications(lines: number[]): void {
-    if (!this.editor || lines.length === 0) {return;}
+    if (!this.editor || lines.length === 0) { return; }
 
     const decorationsArray: monaco.editor.IModelDeltaDecoration[] = lines.map(
       (lineNumber) => ({
@@ -127,17 +125,17 @@ export class MonacoDiffRenderer {
    * @param changes - Array of diff changes to render
    */
   showInlineDiff(changes: DiffChange[]): void {
-    if (!this.editor) {return;}
+    if (!this.editor) { return; }
 
     const decorationsArray: monaco.editor.IModelDeltaDecoration[] = [];
 
     for (const change of changes) {
-      if (change.type !== 'modification' || !change.content) {continue;}
+      if (change.type !== 'modification' || !change.content) { continue; }
 
       // For each modified line, calculate character-level diff
       const lineNumber = change.startLine;
       const model = this.editor.getModel();
-      if (!model) {continue;}
+      if (!model) { continue; }
 
       const oldLine = model.getLineContent(lineNumber);
       const newLine = change.content;
@@ -192,7 +190,7 @@ export class MonacoDiffRenderer {
    * @param options - Rendering options
    */
   renderDiff(changes: DiffChange[], options: DiffRenderOptions = {}): void {
-    if (!this.editor) {return;}
+    if (!this.editor) { return; }
 
     this.clearDecorations();
 
@@ -217,8 +215,8 @@ export class MonacoDiffRenderer {
     }
 
     // Apply decorations
-    this.highlightAdditions(additions, options);
-    this.highlightDeletions(deletions, options);
+    this.highlightAdditions(additions);
+    this.highlightDeletions(deletions);
     this.highlightModifications(modifications);
 
     // Show inline diffs for modifications
@@ -236,7 +234,7 @@ export class MonacoDiffRenderer {
    * Clear all diff decorations and widgets
    */
   clearDecorations(): void {
-    if (!this.editor) {return;}
+    if (!this.editor) { return; }
 
     this.decorations = this.editor.deltaDecorations(this.decorations, []);
 
@@ -254,7 +252,7 @@ export class MonacoDiffRenderer {
    * @param message - Message to display
    */
   addInfoWidget(lineNumber: number, message: string): void {
-    if (!this.editor) {return;}
+    if (!this.editor) { return; }
 
     const widget: monaco.editor.IContentWidget = {
       getId: () => `diff-info-${lineNumber}-${Date.now()}`,
@@ -384,9 +382,9 @@ export class MonacoDiffRenderer {
 
     for (const decoration of decorations) {
       const className = decoration.options.className || '';
-      if (className.includes('addition')) {additions++;}
-      else if (className.includes('deletion')) {deletions++;}
-      else if (className.includes('modification')) {modifications++;}
+      if (className.includes('addition')) { additions++; }
+      else if (className.includes('deletion')) { deletions++; }
+      else if (className.includes('modification')) { modifications++; }
     }
 
     return {

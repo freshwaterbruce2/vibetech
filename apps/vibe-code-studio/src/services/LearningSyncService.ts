@@ -30,8 +30,8 @@ export interface LearningDataPayload {
 class LearningSyncServiceClass {
   private syncQueue: LearningDataPayload[] = [];
   private syncTimer: NodeJS.Timeout | null = null;
-  private readonly SYNC_DEBOUNCE_MS = 1000; // Batch sync every 1 second
-  private readonly MAX_QUEUE_SIZE = 50;
+  private readonly SYNC_DEBOUNCE_MS = 100; // Batch sync every 100ms for real-time sync
+  private readonly MAX_QUEUE_SIZE = 10; // Smaller queue for more frequent syncs
 
   /**
    * Queue learning data for sync to NOVA
@@ -97,7 +97,7 @@ class LearningSyncServiceClass {
     for (const item of items) {
       await this.syncImmediate(item);
       // Small delay between items to prevent flooding
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 10)); // Reduced to 10ms for faster batch processing
     }
   }
 
@@ -212,10 +212,40 @@ class LearningSyncServiceClass {
     }
     logger.info('[LearningSyncService] Queue cleared');
   }
+
+  /**
+   * Enable auto-sync on critical browser events
+   */
+  public enableAutoSync(): void {
+    // Flush on window losing focus
+    window.addEventListener('blur', () => {
+      logger.debug('[LearningSyncService] Auto-flush on blur');
+      this.flush();
+    });
+
+    // Flush before page unload
+    window.addEventListener('beforeunload', () => {
+      logger.debug('[LearningSyncService] Auto-flush on unload');
+      this.flush();
+    });
+
+    // Flush on visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        logger.debug('[LearningSyncService] Auto-flush on hidden');
+        this.flush();
+      }
+    });
+
+    logger.info('[LearningSyncService] Auto-sync enabled for blur/unload/visibility events');
+  }
 }
 
 // Singleton instance
 export const LearningSyncService = new LearningSyncServiceClass();
+
+// Enable auto-sync on service initialization
+LearningSyncService.enableAutoSync();
 
 /**
  * Enhanced DatabaseService wrapper that adds IPC sync

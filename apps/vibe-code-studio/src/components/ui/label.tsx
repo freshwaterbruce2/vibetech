@@ -15,8 +15,8 @@ const StyledLabel = styled.label<{ $required?: boolean; $disabled?: boolean; $er
   font-size: ${vibeTheme.typography.fontSize.sm};
   font-weight: ${vibeTheme.typography.fontWeight.medium};
   color: ${props => {
-    if (props.$error) {return vibeTheme.colors.error;}
-    if (props.$disabled) {return vibeTheme.colors.textDisabled;}
+    if (props.$error) { return vibeTheme.colors.error; }
+    if (props.$disabled) { return vibeTheme.colors.textDisabled; }
     return vibeTheme.colors.text;
   }};
   margin-bottom: ${vibeTheme.spacing[1]};
@@ -41,14 +41,14 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(
   ({ required, disabled, error, children, ...props }, ref) => {
     return (
       <StyledLabel
-        ref={ref}
-        $required={required}
-        $disabled={disabled}
-        $error={error}
-        {...props}
+        ref= { ref }
+    $required = { required }
+    $disabled = { disabled }
+    $error = { error }
+    {...props}
       >
-        {children}
-      </StyledLabel>
+  { children as any }
+  </StyledLabel>
     );
   }
 );

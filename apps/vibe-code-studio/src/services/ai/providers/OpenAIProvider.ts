@@ -12,7 +12,8 @@ import {
   CompletionResponse,
   IAIProvider,
   MODEL_REGISTRY,
-  StreamCompletionResponse} from '../AIProviderInterface';
+  StreamCompletionResponse
+} from '../AIProviderInterface';
 
 interface OpenAIMessage {
   role: 'system' | 'user' | 'assistant' | 'function';
@@ -53,7 +54,7 @@ export class OpenAIProvider implements IAIProvider {
     this.config = config;
 
     // Get API key from secure storage or config
-    const secureKeyManager = SecureApiKeyManager.getInstance(logger);
+    const secureKeyManager = SecureApiKeyManager.getInstance();
     this.apiKey = config.apiKey || await secureKeyManager.getApiKey('openai');
 
     if (config.baseUrl) {
@@ -73,9 +74,9 @@ export class OpenAIProvider implements IAIProvider {
     // Store the key securely if it came from config
     const currentKey = await secureKeyManager.getApiKey('openai');
     if (config.apiKey && config.apiKey !== currentKey) {
-      const stored = await secureKeyManager.storeApiKey('openai', config.apiKey);
-      if (!stored) {
-        logger.warn('Failed to store OpenAI API key securely');
+      const result = await secureKeyManager.storeApiKey('openai', config.apiKey);
+      if (!result.success) {
+        logger.warn('Failed to store OpenAI API key securely:', result.error);
       }
     }
 
@@ -121,12 +122,12 @@ export class OpenAIProvider implements IAIProvider {
       }
 
       const data = await response.json();
-      
+
       // Update usage stats
       if (data.usage) {
         this.usageStats.tokensUsed += data.usage.total_tokens;
         this.usageStats.requestCount++;
-        
+
         // Calculate cost based on model
         const modelInfo = MODEL_REGISTRY[model];
         if (modelInfo) {
@@ -218,7 +219,7 @@ export class OpenAIProvider implements IAIProvider {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) {break;}
+        if (done) { break; }
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -228,7 +229,7 @@ export class OpenAIProvider implements IAIProvider {
           if (line.startsWith('data: ')) {
             const data = line.slice(6);
             if (data === '[DONE]') {
-                      return;
+              return;
             }
 
             try {
@@ -304,14 +305,14 @@ export class OpenAIProvider implements IAIProvider {
   }
 
   private calculateCost(usage: any, modelName?: string): number {
-    if (!usage) {return 0;}
+    if (!usage) { return 0; }
 
     const modelInfo = MODEL_REGISTRY[modelName || this.config.model];
-    if (!modelInfo) {return 0;}
+    if (!modelInfo) { return 0; }
 
     const inputCost = (usage.prompt_tokens / 1000000) * modelInfo.costPerMillionInput;
     const outputCost = (usage.completion_tokens / 1000000) * modelInfo.costPerMillionOutput;
-    
+
     return inputCost + outputCost;
   }
 }

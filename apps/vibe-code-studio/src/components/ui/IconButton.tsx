@@ -5,8 +5,8 @@ import styled, { css } from 'styled-components';
 
 import { vibeTheme } from '../../styles/theme';
 
-export type IconButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-export type IconButtonSize = 'xs' | 'sm' | 'md' | 'lg';
+export type IconButtonVariant= 'primary' | 'secondary' | 'ghost' | 'danger';
+export type IconButtonSize= 'xs' | 'sm' | 'md' | 'lg';
 
 export interface IconButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onAnimationEnd' | 'onDrag' | 'onDragStart' | 'onDragEnd'> {
   variant?: IconButtonVariant;
@@ -121,7 +121,7 @@ const variantStyles = {
   `,
 };
 
-const StyledIconButton = styled(motion.button)<{
+const StyledIconButton = styled(motion.button) <{
   $variant: IconButtonVariant;
   $size: IconButtonSize;
 }>`
@@ -164,7 +164,7 @@ const StyledIconButton = styled(motion.button)<{
       opacity: 0;
     }
   }
-`;
+` as any;
 
 const LoadingSpinner = styled(motion.div)`
   position: absolute;
@@ -189,52 +189,54 @@ const LoadingSpinner = styled(motion.div)`
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   (
     {
-      variant = 'ghost',
-      size = 'md',
-      loading = false,
-      disabled = false,
+      variant= 'ghost',
+      size= 'md',
+      loading= false,
+      disabled= false,
       icon,
       className,
-      type = 'button',
+      type= 'button',
       'aria-label': ariaLabel,
       ...props
     },
     ref
   ) => {
-    const isDisabled = disabled || loading;
+    const isDisabled= disabled || loading;
 
     return (
       <StyledIconButton
-        ref={ref}
-        type={type}
-        disabled={isDisabled}
-        data-loading={loading}
-        $variant={variant}
-        $size={size}
-        className={className}
-        aria-label={ariaLabel}
-        whileTap={!isDisabled ? { scale: 0.9 } : undefined}
-        {...props}
-      >
-        {icon}
+        ref= { ref }
+    type= { type }
+    disabled= { isDisabled }
+    data-loading={ loading }
+    $variant= { variant }
+    $size= { size }
+    className= { className }
+    aria-label={ ariaLabel }
+    whileTap= {!isDisabled ? { scale: 0.9 } : undefined
+  }
+        { ...props }
+  >
+  { icon }
 
-        {loading && (
-          <LoadingSpinner
+        { loading && (
+    <LoadingSpinner
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+animate= {{ opacity: 1 }}
+exit= {{ opacity: 0 }}
           >
-            <Loader2
+  <Loader2
               data-loader
-              size={size === 'xs' ? 14 : size === 'sm' ? 16 : size === 'md' ? 18 : 20}
+size= { size=== 'xs' ? 14 : size=== 'sm' ? 16 : size=== 'md' ? 18 : 20}
             />
-          </LoadingSpinner>
+  </LoadingSpinner>
         )}
-      </StyledIconButton>
+</StyledIconButton>
     );
   }
 );
 
-IconButton.displayName = 'IconButton';
+IconButton.displayName= 'IconButton';
 
 export default IconButton;
+
