@@ -2,9 +2,12 @@ import axios, { AxiosInstance } from 'axios';
 
 import { retryWithBackoff } from '../../utils/errorHandler';
 
-import { AIProvider, CompletionOptions } from './AIProviderInterface';
+import { CompletionOptions } from './AIProviderInterface';
 import { AIProviderManager } from './AIProviderManager';
 import { AIClientConfig, AICompletionRequest, AICompletionResponse } from './types';
+import { AIResponseMapper } from './AIResponseMapper';
+import { AIErrorLogger } from './AIErrorLogger';
+import { AIProviderDetector } from './AIProviderDetector';
 
 /**
  * Low-level AI API client for making requests to AI services
@@ -30,40 +33,22 @@ export class AIClient {
     
     // Initialize provider manager
     this.providerManager = new AIProviderManager();
-    
+
     // Check if we should use the provider manager based on model
     this.updateProviderMode();
   }
 
   private updateProviderMode(): void {
     // Use provider manager for non-DeepSeek models
-    const modelLower = this.config.model.toLowerCase();
-    this.useProviderManager = !modelLower.includes('deepseek');
-    
+    this.useProviderManager = AIProviderDetector.shouldUseProviderManager(this.config.model);
+
     if (this.useProviderManager) {
-      // Determine provider from model name
-      const provider = this.determineProvider(this.config.model);
-      if (provider) {
-        this.providerManager.setProvider(provider, {
-          provider,
-          apiKey: this.config.apiKey,
-          baseUrl: this.config.baseUrl,
-          model: this.config.model,
-        });
+      // Get provider configuration
+      const providerConfig = AIProviderDetector.getProviderConfig(this.config.model, this.config);
+      if (providerConfig) {
+        this.providerManager.setProvider(providerConfig.provider, providerConfig);
       }
     }
-  }
-  
-  private determineProvider(model: string): AIProvider | null {
-    const modelLower = model.toLowerCase();
-    if (modelLower.includes('gpt') || modelLower.includes('o1')) {
-      return AIProvider.OPENAI;
-    } else if (modelLower.includes('claude')) {
-      return AIProvider.ANTHROPIC;
-    } else if (modelLower.includes('deepseek')) {
-      return AIProvider.DEEPSEEK;
-    }
-    return null;
   }
 
   updateConfig(newConfig: Partial<AIClientConfig>): void {
@@ -88,28 +73,41 @@ export class AIClient {
   }
 
   async completion(request: AICompletionRequest): Promise<AICompletionResponse> {
-    // Use provider manager for supported models
-    if (this.useProviderManager) {
-      const options: CompletionOptions = {
-        messages: request.messages,
-        temperature: request.temperature || this.config.temperature,
-        maxTokens: request.maxTokens || this.config.maxTokens,
-        stream: false,
-      };
-      
-      try {
-        const response = await this.providerManager.complete(this.config.model, options);
-        return {
-          content: response.content || response.choices[0]?.message?.content || '',
-          usage: response.usage,
-          finishReason: response.finishReason || response.choices[0]?.finishReason,
+    try {
+      // Use provider manager for non-DeepSeek models
+      if (this.useProviderManager) {
+        const options: CompletionOptions = {
+          messages: request.messages,
+          temperature: request.temperature || this.config.temperature,
+          maxTokens: request.maxTokens || this.config.maxTokens,
+          stream: false,
         };
-      } catch (error) {
-        throw error;
+
+        const response = await this.providerManager.complete(this.config.model, options);
+        return AIResponseMapper.mapProviderResponse(response);
       }
+
+      // DeepSeek direct API call
+      return await this.deepSeekCompletion(request);
+    } catch (error) {
+      // Log error if it should be logged
+      if (AIErrorLogger.shouldLog(error as Error)) {
+        await AIErrorLogger.logApiError(error as Error, {
+          model: this.config.model,
+          provider: this.useProviderManager ? 'provider-manager' : 'deepseek',
+          operation: 'completion',
+        });
+      }
+      throw error;
     }
-    
-    // Fall back to original implementation for DeepSeek
+  }
+
+  /**
+   * DeepSeek-specific completion implementation
+   */
+  private async deepSeekCompletion(
+    request: AICompletionRequest
+  ): Promise<AICompletionResponse> {
     // Filter out reasoning_content from messages for deepseek-reasoner
     const cleanMessages = request.messages.map((msg) => ({
       role: msg.role,
@@ -124,7 +122,7 @@ export class AIClient {
     };
 
     // For deepseek-reasoner, don't send temperature/top_p
-    if (this.config.model !== 'deepseek-reasoner') {
+    if (!AIProviderDetector.isDeepSeekReasoner(this.config.model)) {
       payload['temperature'] = request.temperature ?? this.config.temperature;
     }
 
@@ -132,53 +130,76 @@ export class AIClient {
       return await this.client.post('/chat/completions', payload);
     });
 
-    const content = response.data.choices[0]?.message?.content;
-    const reasoning_content = response.data.choices[0]?.message?.reasoning_content;
-    const { usage } = response.data;
-
+    // Validate response has content
+    const content = response.data.choices?.[0]?.message?.content;
     if (!content) {
+      await AIErrorLogger.logEmptyResponse({
+        model: this.config.model,
+        provider: 'deepseek',
+      });
       throw new Error('No content in API response');
     }
 
-    return {
-      content,
-      reasoning_content,
-      usage: usage
-        ? {
-            promptTokens: usage.prompt_tokens || 0,
-            completionTokens: usage.completion_tokens || 0,
-            totalTokens: usage.total_tokens || 0,
-          }
-        : undefined,
-      finishReason: response.data.choices[0]?.finish_reason,
-    };
+    return AIResponseMapper.mapDeepSeekResponse(response.data);
   }
 
   async *completionStream(request: AICompletionRequest): AsyncGenerator<string, void, unknown> {
-    // Use provider manager for supported models
-    if (this.useProviderManager) {
-      const options: CompletionOptions = {
-        messages: request.messages,
-        temperature: request.temperature || this.config.temperature,
-        maxTokens: request.maxTokens || this.config.maxTokens,
-        stream: true,
-      };
-      
-      const stream = this.providerManager.streamComplete(this.config.model, options);
-      for await (const chunk of stream) {
-        if (chunk.content) {
-          yield chunk.content;
-        } else if (chunk.choices?.[0]?.delta?.content) {
-          yield chunk.choices[0].delta.content;
-        }
-        if (chunk.error) {
-          throw new Error(chunk.error);
-        }
+    try {
+      // Use provider manager for non-DeepSeek models
+      if (this.useProviderManager) {
+        yield* this.providerManagerStream(request);
+        return;
       }
-      return;
+
+      // DeepSeek direct streaming
+      yield* this.deepSeekStream(request);
+    } catch (error) {
+      // Log streaming error
+      if (AIErrorLogger.shouldLog(error as Error)) {
+        await AIErrorLogger.logStreamingError(error as Error, {
+          model: this.config.model,
+          provider: this.useProviderManager ? 'provider-manager' : 'deepseek',
+          operation: 'stream',
+        });
+      }
+      throw error;
     }
-    
-    // Fall back to original implementation for DeepSeek
+  }
+
+  /**
+   * Provider manager streaming
+   */
+  private async *providerManagerStream(
+    request: AICompletionRequest
+  ): AsyncGenerator<string, void, unknown> {
+    const options: CompletionOptions = {
+      messages: request.messages,
+      temperature: request.temperature || this.config.temperature,
+      maxTokens: request.maxTokens || this.config.maxTokens,
+      stream: true,
+    };
+
+    const stream = this.providerManager.streamComplete(this.config.model, options);
+
+    for await (const chunk of stream) {
+      const content = AIResponseMapper.extractStreamContent(chunk);
+
+      if (content) {
+        yield content;
+      }
+
+      if (chunk.error) {
+        throw new Error(chunk.error);
+      }
+    }
+  }
+
+  /**
+   * DeepSeek-specific streaming implementation
+   */
+  private async *deepSeekStream(
+    request: AICompletionRequest
+  ): AsyncGenerator<string, void, unknown> {
     // Filter out reasoning_content from messages for deepseek-reasoner
     const cleanMessages = request.messages.map((msg) => ({
       role: msg.role,
@@ -193,7 +214,7 @@ export class AIClient {
     };
 
     // For deepseek-reasoner, don't send temperature/top_p
-    if (this.config.model !== 'deepseek-reasoner') {
+    if (!AIProviderDetector.isDeepSeekReasoner(this.config.model)) {
       payload['temperature'] = request.temperature ?? this.config.temperature;
     }
 
@@ -217,14 +238,15 @@ export class AIClient {
 
           try {
             const parsed = JSON.parse(data);
-            const content = parsed.choices[0]?.delta?.content;
-            const reasoning_content = parsed.choices[0]?.delta?.reasoning_content;
 
-            // For deepseek-reasoner, we might get reasoning content
-            if (reasoning_content) {
-              yield `[REASONING] ${reasoning_content}`;
+            // Handle reasoning content for deepseek-reasoner
+            const reasoning = AIResponseMapper.extractStreamReasoning(parsed);
+            if (reasoning) {
+              yield `[REASONING] ${reasoning}`;
             }
 
+            // Handle regular content
+            const content = AIResponseMapper.extractStreamContent(parsed);
             if (content) {
               yield content;
             }

@@ -1,6 +1,11 @@
 /**
  * IPC Client Service for Vibe Code Studio
  *
+ * Refactored modular architecture with extracted components:
+ * - IPCConnectionManager: WebSocket connection lifecycle
+ * - IPCMessageQueue: Offline message queueing
+ * - IPCCommandHandler: Command request/response pattern
+ *
  * Features:
  * - WebSocket connection to IPC Bridge (ws://localhost:5004)
  * - Auto-reconnect with exponential backoff
@@ -10,133 +15,52 @@
  * - TypeScript typed message handling
  *
  * Based on 2025 Best Practices:
- * - Modern WebSocket API
+ * - Modular architecture with separation of concerns
+ * - EventEmitter for consistent event handling
  * - TypeScript for type safety
- * - Event-driven architecture
  * - Resilient connection management
  */
 
 import {
   CommandRequestPayload,
-  CommandExecutePayload,
-  CommandResultPayload,
   IPCMessage,
   IPCMessageType,
-  AppSource,
 } from '@vibetech/shared-ipc';
+import { EventEmitter } from '../utils/EventEmitter';
 import { logger } from './Logger';
+import {
+  IPCConnectionManager,
+  IPCMessageQueue,
+  IPCCommandHandler,
+} from './ipc';
+import type {
+  ConnectionStatus,
+  IPCClientOptions,
+  IPCClientEvents,
+  CommandTarget,
+  CommandRequestOptions,
+  OutgoingIPCMessage,
+} from './ipc/types';
 
-// Simple EventEmitter for browser/Electron compatibility
-class SimpleEventEmitter {
-  private events: Map<string, Function[]> = new Map();
+// Re-export types for consumers
+export type {
+  ConnectionStatus,
+  IPCClientOptions,
+  IPCClientEvents,
+  CommandTarget,
+  CommandRequestOptions,
+  OutgoingIPCMessage,
+};
 
-  on(event: string, listener: Function): this {
-    if (!this.events.has(event)) {
-      this.events.set(event, []);
-    }
-    this.events.get(event)!.push(listener);
-    return this;
-  }
-
-  off(event: string, listener: Function): this {
-    const listeners = this.events.get(event);
-    if (listeners) {
-      const index = listeners.indexOf(listener);
-      if (index > -1) {
-        listeners.splice(index, 1);
-      }
-    }
-    return this;
-  }
-
-  emit(event: string, ...args: any[]): boolean {
-    const listeners = this.events.get(event);
-    if (listeners && listeners.length > 0) {
-      listeners.forEach(listener => listener(...args));
-      return true;
-    }
-    return false;
-  }
-
-  removeAllListeners(event?: string): this {
-    if (event) {
-      this.events.delete(event);
-    } else {
-      this.events.clear();
-    }
-    return this;
-  }
-}
-
-export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
-
-export interface IPCClientOptions {
-  url?: string;
-  reconnectInterval?: number;
-  maxReconnectAttempts?: number;
-  pingInterval?: number;
-  messageQueueMax?: number;
-  commandTimeoutMs?: number;
-}
-
-export interface IPCClientEvents {
-  status: (status: ConnectionStatus) => void;
-  message: (message: IPCMessage) => void;
-  pong: (timestamp: number) => void;
-  'file:open': (payload: any) => void;
-  'file:opened': (payload: any) => void;
-  'file:close': (payload: any) => void;
-  'learning:sync': (payload: any) => void;
-  'project:update': (payload: any) => void;
-  'notification': (payload: any) => void;
-  [IPCMessageType.COMMAND_EXECUTE]: (payload: CommandExecutePayload) => void;
-  [IPCMessageType.COMMAND_RESULT]: (payload: CommandResultPayload) => void;
-  'health:check': (payload: any) => void;
-}
-
-type CommandTarget = Exclude<AppSource, 'bridge'>;
-
-interface CommandRequestOptions {
-  target?: CommandTarget;
-  timeoutMs?: number;
-  metadata?: Record<string, any>;
-  context?: Record<string, any>;
-  messageId?: string;
-  correlationId?: string;
-}
-
-interface PendingCommand {
-  resolve: (payload: CommandResultPayload) => void;
-  reject: (error: Error) => void;
-  timeout: ReturnType<typeof setTimeout>;
-}
-
-interface OutgoingIPCMessage<T = any> {
-  type: IPCMessageType | string;
-  payload: T;
-  timestamp?: number;
-  messageId?: string;
-  target?: CommandTarget | 'bridge';
-  timeoutMs?: number;
-  correlationId?: string;
-  metadata?: Record<string, any>;
-  source?: AppSource;
-}
-
-class IPCClient extends SimpleEventEmitter {
-  private ws: WebSocket | null = null;
-  private status: ConnectionStatus = 'disconnected';
-  private reconnectAttempts = 0;
-  private reconnectTimer: NodeJS.Timeout | null = null;
-  private pingTimer: NodeJS.Timeout | null = null;
-  private messageQueue: OutgoingIPCMessage[] = [];
-  private lastPingTime: number = 0;
-  private pendingCommands: Map<string, PendingCommand> = new Map();
-
+class IPCClient extends EventEmitter {
+  private connectionManager: IPCConnectionManager;
+  private messageQueue: IPCMessageQueue;
+  private commandHandler: IPCCommandHandler;
   private options: Required<IPCClientOptions>;
 
   constructor(options: IPCClientOptions = {}) {
     super();
+
     this.options = {
       url: options.url || 'ws://localhost:5004',
       reconnectInterval: options.reconnectInterval || 2000,
@@ -145,63 +69,85 @@ class IPCClient extends SimpleEventEmitter {
       messageQueueMax: options.messageQueueMax || 100,
       commandTimeoutMs: options.commandTimeoutMs || 30000,
     };
+
+    // Initialize components
+    this.connectionManager = new IPCConnectionManager({
+      url: this.options.url,
+      reconnectInterval: this.options.reconnectInterval,
+      maxReconnectAttempts: this.options.maxReconnectAttempts,
+      pingInterval: this.options.pingInterval,
+    });
+
+    this.messageQueue = new IPCMessageQueue(this.options.messageQueueMax);
+    this.commandHandler = new IPCCommandHandler(this.options.commandTimeoutMs);
+
+    // Set up event forwarding
+    this.setupEventListeners();
+  }
+
+  /**
+   * Set up event listeners from connection manager
+   */
+  private setupEventListeners(): void {
+    // Forward connection status changes
+    this.connectionManager.on('status', (status: ConnectionStatus) => {
+      this.emit('status', status);
+      logger.info(`[IPC] Status changed: ${status}`);
+    });
+
+    // Handle connection established
+    this.connectionManager.on('connected', () => {
+      logger.info('[IPC] ✓ Connected to IPC Bridge');
+      this.flushMessageQueue();
+    });
+
+    // Handle disconnection
+    this.connectionManager.on('disconnected', () => {
+      logger.info('[IPC] Disconnected from IPC Bridge');
+      this.commandHandler.rejectAll(new Error('IPC Bridge disconnected'));
+    });
+
+    // Handle errors
+    this.connectionManager.on('error', (error: Event) => {
+      logger.error('[IPC] Connection error:', error);
+      this.commandHandler.rejectAll(new Error('IPC Bridge encountered an error'));
+    });
+
+    // Handle incoming messages
+    this.connectionManager.on('message', (data: string) => {
+      this.handleMessage(data);
+    });
+
+    // Handle ping requests (send pong)
+    this.connectionManager.on('ping', () => {
+      this.send({
+        type: IPCMessageType.PONG,
+        payload: {},
+        timestamp: Date.now(),
+        messageId: this.generateMessageId('vibe'),
+      });
+    });
   }
 
   /**
    * Connect to IPC Bridge
    */
   public connect(): void {
-    if (this.status === 'connecting' || this.status === 'connected') {
-      logger.debug('[IPC] Already connected or connecting');
-      return;
-    }
-
-    this.setStatus('connecting');
-    logger.info(`[IPC] Connecting to ${this.options.url}...`);
-
-    try {
-      this.ws = new WebSocket(this.options.url);
-
-      this.ws.onopen = () => this.handleOpen();
-      this.ws.onclose = (event) => this.handleClose(event);
-      this.ws.onerror = (error) => this.handleError(error);
-      this.ws.onmessage = (event) => this.handleMessage(event);
-    } catch (error) {
-      logger.error('[IPC] WebSocket connection failed:', error);
-      this.setStatus('error');
-      this.scheduleReconnect();
-    }
+    this.connectionManager.connect();
   }
 
   /**
    * Disconnect from IPC Bridge
    */
   public disconnect(): void {
-    logger.info('[IPC] Disconnecting...');
-
-    // Prevent auto-reconnect
-    this.reconnectAttempts = this.options.maxReconnectAttempts;
-
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
-
-    this.stopPing();
-
-    if (this.ws) {
-      this.ws.close(1000, 'Manual disconnect');
-      this.ws = null;
-    }
-
-    this.setStatus('disconnected');
+    this.connectionManager.disconnect();
   }
 
   /**
    * Send IPC message
    */
   public send(message: OutgoingIPCMessage): boolean {
-    if (this.status !== 'connected' || !this.ws) {
+    if (!this.connectionManager.isConnected()) {
       logger.warn('[IPC] Not connected, queueing message:', message.type);
       this.queueMessage(message);
       return false;
@@ -211,14 +157,21 @@ class IPCClient extends SimpleEventEmitter {
       // Add required fields for IPC Bridge
       const fullMessage: OutgoingIPCMessage = {
         ...message,
-        source: 'vibe',  // Identify as Vibe Code Studio
+        source: 'vibe', // Identify as Vibe Code Studio
         timestamp: message.timestamp ?? Date.now(),
         messageId: message.messageId ?? this.generateMessageId('vibe'),
       };
 
-      this.ws.send(JSON.stringify(fullMessage));
-      logger.debug('[IPC] ✓ Sent message:', message.type);
-      return true;
+      const sent = this.connectionManager.send(JSON.stringify(fullMessage));
+
+      if (sent) {
+        logger.debug('[IPC] ✓ Sent message:', message.type);
+      } else {
+        logger.warn('[IPC] Failed to send, queueing:', message.type);
+        this.queueMessage(message);
+      }
+
+      return sent;
     } catch (error) {
       logger.error('[IPC] Failed to send message:', error);
       this.queueMessage(message);
@@ -312,22 +265,13 @@ class IPCClient extends SimpleEventEmitter {
       messageId: commandId,
       target,
       timeoutMs,
-      correlationId: options.correlationId,
+      ...(options.correlationId && { correlationId: options.correlationId }),
     };
 
-    const resultPromise = new Promise<CommandResultPayload>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        this.pendingCommands.delete(commandId);
-        reject(new Error(`Command request timed out after ${timeoutMs}ms`));
-      }, timeoutMs);
+    // Register command with handler
+    const resultPromise = this.commandHandler.registerCommand(commandId, timeoutMs);
 
-      this.pendingCommands.set(commandId, {
-        resolve,
-        reject,
-        timeout,
-      });
-    });
-
+    // Send the command message
     const sent = this.send(message);
     if (!sent) {
       logger.warn('[IPC] Command request queued (connection pending)');
@@ -340,92 +284,49 @@ class IPCClient extends SimpleEventEmitter {
    * Get connection status
    */
   public getStatus(): ConnectionStatus {
-    return this.status;
+    return this.connectionManager.getStatus();
   }
 
   /**
    * Check if connected
    */
   public isConnected(): boolean {
-    return this.status === 'connected';
+    return this.connectionManager.isConnected();
   }
 
   /**
    * Get time since last ping (in milliseconds)
    */
   public getTimeSinceLastPing(): number | null {
-    if (!this.lastPingTime) return null;
-    return Date.now() - this.lastPingTime;
+    return this.connectionManager.getTimeSinceLastPing();
   }
 
   /**
    * Get queued message count
    */
   public getQueuedMessageCount(): number {
-    return this.messageQueue.length;
+    return this.messageQueue.size();
   }
 
   // Private Methods
 
-  private handleOpen(): void {
-    logger.info('[IPC] ✓ Connected to IPC Bridge');
-    this.reconnectAttempts = 0;
-    this.setStatus('connected');
-    this.startPing();
-    this.flushMessageQueue();
-  }
-
-  private handleClose(event: CloseEvent): void {
-    logger.info(`[IPC] Disconnected (code: ${event.code}, reason: ${event.reason || 'none'})`);
-    this.stopPing();
-    this.setStatus('disconnected');
-    this.rejectAllPendingCommands(new Error('IPC Bridge disconnected'));
-
-    // Don't reconnect if it was a clean close
-    if (event.code !== 1000) {
-      this.scheduleReconnect();
-    }
-  }
-
-  private handleError(error: Event): void {
-    logger.error('[IPC] WebSocket error:', error);
-    this.setStatus('error');
-    this.rejectAllPendingCommands(new Error('IPC Bridge encountered an error'));
-  }
-
-  private handleMessage(event: MessageEvent): void {
+  private handleMessage(data: string): void {
     try {
-      const message: IPCMessage = JSON.parse(event.data);
+      const message = JSON.parse(data) as any;
 
-      // Update last ping time for any received message
-      this.lastPingTime = Date.now();
-
-      // Handle ping/pong
-      if (message.type === IPCMessageType.PING) {
-        this.send({
-          type: IPCMessageType.PONG,
-          payload: {},
-          timestamp: Date.now(),
-          messageId: this.generateMessageId('vibe'),
-        });
+      // Handle pong
+      if (message.type === 'pong' || message.type === IPCMessageType.PONG) {
+        const timestamp = message.payload?.timestamp || message.timestamp || Date.now();
+        this.emit('pong', timestamp);
         return;
       }
 
-      if (message.type === IPCMessageType.PONG) {
-        this.emit('pong', message.timestamp);
-        return;
-      }
-
+      // Handle command result
       if (message.type === IPCMessageType.COMMAND_RESULT) {
         const payload = message.payload as CommandResultPayload;
         const commandId = payload?.commandId;
-        if (commandId && this.pendingCommands.has(commandId)) {
-          const pending = this.pendingCommands.get(commandId);
-          if (pending) {
-            clearTimeout(pending.timeout);
-            this.pendingCommands.delete(commandId);
-            pending.resolve(payload);
-          }
+        if (commandId) {
+          this.commandHandler.handleResult(commandId, payload);
         }
       }
 
@@ -443,83 +344,24 @@ class IPCClient extends SimpleEventEmitter {
     }
   }
 
-  private setStatus(status: ConnectionStatus): void {
-    if (this.status === status) return;
-
-    this.status = status;
-    this.emit('status', status);
-    logger.info(`[IPC] Status changed: ${status}`);
-  }
-
-  private scheduleReconnect(): void {
-    if (this.reconnectAttempts >= this.options.maxReconnectAttempts) {
-      logger.warn('[IPC] Max reconnect attempts reached');
-      return;
-    }
-
-    // Exponential backoff: 2s, 4s, 8s, 16s, 30s (max)
-    const delay = Math.min(
-      this.options.reconnectInterval * Math.pow(2, this.reconnectAttempts),
-      30000
-    );
-
-    logger.info(`[IPC] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts + 1}/${this.options.maxReconnectAttempts})`);
-
-    this.reconnectTimer = setTimeout(() => {
-      this.reconnectAttempts++;
-      this.connect();
-    }, delay);
-  }
-
-  private startPing(): void {
-    this.pingTimer = setInterval(() => {
-      if (this.status === 'connected') {
-        this.send({
-          type: 'ping' as IPCMessageType,
-          payload: {},
-          timestamp: Date.now()
-        });
-      }
-    }, this.options.pingInterval);
-  }
-
-  private stopPing(): void {
-    if (this.pingTimer) {
-      clearInterval(this.pingTimer);
-      this.pingTimer = null;
-    }
-  }
-
   private queueMessage(message: OutgoingIPCMessage): void {
-    // Prevent queue from growing too large
-    if (this.messageQueue.length >= this.options.messageQueueMax) {
-      logger.warn('[IPC] Message queue full, dropping oldest message');
-      this.messageQueue.shift();
-    }
-
-    this.messageQueue.push({ ...message });
-    logger.debug(`[IPC] Queued message (${this.messageQueue.length} in queue)`);
+    this.messageQueue.enqueue(JSON.stringify({
+      ...message,
+      source: 'vibe',
+      timestamp: message.timestamp ?? Date.now(),
+      messageId: message.messageId ?? this.generateMessageId('vibe'),
+    }));
   }
 
   private flushMessageQueue(): void {
-    if (this.messageQueue.length === 0) return;
+    const messages = this.messageQueue.flush();
 
-    logger.debug(`[IPC] Flushing ${this.messageQueue.length} queued messages...`);
+    if (messages.length === 0) return;
 
-    const messages = [...this.messageQueue];
-    this.messageQueue = [];
+    logger.debug(`[IPC] Flushing ${messages.length} queued messages...`);
 
-    for (const message of messages) {
-      this.send(message);
-    }
-  }
-
-  private rejectAllPendingCommands(error: Error): void {
-    for (const [commandId, pending] of this.pendingCommands.entries()) {
-      clearTimeout(pending.timeout);
-      pending.reject(error);
-      this.pendingCommands.delete(commandId);
-      logger.warn(`[IPC] Pending command rejected (${commandId}): ${error.message}`);
+    for (const { data } of messages) {
+      this.connectionManager.send(data);
     }
   }
 
