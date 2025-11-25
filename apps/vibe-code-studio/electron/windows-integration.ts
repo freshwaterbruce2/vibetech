@@ -5,11 +5,9 @@
  * Optimized for Windows 11 with RTX 3060 and AMD Ryzen 7
  */
 
-import { app, shell } from 'electron';
+import { app } from 'electron';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import * as path from 'path';
-import * as fs from 'fs/promises';
 
 const execAsync = promisify(exec);
 

@@ -5,162 +5,110 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 import path from 'node:path';
-import os from 'node:os';
+import type { ElectronAPI } from './preload.d';
 
 // Expose protected methods that allow the renderer process
 // to use ipcRenderer without exposing the entire object
 try {
   console.log('[Preload] Attempting to expose electron API via contextBridge...');
-  contextBridge.exposeInMainWorld('electron', {
+  const electronAPI: ElectronAPI = {
     isElectron: true,
-
-  // App methods
     app: {
-      getPath: async (name) => {
-        // Get application paths (userData, documents, etc.)
+      getPath: async (name: Parameters<ElectronAPI['app']['getPath']>[0]) => {
         return await ipcRenderer.invoke('app:getPath', name);
       },
       getVersion: async () => await ipcRenderer.invoke('app:getVersion'),
       quit: () => ipcRenderer.send('app:quit'),
     },
-
-  // Dialog methods
-  dialog: {
-    openFolder: async (options) => {
-      return await ipcRenderer.invoke('dialog:openFolder', options);
+    dialog: {
+      openFolder: async (options?) => {
+        return await ipcRenderer.invoke('dialog:openFolder', options);
+      },
+      openFile: async (options?) => {
+        return await ipcRenderer.invoke('dialog:openFile', options);
+      },
+      saveFile: async (options?) => {
+        return await ipcRenderer.invoke('dialog:saveFile', options);
+      },
+      showMessage: async (options) => {
+        return await ipcRenderer.invoke('dialog:showMessage', options);
+      },
     },
-    openFile: async (options) => {
-      return await ipcRenderer.invoke('dialog:openFile', options);
+    fs: {
+      readFile: async (filePath: string) => {
+        return await ipcRenderer.invoke('fs:readFile', filePath);
+      },
+      writeFile: async (filePath: string, content: string) => {
+        return await ipcRenderer.invoke('fs:writeFile', filePath, content);
+      },
+      exists: async (filePath: string) => {
+        return await ipcRenderer.invoke('fs:exists', filePath);
+      },
+      readDir: async (dirPath: string) => {
+        return await ipcRenderer.invoke('fs:readDir', dirPath);
+      },
+      createDir: async (dirPath: string) => {
+        return await ipcRenderer.invoke('fs:createDir', dirPath);
+      },
+      remove: async (targetPath: string) => {
+        return await ipcRenderer.invoke('fs:remove', targetPath);
+      },
+      rename: async (oldPath: string, newPath: string) => {
+        return await ipcRenderer.invoke('fs:rename', oldPath, newPath);
+      },
+      stat: async (targetPath: string) => {
+        return await ipcRenderer.invoke('fs:stat', targetPath);
+      },
     },
-    saveFile: async (options) => {
-      return await ipcRenderer.invoke('dialog:saveFile', options);
+    terminal: {
+      execute: async (command: string, cwd?: string) => {
+        return await ipcRenderer.invoke('terminal:execute', command, cwd);
+      },
     },
-    showMessage: async (options) => {
-      return await ipcRenderer.invoke('dialog:showMessage', options);
+    shell: {
+      openExternal: async (url: string) => {
+        return await ipcRenderer.invoke('shell:openExternal', url);
+      },
     },
-  },
-
-  // File system methods
-  fs: {
-    readFile: async (filePath) => {
-      return await ipcRenderer.invoke('fs:readFile', filePath);
+    path: {
+      join: (...paths: string[]) => path.join(...paths),
+      basename: (p: string) => path.basename(p),
+      dirname: (p: string) => path.dirname(p),
+      extname: (p: string) => path.extname(p),
     },
-    writeFile: async (filePath, content) => {
-      return await ipcRenderer.invoke('fs:writeFile', filePath, content);
+    storage: {
+      get: async (key: string) => {
+        return await ipcRenderer.invoke('storage:get', key);
+      },
+      set: async (key: string, value: string) => {
+        return await ipcRenderer.invoke('storage:set', key, value);
+      },
+      delete: async (key: string) => {
+        return await ipcRenderer.invoke('storage:delete', key);
+      },
     },
-    exists: async (filePath) => {
-      return await ipcRenderer.invoke('fs:exists', filePath);
+    database: {
+      query: async (sql: string, params?: unknown[]) => {
+        return await ipcRenderer.invoke('database:query', sql, params);
+      },
     },
-    readDir: async (dirPath) => {
-      return await ipcRenderer.invoke('fs:readDir', dirPath);
-    },
-    createDir: async (dirPath) => {
-      return await ipcRenderer.invoke('fs:createDir', dirPath);
-    },
-    remove: async (targetPath) => {
-      return await ipcRenderer.invoke('fs:remove', targetPath);
-    },
-    rename: async (oldPath, newPath) => {
-      return await ipcRenderer.invoke('fs:rename', oldPath, newPath);
-    },
-    stat: async (targetPath) => {
-      return await ipcRenderer.invoke('fs:stat', targetPath);
-    },
-  },
-
-  // Window methods
-  window: {
-    minimize: () => ipcRenderer.send('window:minimize'),
-    maximize: () => ipcRenderer.send('window:maximize'),
-    close: () => ipcRenderer.send('window:close'),
-    isMaximized: async () => await ipcRenderer.invoke('window:isMaximized'),
-  },
-
-  // Platform information
-  platform: {
-    os: process.platform,
-    arch: process.arch,
-    version: process.version,
-    homedir: os.homedir(),
-    pathSeparator: path.sep,
-  },
-
-  // Shell operations
-  shell: {
-    execute: async (command, cwd) => {
-      return await ipcRenderer.invoke('shell:execute', command, cwd);
-    },
-    openExternal: async (url) => {
-      return await ipcRenderer.invoke('shell:openExternal', url);
-    },
-  },
-
-  // Secure storage operations for API keys
-  storage: {
-    get: async (key) => {
-      return await ipcRenderer.invoke('storage:get', key);
-    },
-    set: async (key, value) => {
-      return await ipcRenderer.invoke('storage:set', key, value);
-    },
-    remove: async (key) => {
-      return await ipcRenderer.invoke('storage:remove', key);
-    },
-    keys: async () => {
-      return await ipcRenderer.invoke('storage:keys');
-    },
-  },
-
-  // Database operations
-  db: {
-    query: async (sql, params = []) => {
-      return await ipcRenderer.invoke('db:query', sql, params);
-    },
-    initialize: async () => {
-      return await ipcRenderer.invoke('db:initialize');
-    },
-  },
-
-  // Learning adapter (Python) bridge
-  learning: {
-    run: async (command, payload, options) => {
-      return await ipcRenderer.invoke('learning:run', command, payload, options);
-    },
-  },
-
-  // Get platform info
-  getPlatform: async () => {
-    return await ipcRenderer.invoke('app:getPlatform');
-  },
-
-  // IPC communication
-  ipc: {
-    send: (channel, data) => {
-      const validChannels = ['toMain'];
-      if (validChannels.includes(channel)) {
-        ipcRenderer.send(channel, data);
-      }
-    },
-    on: (channel, func) => {
-      const validChannels = ['fromMain'];
-      if (validChannels.includes(channel)) {
-        ipcRenderer.on(channel, (event, ...args) => func(...args));
-      }
-    },
-    once: (channel, func) => {
-      const validChannels = ['fromMain'];
-      if (validChannels.includes(channel)) {
-        ipcRenderer.once(channel, (event, ...args) => func(...args));
-      }
-    },
-    removeAllListeners: (channel) => {
-      const validChannels = ['fromMain'];
-      if (validChannels.includes(channel)) {
+    ipc: {
+      send: (command: string, payload?: unknown) => {
+        ipcRenderer.send('ipc-bridge:command', command, payload);
+      },
+      invoke: async (channel: string, ...args: unknown[]) => {
+        return await ipcRenderer.invoke(channel, ...args);
+      },
+      on: (channel: string, callback: (data: unknown) => void) => {
+        ipcRenderer.on(channel, (_event, data) => callback(data));
+      },
+      removeAllListeners: (channel: string) => {
         ipcRenderer.removeAllListeners(channel);
-      }
+      },
     },
-  },
-});
+  };
+
+  contextBridge.exposeInMainWorld('electron', electronAPI);
   console.log('[Preload] ✅ Successfully exposed electron API via contextBridge');
   console.log('[Preload] Note: window.electron is NOT accessible in preload context - this is correct!');
   console.log('[Preload] The renderer process will have access to window.electron');

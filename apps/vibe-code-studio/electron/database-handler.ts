@@ -7,7 +7,6 @@
 import Database from 'better-sqlite3';
 import * as path from 'path';
 import * as fs from 'fs';
-import { app } from 'electron';
 
 let db: Database.Database | null = null;
 
@@ -17,12 +16,12 @@ let db: Database.Database | null = null;
 function getDatabasePath(): string {
   // Use D: drive for databases alongside learning system
   const dbDir = 'D:\\databases';
-  
+
   // Ensure the directory exists
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
   }
-  
+
   return path.join(dbDir, 'database.db');
 }
 
@@ -143,7 +142,7 @@ export function executeQuery(sql: string, params: any[] = []): { success: boolea
 
     // Detect multiple statements (schema initialization, etc.)
     const hasMultipleStatements = (sql.match(/;/g) || []).length > 1 ||
-                                   (sql.match(/CREATE\s+(TABLE|INDEX)/gi) || []).length > 1;
+      (sql.match(/CREATE\s+(TABLE|INDEX)/gi) || []).length > 1;
 
     if (hasMultipleStatements) {
       // Use exec() for multiple statements (no parameter binding supported)
@@ -159,7 +158,7 @@ export function executeQuery(sql: string, params: any[] = []): { success: boolea
       const rows = stmt.all(...params);
       return { success: true, rows };
     } else {
-      const result = stmt.run(...params);
+      stmt.run(...params);
       return { success: true, rows: [] };
     }
   } catch (error) {

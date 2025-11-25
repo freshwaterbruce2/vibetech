@@ -14,7 +14,6 @@ import * as path from 'path';
 import { promisify } from 'util';
 import * as dbHandler from './database-handler';
 import { initializeWindowsIntegration } from './windows-integration';
-import { spawn } from 'child_process';
 
 const execAsync = promisify(exec);
 
@@ -248,7 +247,7 @@ function createWindow() {
   }, 3000);
 
   // Handle loading errors
-  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
     console.error('[Electron] Failed to load:', errorCode, errorDescription);
   });
 
@@ -427,7 +426,7 @@ app.whenReady().then(async () => {
   }
 
   // Handle additional file opens (Windows file associations)
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (_event, commandLine, _workingDirectory) => {
     // Another instance tried to open - focus our window instead
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
@@ -475,7 +474,7 @@ app.on('window-all-closed', () => {
  */
 
 // Read file
-ipcMain.handle('fs:readFile', async (event, filePath) => {
+ipcMain.handle('fs:readFile', async (_event, filePath) => {
   try {
     const content = await fs.readFile(filePath, 'utf-8');
     return { success: true, content };
@@ -485,7 +484,7 @@ ipcMain.handle('fs:readFile', async (event, filePath) => {
 });
 
 // Write file
-ipcMain.handle('fs:writeFile', async (event, filePath, content) => {
+ipcMain.handle('fs:writeFile', async (_event, filePath, content) => {
   try {
     await fs.writeFile(filePath, content, 'utf-8');
     return { success: true };
@@ -495,7 +494,7 @@ ipcMain.handle('fs:writeFile', async (event, filePath, content) => {
 });
 
 // Read directory
-ipcMain.handle('fs:readDir', async (event, dirPath) => {
+ipcMain.handle('fs:readDir', async (_event, dirPath) => {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
     const items = entries.map(entry => ({
@@ -511,7 +510,7 @@ ipcMain.handle('fs:readDir', async (event, dirPath) => {
 });
 
 // Create directory
-ipcMain.handle('fs:createDir', async (event, dirPath) => {
+ipcMain.handle('fs:createDir', async (_event, dirPath) => {
   try {
     await fs.mkdir(dirPath, { recursive: true });
     return { success: true };
@@ -521,7 +520,7 @@ ipcMain.handle('fs:createDir', async (event, dirPath) => {
 });
 
 // Delete file/directory
-ipcMain.handle('fs:remove', async (event, targetPath) => {
+ipcMain.handle('fs:remove', async (_event, targetPath) => {
   try {
     const stats = await fs.stat(targetPath);
     if (stats.isDirectory()) {
@@ -536,7 +535,7 @@ ipcMain.handle('fs:remove', async (event, targetPath) => {
 });
 
 // Rename/move file
-ipcMain.handle('fs:rename', async (event, oldPath, newPath) => {
+ipcMain.handle('fs:rename', async (_event, oldPath, newPath) => {
   try {
     await fs.rename(oldPath, newPath);
     return { success: true };
@@ -546,7 +545,7 @@ ipcMain.handle('fs:rename', async (event, oldPath, newPath) => {
 });
 
 // Check if path exists
-ipcMain.handle('fs:exists', async (event, targetPath) => {
+ipcMain.handle('fs:exists', async (_event, targetPath) => {
   try {
     await fs.access(targetPath);
     return { success: true, exists: true };
@@ -556,7 +555,7 @@ ipcMain.handle('fs:exists', async (event, targetPath) => {
 });
 
 // Get file stats
-ipcMain.handle('fs:stat', async (event, targetPath) => {
+ipcMain.handle('fs:stat', async (_event, targetPath) => {
   try {
     const stats = await fs.stat(targetPath);
     return {
@@ -579,7 +578,7 @@ ipcMain.handle('fs:stat', async (event, targetPath) => {
  */
 
 // Open file dialog
-ipcMain.handle('dialog:openFile', async (event, options = {}) => {
+ipcMain.handle('dialog:openFile', async (_event, options = {}) => {
   try {
     if (!mainWindow) throw new Error('Main window not available');
     const result = await dialog.showOpenDialog(mainWindow, {
@@ -594,7 +593,7 @@ ipcMain.handle('dialog:openFile', async (event, options = {}) => {
 });
 
 // Open folder dialog
-ipcMain.handle('dialog:openFolder', async (event, options = {}) => {
+ipcMain.handle('dialog:openFolder', async (_event, options = {}) => {
   try {
     if (!mainWindow) throw new Error('Main window not available');
     const result = await dialog.showOpenDialog(mainWindow, {
@@ -608,7 +607,7 @@ ipcMain.handle('dialog:openFolder', async (event, options = {}) => {
 });
 
 // Save file dialog
-ipcMain.handle('dialog:saveFile', async (event, options = {}) => {
+ipcMain.handle('dialog:saveFile', async (_event, options = {}) => {
   try {
     if (!mainWindow) throw new Error('Main window not available');
     const result = await dialog.showSaveDialog(mainWindow, {
@@ -626,7 +625,7 @@ ipcMain.handle('dialog:saveFile', async (event, options = {}) => {
  */
 
 // Execute shell command
-ipcMain.handle('shell:execute', async (event, command, cwd) => {
+ipcMain.handle('shell:execute', async (_event, command, cwd) => {
   try {
     const { stdout, stderr } = await execAsync(command, {
       cwd: cwd || process.cwd(),
@@ -687,7 +686,7 @@ const initSecureStorage = async () => {
 };
 
 // Get secure storage data
-ipcMain.handle('storage:get', async (event, key) => {
+ipcMain.handle('storage:get', async (_event, key) => {
   try {
     console.log('[Electron] storage:get called for key:', key);
     await initSecureStorage();
@@ -706,7 +705,7 @@ ipcMain.handle('storage:get', async (event, key) => {
 });
 
 // Set secure storage data
-ipcMain.handle('storage:set', async (event, key, value) => {
+ipcMain.handle('storage:set', async (_event, key, value) => {
   try {
     console.log('[Electron] storage:set called for key:', key);
     console.log('[Electron] UserData path:', app.getPath('userData'));
@@ -742,7 +741,7 @@ ipcMain.handle('storage:set', async (event, key, value) => {
 });
 
 // Remove secure storage data
-ipcMain.handle('storage:remove', async (event, key) => {
+ipcMain.handle('storage:remove', async (_event, key) => {
   try {
     await initSecureStorage();
     const storagePath = getSecureStoragePath();
@@ -778,7 +777,7 @@ ipcMain.handle('storage:keys', async () => {
  */
 
 // Get app path
-ipcMain.handle('app:getPath', async (event, name) => {
+ipcMain.handle('app:getPath', async (_event, name) => {
   try {
     const appPath = app.getPath(name);
     return { success: true, path: appPath };
@@ -788,7 +787,7 @@ ipcMain.handle('app:getPath', async (event, name) => {
 });
 
 // Open external URL
-ipcMain.handle('shell:openExternal', async (event, url) => {
+ipcMain.handle('shell:openExternal', async (_event, url) => {
   try {
     await shell.openExternal(url);
     return { success: true };
@@ -828,7 +827,7 @@ console.log('[Electron] Platform:', process.platform);
  */
 
 // Execute database query
-ipcMain.handle('db:query', async (event, sql, params = []) => {
+ipcMain.handle('db:query', async (_event, sql, params = []) => {
   try {
     const result = dbHandler.executeQuery(sql, params);
     return result;
