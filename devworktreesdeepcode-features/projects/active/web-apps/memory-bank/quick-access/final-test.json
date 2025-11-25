@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-08-23T20:06:10.349Z",
+  "size": 100,
+  "storage": "localMemory",
+  "metadata": {
+    "type": "validation"
+  },
+  "data": {
+    "test": "final-validation",
+    "timestamp": "2025-08-23T20:06:10.348Z",
+    "source": "final-integration-test"
+  },
+  "checksum": "2af9a3df28d7d72617930d3e210aa27a"
+}

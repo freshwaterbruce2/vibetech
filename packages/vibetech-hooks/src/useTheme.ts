@@ -1,64 +1,84 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export type ThemePreference = 'light' | 'dark' | 'system';
+export type Theme = 'light' | 'dark' | 'system';
 
 const THEME_STORAGE_KEY = 'vibetech-theme';
 
-const isClient = typeof window !== 'undefined';
+export interface UseThemeReturn {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  toggleTheme: () => void;
+  systemTheme: 'light' | 'dark';
+}
 
-const readStoredTheme = (): ThemePreference | null => {
-  if (!isClient) return null;
-  try {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : null;
-  } catch {
-    return null;
-  }
-};
+/**
+ * useTheme - Shared theme management hook
+ *
+ * Manages light/dark/system theme with localStorage persistence
+ * and automatic system preference detection.
+ *
+ * @example
+ * ```tsx
+ * import { useTheme } from '@vibetech/hooks/useTheme';
+ *
+ * function ThemeToggle() {
+ *   const { theme, setTheme, toggleTheme } = useTheme();
+ *   return <button onClick={toggleTheme}>{theme}</button>;
+ * }
+ * ```
+ */
+export function useTheme(): UseThemeReturn {
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'system';
 
-const readSystemTheme = (): Exclude<ThemePreference, 'system'> => {
-  if (!isClient) return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
+      return savedTheme as Theme;
+    }
+    return 'system';
+  });
 
-export function useTheme() {
-  const [theme, setThemeState] = useState<ThemePreference>(() => readStoredTheme() ?? 'system');
-  const [systemTheme, setSystemTheme] = useState<Exclude<ThemePreference, 'system'>>(readSystemTheme);
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
 
   // Listen for system theme changes
   useEffect(() => {
-    if (!isClient) return;
+    if (typeof window === 'undefined') return;
+
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = (event: MediaQueryListEvent) => {
-      setSystemTheme(event.matches ? 'dark' : 'light');
+    const handler = (e: MediaQueryListEvent) => {
+      setSystemTheme(e.matches ? 'dark' : 'light');
     };
+
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Apply theme to the document element
+  // Apply theme to document
   useEffect(() => {
-    if (!isClient) return;
+    if (typeof window === 'undefined') return;
+
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
+
     const effectiveTheme = theme === 'system' ? systemTheme : theme;
     root.classList.add(effectiveTheme);
+
+    // Also set data-theme attribute for CSS custom properties
     root.setAttribute('data-theme', effectiveTheme);
   }, [theme, systemTheme]);
 
-  const setTheme = (newTheme: ThemePreference) => {
+  const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    if (!isClient) return;
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-    } catch {
-      // Ignore storage failures (e.g., privacy mode)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
     }
   };
 
   const toggleTheme = () => {
-    const nextTheme: ThemePreference =
-      theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
+    const nextTheme: Theme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
     setTheme(nextTheme);
   };
 
@@ -66,6 +86,6 @@ export function useTheme() {
     theme,
     setTheme,
     toggleTheme,
-    systemTheme
+    systemTheme,
   };
 }

@@ -1,0 +1,207 @@
+{
+  "timestamp": "2025-10-13T01:08:05.066861",
+  "source_agents": [
+    "auto_fixer_001",
+    "crypto-enhanced-trading",
+    "crypto_auto_fixer",
+    "enhanced_market_001"
+  ],
+  "specialist_patterns": {
+    "crypto-expert": {
+      "inherited_from": [
+        {
+          "agent": "auto_fixer_001",
+          "executions": 2528,
+          "success_rate": 0.9996044303797469
+        },
+        {
+          "agent": "crypto-enhanced-trading",
+          "executions": 1277,
+          "success_rate": 0.9992169146436961
+        },
+        {
+          "agent": "crypto_auto_fixer",
+          "executions": 428,
+          "success_rate": 0.9976635514018691
+        },
+        {
+          "agent": "enhanced_market_001",
+          "executions": 129,
+          "success_rate": 0.9922480620155039
+        }
+      ],
+      "task_types": {
+        "auto_fix_cycle": [
+          {
+            "from_agent": "auto_fixer_001",
+            "execution_count": 2527,
+            "avg_success": 1.0,
+            "avg_time": 0.1696725643619889
+          },
+          {
+            "from_agent": "crypto_auto_fixer",
+            "execution_count": 427,
+            "avg_success": 1.0,
+            "avg_time": 0.1954354681510836
+          }
+        ],
+        "monitoring_cycle": [
+          {
+            "from_agent": "crypto-enhanced-trading",
+            "execution_count": 1276,
+            "avg_success": 1.0,
+            "avg_time": 0.16712786243253366
+          }
+        ],
+        "market_analysis": [
+          {
+            "from_agent": "enhanced_market_001",
+            "execution_count": 128,
+            "avg_success": 1.0,
+            "avg_time": 0.16947868838906288
+          }
+        ]
+      },
+      "capabilities": [],
+      "performance_targets": {
+        "target_success_rate": 0.9996044303797469,
+        "target_execution_time": 0.1696725643619889
+      },
+      "execution_samples": [
+        {
+          "task": "Monitor and fix trading system issues",
+          "type": "auto_fix_cycle",
+          "from": "auto_fixer_001"
+        },
+        {
+          "task": "Monitor and fix trading system issues",
+          "type": "auto_fix_cycle",
+          "from": "auto_fixer_001"
+        },
+        {
+          "task": "Monitor crypto trading system performance",
+          "type": "monitoring_cycle",
+          "from": "crypto-enhanced-trading"
+        },
+        {
+          "task": "Monitor crypto trading system performance",
+          "type": "monitoring_cycle",
+          "from": "crypto-enhanced-trading"
+        },
+        {
+          "task": "Monitor and fix trading system issues",
+          "type": "auto_fix_cycle",
+          "from": "crypto_auto_fixer"
+        },
+        {
+          "task": "Monitor and fix trading system issues",
+          "type": "auto_fix_cycle",
+          "from": "crypto_auto_fixer"
+        },
+        {
+          "task": "Analyze trading patterns and market data",
+          "type": "market_analysis",
+          "from": "enhanced_market_001"
+        },
+        {
+          "task": "Analyze trading patterns and market data",
+          "type": "market_analysis",
+          "from": "enhanced_market_001"
+        }
+      ]
+    },
+    "backend-expert": {
+      "inherited_from": [
+        {
+          "agent": "auto_fixer_001",
+          "executions": 2528,
+          "success_rate": 0.9996044303797469
+        }
+      ],
+      "task_types": {
+        "auto_fix_cycle": [
+          {
+            "from_agent": "auto_fixer_001",
+            "execution_count": 2527,
+            "avg_success": 1.0,
+            "avg_time": 0.1696725643619889
+          }
+        ]
+      },
+      "capabilities": [],
+      "performance_targets": {
+        "target_success_rate": 0.9996044303797469,
+        "target_execution_time": 0.1696725643619889
+      },
+      "execution_samples": [
+        {
+          "task": "Monitor and fix trading system issues",
+          "type": "auto_fix_cycle",
+          "from": "auto_fixer_001"
+        },
+        {
+          "task": "Monitor and fix trading system issues",
+          "type": "auto_fix_cycle",
+          "from": "auto_fixer_001"
+        }
+      ]
+    },
+    "webapp-expert": {
+      "inherited_from": [
+        {
+          "agent": "auto_fixer_001",
+          "executions": 2528,
+          "success_rate": 0.9996044303797469
+        }
+      ],
+      "task_types": {
+        "auto_fix_cycle": [
+          {
+            "from_agent": "auto_fixer_001",
+            "execution_count": 2527,
+            "avg_success": 1.0,
+            "avg_time": 0.1696725643619889
+          }
+        ]
+      },
+      "capabilities": [],
+      "performance_targets": {
+        "target_success_rate": 0.9996044303797469,
+        "target_execution_time": 0.1696725643619889
+      },
+      "execution_samples": [
+        {
+          "task": "Monitor and fix trading system issues",
+          "type": "auto_fix_cycle",
+          "from": "auto_fixer_001"
+        },
+        {
+          "task": "Monitor and fix trading system issues",
+          "type": "auto_fix_cycle",
+          "from": "auto_fixer_001"
+        }
+      ]
+    }
+  },
+  "mapping": {
+    "auto_fixer_001": [
+      "crypto-expert",
+      "backend-expert",
+      "webapp-expert"
+    ],
+    "crypto-enhanced-trading": [
+      "crypto-expert"
+    ],
+    "crypto_auto_fixer": [
+      "crypto-expert"
+    ],
+    "enhanced_market_001": [
+      "crypto-expert"
+    ]
+  },
+  "summary": {
+    "proven_performers": 4,
+    "specialists_enhanced": 3,
+    "total_executions_analyzed": 4362
+  }
+}

@@ -1,0 +1,217 @@
+# ============================================================================
+# VIBE BOOKING PLATFORM - PRODUCTION NETLIFY CONFIGURATION
+# ============================================================================
+# Created: October 1, 2025
+# Purpose: Secure, optimized configuration for booking platform
+# ============================================================================
+
+# Build Configuration
+[build]
+  publish = "dist"                    # Build output directory (Vite default)
+  command = "npm run build"           # Production build command
+
+[build.environment]
+  NODE_VERSION = "20"                 # Use Node 20 (required for better-sqlite3)
+  NPM_FLAGS = "--legacy-peer-deps"   # Handle dependency conflicts
+  CI = "true"                        # Enable CI mode for builds
+
+# ============================================================================
+# SECURITY HEADERS (CRITICAL - DO NOT REMOVE)
+# ============================================================================
+
+# Main security headers for all pages
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Prevent clickjacking attacks
+    X-Frame-Options = "DENY"
+    
+    # Prevent MIME type sniffing
+    X-Content-Type-Options = "nosniff"
+    
+    # Enable XSS protection
+    X-XSS-Protection = "1; mode=block"
+    
+    # Control referrer information
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    
+    # Restrict dangerous browser features
+    Permissions-Policy = """
+      camera=(),
+      microphone=(),
+      geolocation=(),
+      interest-cohort=(),
+      payment=()
+    """
+    
+    # Strict Transport Security (force HTTPS)
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    
+    # Content Security Policy - ADJUST BASED ON YOUR NEEDS
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.netlify.app;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      img-src 'self' data: https: blob:;
+      font-src 'self' https://fonts.gstatic.com;
+      connect-src 'self' https://*.supabase.co https://*.stripe.com wss://*.supabase.co;
+      frame-src 'self' https://js.stripe.com https://hooks.stripe.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      upgrade-insecure-requests;
+    """
+
+# ============================================================================
+# CACHE OPTIMIZATION
+# ============================================================================
+
+# Cache static assets aggressively
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache images but allow revalidation
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, must-revalidate"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, must-revalidate"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, must-revalidate"
+
+# Don't cache HTML (for SPA updates)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Don't cache service worker
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# ============================================================================
+# REDIRECTS & REWRITES
+# ============================================================================
+
+# SPA fallback - serve index.html for all routes (React Router, Vue Router, etc.)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["public"]}
+
+# API proxy (if you have a backend API)
+# Uncomment and configure if needed
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://your-backend-api.com/:splat"
+#   status = 200
+#   force = true
+#   headers = {X-From = "Netlify"}
+
+# Force HTTPS redirect
+[[redirects]]
+  from = "http://vibe-booking-prod.netlify.app/*"
+  to = "https://vibe-booking-prod.netlify.app/:splat"
+  status = 301
+  force = true
+
+# ============================================================================
+# ENVIRONMENT-SPECIFIC SETTINGS
+# ============================================================================
+
+# Production build settings
+[context.production]
+  command = "npm run build"
+  [context.production.environment]
+    NODE_ENV = "production"
+
+# Deploy preview settings (for PRs)
+[context.deploy-preview]
+  command = "npm run build"
+  [context.deploy-preview.environment]
+    NODE_ENV = "development"
+
+# Branch deploy settings
+[context.branch-deploy]
+  command = "npm run build"
+  [context.branch-deploy.environment]
+    NODE_ENV = "development"
+
+# ============================================================================
+# DEVELOPMENT SERVER (Local)
+# ============================================================================
+
+[dev]
+  command = "npm run dev"
+  port = 5173                        # Vite default port
+  targetPort = 5173
+  publish = "dist"
+  autoLaunch = true
+
+# ============================================================================
+# PLUGINS (Optional but Recommended)
+# ============================================================================
+
+# Lighthouse CI for performance monitoring
+# [[plugins]]
+#   package = "@netlify/plugin-lighthouse"
+#   [plugins.inputs.thresholds]
+#     performance = 0.8
+#     accessibility = 0.9
+#     best-practices = 0.8
+#     seo = 0.9
+
+# ============================================================================
+# FUNCTIONS (If using Netlify Functions)
+# ============================================================================
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# ============================================================================
+# EDGE FUNCTIONS (If using Edge Functions)
+# ============================================================================
+
+# [[edge_functions]]
+#   function = "my-function"
+#   path = "/api/*"
+
+# ============================================================================
+# NOTES FOR DEPLOYMENT
+# ============================================================================
+# 
+# 1. This configuration assumes a Vite-based React/Vue application
+# 2. Adjust Content-Security-Policy based on your specific needs
+# 3. Update API proxy settings if you have a separate backend
+# 4. Set environment variables in Netlify dashboard:
+#    - Database connection strings
+#    - API keys (Stripe, etc.)
+#    - Authentication secrets
+# 5. Test deploy previews before pushing to production
+# 6. Monitor Lighthouse scores after deployment
+#
+# ============================================================================

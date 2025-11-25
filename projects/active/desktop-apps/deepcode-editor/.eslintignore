@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+release/
+out/
+
+# Test coverage
+coverage/
+
+# Test files (temporarily ignored due to tsconfig issues)
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Version control
+.git/
+
+# Husky
+.husky/
+
+# Configuration files that we don't want to lint
+*.config.js
+*.config.ts
+.eslintrc.js
+commitlint.config.js
+.lintstagedrc.js
+.prettierrc.js
+scripts/**/*.js
+.claude/**/*.js
+vite.config.ts
+vite.config.optimized.ts
+vitest.config.ts
+
+# Electron build outputs
+electron/preload.js
+
+# Public assets
+public/
+
+# Markdown files
+*.md
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp

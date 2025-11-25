@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek Content Builder - Advanced AI Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.8);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: rgba(148, 163, 184, 0.2);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .bg-animation::before,
+        .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(100px);
+        }
+
+        .bg-animation::before {
+            background: var(--primary);
+            top: -200px;
+            right: -200px;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-animation::after {
+            background: var(--secondary);
+            bottom: -200px;
+            left: -200px;
+            animation: float 20s infinite ease-in-out reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 2rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .content-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .content-type-btn {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .content-type-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--text-primary);
+        }
+
+        .content-type-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .prompt-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .prompt-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+
+        .prompt-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .option-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .option-input {
+            padding: 0.5rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .option-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Output Section */
+        .output-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .output-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .output-content {
+            flex: 1;
+            min-height: 400px;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .output-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .output-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .output-content::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .placeholder-text {
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 3rem;
+        }
+
+        /* Loading Animation */
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: loading-bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes loading-bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Export Options */
+        .export-options {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .export-group, .action-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .export-group {
+            border-right: 1px solid var(--border);
+            padding-right: 1rem;
+        }
+
+        .export-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .export-btn.primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .export-btn.primary:hover {
+            background: rgba(79, 70, 229, 0.9);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        }
+
+        .export-btn.action {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: rgba(34, 197, 94, 1);
+        }
+
+        .export-btn.action:hover {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.5);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Multi-View Tabs */
+        .view-tabs {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 0;
+        }
+
+        .view-tab {
+            flex: 1;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .view-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .view-tab:hover:not(.active) {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--text-primary);
+        }
+
+        .view-panels {
+            background: var(--bg-card);
+            border-radius: 0 0 8px 8px;
+            min-height: 500px;
+            position: relative;
+        }
+
+        .view-panel {
+            display: none;
+            height: 100%;
+            padding: 0;
+        }
+
+        .view-panel.active {
+            display: block;
+        }
+
+        .code-editor {
+            width: 100%;
+            height: 500px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 16px;
+            border: none;
+            resize: none;
+            outline: none;
+            border-radius: 0 0 8px 8px;
+            overflow: auto;
+        }
+
+        .split-view {
+            display: flex;
+            height: 500px;
+        }
+
+        .split-panel {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .split-divider {
+            width: 4px;
+            background: var(--border);
+            cursor: col-resize;
+            transition: background 0.3s ease;
+        }
+
+        .split-divider:hover {
+            background: var(--primary);
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .responsive-controls {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .responsive-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .responsive-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Usage Stats */
+        .usage-stats {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            min-width: 200px;
+        }
+
+        .usage-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .usage-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin: 0.25rem 0;
+        }
+
+        .usage-label {
+            color: var(--text-secondary);
+        }
+
+        .usage-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Streaming Text Effect */
+        .streaming-text {
+            border-right: 2px solid var(--primary);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { border-right-color: var(--primary); }
+            51%, 100% { border-right-color: transparent; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .usage-stats {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <header class="header">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z"></path>
+                <path d="M2 17L12 22L22 17"></path>
+                <path d="M2 12L12 17L22 12"></path>
+            </svg>
+            DeepSeek Content Builder
+        </div>
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span id="statusText">Connected to DeepSeek API</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="input-section">
+            <div>
+                <h2 class="section-title">Content Configuration</h2>
+                <div class="content-type-selector" id="contentTypeSelector">
+                    <button class="content-type-btn active" data-type="blog">Blog Post</button>
+                    <button class="content-type-btn" data-type="article">Article</button>
+                    <button class="content-type-btn" data-type="ebook">eBook</button>
+                    <button class="content-type-btn" data-type="course">Course</button>
+                    <button class="content-type-btn" data-type="landing">Landing Page</button>
+                    <button class="content-type-btn" data-type="email">Email</button>
+                    <button class="content-type-btn" data-type="social">Social Media</button>
+                    <button class="content-type-btn" data-type="code">Code</button>
+                </div>
+            </div>
+
+            <div class="prompt-container">
+                <h3 class="section-title">Prompt</h3>
+                <textarea
+                    id="promptInput"
+                    class="prompt-input"
+                    placeholder="Enter your content requirements here... Be specific about your needs, target audience, tone, and key points to cover."
+                ></textarea>
+            </div>
+
+            <div>
+                <h3 class="section-title">Advanced Options</h3>
+                <div class="options-grid">
+                    <div class="option-group">
+                        <label class="option-label">Model</label>
+                        <select id="modelSelect" class="option-input">
+                            <option value="deepseek-chat">DeepSeek Chat</option>
+                            <option value="deepseek-coder">DeepSeek Coder</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Temperature</label>
+                        <input type="number" id="temperatureInput" class="option-input" min="0" max="2" step="0.1" value="0.7">
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Max Tokens</label>
+                        <input type="number" id="maxTokensInput" class="option-input" min="100" max="8000" value="2000">
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Streaming</label>
+                        <select id="streamingSelect" class="option-input">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="generateBtn" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                    Generate Content
+                </button>
+                <button id="clearBtn" class="btn btn-secondary">Clear</button>
+            </div>
+        </div>
+
+        <div class="output-section">
+            <div class="output-header">
+                <h2 class="section-title">Generated Content</h2>
+                <div class="export-options">
+                    <div class="export-group">
+                        <button class="export-btn primary" onclick="exportContent('production')" title="Complete production-ready package">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7,10 12,15 17,10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Production
+                        </button>
+                        <button class="export-btn" onclick="exportContent('smart')" title="Smart export based on content type">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            </svg>
+                            Smart
+                        </button>
+                        <button class="export-btn" onclick="exportContent('html')" title="HTML document">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                            </svg>
+                            HTML
+                        </button>
+                        <button class="export-btn" onclick="exportContent('markdown')" title="Markdown format">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 4h12v16H6z"/>
+                                <path d="M8 6v6l2-2 2 2V6"/>
+                            </svg>
+                            MD
+                        </button>
+                        <button class="export-btn" onclick="exportContent('pdf')" title="PDF document">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                                <path d="M9 13h6M9 17h4"/>
+                            </svg>
+                            PDF
+                        </button>
+                    </div>
+                    <div class="action-group">
+                        <button class="export-btn action" onclick="copyToClipboard()" title="Copy to clipboard">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Copy
+                        </button>
+                        <button class="export-btn action" onclick="showDeploymentOptions()" title="Deployment options">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            Deploy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="output-stats">
+                <div class="stat-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span id="responseTime">0ms</span>
+                </div>
+                <div class="stat-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    <span id="tokenCount">0 tokens</span>
+                </div>
+                <div class="stat-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11H3v2h6v-2zm0-4H3v2h6V7zm0 8H3v2h6v-2zm12-8h-6v2h6V7zm0 4h-6v2h6v-2zm0 4h-6v2h6v-2z"/>
+                    </svg>
+                    <span id="wordCount">0 words</span>
+                </div>
+            </div>
+
+            <!-- Multi-View Interface -->
+            <div class="view-tabs">
+                <button class="view-tab active" onclick="switchView('preview')" id="previewTab">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    Preview
+                </button>
+                <button class="view-tab" onclick="switchView('code')" id="codeTab">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                    Code
+                </button>
+                <button class="view-tab" onclick="switchView('split')" id="splitTab">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="12" y1="3" x2="12" y2="21"></line>
+                    </svg>
+                    Split
+                </button>
+            </div>
+
+            <div class="view-panels">
+                <!-- Preview Panel -->
+                <div id="previewPanel" class="view-panel active">
+                    <div class="responsive-controls">
+                        <button class="responsive-btn active" onclick="setPreviewSize('desktop')" id="desktopBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            Desktop
+                        </button>
+                        <button class="responsive-btn" onclick="setPreviewSize('tablet')" id="tabletBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                            </svg>
+                            Tablet
+                        </button>
+                        <button class="responsive-btn" onclick="setPreviewSize('mobile')" id="mobileBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                            </svg>
+                            Mobile
+                        </button>
+                    </div>
+                    <div id="outputContent" class="output-content">
+                        <div class="placeholder-text">
+                            Your generated content will appear here. Enter a prompt and click "Generate Content" to begin.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Panel -->
+                <div id="codePanel" class="view-panel">
+                    <textarea id="codeEditor" class="code-editor" placeholder="Generated HTML code will appear here..." readonly></textarea>
+                </div>
+
+                <!-- Split Panel -->
+                <div id="splitPanel" class="view-panel">
+                    <div class="split-view">
+                        <div class="split-panel">
+                            <textarea id="splitCodeEditor" class="code-editor" style="border-radius: 0;" readonly></textarea>
+                        </div>
+                        <div class="split-divider" onmousedown="startResize(event)"></div>
+                        <div class="split-panel">
+                            <iframe id="splitPreview" class="preview-frame"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="usage-stats" id="usageStats">
+        <div class="usage-title">API Usage Today</div>
+        <div class="usage-item">
+            <span class="usage-label">Requests:</span>
+            <span class="usage-value" id="totalRequests">0</span>
+        </div>
+        <div class="usage-item">
+            <span class="usage-label">Tokens Used:</span>
+            <span class="usage-value" id="totalTokens">0</span>
+        </div>
+        <div class="usage-item">
+            <span class="usage-label">Avg Response:</span>
+            <span class="usage-value" id="avgResponse">0ms</span>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5556';
+        let currentContent = '';
+        let isGenerating = false;
+        let abortController = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadUsageStats();
+            checkAPIStatus();
+        });
+
+        function setupEventListeners() {
+            // Content type selection
+            document.querySelectorAll('.content-type-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.content-type-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                });
+            });
+
+            // Generate button
+            document.getElementById('generateBtn').addEventListener('click', generateContent);
+
+            // Clear button
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                document.getElementById('promptInput').value = '';
+                document.getElementById('outputContent').innerHTML = '<div class="placeholder-text">Your generated content will appear here. Enter a prompt and click "Generate Content" to begin.</div>';
+                currentContent = '';
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    generateContent();
+                }
+                if (e.ctrlKey && e.key === 'l') {
+                    e.preventDefault();
+                    document.getElementById('clearBtn').click();
+                }
+            });
+        }
+
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+
+                const statusText = document.getElementById('statusText');
+                const statusDot = document.querySelector('.status-dot');
+
+                if (data.deepseekStatus === 'connected') {
+                    statusText.textContent = 'Connected to DeepSeek API';
+                    statusDot.style.background = 'var(--success)';
+                } else {
+                    statusText.textContent = 'DeepSeek API Not Configured';
+                    statusDot.style.background = 'var(--warning)';
+                }
+            } catch (error) {
+                const statusText = document.getElementById('statusText');
+                const statusDot = document.querySelector('.status-dot');
+                statusText.textContent = 'Server Offline';
+                statusDot.style.background = 'var(--error)';
+            }
+        }
+
+        async function generateContent() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            if (!prompt) {
+                alert('Please enter a prompt');
+                return;
+            }
+
+            if (isGenerating) {
+                if (abortController) {
+                    abortController.abort();
+                }
+                isGenerating = false;
+                document.getElementById('generateBtn').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Generate Content';
+                return;
+            }
+
+            const contentType = document.querySelector('.content-type-btn.active').dataset.type;
+            const model = document.getElementById('modelSelect').value;
+            const temperature = parseFloat(document.getElementById('temperatureInput').value);
+            const maxTokens = parseInt(document.getElementById('maxTokensInput').value);
+            const streaming = document.getElementById('streamingSelect').value === 'true';
+
+            isGenerating = true;
+            abortController = new AbortController();
+
+            document.getElementById('generateBtn').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="6" height="6"/></svg>Stop';
+            document.getElementById('outputContent').innerHTML = '<div class="loading-indicator"><span>Generating content</span><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div>';
+
+            const startTime = Date.now();
+
+            try {
+                const requestBody = {
+                    prompt,
+                    contentType,
+                    model,
+                    temperature,
+                    maxTokens,
+                    stream: streaming
+                };
+
+                if (streaming) {
+                    // Handle streaming response
+                    const response = await fetch(`${API_BASE}/api/deepseek/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody),
+                        signal: abortController.signal
+                    });
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullContent = '';
+
+                    document.getElementById('outputContent').innerHTML = '';
+
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n');
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const data = line.slice(6);
+                                if (data === '[DONE]') continue;
+
+                                try {
+                                    const parsed = JSON.parse(data);
+                                    if (parsed.content) {
+                                        fullContent += parsed.content;
+                                        document.getElementById('outputContent').innerHTML = fullContent + '<span class="streaming-text"></span>';
+                                    }
+                                } catch (e) {
+                                    // Ignore parsing errors
+                                }
+                            }
+                        }
+                    }
+
+                    currentContent = fullContent;
+                    document.getElementById('outputContent').innerHTML = fullContent;
+
+                } else {
+                    // Handle non-streaming response
+                    const response = await fetch(`${API_BASE}/api/deepseek/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody),
+                        signal: abortController.signal
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        currentContent = data.content;
+                        document.getElementById('outputContent').innerHTML = currentContent;
+
+                        // Update stats
+                        if (data.usage) {
+                            document.getElementById('tokenCount').textContent = `${data.usage.totalTokens} tokens`;
+                        }
+                    } else {
+                        throw new Error(data.error || 'Failed to generate content');
+                    }
+                }
+
+                // Update response time
+                const responseTime = Date.now() - startTime;
+                document.getElementById('responseTime').textContent = `${responseTime}ms`;
+
+                // Update word count
+                const wordCount = currentContent.split(/\s+/).filter(w => w.length > 0).length;
+                document.getElementById('wordCount').textContent = `${wordCount} words`;
+
+                // Refresh usage stats
+                loadUsageStats();
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    document.getElementById('outputContent').innerHTML = '<div class="placeholder-text">Generation stopped by user.</div>';
+                } else {
+                    document.getElementById('outputContent').innerHTML = `<div style="color: var(--error);">Error: ${error.message}</div>`;
+                }
+            } finally {
+                isGenerating = false;
+                document.getElementById('generateBtn').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Generate Content';
+            }
+        }
+
+        async function loadUsageStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/stats`);
+                const stats = await response.json();
+
+                document.getElementById('totalRequests').textContent = stats.totalRequests || 0;
+                document.getElementById('totalTokens').textContent = stats.totalTokens || 0;
+                document.getElementById('avgResponse').textContent = stats.averageResponseTime ? `${Math.round(stats.averageResponseTime)}ms` : '0ms';
+            } catch (error) {
+                console.error('Failed to load usage stats:', error);
+            }
+        }
+
+        function getSmartExportSettings() {
+            const contentType = document.querySelector('.content-type-btn.active')?.dataset.type || 'general';
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+
+            const settings = {
+                'landing': { ext: '.html', type: 'text/html', name: `landing-page-${timestamp}` },
+                'blog': { ext: '.html', type: 'text/html', name: `blog-post-${timestamp}` },
+                'article': { ext: '.html', type: 'text/html', name: `article-${timestamp}` },
+                'email': { ext: '.html', type: 'text/html', name: `email-template-${timestamp}` },
+                'course': { ext: '.html', type: 'text/html', name: `course-module-${timestamp}` },
+                'ebook': { ext: '.html', type: 'text/html', name: `ebook-${timestamp}` },
+                'code': { ext: '.html', type: 'text/html', name: `code-snippet-${timestamp}` },
+                'social': { ext: '.html', type: 'text/html', name: `social-content-${timestamp}` },
+                'socialMedia': { ext: '.html', type: 'text/html', name: `social-media-${timestamp}` },
+                'general': { ext: '.html', type: 'text/html', name: `generated-content-${timestamp}` }
+            };
+
+            return settings[contentType] || settings.general;
+        }
+
+        function exportContent(format) {
+            if (!currentContent) {
+                alert('No content to export');
+                return;
+            }
+
+            let filename, content, type;
+
+            switch(format) {
+                case 'production':
+                    exportProductionPackage();
+                    return;
+                case 'markdown':
+                    filename = `content-${Date.now()}.md`;
+                    type = 'text/markdown';
+                    content = convertHtmlToMarkdown(currentContent);
+                    break;
+                case 'pdf':
+                    exportToPDF();
+                    return;
+                case 'json':
+                    filename = `content-${Date.now()}.json`;
+                    type = 'application/json';
+                    content = JSON.stringify({
+                        content: currentContent,
+                        contentType: document.querySelector('.content-type-btn.active')?.dataset.type || 'general',
+                        metadata: extractMetadata(currentContent),
+                        timestamp: new Date().toISOString(),
+                        version: '1.0'
+                    }, null, 2);
+                    break;
+                case 'smart':
+                    const smartSettings = getSmartExportSettings();
+                    filename = smartSettings.name + smartSettings.ext;
+                    content = currentContent;
+                    type = smartSettings.type;
+
+                    // If content doesn't start with DOCTYPE, it might need to be wrapped
+                    if (smartSettings.ext === '.html' && !content.trim().toLowerCase().startsWith('<!doctype')) {
+                        content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Content</title>
+</head>
+<body>
+${content}
+</body>
+</html>`;
+                    }
+                    break;
+                case 'html':
+                    filename = `content-${Date.now()}.html`;
+                    type = 'text/html';
+                    content = currentContent;
+                    if (!content.trim().toLowerCase().startsWith('<!doctype')) {
+                        content = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Generated Content</title></head><body>${content}</body></html>`;
+                    }
+                    break;
+                case 'txt':
+                    filename = `content-${Date.now()}.txt`;
+                    type = 'text/plain';
+                    // Remove HTML tags for plain text
+                    content = currentContent.replace(/<[^>]*>/g, '').replace(/\n\s*\n/g, '\n\n');
+                    break;
+                default:
+                    filename = `content-${Date.now()}.txt`;
+                    content = currentContent;
+                    type = 'text/plain';
+            }
+
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // Show success feedback
+            const btn = event?.target;
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = 'Saved!';
+                btn.style.background = 'var(--success)';
+                btn.style.color = 'white';
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }
+        }
+
+        function previewContent() {
+            if (!currentContent) {
+                alert('No content to preview');
+                return;
+            }
+
+            // Create modal for preview
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            `;
+
+            const previewContainer = document.createElement('div');
+            previewContainer.style.cssText = `
+                background: white;
+                width: 90%;
+                height: 90%;
+                border-radius: 1rem;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            `;
+
+            const header = document.createElement('div');
+            header.style.cssText = `
+                background: #1e293b;
+                color: white;
+                padding: 1rem 2rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            `;
+
+            const title = document.createElement('h3');
+            title.textContent = 'Content Preview';
+            title.style.margin = '0';
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '×';
+            closeBtn.style.cssText = `
+                background: none;
+                border: none;
+                color: white;
+                font-size: 2rem;
+                cursor: pointer;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = `
+                flex: 1;
+                border: none;
+                width: 100%;
+            `;
+
+            // Set iframe content
+            let previewContent = currentContent;
+            if (!previewContent.trim().toLowerCase().startsWith('<!doctype')) {
+                previewContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
+</head>
+<body>
+${previewContent}
+</body>
+</html>`;
+            }
+
+            iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(previewContent);
+
+            // Event listeners
+            closeBtn.onclick = () => document.body.removeChild(modal);
+            modal.onclick = (e) => {
+                if (e.target === modal) document.body.removeChild(modal);
+            };
+
+            // Assemble modal
+            header.appendChild(title);
+            header.appendChild(closeBtn);
+            previewContainer.appendChild(header);
+            previewContainer.appendChild(iframe);
+            modal.appendChild(previewContainer);
+            document.body.appendChild(modal);
+        }
+
+        function copyToClipboard() {
+            if (!currentContent) {
+                alert('No content to copy');
+                return;
+            }
+
+            const textContent = currentContent.replace(/<[^>]*>/g, '');
+            navigator.clipboard.writeText(textContent).then(() => {
+                // Show feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = 'var(--success)';
+                btn.style.color = 'white';
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // Professional Export System Functions
+        function exportProductionPackage() {
+            if (!currentContent) {
+                alert('No content to export');
+                return;
+            }
+
+            const contentType = document.querySelector('.content-type-btn.active')?.dataset.type || 'general';
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const projectName = `${contentType}-${timestamp}`;
+
+            // Create production-ready HTML with optimizations
+            let productionHTML = currentContent;
+
+            // Add production optimizations if not already present
+            if (!productionHTML.toLowerCase().includes('<!doctype html>')) {
+                productionHTML = createProductionHTML(productionHTML, contentType);
+            }
+
+            // Create a ZIP-like structure (simplified as concatenated files for demo)
+            const packageContent = createProductionPackage(productionHTML, projectName);
+
+            const blob = new Blob([packageContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${projectName}-production.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showSuccessFeedback(event.target, 'Production package created!');
+        }
+
+        function createProductionHTML(content, contentType) {
+            const metadata = extractMetadata(content);
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${metadata.title || 'Generated Content'}</title>
+    <meta name="description" content="${metadata.description || 'Professional content generated with DeepSeek AI'}">
+    <meta name="generator" content="DeepSeek Content Builder">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="${metadata.title || 'Generated Content'}">
+    <meta property="og:description" content="${metadata.description || 'Professional content generated with DeepSeek AI'}">
+    <meta property="og:type" content="website">
+
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Production CSS -->
+    <style>
+        /* Reset and base styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; }
+        img { max-width: 100%; height: auto; }
+
+        /* Production optimizations */
+        .content-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        @media (max-width: 768px) { .content-container { padding: 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        ${content}
+    </div>
+
+    <!-- Analytics placeholder -->
+    <script>
+        // Add your analytics code here
+        console.log('Production content loaded');
+    </script>
+</body>
+</html>`;
+        }
+
+        function createProductionPackage(html, projectName) {
+            return `<!--
+================================================================================
+PRODUCTION PACKAGE: ${projectName}
+Generated: ${new Date().toISOString()}
+================================================================================
+
+This package includes:
+- Optimized HTML with SEO meta tags
+- Responsive design
+- Performance optimizations
+- Analytics integration ready
+- Cross-browser compatibility
+
+To deploy:
+1. Save this file as index.html
+2. Upload to your web server
+3. Configure your domain DNS
+4. Add analytics tracking code
+
+================================================================================
+-->
+
+${html}`;
+        }
+
+        function convertHtmlToMarkdown(html) {
+            // Simple HTML to Markdown converter
+            let markdown = html
+                .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n')
+                .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n')
+                .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n')
+                .replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1\n\n')
+                .replace(/<h5[^>]*>(.*?)<\/h5>/gi, '##### $1\n\n')
+                .replace(/<h6[^>]*>(.*?)<\/h6>/gi, '###### $1\n\n')
+                .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
+                .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
+                .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
+                .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
+                .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
+                .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
+                .replace(/<ul[^>]*>(.*?)<\/ul>/gis, (match, content) => {
+                    const items = content.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n');
+                    return items + '\n';
+                })
+                .replace(/<ol[^>]*>(.*?)<\/ol>/gis, (match, content) => {
+                    let counter = 1;
+                    const items = content.replace(/<li[^>]*>(.*?)<\/li>/gi, () => `${counter++}. $1\n`);
+                    return items + '\n';
+                })
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<div[^>]*>(.*?)<\/div>/gi, '$1\n')
+                .replace(/<span[^>]*>(.*?)<\/span>/gi, '$1')
+                .replace(/<[^>]*>/g, '') // Remove remaining HTML tags
+                .replace(/\n\s*\n\s*\n/g, '\n\n') // Clean up multiple newlines
+                .trim();
+
+            return markdown;
+        }
+
+        function exportToPDF() {
+            // For browser-based PDF generation, we'll use print functionality
+            // In a real implementation, you might use libraries like jsPDF or Puppeteer
+
+            const printWindow = window.open('', '_blank');
+            const metadata = extractMetadata(currentContent);
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${metadata.title || 'Generated Content'}</title>
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            line-height: 1.6;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            padding: 2rem;
+                            color: #333;
+                        }
+                        @media print {
+                            body { margin: 0; padding: 1rem; }
+                            .no-print { display: none; }
+                        }
+                        h1, h2, h3, h4, h5, h6 { margin-top: 2rem; margin-bottom: 1rem; }
+                        p { margin-bottom: 1rem; }
+                        img { max-width: 100%; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    <div class="no-print" style="text-align: center; margin-bottom: 2rem; padding: 1rem; background: #f5f5f5; border-radius: 8px;">
+                        <h3>PDF Export</h3>
+                        <p>Use your browser's print function (Ctrl+P) and select "Save as PDF"</p>
+                        <button onclick="window.print()" style="background: #4F46E5; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Print / Save as PDF</button>
+                    </div>
+                    ${currentContent}
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            printWindow.focus();
+
+            // Auto-trigger print dialog after a short delay
+            setTimeout(() => {
+                printWindow.print();
+            }, 1000);
+        }
+
+        function extractMetadata(html) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+
+            const title = tempDiv.querySelector('h1')?.textContent ||
+                         tempDiv.querySelector('title')?.textContent ||
+                         'Generated Content';
+
+            const description = tempDiv.querySelector('p')?.textContent?.substring(0, 160) ||
+                               'Professional content generated with DeepSeek AI';
+
+            const headings = Array.from(tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+                .map(h => ({ level: h.tagName, text: h.textContent }));
+
+            const wordCount = tempDiv.textContent?.split(/\s+/).filter(Boolean).length || 0;
+
+            return {
+                title: title.trim(),
+                description: description.trim(),
+                headings,
+                wordCount,
+                hasImages: !!tempDiv.querySelector('img'),
+                hasLinks: !!tempDiv.querySelector('a'),
+                hasLists: !!(tempDiv.querySelector('ul') || tempDiv.querySelector('ol'))
+            };
+        }
+
+        function showDeploymentOptions() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            `;
+
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: var(--card-bg);
+                border-radius: 1rem;
+                padding: 2rem;
+                max-width: 600px;
+                width: 100%;
+                max-height: 80vh;
+                overflow-y: auto;
+                color: var(--text-primary);
+            `;
+
+            content.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Deployment Options</h2>
+                    <button onclick="this.closest('.modal').remove()" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">×</button>
+                </div>
+
+                <div style="display: grid; gap: 1rem;">
+                    <div class="deploy-option" style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem; color: var(--primary);">🚀 Vercel</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">Deploy instantly with automatic HTTPS</p>
+                        <button onclick="deployToVercel()" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Deploy to Vercel</button>
+                    </div>
+
+                    <div class="deploy-option" style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem; color: var(--primary);">📡 Netlify</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">Continuous deployment from Git</p>
+                        <button onclick="deployToNetlify()" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Deploy to Netlify</button>
+                    </div>
+
+                    <div class="deploy-option" style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem; color: var(--primary);">☁️ GitHub Pages</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">Free hosting for public repositories</p>
+                        <button onclick="deployToGitHub()" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Setup GitHub Pages</button>
+                    </div>
+
+                    <div class="deploy-option" style="border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem; color: var(--primary);">📁 Local Server</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">Test locally before deployment</p>
+                        <button onclick="generateLocalSetup()" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Generate Setup</button>
+                    </div>
+                </div>
+            `;
+
+            modal.className = 'modal';
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function showSuccessFeedback(btn, message) {
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = message;
+                btn.style.background = 'var(--success)';
+                btn.style.color = 'white';
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 3000);
+            }
+        }
+
+        // Deployment helper functions (placeholders for full implementation)
+        function deployToVercel() {
+            alert('Vercel deployment would be implemented here. For now, export the production package and upload to Vercel manually.');
+        }
+
+        function deployToNetlify() {
+            alert('Netlify deployment would be implemented here. For now, export the production package and drag it to Netlify\'s deploy page.');
+        }
+
+        function deployToGitHub() {
+            alert('GitHub Pages setup would be implemented here. For now, export the production package and add it to your GitHub repository.');
+        }
+
+        function generateLocalSetup() {
+            const setupInstructions = `# Local Development Setup
+
+1. Save your content as index.html
+2. Create a simple local server:
+
+## Option 1: Python
+python -m http.server 8000
+
+## Option 2: Node.js (if installed)
+npx serve .
+
+## Option 3: PHP
+php -S localhost:8000
+
+Then open http://localhost:8000 in your browser.
+`;
+
+            const blob = new Blob([setupInstructions], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'local-setup.md';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Multi-View Interface Functions
+        function switchView(viewType) {
+            // Update tab active states
+            document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(viewType + 'Tab').classList.add('active');
+
+            // Hide all view panels
+            document.querySelectorAll('.view-panel').forEach(panel => panel.style.display = 'none');
+
+            // Show selected view panel
+            document.getElementById(viewType + 'View').style.display = 'block';
+
+            // Update content in the selected view
+            updateViewContent(viewType);
+        }
+
+        function updateViewContent(viewType) {
+            if (!currentContent) return;
+
+            switch(viewType) {
+                case 'preview':
+                    const previewFrame = document.getElementById('previewFrame');
+                    let previewContent = currentContent;
+
+                    // Ensure proper HTML structure for preview
+                    if (!previewContent.trim().toLowerCase().startsWith('<!doctype')) {
+                        previewContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
+</head>
+<body>
+${previewContent}
+</body>
+</html>`;
+                    }
+
+                    previewFrame.srcdoc = previewContent;
+                    break;
+
+                case 'code':
+                    const codeContent = document.getElementById('codeContent');
+                    codeContent.textContent = currentContent;
+                    break;
+
+                case 'split':
+                    // Update both split panels
+                    const splitPreview = document.getElementById('splitPreview');
+                    const splitCode = document.getElementById('splitCode');
+
+                    // Update preview panel
+                    let splitPreviewContent = currentContent;
+                    if (!splitPreviewContent.trim().toLowerCase().startsWith('<!doctype')) {
+                        splitPreviewContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Preview</title>
+</head>
+<body>
+${splitPreviewContent}
+</body>
+</html>`;
+                    }
+                    splitPreview.srcdoc = splitPreviewContent;
+
+                    // Update code panel
+                    splitCode.textContent = currentContent;
+                    break;
+            }
+        }
+
+        function setPreviewSize(size) {
+            // Update active button
+            document.querySelectorAll('.preview-size-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Get preview frames
+            const previewFrame = document.getElementById('previewFrame');
+            const splitPreview = document.getElementById('splitPreview');
+
+            // Apply size styles
+            let width, height;
+            switch(size) {
+                case 'desktop':
+                    width = '100%';
+                    height = '100%';
+                    break;
+                case 'tablet':
+                    width = '768px';
+                    height = '1024px';
+                    break;
+                case 'mobile':
+                    width = '375px';
+                    height = '667px';
+                    break;
+                default:
+                    width = '100%';
+                    height = '100%';
+            }
+
+            const frameStyle = `
+                width: ${width};
+                height: ${height};
+                max-width: 100%;
+                max-height: 100%;
+                margin: 0 auto;
+                border: ${size !== 'desktop' ? '1px solid var(--border)' : 'none'};
+                border-radius: ${size !== 'desktop' ? '8px' : '0'};
+                box-shadow: ${size !== 'desktop' ? '0 4px 12px rgba(0, 0, 0, 0.1)' : 'none'};
+            `;
+
+            if (previewFrame) previewFrame.style.cssText = frameStyle + 'border: none;';
+            if (splitPreview) splitPreview.style.cssText = frameStyle + 'border: none;';
+        }
+
+        // Split View Resizing
+        let isResizing = false;
+        let splitContainer = null;
+
+        function initializeSplitResize() {
+            const resizer = document.querySelector('.split-resizer');
+            if (!resizer) return;
+
+            splitContainer = document.querySelector('.split-container');
+
+            resizer.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                document.addEventListener('mousemove', handleResize);
+                document.addEventListener('mouseup', stopResize);
+                e.preventDefault();
+            });
+        }
+
+        function handleResize(e) {
+            if (!isResizing || !splitContainer) return;
+
+            const containerRect = splitContainer.getBoundingClientRect();
+            const offsetX = e.clientX - containerRect.left;
+            const percentage = (offsetX / containerRect.width) * 100;
+
+            // Constrain between 20% and 80%
+            const constrainedPercentage = Math.max(20, Math.min(80, percentage));
+
+            const leftPanel = splitContainer.querySelector('.split-left');
+            const rightPanel = splitContainer.querySelector('.split-right');
+
+            if (leftPanel && rightPanel) {
+                leftPanel.style.width = `${constrainedPercentage}%`;
+                rightPanel.style.width = `${100 - constrainedPercentage}%`;
+            }
+        }
+
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', handleResize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
+        // Enhanced setup function
+        function setupMultiViewInterface() {
+            // Set default view to preview
+            switchView('preview');
+
+            // Set default preview size to desktop
+            const desktopBtn = document.querySelector('.preview-size-btn[onclick="setPreviewSize(\'desktop\')"]');
+            if (desktopBtn) desktopBtn.classList.add('active');
+
+            // Initialize split view resizing
+            initializeSplitResize();
+
+            // Update content when currentContent changes
+            const originalOutputContent = currentContent;
+
+            // Override the content update to also update views
+            const outputElement = document.getElementById('outputContent');
+            if (outputElement) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                            setTimeout(() => {
+                                const activeTab = document.querySelector('.view-tab.active');
+                                if (activeTab) {
+                                    const viewType = activeTab.id.replace('Tab', '');
+                                    updateViewContent(viewType);
+                                }
+                            }, 100);
+                        }
+                    });
+                });
+
+                observer.observe(outputElement, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
+        }
+
+        // Initialize multi-view interface when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupMultiViewInterface);
+        } else {
+            setupMultiViewInterface();
+        }
+
+        // Refresh stats every 30 seconds
+        setInterval(loadUsageStats, 30000);
+
+        // Check API status every minute
+        setInterval(checkAPIStatus, 60000);
+    </script>
+</body>
+</html>

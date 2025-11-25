@@ -1,0 +1,130 @@
+{
+  "session_id": "2025-10-03-mcp-desktop-commander-fix",
+  "timestamp": "2025-10-03T21:30:00Z",
+  "category": "mcp-troubleshooting",
+  "severity": "medium",
+  "title": "Desktop Commander MCP Version Mismatch Resolution",
+
+  "problem": {
+    "description": "Desktop Commander MCP server was running v0.2.14 while package.json showed v0.2.16",
+    "symptoms": [
+      "Server reported incorrect version in logs",
+      "Features from newer version not available",
+      "Build appeared successful but changes didn't apply"
+    ],
+    "root_cause": "Version hardcoded in src/version.ts didn't match package.json"
+  },
+
+  "solution": {
+    "steps": [
+      {
+        "action": "Sync version across files",
+        "command": "npm run sync-version",
+        "description": "Updates version.ts to match package.json"
+      },
+      {
+        "action": "Rebuild TypeScript",
+        "command": "npm run build",
+        "description": "Compiles with updated version"
+      },
+      {
+        "action": "Restart Claude Desktop",
+        "method": "Complete quit (system tray → Quit)",
+        "description": "MCP servers only reload on full restart"
+      },
+      {
+        "action": "Verify version in logs",
+        "command": "tail -50 \"$APPDATA\\Claude\\logs\\mcp-server-desktop-commander-enhanced.log\" | grep version",
+        "expected_result": "\"version\":\"0.2.16\""
+      }
+    ],
+    "time_to_resolve": "15 minutes",
+    "success_criteria": "Server logs show correct version and all tools load"
+  },
+
+  "key_learnings": [
+    {
+      "topic": "MCP Server Lifecycle",
+      "lesson": "MCP servers only reload when Claude Desktop starts - window close is insufficient",
+      "importance": "critical"
+    },
+    {
+      "topic": "Version Synchronization",
+      "lesson": "Always use npm run sync-version before building when version changes",
+      "importance": "high"
+    },
+    {
+      "topic": "Windows Configuration",
+      "lesson": "Use full path to npx.cmd on Windows: C:\\Program Files\\nodejs\\npx.cmd",
+      "importance": "high"
+    },
+    {
+      "topic": "Timeout Limitations",
+      "lesson": "Claude Desktop has hard 60-second timeout (not configurable as of Oct 2025)",
+      "importance": "medium"
+    },
+    {
+      "topic": "Debugging Process",
+      "lesson": "Check logs first, verify build artifacts, ensure complete restart",
+      "importance": "high"
+    }
+  ],
+
+  "diagnostic_commands": {
+    "check_version_mismatch": "cat dist/version.js && cat package.json | grep version",
+    "verify_claude_stopped": "Get-Process | Where-Object {$_.Name -like '*Claude*'}",
+    "check_mcp_logs": "Get-Content \"$env:APPDATA\\Claude\\logs\\mcp-server-[name].log\" -Tail 50",
+    "validate_config": "Get-Content \"$env:APPDATA\\Claude\\claude_desktop_config.json\" | ConvertFrom-Json"
+  },
+
+  "preventative_measures": [
+    "Add version sync to pre-publish script",
+    "Automate version checking in CI/CD",
+    "Document restart procedures for team",
+    "Create pre-commit hook for version validation"
+  ],
+
+  "related_issues": [
+    {
+      "type": "Configuration",
+      "issue": "Windows npx path requirements",
+      "solution": "Use full path to npx.cmd in claude_desktop_config.json"
+    },
+    {
+      "type": "Timeout",
+      "issue": "60-second hard limit in Claude Desktop",
+      "workaround": "Use streaming/progressive results or background processes"
+    },
+    {
+      "type": "Cache",
+      "issue": "Stale MCP server after rebuild",
+      "solution": "Complete Claude Desktop quit and restart"
+    }
+  ],
+
+  "documentation_created": [
+    "docs/troubleshooting/MCP_SERVER_ISSUES.md",
+    "docs/guides/DESKTOP_COMMANDER_RESTART_GUIDE.md"
+  ],
+
+  "tools_used": [
+    "npm run sync-version",
+    "npm run build",
+    "git status",
+    "tail (log viewing)",
+    "Get-Process (Windows verification)"
+  ],
+
+  "success_indicators": {
+    "before": "serverInfo.version = 0.2.14",
+    "after": "serverInfo.version = 0.2.16",
+    "verification": "All Desktop Commander tools loaded successfully"
+  },
+
+  "lessons_for_future": [
+    "Always verify version in logs after updating MCP server",
+    "Document restart procedure for non-technical users",
+    "Build automation should include version sync",
+    "Create troubleshooting checklist for common issues"
+  ]
+}

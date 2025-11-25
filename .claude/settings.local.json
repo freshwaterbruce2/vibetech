@@ -1,22 +1,51 @@
 {
   "permissions": {
     "allow": [
-      "Bash(Select-Object Id, ProcessName, StartTime -ErrorAction SilentlyContinue)",
-      "Bash(npm rebuild:*)",
-      "Read(//d//**)",
-      "WebSearch",
-      "Bash(powershell:*)",
-      "Read(//c/Users/fresh_zxae3v6/.claude/**)",
-      "Bash(npx electron-rebuild:*)",
-      "Bash(npx tsc:*)",
-      "Bash(npm test:*)",
-      "Bash(git add:*)",
-      "Bash(cut:*)",
-      "Bash(cargo check:*)",
-      "Bash(timeout 180 cargo check)",
-      "Bash(test:*)"
+      "Bash(Test-Path \"C:\\dev\\projects\\active\\desktop-apps\\nova-agent-current\\src-tauri\\target\\release\\nova-agent.exe\")",
+      "Bash(git rm:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "C:\\dev\\projects\\active\\web-apps\\vibe-tech-lovable\\backend",
+      "C:\\dev\\projects\\active\\web-apps",
+      "D:\\"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "nx-mcp",
+    "filesystem",
+    "github",
+    "postgres",
+    "sqlite",
+    "playwright"
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -NoProfile -File C:\\dev\\.claude\\hooks\\pre-tool-use-stdin.ps1",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -NoProfile -File C:\\dev\\.claude\\hooks\\post-tool-use-stdin.ps1",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }

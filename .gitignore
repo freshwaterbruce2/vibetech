@@ -39,14 +39,6 @@ env/
 .env.local
 .env.*.local
 
-# Large media files (use Git LFS for videos)
-*.MOV
-*.mov
-*.MP4
-*.mp4
-*.AVI
-*.avi
-
 # Build directories
 build/
 .nx/
@@ -122,40 +114,10 @@ nonce_state.json
 playwright-report/
 test-results/
 
-# pnpm
-.pnpm-store/
-.pnpm-debug.log
 
-# Session/Temporary Documentation
-PHASE_*.md
-*_COMPLETE.md
-*_SUCCESS.md
-*_IN_PROGRESS.md
-*_IMPLEMENTATION_*.md
-*_TEST_*.md
 
-# Cache directories
-.pytest_cache/
 .nx/cache
 .nx/workspace-data
-.vite-cache/
-node_modules/.vite/
-coverage/
-
-# Development artifacts
-nul
-*.tmp
-*.temp
-test.txt
-test-*.txt
-
-# Cursor/GitHub
 .cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
-
-# Kubernetes secrets and sensitive configuration
-k8s/**/secrets.yaml
-k8s/**/secrets/*.yaml
-k8s/overlays/*/secrets.yaml
-*.kubeconfig
-kubeconfig*
+.github/instructions/nx.instructions.md.gitignore entry
+nul

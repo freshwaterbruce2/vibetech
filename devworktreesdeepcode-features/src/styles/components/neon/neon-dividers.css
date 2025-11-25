@@ -1,0 +1,19 @@
+
+@layer components {
+  /* Neon divider line */
+  .neon-divider {
+    @apply h-px bg-gradient-to-r from-transparent via-[rgba(0,255,255,0.5)] to-transparent my-6;
+  }
+  
+  .neon-divider-purple {
+    @apply h-px bg-gradient-to-r from-transparent via-[rgba(185,51,255,0.5)] to-transparent my-6;
+  }
+
+  .neon-divider-pink {
+    @apply h-px bg-gradient-to-r from-transparent via-[rgba(255,0,170,0.5)] to-transparent my-6;
+  }
+  
+  .neon-divider-teal {
+    @apply h-px bg-gradient-to-r from-transparent via-[rgba(0,255,204,0.5)] to-transparent my-6;
+  }
+}

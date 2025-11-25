@@ -1,0 +1,59 @@
+
+:root {
+  /* Base colors - ultra vibrant neon */
+  --bg-start: #05050E;
+  --bg-mid: #0A0A18;
+  --bg-end: #0F0F22;
+  --c-cyan: #00FFFF;
+  --c-purple: #B933FF;
+  --c-pink: #FF00AA;
+  --c-teal: #00FFCC;
+  --glass-bg: rgba(10, 12, 24, 0.65);
+  
+  /* Text colors */
+  --c-text: #ffffff;
+  --c-text-secondary: #9BA1CC;
+  
+  /* Primary and secondary colors */
+  --c-primary: var(--c-cyan);
+  --c-secondary: var(--c-purple);
+  --c-accent: var(--c-pink);
+  
+  /* Default border radius */
+  --radius: 0.5rem;
+}
+
+/* Base theme variables for shadcn components */
+@layer base {
+  :root {
+    --background: 230 30% 4%;
+    --foreground: 220 20% 98%;
+
+    --card: 230 30% 6%;
+    --card-foreground: 220 20% 98%;
+
+    --popover: 230 30% 6%;
+    --popover-foreground: 220 20% 98%;
+
+    --primary: 180 100% 50%;
+    --primary-foreground: 230 30% 10%;
+
+    --secondary: 270 100% 60%;
+    --secondary-foreground: 220 20% 98%;
+
+    --accent: 320 100% 50%;
+    --accent-foreground: 230 30% 10%;
+
+    --muted: 230 30% 15%;
+    --muted-foreground: 220 20% 70%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 220 20% 98%;
+
+    --border: 230 30% 20%;
+    --input: 230 30% 20%;
+    --ring: 180 100% 50%;
+
+    --radius: 0.5rem;
+  }
+}

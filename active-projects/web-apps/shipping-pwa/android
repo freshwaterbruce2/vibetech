@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 I need more information to help you. What would you like me to write in this file?
 
 Some context that would help:
@@ -11,3 +12,16 @@ For example, are you looking to create:
 - A build configuration file?
 - Documentation about the Android PWA setup?
 - Something else?
+=======
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+}
+>>>>>>> e78c664f0db090d7980fee41e6fd60161054503f

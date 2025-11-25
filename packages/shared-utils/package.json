@@ -1,0 +1,27 @@
+{
+  "name": "@vibetech/shared-utils",
+  "version": "1.0.0",
+  "description": "Shared utilities for Vibetech monorepo projects",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./security": "./dist/security/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["utilities", "shared", "monorepo"],
+  "author": "Vibetech",
+  "license": "MIT",
+  "dependencies": {
+    "crypto-js": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "typescript": "^5.9.2"
+  }
+}

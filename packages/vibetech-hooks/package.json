@@ -1,19 +1,43 @@
 {
   "name": "@vibetech/hooks",
   "version": "1.0.0",
-  "description": "Shared React hooks for VibeTech ecosystem",
+  "description": "Shared React hooks for VibeTech monorepo projects",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./useTheme": {
+      "import": "./dist/useTheme.js",
+      "types": "./dist/useTheme.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "clean": "rm -rf dist"
   },
-  "dependencies": {
-    "react": "^18.2.0"
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/react": "^18.2.0"
-  }
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "typescript": "^5.9.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "react",
+    "hooks",
+    "typescript",
+    "monorepo",
+    "shared",
+    "theme"
+  ],
+  "author": "VibeTech",
+  "license": "MIT"
 }

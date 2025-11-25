@@ -1,0 +1,1149 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Design System Report</title>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f9fafb;
+    }
+    h1 { color: #111827; }
+    h2 { color: #374151; margin-top: 2rem; }
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .color-swatch {
+      padding: 1rem;
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .color-preview {
+      width: 100%;
+      height: 60px;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    .typography-sample {
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      margin: 0.5rem 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    pre {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Digital Content Builder - Design System Report</h1>
+  <p>Generated: 2025-09-28T16:11:59.008Z</p>
+
+  <h2>Color Palette</h2>
+  <div class="color-grid">
+    
+  </div>
+
+  <h2>Typography</h2>
+  
+    <div class="typography-sample">
+      <strong>A</strong><br>
+      Font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif<br>
+      Size: 12px<br>
+      Weight: 500<br>
+      Line Height: normal
+    </div>
+  
+    <div class="typography-sample">
+      <strong>BUTTON</strong><br>
+      Font: Arial<br>
+      Size: 14px<br>
+      Weight: 500<br>
+      Line Height: normal
+    </div>
+  
+    <div class="typography-sample">
+      <strong>SPAN</strong><br>
+      Font: Arial<br>
+      Size: 16px<br>
+      Weight: 600<br>
+      Line Height: normal
+    </div>
+  
+    <div class="typography-sample">
+      <strong>H2</strong><br>
+      Font: "SF Pro Display", sans-serif<br>
+      Size: 20px<br>
+      Weight: 600<br>
+      Line Height: normal
+    </div>
+  
+    <div class="typography-sample">
+      <strong>H3</strong><br>
+      Font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif<br>
+      Size: 18.72px<br>
+      Weight: 700<br>
+      Line Height: normal
+    </div>
+  
+    <div class="typography-sample">
+      <strong>P</strong><br>
+      Font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif<br>
+      Size: 16px<br>
+      Weight: 400<br>
+      Line Height: normal
+    </div>
+  
+
+  <h2>Component Inventory</h2>
+  <pre>[
+  {
+    "type": "blog",
+    "width": 213.5146484375,
+    "height": 155.43841552734375,
+    "borderRadius": "20px",
+    "boxShadow": "rgba(255, 127, 127, 0.25) 0px 15px 35px 0px",
+    "background": "rgba(255, 127, 127, 0.15) none repeat scroll 0% 0% / auto padding-box border-box"
+  },
+  {
+    "type": "landing",
+    "width": 209.328125,
+    "height": 152.390625,
+    "borderRadius": "20px",
+    "boxShadow": "rgba(255, 127, 127, 0.15) 0px 10px 25px 0px",
+    "background": "rgba(255, 255, 255, 0.85) none repeat scroll 0% 0% / auto padding-box border-box"
+  },
+  {
+    "type": "email",
+    "width": 209.328125,
+    "height": 152.390625,
+    "borderRadius": "20px",
+    "boxShadow": "rgba(255, 127, 127, 0.15) 0px 10px 25px 0px",
+    "background": "rgba(255, 255, 255, 0.85) none repeat scroll 0% 0% / auto padding-box border-box"
+  },
+  {
+    "type": "social",
+    "width": 209.328125,
+    "height": 152.390625,
+    "borderRadius": "20px",
+    "boxShadow": "rgba(255, 127, 127, 0.15) 0px 10px 25px 0px",
+    "background": "rgba(255, 255, 255, 0.85) none repeat scroll 0% 0% / auto padding-box border-box"
+  },
+  {
+    "type": "code",
+    "width": 209.328125,
+    "height": 152.390625,
+    "borderRadius": "20px",
+    "boxShadow": "rgba(255, 127, 127, 0.15) 0px 10px 25px 0px",
+    "background": "rgba(255, 255, 255, 0.85) none repeat scroll 0% 0% / auto padding-box border-box"
+  }
+]</pre>
+
+  <h2>Animation Patterns</h2>
+  <pre>[
+  {
+    "selector": "html",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "head",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "meta",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "meta",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "link",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "link",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "link",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "style",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "body",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "header",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "header-content",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "logo",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "logo-icon",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "header-actions",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "btn-secondary",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "btn-secondary",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "main-container",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "input-panel",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-types",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn active",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "matrix(1.02, 0, 0, 1.02, 0, -3)",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-icon",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "content-type-desc",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-section glass-card",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-group",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-label",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-input form-textarea",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-group",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-label",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-input",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-group",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "div",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-label",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-input",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "div",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-label",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "form-input",
+    "transition": "0.3s",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "option",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "generate-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "loading",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "text",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "output-section",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "output-header",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "output-title",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "view-toggles",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "view-toggle active",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "view-toggle",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "view-toggle",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "output-container",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "output-content",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "empty-state",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "h3",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "p",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "export-actions",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "export-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "export-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "export-btn",
+    "transition": "0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": {},
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "notification",
+    "transition": "transform 0.3s",
+    "transform": "matrix(1, 0, 0, 1, 400, 0)",
+    "animation": "none 0s ease 0s 1 normal none running"
+  },
+  {
+    "selector": "script",
+    "transition": "all",
+    "transform": "none",
+    "animation": "none 0s ease 0s 1 normal none running"
+  }
+]</pre>
+</body>
+</html>
+    

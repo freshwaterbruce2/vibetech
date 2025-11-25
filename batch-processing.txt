@@ -1,0 +1,31 @@
+BATCH PROCESSING SYSTEM
+=======================
+
+Goal: Group similar tasks to reduce context switching
+
+WEB AUTOMATION & SEARCH BATCH (9am-12pm)
+- Web scraping
+- Browser automation
+- Search activities
+- API testing
+- Data extraction
+- Form automation
+
+DEVELOPMENT BATCH (1pm-5pm)
+- Coding
+- Testing
+- Debugging
+- Documentation
+- Code reviews
+
+DOCUMENT PROGRESS
+- Track specific accomplishments in each area
+- Web: scripts, data, success rates
+- Search: queries, results, insights
+- Development: features, bugs, tests
+
+BENEFITS
+- Fewer context switches
+- Better focus
+- Higher productivity
+- Clearer progress tracking

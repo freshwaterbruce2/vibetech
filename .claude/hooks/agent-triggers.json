@@ -1,0 +1,190 @@
+{
+  "global_settings": {
+    "enabled": true,
+    "monitoring_interval_seconds": 300,
+    "max_concurrent_agents": 3,
+    "memory_integration": true
+  },
+  "triggers": [
+    {
+      "name": "high_error_rate_trigger",
+      "description": "Triggers debugging agent when error rate exceeds threshold",
+      "events": ["error-threshold"],
+      "conditions": {
+        "time_window_minutes": 30,
+        "error_rate_threshold": 0.3,
+        "min_executions": 5
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Analyze recent errors and provide debugging recommendations",
+        "priority": "high",
+        "max_frequency_minutes": 60
+      }
+    },
+    {
+      "name": "performance_degradation_trigger",
+      "description": "Triggers performance optimizer when system performance degrades",
+      "events": ["performance-threshold"],
+      "conditions": {
+        "avg_response_time_increase": 50,
+        "time_window_minutes": 60,
+        "min_executions": 10
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Analyze performance metrics and suggest optimizations",
+        "priority": "medium",
+        "max_frequency_minutes": 120
+      }
+    },
+    {
+      "name": "memory_optimization_trigger",
+      "description": "Triggers memory optimization when cache hit rate drops",
+      "events": ["memory-threshold"],
+      "conditions": {
+        "cache_hit_rate_below": 0.7,
+        "time_window_minutes": 15
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Optimize memory usage and cache configuration",
+        "priority": "medium",
+        "max_frequency_minutes": 180
+      }
+    },
+    {
+      "name": "learning_pattern_analysis",
+      "description": "Periodic analysis of learning patterns",
+      "events": ["periodic"],
+      "conditions": {
+        "interval_hours": 4,
+        "min_new_data_points": 20
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Analyze recent learning patterns and update recommendations",
+        "priority": "low",
+        "max_frequency_minutes": 240
+      }
+    },
+    {
+      "name": "cross_project_insight_trigger",
+      "description": "Triggers cross-project analysis for knowledge sharing",
+      "events": ["periodic"],
+      "conditions": {
+        "interval_hours": 24,
+        "min_projects_with_activity": 2
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Analyze cross-project patterns and generate insights for knowledge sharing",
+        "priority": "low",
+        "max_frequency_minutes": 1440
+      }
+    },
+    {
+      "name": "agent_performance_review",
+      "description": "Reviews agent performance and suggests improvements",
+      "events": ["periodic"],
+      "conditions": {
+        "interval_hours": 12,
+        "min_agent_executions": 50
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Review agent performance metrics and suggest training improvements",
+        "priority": "medium",
+        "max_frequency_minutes": 720
+      }
+    },
+    {
+      "name": "code_quality_analysis",
+      "description": "Triggers code quality analysis when multiple issues detected",
+      "events": ["quality-threshold"],
+      "conditions": {
+        "quality_score_below": 0.6,
+        "time_window_minutes": 120,
+        "min_code_changes": 10
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Analyze code quality issues and provide improvement recommendations",
+        "priority": "medium",
+        "max_frequency_minutes": 240
+      }
+    },
+    {
+      "name": "memory_context_enrichment",
+      "description": "Enriches memory context with additional insights",
+      "events": ["memory-context-event"],
+      "conditions": {
+        "context_relevance_below": 0.5,
+        "query_frequency_above": 5
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Enhance memory context with additional relevant information and patterns",
+        "priority": "low",
+        "max_frequency_minutes": 60
+      }
+    },
+    {
+      "name": "integration_health_check",
+      "description": "Monitors integration health between systems",
+      "events": ["periodic"],
+      "conditions": {
+        "interval_hours": 6,
+        "integration_error_rate_above": 0.1
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Check integration health between memory, learning, and agent systems",
+        "priority": "high",
+        "max_frequency_minutes": 360
+      }
+    },
+    {
+      "name": "adaptive_learning_trigger",
+      "description": "Adapts learning parameters based on system performance",
+      "events": ["learning-adaptation-event"],
+      "conditions": {
+        "learning_velocity_below": 0.3,
+        "time_window_hours": 48
+      },
+      "action": {
+        "agent": "general-purpose",
+        "task": "Adapt learning parameters and strategies based on current performance",
+        "priority": "medium",
+        "max_frequency_minutes": 480
+      }
+    }
+  ],
+  "agent_preferences": {
+    "general-purpose": {
+      "max_concurrent_tasks": 2,
+      "preferred_memory_types": ["PROCEDURAL", "SEMANTIC"],
+      "context_window_size": 10,
+      "learning_integration": true
+    }
+  },
+  "escalation_rules": {
+    "high_priority_failures": {
+      "condition": "consecutive_failures > 3 AND priority = 'high'",
+      "action": "notify_admin",
+      "cooldown_minutes": 30
+    },
+    "system_degradation": {
+      "condition": "multiple_performance_alerts AND memory_errors",
+      "action": "emergency_optimization",
+      "cooldown_minutes": 60
+    }
+  },
+  "memory_integration_settings": {
+    "auto_store_executions": true,
+    "context_enhancement": true,
+    "cross_reference_learning": true,
+    "pattern_analysis": true,
+    "recommendation_feedback": true
+  }
+}

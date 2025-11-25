@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Pre-commit hook: Run lint-staged to check TypeScript errors
+# Last Updated: October 16, 2025
+# Purpose: Prevent TypeScript errors from being committed
+
+echo "🔍 Running pre-commit checks..."
+
+# Run lint-staged (handles TypeScript, ESLint, Prettier)
+pnpm exec lint-staged
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Pre-commit checks failed!"
+  echo ""
+  echo "Fix the errors above, then try committing again."
+  echo "Or run: pnpm quality:fix"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"

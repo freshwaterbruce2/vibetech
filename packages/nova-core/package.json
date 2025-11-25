@@ -1,0 +1,31 @@
+{
+  "name": "@nova/core",
+  "version": "2.0.0",
+  "description": "NOVA Agent core business logic - intelligence and operations",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./intelligence": "./dist/intelligence/index.js",
+    "./operations": "./dist/operations/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@nova/types": "workspace:*",
+    "@nova/database": "workspace:*",
+    "@anthropic-ai/sdk": "^0.32.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "rimraf": "^6.0.1"
+  },
+  "keywords": ["nova", "agent", "intelligence", "ai"],
+  "author": "NOVA",
+  "license": "MIT"
+}

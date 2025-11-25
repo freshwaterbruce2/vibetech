@@ -1,0 +1,134 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.vibetech.vibe-code-studio",
+  "productName": "Vibe Code Studio",
+  "copyright": "Copyright © 2025 VibeTech",
+  "asar": true,
+  "directories": {
+    "output": "release-builds",
+    "buildResources": "build"
+  },
+  "extraResources": [
+    {
+      "from": "build/icons",
+      "to": "icons",
+      "filter": ["**/*"]
+    }
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icons/icon.ico",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "verifyUpdateCodeSignature": false
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Vibe Code Studio",
+    "installerIcon": "build/icons/icon.ico",
+    "uninstallerIcon": "build/icons/icon.ico",
+    "installerHeaderIcon": "build/icons/icon.ico",
+    "deleteAppDataOnUninstall": false,
+    "runAfterFinish": true,
+    "perMachine": false,
+    "allowElevation": true
+  },
+  "portable": {
+    "artifactName": "${productName}-${version}-portable.${ext}"
+  },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "zip",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "icon": "build/icons/icon.icns",
+    "category": "public.app-category.developer-tools",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "build/entitlements.mac.plist",
+    "entitlementsInherit": "build/entitlements.mac.plist",
+    "extendInfo": {
+      "NSCameraUsageDescription": "This app does not use the camera",
+      "NSMicrophoneUsageDescription": "This app does not use the microphone"
+    }
+  },
+  "dmg": {
+    "title": "${productName} ${version}",
+    "icon": "build/icons/icon.icns",
+    "background": "build/dmg-background.png",
+    "contents": [
+      {
+        "x": 130,
+        "y": 220
+      },
+      {
+        "x": 410,
+        "y": 220,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ],
+    "window": {
+      "width": 540,
+      "height": 400
+    },
+    "artifactName": "${productName}-${version}.${ext}"
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "deb",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "rpm",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icons",
+    "category": "Development",
+    "synopsis": "AI-Powered Code Editor",
+    "description": "Modern code editor with AI assistance, powered by DeepSeek and Monaco Editor",
+    "artifactName": "${productName}-${version}-${arch}.${ext}"
+  },
+  "appImage": {
+    "license": "MIT"
+  },
+  "deb": {
+    "priority": "optional",
+    "depends": []
+  },
+  "rpm": {
+    "compression": "xz"
+  },
+  "publish": null,
+  "compression": "maximum",
+  "buildDependenciesFromSource": false,
+  "nodeGypRebuild": false,
+  "npmRebuild": false,
+  "electronRebuild": false,
+  "beforeBuild": null,
+  "afterPack": null
+}

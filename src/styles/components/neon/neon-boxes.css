@@ -1,0 +1,19 @@
+
+@layer components {
+  /* Neon box with subtle pulsing effect */
+  .neon-box {
+    @apply border border-[rgba(0,255,255,0.6)] shadow-neon-blue rounded-md p-4 relative animate-pulse-glow;
+  }
+  
+  .neon-box-purple {
+    @apply border border-[rgba(185,51,255,0.6)] shadow-neon-purple rounded-md p-4 relative animate-pulse-glow;
+  }
+
+  .neon-box-pink {
+    @apply border border-[rgba(255,0,170,0.6)] shadow-neon-pink rounded-md p-4 relative animate-pulse-glow;
+  }
+  
+  .neon-box-teal {
+    @apply border border-[rgba(0,255,204,0.6)] shadow-neon-teal rounded-md p-4 relative animate-pulse-glow;
+  }
+}
