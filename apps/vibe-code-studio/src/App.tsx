@@ -2,8 +2,8 @@ import type { FileChange, MultiFileEditPlan } from '@vibetech/types/multifile';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import styled from 'styled-components';
 import { SecureApiKeyManager } from './utils/SecureApiKeyManager';
+import { AppContainer, MainContent, EditorSection, LoadingScreen, LoadingLogo } from './components/layout/AppLayout';
 
 // New AI components
 import { BackgroundTaskPanel } from './components/BackgroundTaskPanel';
@@ -61,6 +61,7 @@ import { AgentHookSystem } from './services/AgentHookSystem';
 import { AgentMonitoringService } from './services/AgentMonitoringService';
 // Database service
 import { DatabaseService, databaseService } from './services/DatabaseService';
+import { getDatabase, dbInitError } from './services/DatabaseSingleton';
 import { DesignTokenManager } from './services/DesignTokenManager';
 import type { DetectedError } from './services/ErrorDetector';
 import { ErrorDetector } from './services/ErrorDetector';
@@ -68,7 +69,7 @@ import { FileSystemService } from './services/FileSystemService';
 import { LiveEditorStream } from './services/LiveEditorStream';
 import { logger } from './services/Logger';
 import { MultiFileEditor } from './services/MultiFileEditor';
-// import { GitService } from './services/GitService'; // Disabled for browser - uses Node.js child_process
+import { GitService } from './services/GitService';
 import { SearchService } from './services/SearchService';
 import { telemetry } from './services/TelemetryService';
 import { WorkspaceService } from './services/WorkspaceService';
@@ -78,83 +79,7 @@ import { AIMessage, EditorFile } from './types';
 // IPC Store for integration with NOVA Agent
 import { initializeIPCStore, useIPCStore } from './stores/useIPCStore';
 
-// Browser-compatible Mock GitService (git_commit won't work in browser mode)
-class MockGitService {
-  async commit(_message: string): Promise<void> {
-    logger.warn('[MockGitService] Git commits not supported in browser mode. Use Tauri/Electron version for git integration.');
-    throw new Error('Git operations require Tauri/Electron environment');
-  }
-}
 
-// Database service singleton (outside component)
-let dbService: DatabaseService | null = null;
-const _dbInitialized = false;
-let dbInitError: Error | null = null;
-
-const getDatabase = async (): Promise<DatabaseService> => {
-  if (!dbService) {
-    // Use the wrapped singleton from DatabaseService (includes IPC sync)
-    dbService = databaseService as any;
-    try {
-      await dbService.initialize();
-      logger.info('[App] Database initialized successfully with IPC sync enabled');
-    } catch (error) {
-      dbInitError = error as Error;
-      logger.warn('[App] Database initialization failed, using localStorage fallback:', error);
-      // Service will automatically use localStorage fallback
-    }
-
-    // Expose to window for debugging (development only)
-    if (process.env.NODE_ENV === 'development') {
-      (window as any).__deepcodeDB = dbService;
-      (window as any).__deepcodeDBStatus = () => dbService?.getStatus();
-      logger.debug('[App] Database service with IPC sync exposed to window.__deepcodeDB for debugging');
-    }
-  }
-  return dbService;
-};
-
-const AppContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  background: #1e1e1e;
-  color: #d4d4d4;
-  overflow: hidden;
-`;
-
-const MainContent = styled.div`
-  display: flex;
-  flex: 1;
-  min-height: 0;
-`;
-
-const EditorSection = styled.div`
-  display: flex;
-  flex: 1;
-  min-width: 0;
-`;
-
-const LoadingScreen = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-`;
-
-const LoadingLogo = styled.div`
-  font-size: 3rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  background: linear-gradient(45deg, #00d2ff, #3a7bd5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-`;
 
 function App() {
   const [isLoading] = useState(false); // Start without loading screen
@@ -163,7 +88,7 @@ function App() {
   const [aiService] = useState(() => new UnifiedAIService());
   const [fileSystemService] = useState(() => new FileSystemService());
   const [workspaceService] = useState(() => new WorkspaceService());
-  const [gitService] = useState(() => new MockGitService() as any); // Use MockGitService in browser mode
+  const [gitService] = useState(() => new GitService());
   const [multiFileEditor] = useState(() => new MultiFileEditor(aiService, fileSystemService));
 
   // Initialize Agent Mode V2 services
@@ -1188,13 +1113,13 @@ I'm now your context-aware coding companion! 🎯`,
     return (
       <AnimatePresence>
       <LoadingScreen
-          initial= {{ opacity: 0 }
+        initial= {{ opacity: 0 }
   }
   animate = {{ opacity: 1 }
 }
 exit = {{ opacity: 0 }}
 transition = {{ duration: 0.5 }}
-        >
+      >
   <LoadingLogo>⚡ DeepCode </LoadingLogo>
     < motion.div
 animate = {{ rotate: 360 }}
@@ -1205,8 +1130,8 @@ style = {{
       border: '3px solid rgba(255,255,255,0.3)',
         borderRadius: '50%',
           borderTopColor: '#00d2ff',
-            }}
-          />
+          }}
+        />
   </LoadingScreen>
   </AnimatePresence>
     );
@@ -1224,7 +1149,7 @@ onReset = {() => {
 }}
     >
   <Router>
-  <AppContainer data-testid="app-container" >
+  <AppContainer data - testid="app-container" >
     <TitleBar
             onSettingsClick={ () => setSettingsOpen(true) }
 onNewFile = { handleNewFile }
@@ -1279,12 +1204,12 @@ onEditorMount = { handleEditorMount }
   />
   { previewOpen && (
     <PreviewPanel
-                        code={ currentFile.content }
-filename = { currentFile.name }
+          code={ currentFile.content }
+fileName = { currentFile.name }
 language = { currentFile.language }
 onClose = {() => setPreviewOpen(false)}
-                      />
-                    )}
+        />
+      )}
 </>
                 ) : (
   <WelcomeScreen
@@ -1303,7 +1228,7 @@ indexingProgress = { indexingProgress }
   aiChatOpen && (
     <Suspense fallback={ <div>Loading AI Chat...</div> }>
       <LazyAIChat
-                    data-testid="ai-chat"
+                    data - testid="ai-chat"
   messages = { aiMessages }
   onSendMessage = { handleAIMessage }
   onClose = {() => setAiChatOpen(false)
