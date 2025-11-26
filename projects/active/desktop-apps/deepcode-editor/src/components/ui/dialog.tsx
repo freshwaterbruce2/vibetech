@@ -236,69 +236,66 @@ export const Dialog: React.FC<DialogProps> = ({
 
   const content = (
     <AnimatePresence>
-    { isOpen && (
-      <DialogOverlay
-          initial= {{ opacity: 0 }
-}
-animate = {{ opacity: 1 }}
-exit = {{ opacity: 0 }}
-transition = {{ duration: 0.2 }}
-onClick = { onClose }
-  >
-  <DialogContent
-            initial={ { opacity: 0, scale: 0.95, y: 20 } }
-animate = {{ opacity: 1, scale: 1, y: 0 }}
-exit = {{ opacity: 0, scale: 0.95, y: 20 }}
-transition = {{
-  duration: 0.25,
-    ease: [0.4, 0, 0.2, 1],
+      {isOpen && (
+        <DialogOverlay
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={onClose}
+        >
+          <DialogContent
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{
+              duration: 0.25,
+              ease: [0.4, 0, 0.2, 1],
             }}
-onClick = {(e) => e.stopPropagation()}
-role = "dialog"
-aria - modal="true"
-aria - labelledby="dialog-title"
-aria - describedby="dialog-message"
-  >
-  <DialogHeader $variant={ variant }>
-    <DialogIcon $variant={ variant }> { getIcon() } </DialogIcon>
-      < DialogTitleSection >
-      <DialogTitle id="dialog-title" > { title } </DialogTitle>
-        </DialogTitleSection>
-        < DialogCloseButton >
-        <IconButton
+            onClick={e => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dialog-title"
+            aria-describedby="dialog-message"
+          >
+            <DialogHeader $variant={variant}>
+              <DialogIcon $variant={variant}>{getIcon()}</DialogIcon>
+              <DialogTitleSection>
+                <DialogTitle id="dialog-title">{title}</DialogTitle>
+              </DialogTitleSection>
+              <DialogCloseButton>
+                <IconButton
                   variant="ghost"
-size = "sm"
-icon = {< X size = { 18} />}
-aria - label="Close dialog"
-onClick = { onClose }
-  />
-  </DialogCloseButton>
-  </DialogHeader>
+                  size="sm"
+                  icon={<X size={18} />}
+                  aria-label="Close dialog"
+                  onClick={onClose}
+                />
+              </DialogCloseButton>
+            </DialogHeader>
 
-  < DialogBody >
-  <DialogMessage id="dialog-message" > { message } </DialogMessage>
-    </DialogBody>
+            <DialogBody>
+              <DialogMessage id="dialog-message">{message}</DialogMessage>
+            </DialogBody>
 
-    <DialogFooter>
-{
-  showCancel && (
-    <Button variant="ghost" size = "md" onClick = { onClose } >
-      { cancelLabel }
-      </Button>
-              )
-}
-<Button
-                variant={ variant === 'danger' ? 'danger' : 'primary' }
-size = "md"
-onClick = { handleConfirm }
-  >
-  { confirmLabel }
-  </Button>
-  </DialogFooter>
-  </DialogContent>
-  </DialogOverlay>
+            <DialogFooter>
+              {showCancel && (
+                <Button variant="ghost" size="md" onClick={onClose}>
+                  {cancelLabel}
+                </Button>
+              )}
+              <Button
+                variant={variant === 'danger' ? 'danger' : 'primary'}
+                size="md"
+                onClick={handleConfirm}
+              >
+                {confirmLabel}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogOverlay>
       )}
-</AnimatePresence>
+    </AnimatePresence>
   );
 
 // Render using portal

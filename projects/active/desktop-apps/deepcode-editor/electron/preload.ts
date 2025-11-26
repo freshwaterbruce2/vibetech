@@ -14,26 +14,60 @@ contextBridge.exposeInMainWorld('electron', {
 
   // App methods
   app: {
-    getPath: async (name) => {
+    getPath: async (name: 'home' | 'appData' | 'userData' | 'temp' | 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos' | 'logs') => {
       // Get application paths (userData, documents, etc.)
       return await ipcRenderer.invoke('app:getPath', name);
     },
-    getVersion: async () => await ipcRenderer.invoke('app:getVersion'),
-    quit: () => ipcRenderer.send('app:quit'),
+    getVersion: async (): Promise<string> => await ipcRenderer.invoke('app:getVersion'),
+    quit: (): void => ipcRenderer.send('app:quit'),
   },
 
   // Dialog methods
   dialog: {
-    openFolder: async (options) => {
+    openFolder: async (options: Electron.OpenDialogOptions) => {
       return await ipcRenderer.invoke('dialog:openFolder', options);
     },
-    openFile: async (options) => {
-      return await ipcRenderer.invoke('dialog:openFile', options);
-    },
-    saveFile: async (options) => {
-      return await ipcRenderer.invoke('dialog:saveFile', options);
-    },
-    showMessage: async (options) => {
+    openFile: async (options: Electron.OpenDialogOptions) => {
+      interface DialogOpenFileOptions {
+        title?: string;
+        defaultPath?: string;
+        buttonLabel?: string;
+        filters?: Array<{ name: string; extensions: string[] }>;
+        properties?: Array<'openFile' | 'openDirectory' | 'multiSelections' | 'showHiddenFiles' | 'createDirectory' | 'promptToCreate' | 'noResolveAliases' | 'treatPackageAsDirectory' | 'dontAddToRecent'>;
+        message?: string;
+      }
+
+      interface DialogSaveFileOptions {
+        title?: string;
+        defaultPath?: string;
+        buttonLabel?: string;
+        filters?: Array<{ name: string; extensions: string[] }>;
+        message?: string;
+        nameFieldLabel?: string;
+        showsTagField?: boolean;
+      }
+
+      interface DialogMessageOptions {
+        type?: 'none' | 'info' | 'error' | 'question' | 'warning';
+        buttons?: string[];
+        defaultId?: number;
+        title?: string;
+        message: string;
+        detail?: string;
+        checkboxLabel?: string;
+        checkboxChecked?: boolean;
+        icon?: string;
+        cancelId?: number;
+        noLink?: boolean;
+        normalizeAccessKeys?: boolean;
+      }
+
+            return await ipcRenderer.invoke('dialog:openFile', options);
+          },
+          saveFile: async (options: DialogSaveFileOptions) => {
+            return await ipcRenderer.invoke('dialog:saveFile', options);
+          },
+          showMessage: async (options: DialogMessageOptions) => {
       return await ipcRenderer.invoke('dialog:showMessage', options);
     },
   },

@@ -8,6 +8,7 @@ import type { ExecutionCallbacks } from '../../../services/ai/ExecutionEngine';
 import type { ExecutionEngine } from '../../../services/ai/ExecutionEngine';
 import type { TaskPlanner } from '../../../services/ai/TaskPlanner';
 import type { BackgroundAgentSystem } from '../../../services/BackgroundAgentSystem';
+import { IpcBridge } from '../../../services/IpcBridge';
 import { logger } from '../../../services/Logger';
 import type { AgentTask, PlanningInsights } from '../../../types';
 import type { AgentModeState, PendingApproval, WorkspaceContext } from './types';
@@ -83,6 +84,35 @@ export function useAgentModeState({
 
     const handleExecuteTask = useCallback(async () => {
         if (!currentTask) return;
+
+        // Track task start time for duration calculation
+        const taskStartTime = Date.now();
+
+        // Notify IPC bridge that task has started
+        const taskContext: Record<string, unknown> = {
+            userRequest,
+            openFiles: workspaceContext?.openFiles ?? [],
+        };
+        if (workspaceContext?.workspaceRoot) {
+            taskContext['workspaceRoot'] = workspaceContext.workspaceRoot;
+        }
+        if (workspaceContext?.currentFile) {
+            taskContext['currentFile'] = workspaceContext.currentFile;
+        }
+
+        IpcBridge.sendTaskStarted(
+            currentTask.id,
+            (currentTask as { type?: string }).type ?? 'agent-task',
+            currentTask.title ?? userRequest.slice(0, 50),
+            taskContext as { workspaceRoot?: string; userRequest?: string; openFiles?: string[]; currentFile?: string }
+        ).catch(err => logger.warn('[AgentModeV2] Failed to send task_started to IPC bridge:', err));
+
+        // Helper to send task_stopped notification
+        const notifyTaskStopped = (status: 'completed' | 'paused' | 'abandoned' | 'error', result?: { success: boolean; output?: string; error?: string }) => {
+            const durationMinutes = Math.round((Date.now() - taskStartTime) / 60000);
+            IpcBridge.sendTaskStopped(currentTask.id, status, durationMinutes, result)
+                .catch(err => logger.warn('[AgentModeV2] Failed to send task_stopped to IPC bridge:', err));
+        };
 
         // Background execution
         if (runInBackground && backgroundAgentSystem) {
@@ -183,6 +213,9 @@ export function useAgentModeState({
                 logger.debug('[AgentModeV2] 🎉 onTaskComplete received! Task status:', task.status);
                 logger.debug('[AgentModeV2] Task has', task.steps.length, 'steps');
 
+                // Notify IPC bridge that task completed
+                notifyTaskStopped('completed', { success: true });
+
                 setCurrentTask({ ...task, steps: [...task.steps] });
 
                 logger.debug('[AgentModeV2] Task state updated. Will call onComplete in 1.5 seconds...');
@@ -193,6 +226,9 @@ export function useAgentModeState({
             },
 
             onTaskError: (task, error) => {
+                // Notify IPC bridge that task failed
+                notifyTaskStopped('error', { success: false, error: error.message });
+
                 setCurrentTask(task);
                 logger.error('Task execution failed:', error);
             },
@@ -239,6 +275,12 @@ export function useAgentModeState({
     const handleReject = useCallback(() => {
         if (!pendingApproval || !currentTask) return;
 
+        // Notify IPC bridge that task was abandoned (user rejected step)
+        IpcBridge.sendTaskStopped(currentTask.id, 'abandoned', undefined, {
+            success: false,
+            error: `User rejected step: ${pendingApproval.step.title}`,
+        }).catch(err => logger.warn('[AgentModeV2] Failed to send task_stopped to IPC bridge:', err));
+
         setCurrentTask(prev => {
             if (!prev) return null;
             return {
@@ -256,15 +298,35 @@ export function useAgentModeState({
     }, [pendingApproval, currentTask]);
 
     const handlePause = useCallback(() => {
+        // Notify IPC bridge that task was paused
+        if (currentTask) {
+            IpcBridge.sendTaskStopped(currentTask.id, 'paused')
+                .catch(err => logger.warn('[AgentModeV2] Failed to send task_stopped to IPC bridge:', err));
+        }
         executionEngine.pause();
-    }, [executionEngine]);
+    }, [executionEngine, currentTask]);
 
     const handleResume = useCallback(() => {
+        // Notify IPC bridge that task resumed (re-send task_started)
+        if (currentTask) {
+            IpcBridge.sendTaskStarted(
+                currentTask.id,
+                (currentTask as { type?: string }).type ?? 'agent-task',
+                currentTask.title ?? 'Resumed Task',
+                { resumed: true }
+            ).catch(err => logger.warn('[AgentModeV2] Failed to send task_started to IPC bridge:', err));
+        }
         executionEngine.resume();
-    }, [executionEngine]);
+    }, [executionEngine, currentTask]);
 
     const handleStop = useCallback(() => {
         if (currentTask) {
+            // Notify IPC bridge that task was stopped/cancelled
+            IpcBridge.sendTaskStopped(currentTask.id, 'abandoned', undefined, {
+                success: false,
+                error: 'User cancelled task',
+            }).catch(err => logger.warn('[AgentModeV2] Failed to send task_stopped to IPC bridge:', err));
+
             setCurrentTask(prev => prev ? { ...prev, status: 'cancelled' } : null);
         }
     }, [currentTask]);

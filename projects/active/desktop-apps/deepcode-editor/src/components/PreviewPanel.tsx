@@ -284,102 +284,97 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   if (!code || code.trim().length === 0) {
     return (
       <PreviewContainer
-        initial= {{ opacity: 0, x: 20 }
-  }
-  animate = {{ opacity: 1, x: 0 }
-}
-exit = {{ opacity: 0, x: 20 }}
-transition = {{ duration: 0.2 }}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 20 }}
+        transition={{ duration: 0.2 }}
       >
-  <PreviewHeader>
-  <PreviewTitle>
-  <Eye size={ 16 } />
-Preview
-  </PreviewTitle>
-  <PreviewActions>
-{
-  onClose && (
-    <IconButton
-      variant="ghost"
-      size="sm"
-      icon={<EyeOff size={16} />}
-      onClick={onClose}
-      aria-label="Close preview"
-    />
-  )}
-</PreviewActions>
-  </PreviewHeader>
-  <PreviewContent>
-    <EmptyState>
-      <Code />
-      <h3>No Content</h3>
-      <p>Start editing a file to see the preview</p>
-    </EmptyState>
-  </PreviewContent>
-</PreviewContainer>
+        <PreviewHeader>
+          <PreviewTitle>
+            <Eye size={16} />
+            Preview
+          </PreviewTitle>
+          <PreviewActions>
+            {onClose && (
+              <IconButton
+                variant="ghost"
+                size="sm"
+                icon={<EyeOff size={16} />}
+                onClick={onClose}
+                aria-label="Close preview"
+              />
+            )}
+          </PreviewActions>
+        </PreviewHeader>
+        <PreviewContent>
+          <EmptyState>
+            <Code />
+            <h3>No Content</h3>
+            <p>Start editing a file to see the preview</p>
+          </EmptyState>
+        </PreviewContent>
+      </PreviewContainer>
     );
   }
 
-return (
-  <PreviewContainer
-      initial= {{ opacity: 0, x: 20 }}
-animate = {{ opacity: 1, x: 0 }}
-exit = {{ opacity: 0, x: 20 }}
-transition = {{ duration: 0.2 }}
+  return (
+    <PreviewContainer
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ duration: 0.2 }}
     >
-  <PreviewHeader>
-  <PreviewTitle>
-  <Eye size={ 16 } />
-{ fileName }
-</PreviewTitle>
-  < PreviewActions >
-  <IconButton
+      <PreviewHeader>
+        <PreviewTitle>
+          <Eye size={16} />
+          {fileName}
+        </PreviewTitle>
+        <PreviewActions>
+          <IconButton
             variant="ghost"
-size = "sm"
-icon = { previewMode === 'render' ? <Code size={ 16 } /> : <Eye size={16} / >}
-onClick = { togglePreviewMode }
-aria - label={ previewMode === 'render' ? 'Show code' : 'Show preview' }
+            size="sm"
+            icon={previewMode === 'render' ? <Code size={16} /> : <Eye size={16} />}
+            onClick={togglePreviewMode}
+            aria-label={previewMode === 'render' ? 'Show code' : 'Show preview'}
           />
-  < IconButton
-variant = "ghost"
-size = "sm"
-icon = {< RefreshCw size = { 16} />}
-onClick = { handleRefresh }
-aria - label="Refresh preview"
-  />
-  { onClose && (
-    <IconButton
+          <IconButton
+            variant="ghost"
+            size="sm"
+            icon={<RefreshCw size={16} />}
+            onClick={handleRefresh}
+            aria-label="Refresh preview"
+          />
+          {onClose && (
+            <IconButton
               variant="ghost"
-size = "sm"
-icon = {< EyeOff size = { 16} />}
-onClick = { onClose }
-aria - label="Close preview"
-  />
+              size="sm"
+              icon={<EyeOff size={16} />}
+              onClick={onClose}
+              aria-label="Close preview"
+            />
           )}
-</PreviewActions>
-  </PreviewHeader>
+        </PreviewActions>
+      </PreviewHeader>
 
-  <PreviewContent>
-{
-  error ? (
-    <ErrorContainer>
-    <AlertCircle />
-    < h3 > Preview Error </h3>
-      < p > { error } </p>
-      < CodePreview > { code } </CodePreview>
-      </ErrorContainer>
+      <PreviewContent>
+        {error ? (
+          <ErrorContainer>
+            <AlertCircle />
+            <h3>Preview Error</h3>
+            <p>{error}</p>
+            <CodePreview>{code}</CodePreview>
+          </ErrorContainer>
         ) : previewMode === 'code' ? (
-    <CodePreview>{ code } </CodePreview>
-  ) : (
-    <PreviewFrame
-            ref= { iframeRef }
-  srcDoc = { previewContent }
-  title = "Component Preview"
-  sandbox = "allow-scripts"
-    />
-        )
-}
-</PreviewContent>
-  </PreviewContainer>
+          <CodePreview>{code}</CodePreview>
+        ) : (
+          <PreviewFrame
+            ref={iframeRef}
+            srcDoc={previewContent}
+            title="Component Preview"
+            sandbox="allow-scripts"
+          />
+        )}
+      </PreviewContent>
+    </PreviewContainer>
   );
 };

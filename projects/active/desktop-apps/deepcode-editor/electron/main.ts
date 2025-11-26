@@ -12,7 +12,8 @@ import * as fs from 'fs/promises';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as dbHandler from './database-handler';
-import { ipcBridge } from './ipc-bridge';
+import { startIpcBridge, stopIpcBridge } from './ipcBridgeClient';
+import { sharedDatabase } from './shared-database';
 
 const execAsync = promisify(exec);
 
@@ -115,18 +116,27 @@ function createWindow() {
  * App lifecycle events
  */
 app.whenReady().then(() => {
-  // Initialize database
+  // Initialize local database
   const dbInit = dbHandler.initializeDatabase();
   if (!dbInit.success) {
     console.error('[Electron] Database initialization failed:', dbInit.error);
   }
 
+  // Initialize shared learning database (D:\databases\agent_learning.db)
+  const sharedDbInit = sharedDatabase.initialize();
+  if (!sharedDbInit.success) {
+    console.error('[Electron] Shared database initialization failed:', sharedDbInit.error);
+  } else {
+    console.log('[Electron] Shared learning database connected');
+  }
+
   createWindow();
 
-  // Initialize IPC Bridge for Nova Agent communication
+  // Initialize IPC Bridge Client for Nova Agent communication
+  // Connects to backend/ipc-bridge server at ws://127.0.0.1:5004
   if (mainWindow) {
-    ipcBridge.start(5004, mainWindow);
-    console.log('[Electron] IPC Bridge started for Nova Agent integration');
+    startIpcBridge(mainWindow);
+    console.log('[Electron] IPC Bridge client started, connecting to backend server');
   }
 
   // macOS: Re-create window when dock icon clicked
@@ -139,7 +149,8 @@ app.whenReady().then(() => {
 
 // Quit when all windows are closed (except macOS)
 app.on('window-all-closed', () => {
-  ipcBridge.stop(); // Stop IPC bridge before quitting
+  stopIpcBridge(); // Stop IPC bridge client before quitting
+  sharedDatabase.close(); // Close shared database
   dbHandler.closeDatabase();
   if (process.platform !== 'darwin') {
     app.quit();
@@ -478,5 +489,79 @@ ipcMain.handle('db:initialize', async () => {
   } catch (error) {
     console.error('[Electron] Database init error:', error);
     return { success: false, error: (error as Error).message };
+  }
+});
+
+/**
+ * IPC Handlers - Shared Learning Database Operations
+ */
+
+// Record a coding mistake
+ipcMain.handle('learning:recordMistake', async (event, mistake) => {
+  try {
+    return sharedDatabase.recordMistake(mistake);
+  } catch (error) {
+    console.error('[Electron] Record mistake error:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Record learned knowledge
+ipcMain.handle('learning:recordKnowledge', async (event, knowledge) => {
+  try {
+    return sharedDatabase.recordKnowledge(knowledge);
+  } catch (error) {
+    console.error('[Electron] Record knowledge error:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Find similar mistakes
+ipcMain.handle('learning:findSimilarMistakes', async (event, errorType, language, limit = 5) => {
+  try {
+    return sharedDatabase.findSimilarMistakes(errorType, language, limit);
+  } catch (error) {
+    console.error('[Electron] Find similar mistakes error:', error);
+    return [];
+  }
+});
+
+// Find relevant knowledge
+ipcMain.handle('learning:findKnowledge', async (event, category, searchTerm, limit = 10) => {
+  try {
+    return sharedDatabase.findRelevantKnowledge(category, searchTerm, limit);
+  } catch (error) {
+    console.error('[Electron] Find knowledge error:', error);
+    return [];
+  }
+});
+
+// Get learning statistics
+ipcMain.handle('learning:getStats', async () => {
+  try {
+    return sharedDatabase.getStats();
+  } catch (error) {
+    console.error('[Electron] Get learning stats error:', error);
+    return null;
+  }
+});
+
+// Export data for Nova sync
+ipcMain.handle('learning:exportForSync', async (event, since) => {
+  try {
+    return sharedDatabase.exportForSync(since);
+  } catch (error) {
+    console.error('[Electron] Export for sync error:', error);
+    return { mistakes: [], knowledge: [] };
+  }
+});
+
+// Sync data from Nova
+ipcMain.handle('learning:syncFromNova', async (event, mistakes, knowledge) => {
+  try {
+    return sharedDatabase.syncFromNova(mistakes, knowledge);
+  } catch (error) {
+    console.error('[Electron] Sync from Nova error:', error);
+    return { mistakesAdded: 0, knowledgeAdded: 0 };
   }
 });
