@@ -107,7 +107,7 @@
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "crypto-browserify": "^3.12.1",
-    "electron": "38.4.0",
+    "electron": "39.2.3",
     "electron-builder": "^26.0.12",
     "electron-vite": "^4.0.1",
     "eslint": "^8.57.0",
