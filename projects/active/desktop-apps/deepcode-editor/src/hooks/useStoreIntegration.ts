@@ -1,7 +1,5 @@
 import { logger } from '../services/Logger';
 import { useCallback, useEffect } from 'react';
-
-import { logger } from '../services/Logger';
 import { useAIActions, useAIStore } from '../stores/useAIStore';
 import { useEditorStore, useFileActions } from '../stores/useEditorStore';
 import { AIMessage, EditorFile } from '../types';

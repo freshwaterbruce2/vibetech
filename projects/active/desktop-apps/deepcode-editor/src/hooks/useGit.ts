@@ -8,7 +8,6 @@ import {
   GitService,
   GitStatus,
 } from '../services/GitServiceBrowser';
-import { logger } from '../services/Logger';
 
 interface UseGitReturn {
   // State

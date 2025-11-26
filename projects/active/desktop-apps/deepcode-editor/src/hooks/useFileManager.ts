@@ -2,7 +2,6 @@ import { logger } from '../services/Logger';
 import { useCallback, useState } from 'react';
 
 import { FileSystemService } from '../services/FileSystemService';
-import { logger } from '../services/Logger';
 import { EditorFile } from '../types';
 
 export interface UseFileManagerReturn {
