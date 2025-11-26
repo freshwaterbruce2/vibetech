@@ -13,9 +13,24 @@ import {
     GitStatusPayload,
     LearningEventPayload,
     ErrorPayload,
+    TaskStartedMessage,
+    TaskStoppedMessage,
+    TaskProgressMessage,
+    TaskActivityMessage,
+    TaskInsightsMessage,
+    ContextUpdateMessage,
+    FileChangedMessage,
+    TaskStartedPayload,
+    TaskStoppedPayload,
+    TaskProgressPayload,
+    TaskActivityPayload,
+    TaskInsightsPayload,
+    ContextUpdatePayload,
+    FileChangedPayload,
+    AppSource,
 } from './schemas.js';
 
-type Sender = 'nova' | 'vibe';
+type Sender = AppSource;
 
 const createBaseMessage = (source: Sender): BaseMessage => ({
     messageId: `${source}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
@@ -78,4 +93,68 @@ export const createAckMessage = (
     ...createBaseMessage(source),
     type: IPCMessageType.ACK,
     payload: { messageId },
+});
+
+// Task lifecycle message creators
+export const createTaskStartedMessage = (
+    source: Sender,
+    payload: TaskStartedPayload
+): TaskStartedMessage => ({
+    ...createBaseMessage(source),
+    type: IPCMessageType.TASK_STARTED,
+    payload,
+});
+
+export const createTaskStoppedMessage = (
+    source: Sender,
+    payload: TaskStoppedPayload
+): TaskStoppedMessage => ({
+    ...createBaseMessage(source),
+    type: IPCMessageType.TASK_STOPPED,
+    payload,
+});
+
+export const createTaskProgressMessage = (
+    source: Sender,
+    payload: TaskProgressPayload
+): TaskProgressMessage => ({
+    ...createBaseMessage(source),
+    type: IPCMessageType.TASK_PROGRESS,
+    payload,
+});
+
+export const createTaskActivityMessage = (
+    source: Sender,
+    payload: TaskActivityPayload
+): TaskActivityMessage => ({
+    ...createBaseMessage(source),
+    type: IPCMessageType.TASK_ACTIVITY,
+    payload,
+});
+
+export const createTaskInsightsMessage = (
+    source: Sender,
+    payload: TaskInsightsPayload
+): TaskInsightsMessage => ({
+    ...createBaseMessage(source),
+    type: IPCMessageType.TASK_INSIGHTS,
+    payload,
+});
+
+export const createContextUpdateMessage = (
+    source: Sender,
+    payload: ContextUpdatePayload
+): ContextUpdateMessage => ({
+    ...createBaseMessage(source),
+    type: IPCMessageType.CONTEXT_UPDATE,
+    payload,
+});
+
+export const createFileChangedMessage = (
+    source: Sender,
+    payload: FileChangedPayload
+): FileChangedMessage => ({
+    ...createBaseMessage(source),
+    type: IPCMessageType.FILE_CHANGED,
+    payload,
 });

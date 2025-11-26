@@ -179,13 +179,14 @@ class IPCBridgeServer {
     }
 
     isValidMessage(message) {
+        const validSources = ['nova', 'vibe', 'bridge', 'deepcode', 'desktop-commander-v3'];
         return (
             typeof message === 'object' &&
             message !== null &&
             typeof message.type === 'string' &&
             message.payload !== undefined &&
             typeof message.timestamp === 'number' &&
-            (message.source === 'nova' || message.source === 'vibe') &&
+            validSources.includes(message.source) &&
             typeof message.messageId === 'string'
         );
     }

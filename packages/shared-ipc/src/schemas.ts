@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Message sources/targets
-export const appSourceSchema = z.enum(['nova', 'vibe', 'bridge', 'desktop-commander-v3']);
+export const appSourceSchema = z.enum(['nova', 'vibe', 'bridge', 'deepcode', 'desktop-commander-v3']);
 export type AppSource = z.infer<typeof appSourceSchema>;
 
 // Message types enum
@@ -11,18 +11,28 @@ export enum IPCMessageType {
     DISCONNECT = 'disconnect',
     PING = 'ping',
     PONG = 'pong',
+    IDENTIFY = 'identify',
 
     // File operations
     FILE_OPEN = 'file:open',
     FILE_OPENED = 'file:opened',
     FILE_CLOSE = 'file:close',
+    FILE_CHANGED = 'file:changed',
 
     // Learning + project updates
     LEARNING_SYNC = 'learning:sync',
     LEARNING_EVENT = 'learning_event',
     PROJECT_UPDATE = 'project:update',
     PROJECT_OPEN = 'project:open',
+    CONTEXT_UPDATE = 'context:update',
     NOTIFICATION = 'notification',
+
+    // Task lifecycle (Agent Mode)
+    TASK_STARTED = 'task_started',
+    TASK_STOPPED = 'task_stopped',
+    TASK_PROGRESS = 'task_progress',
+    TASK_ACTIVITY = 'task_activity',
+    TASK_INSIGHTS = 'task_insights_ready',
 
     // Git operations (legacy support)
     GET_GIT_STATUS = 'get_git_status',
@@ -87,6 +97,82 @@ export const errorPayloadSchema = z.object({
     code: z.string(),
     message: z.string(),
     details: z.any().optional(),
+});
+
+// Task lifecycle payloads (Agent Mode)
+export const taskStartedPayloadSchema = z.object({
+    task_id: z.string().min(1, 'task_id is required'),
+    task_type: z.string().min(1, 'task_type is required'),
+    title: z.string().min(1, 'title is required'),
+    context: z.record(z.any()).optional(),
+});
+
+export const taskStoppedPayloadSchema = z.object({
+    task_id: z.string().min(1, 'task_id is required'),
+    status: z.enum(['completed', 'paused', 'abandoned', 'error']),
+    duration_minutes: z.number().nonnegative().optional(),
+    result: z
+        .object({
+            success: z.boolean(),
+            output: z.string().optional(),
+            error: z.string().optional(),
+        })
+        .optional(),
+});
+
+export const taskProgressPayloadSchema = z.object({
+    task_id: z.string().min(1, 'task_id is required'),
+    progress: z.number().min(0).max(100),
+    current_step: z.string().optional(),
+    steps_completed: z.number().int().nonnegative().optional(),
+    total_steps: z.number().int().positive().optional(),
+});
+
+export const taskActivityPayloadSchema = z.object({
+    task_id: z.string().min(1, 'task_id is required'),
+    activity_type: z.enum(['code_edit', 'file_open', 'git_commit', 'test_run', 'command_execute']),
+    details: z.record(z.any()).optional(),
+});
+
+export const taskInsightsPayloadSchema = z.object({
+    task_id: z.string().min(1, 'task_id is required'),
+    insights: z.record(z.any()),
+});
+
+// Context update payload
+export const contextUpdatePayloadSchema = z.object({
+    workspaceRoot: z.string().optional(),
+    openFiles: z.array(z.string()).optional(),
+    currentFile: z.string().optional(),
+    cursorPosition: z
+        .object({
+            line: z.number().int().nonnegative(),
+            column: z.number().int().nonnegative(),
+        })
+        .optional(),
+    selection: z
+        .object({
+            start: z.object({ line: z.number(), column: z.number() }),
+            end: z.object({ line: z.number(), column: z.number() }),
+        })
+        .optional(),
+    diagnostics: z
+        .array(
+            z.object({
+                file: z.string(),
+                message: z.string(),
+                severity: z.string(),
+                line: z.number(),
+            })
+        )
+        .optional(),
+});
+
+// File changed payload
+export const fileChangedPayloadSchema = z.object({
+    filePath: z.string().min(1, 'filePath is required'),
+    changeType: z.enum(['created', 'modified', 'deleted']),
+    content: z.string().optional(),
 });
 
 export const commandRequestPayloadSchema = z.object({
@@ -209,6 +295,43 @@ export const bridgeStatsMessageSchema = baseMessageSchema.extend({
     payload: bridgeStatsPayloadSchema,
 });
 
+// Task lifecycle message schemas
+export const taskStartedMessageSchema = baseMessageSchema.extend({
+    type: z.literal(IPCMessageType.TASK_STARTED),
+    payload: taskStartedPayloadSchema,
+});
+
+export const taskStoppedMessageSchema = baseMessageSchema.extend({
+    type: z.literal(IPCMessageType.TASK_STOPPED),
+    payload: taskStoppedPayloadSchema,
+});
+
+export const taskProgressMessageSchema = baseMessageSchema.extend({
+    type: z.literal(IPCMessageType.TASK_PROGRESS),
+    payload: taskProgressPayloadSchema,
+});
+
+export const taskActivityMessageSchema = baseMessageSchema.extend({
+    type: z.literal(IPCMessageType.TASK_ACTIVITY),
+    payload: taskActivityPayloadSchema,
+});
+
+export const taskInsightsMessageSchema = baseMessageSchema.extend({
+    type: z.literal(IPCMessageType.TASK_INSIGHTS),
+    payload: taskInsightsPayloadSchema,
+});
+
+// Context and file change message schemas
+export const contextUpdateMessageSchema = baseMessageSchema.extend({
+    type: z.literal(IPCMessageType.CONTEXT_UPDATE),
+    payload: contextUpdatePayloadSchema,
+});
+
+export const fileChangedMessageSchema = baseMessageSchema.extend({
+    type: z.literal(IPCMessageType.FILE_CHANGED),
+    payload: fileChangedPayloadSchema,
+});
+
 // Union of all message types
 export const ipcMessageSchema = z.discriminatedUnion('type', [
     openFileMessageSchema,
@@ -223,6 +346,13 @@ export const ipcMessageSchema = z.discriminatedUnion('type', [
     commandResultMessageSchema,
     commandResponseMessageSchema,
     bridgeStatsMessageSchema,
+    taskStartedMessageSchema,
+    taskStoppedMessageSchema,
+    taskProgressMessageSchema,
+    taskActivityMessageSchema,
+    taskInsightsMessageSchema,
+    contextUpdateMessageSchema,
+    fileChangedMessageSchema,
 ]);
 
 // TypeScript types
@@ -237,6 +367,15 @@ export type CommandExecutePayload = z.infer<typeof commandExecutePayloadSchema>;
 export type CommandResultPayload = z.infer<typeof commandResultPayloadSchema>;
 export type BridgeStatsPayload = z.infer<typeof bridgeStatsPayloadSchema>;
 
+// Task payload types
+export type TaskStartedPayload = z.infer<typeof taskStartedPayloadSchema>;
+export type TaskStoppedPayload = z.infer<typeof taskStoppedPayloadSchema>;
+export type TaskProgressPayload = z.infer<typeof taskProgressPayloadSchema>;
+export type TaskActivityPayload = z.infer<typeof taskActivityPayloadSchema>;
+export type TaskInsightsPayload = z.infer<typeof taskInsightsPayloadSchema>;
+export type ContextUpdatePayload = z.infer<typeof contextUpdatePayloadSchema>;
+export type FileChangedPayload = z.infer<typeof fileChangedPayloadSchema>;
+
 export type OpenFileMessage = z.infer<typeof openFileMessageSchema>;
 export type OpenProjectMessage = z.infer<typeof openProjectMessageSchema>;
 export type GitStatusMessage = z.infer<typeof gitStatusMessageSchema>;
@@ -249,5 +388,14 @@ export type CommandExecuteMessage = z.infer<typeof commandExecuteMessageSchema>;
 export type CommandResultMessage = z.infer<typeof commandResultMessageSchema>;
 export type CommandResponseMessage = z.infer<typeof commandResponseMessageSchema>;
 export type BridgeStatsMessage = z.infer<typeof bridgeStatsMessageSchema>;
+
+// Task message types
+export type TaskStartedMessage = z.infer<typeof taskStartedMessageSchema>;
+export type TaskStoppedMessage = z.infer<typeof taskStoppedMessageSchema>;
+export type TaskProgressMessage = z.infer<typeof taskProgressMessageSchema>;
+export type TaskActivityMessage = z.infer<typeof taskActivityMessageSchema>;
+export type TaskInsightsMessage = z.infer<typeof taskInsightsMessageSchema>;
+export type ContextUpdateMessage = z.infer<typeof contextUpdateMessageSchema>;
+export type FileChangedMessage = z.infer<typeof fileChangedMessageSchema>;
 
 export type IPCMessage = z.infer<typeof ipcMessageSchema>;
