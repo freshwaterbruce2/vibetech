@@ -3,10 +3,10 @@ import path from 'node:path';
 import fs from 'node:fs';
 import Database from 'better-sqlite3';
 
-export type AppDatabase = {
+export interface AppDatabase {
   db: Database.Database;
   filePath: string;
-};
+}
 
 export function initDatabase(): AppDatabase {
   const userDataDir = app.getPath('userData');

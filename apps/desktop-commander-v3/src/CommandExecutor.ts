@@ -15,7 +15,7 @@ interface CommandHandler {
 }
 
 export class CommandExecutor {
-  private handlers: Map<string, CommandHandler> = new Map();
+  private handlers = new Map<string, CommandHandler>();
 
   constructor() {
     this.registerHandlers();

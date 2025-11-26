@@ -1,5 +1,5 @@
 
-export type PricingTier = {
+export interface PricingTier {
   name: string;
   price: {
     monthly: string;
@@ -18,12 +18,12 @@ export type PricingTier = {
   highlighted?: boolean;
   badge?: string;
   cta: string;
-};
+}
 
-export type MarketComparisonType = {
+export interface MarketComparisonType {
   category: string;
   description: string;
   pricing: string;
   limitations: string;
   highlighted?: boolean;
-};
+}

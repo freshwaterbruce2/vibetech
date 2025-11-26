@@ -488,7 +488,7 @@ app.put('/api/blog/:id', (req, res) => {
         no_follow = ?, affiliate_recommendations = ?, updated_at = CURRENT_TIMESTAMP
     `;
     
-    let params = [
+    const params = [
       title, slug, excerpt, content, category, author, image,
       JSON.stringify(tags), featured ? 1 : 0, published ? 1 : 0,
       seo_title, seo_description, focus_keyword, canonical_url,

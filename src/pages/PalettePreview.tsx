@@ -3,12 +3,12 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import SectionHeading from "@/components/ui/section-heading";
 
-type ColorSwatch = {
+interface ColorSwatch {
   name: string;
   value: string;
   cssVarName?: string;
   tailwindClass?: string;
-};
+}
 
 const PalettePreview = () => {
   const tokenColors: ColorSwatch[] = [

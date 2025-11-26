@@ -72,16 +72,16 @@ $RootPath = Split-Path -Parent $ScriptPath
 # Configuration with database integration
 $Global:OrchestrationConfig = @{
     MaxConcurrentProjects = $MaxParallel
-    PortAllocationStart = 3000
-    HealthCheckInterval = 30
-    AutoRestartOnFailure = $true
-    LogPath = "$RootPath\logs\parallel"
-    MemoryBankPath = "$RootPath\projects\active\web-apps\memory-bank"
-    DatabasePaths = @{
-        "main" = "D:\databases\database.db"
+    PortAllocationStart   = 3000
+    HealthCheckInterval   = 30
+    AutoRestartOnFailure  = $true
+    LogPath               = "$RootPath\logs\parallel"
+    MemoryBankPath        = "$RootPath\projects\active\web-apps\memory-bank"
+    DatabasePaths         = @{
+        "main"      = "D:\databases\database.db"
         "vibe-tech" = "D:\vibe-tech-data\vibetech.db"
-        "memory" = "$RootPath\projects\active\web-apps\memory-bank\long_term\memory.db"
-        "trading" = "$RootPath\projects\crypto-enhanced\trading.db"
+        "memory"    = "$RootPath\projects\active\web-apps\memory-bank\long_term\memory.db"
+        "trading"   = "$RootPath\projects\crypto-enhanced\trading.db"
     }
 }
 
@@ -113,8 +113,8 @@ function Write-OrchestratorLog {
     if ($shouldOutput) {
         switch ($Level) {
             "ERROR" { Write-Host $logMessage -ForegroundColor Red }
-            "WARN"  { Write-Host $logMessage -ForegroundColor Yellow }
-            "INFO"  { Write-Host $logMessage -ForegroundColor Green }
+            "WARN" { Write-Host $logMessage -ForegroundColor Yellow }
+            "INFO" { Write-Host $logMessage -ForegroundColor Green }
             "SUCCESS" { Write-Host $logMessage -ForegroundColor Cyan }
             "DEBUG" { Write-Host $logMessage -ForegroundColor DarkGray }
             default { Write-Host $logMessage }
@@ -168,11 +168,13 @@ function Test-DatabaseHealth {
                 if (Get-Command sqlite3 -ErrorAction SilentlyContinue) {
                     & sqlite3 $dbPath "PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA temp_store=MEMORY;" 2>$null
                 }
-            } catch {
+            }
+            catch {
                 Write-OrchestratorLog "[$dbName] Database error: $($_.Exception.Message)" "ERROR"
                 $allHealthy = $false
             }
-        } else {
+        }
+        else {
             # Create directory if it doesn't exist (except for D:\ drive databases)
             if ($dbPath -notlike "D:\*") {
                 $dbDir = Split-Path $dbPath -Parent
@@ -180,7 +182,8 @@ function Test-DatabaseHealth {
                     New-Item -ItemType Directory -Path $dbDir -Force | Out-Null
                     Write-OrchestratorLog "[$dbName] Created database directory: $dbDir" "INFO"
                 }
-            } else {
+            }
+            else {
                 Write-OrchestratorLog "[$dbName] Database not found: $dbPath" "WARN"
             }
         }
@@ -207,11 +210,11 @@ function Initialize-MemoryIntegration {
             # Store orchestration context
             $context = @{
                 timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                projects = if ($Projects.Count -gt 0) { $Projects } else { $Global:ProjectGroups[$Group] }
-                group = $Group
-                options = @{
-                    watch = $Watch.IsPresent
-                    dashboard = $Dashboard.IsPresent
+                projects  = if ($Projects.Count -gt 0) { $Projects } else { $Global:ProjectGroups[$Group] }
+                group     = $Group
+                options   = @{
+                    watch       = $Watch.IsPresent
+                    dashboard   = $Dashboard.IsPresent
                     autoQuality = $AutoQuality.IsPresent
                 }
             } | ConvertTo-Json
@@ -219,10 +222,12 @@ function Initialize-MemoryIntegration {
             $contextFile = Join-Path $Global:OrchestrationConfig.MemoryBankPath "short_term\orchestration_context.json"
             Set-Content -Path $contextFile -Value $context
 
-        } catch {
+        }
+        catch {
             Write-OrchestratorLog "Memory integration failed: $($_.Exception.Message)" "WARN"
         }
-    } else {
+    }
+    else {
         Write-OrchestratorLog "Memory bank not found, continuing without integration" "DEBUG"
     }
 }
@@ -248,7 +253,8 @@ function Start-MonitoringDashboard {
         # Open dashboard in browser
         Start-Process "http://localhost:8765"
         Write-OrchestratorLog "Dashboard available at http://localhost:8765" "SUCCESS"
-    } else {
+    }
+    else {
         Write-OrchestratorLog "Monitoring service not found" "WARN"
     }
 }
@@ -266,7 +272,7 @@ function Start-AutoQualityMonitor {
         while ($true) {
             Start-Sleep -Seconds $Interval
             Set-Location $RootPath
-            & npm run quality:fix --silent
+            & pnpm run quality:fix --silent
         }
     } -ArgumentList $RootPath, 300 # Run every 5 minutes
 
@@ -318,7 +324,8 @@ function Start-Orchestration {
     # Determine projects to start
     $projectsToStart = if ($Projects.Count -gt 0) {
         $Projects
-    } else {
+    }
+    else {
         $Global:ProjectGroups[$Group]
     }
 
@@ -336,10 +343,10 @@ function Start-Orchestration {
 
     # Start projects with intelligent sequencing
     $startupSequence = @{
-        "backend" = @()                    # No dependencies
-        "memory-bank" = @()                # No dependencies
-        "crypto" = @()                      # No dependencies
-        "root" = @("backend")               # Depends on backend
+        "backend"      = @()                    # No dependencies
+        "memory-bank"  = @()                # No dependencies
+        "crypto"       = @()                      # No dependencies
+        "root"         = @("backend")               # Depends on backend
         "vibe-lovable" = @("backend")       # Depends on backend
     }
 
@@ -439,7 +446,7 @@ function Stop-Orchestration {
     # Save session state to memory bank
     if (-not $NoMemoryIntegration) {
         $sessionState = @{
-            endTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            endTime  = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
             projects = $Global:ParallelJobs.Keys
             duration = ((Get-Date) - $script:StartTime).TotalMinutes
         } | ConvertTo-Json
@@ -493,12 +500,14 @@ try {
             }
         }
     }
-} catch {
+}
+catch {
     Write-OrchestratorLog "Fatal error: $($_.Exception.Message)" "ERROR"
     Write-OrchestratorLog "Stack trace: $($_.ScriptStackTrace)" "DEBUG"
     Stop-Orchestration
     exit 1
-} finally {
+}
+finally {
     # Cleanup
     [Console]::TreatControlCAsInput = $false
 }

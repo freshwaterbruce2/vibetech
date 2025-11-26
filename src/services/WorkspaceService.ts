@@ -68,11 +68,11 @@ export interface ModelState {
 }
 
 export class WorkspaceService {
-  private workspaces: Map<string, Workspace> = new Map();
+  private workspaces = new Map<string, Workspace>();
   private activeWorkspaceId: string | null = null;
-  private fileWatchers: Map<string, FileWatcher[]> = new Map();
-  private monacoModels: Map<string, MonacoModel> = new Map();
-  private fileChangeHandlers: Map<string, Array<(event: FileChangeEvent) => void>> = new Map();
+  private fileWatchers = new Map<string, FileWatcher[]>();
+  private monacoModels = new Map<string, MonacoModel>();
+  private fileChangeHandlers = new Map<string, ((event: FileChangeEvent) => void)[]>();
 
   /**
    * Create a new workspace

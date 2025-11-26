@@ -1,9 +1,9 @@
 import { sanitizeHtml } from '../../utils/htmlSanitizer';
 import React from 'react';
 
-type Props = {
+interface Props {
   initialType?: string;
-};
+}
 
 export function SimpleGenerator(props: Props): JSX.Element {
   const [type, setType] = React.useState<string>(props.initialType ?? 'landing');

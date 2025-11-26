@@ -43,11 +43,11 @@ export interface MarketplaceExtension {
   changelog?: string;
 
   /** Screenshots/media */
-  media?: Array<{
+  media?: {
     type: 'image' | 'video';
     url: string;
     caption?: string;
-  }>;
+  }[];
 }
 
 export interface ExtensionReview {

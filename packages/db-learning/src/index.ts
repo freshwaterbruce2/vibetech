@@ -158,7 +158,7 @@ export class LearningDatabase {
     }
 
     if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      query += ` WHERE ${  conditions.join(' AND ')}`;
     }
     query += ' ORDER BY created_at DESC';
 
@@ -181,7 +181,7 @@ export class LearningDatabase {
     }
 
     if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      query += ` WHERE ${  conditions.join(' AND ')}`;
     }
     query += ' ORDER BY created_at DESC';
 

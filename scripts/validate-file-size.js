@@ -35,8 +35,8 @@ const IGNORE_DIRS = [
   'out'
 ];
 
-let violations = [];
-let warnings = [];
+const violations = [];
+const warnings = [];
 let checkedFiles = 0;
 
 function shouldCheckFile(filePath) {

@@ -30,34 +30,35 @@ function Test-ProjectHealth {
     param([string]$ProjectPath = ".")
 
     $health = @{
-        linting = $false
+        linting   = $false
         typecheck = $false
-        tests = $false
-        build = $false
-        score = 0
+        tests     = $false
+        build     = $false
+        score     = 0
     }
 
     Push-Location $ProjectPath
     try {
         # ESLint check
         Write-AutoLog "Running ESLint..." "INFO"
-        $lintResult = npm run lint 2>&1
+        $lintResult = pnpm run lint 2>&1
         $health.linting = $LASTEXITCODE -eq 0
         if ($health.linting) { $health.score += 25 }
 
         # TypeScript check
         Write-AutoLog "Checking TypeScript..." "INFO"
-        $typeResult = npm run typecheck 2>&1
+        $typeResult = pnpm run typecheck 2>&1
         $health.typecheck = $LASTEXITCODE -eq 0
         if ($health.typecheck) { $health.score += 25 }
 
         # Tests (if not skipped)
         if (-not $SkipTests -and -not $QuickMode) {
             Write-AutoLog "Running tests..." "INFO"
-            $testResult = npm run test 2>&1
+            $testResult = pnpm run test 2>&1
             $health.tests = $LASTEXITCODE -eq 0
             if ($health.tests) { $health.score += 25 }
-        } else {
+        }
+        else {
             $health.tests = $true
             $health.score += 25
         }
@@ -65,15 +66,17 @@ function Test-ProjectHealth {
         # Build check
         if (-not $QuickMode) {
             Write-AutoLog "Testing build..." "INFO"
-            $buildResult = npm run build 2>&1
+            $buildResult = pnpm run build 2>&1
             $health.build = $LASTEXITCODE -eq 0
             if ($health.build) { $health.score += 25 }
-        } else {
+        }
+        else {
             $health.build = $true
             $health.score += 25
         }
 
-    } finally {
+    }
+    finally {
         Pop-Location
     }
 
@@ -93,13 +96,15 @@ function Test-CryptoSystemHealth {
             $testResult = .\.venv\Scripts\python.exe run_tests.py 2>&1
             $success = $LASTEXITCODE -eq 0
             return @{
-                score = if ($success) { 100 } else { 0 }
+                score   = if ($success) { 100 } else { 0 }
                 message = if ($success) { "All tests passed" } else { "Tests failed" }
             }
-        } else {
+        }
+        else {
             return @{ score = 0; message = "Virtual environment not setup" }
         }
-    } finally {
+    }
+    finally {
         Pop-Location
     }
 }
@@ -151,10 +156,10 @@ function Send-HealthReport {
 
     # Store health data for monitoring
     $healthData = @{
-        timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        trigger = $TriggerType
+        timestamp     = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        trigger       = $TriggerType
         overall_score = $overallScore
-        root_health = $RootHealth
+        root_health   = $RootHealth
         crypto_health = $CryptoHealth
     }
 
@@ -188,7 +193,7 @@ if ($overallScore -lt 75 -and -not $QuickMode) {
 
     if (-not $rootHealth.linting) {
         Write-AutoLog "Attempting ESLint auto-fix..." "INFO"
-        npm run lint:fix 2>&1 | Out-Null
+        pnpm run lint:fix 2>&1 | Out-Null
     }
 }
 

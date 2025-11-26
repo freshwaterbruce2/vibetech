@@ -1,0 +1,115 @@
+# Codex Ignore Patterns for Vibetech Monorepo
+# Exclude files and directories that Codex should not read or modify
+
+# Dependencies
+node_modules/
+.pnpm-store/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+.turbo/
+.nx/cache/
+target/
+src-tauri/target/
+
+# Logs (exclude from C:\dev, actual logs are on D:\logs\)
+logs/
+*.log
+
+# Databases in repo (exclude - actual databases are on D:\databases\)
+# NOTE: D:\databases\, D:\learning\, D:\vision\ are accessible via writable_roots
+*.db
+*.db-shm
+*.db-wal
+local-db/
+test-db/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+.git/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Cache and temp files
+.cache/
+tmp/
+temp/
+*.tmp
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Lock files (read-only, don't modify)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Large media/assets (if any)
+*.mov
+*.mp4
+*.avi
+*.mkv
+*.iso
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Documentation build outputs
+docs/build/
+docs/.docusaurus/
+
+# Test snapshots (read-only)
+**/__snapshots__/
+
+# Electron build artifacts
+**/release/
+**/app/dist/
+*.appimage
+*.dmg
+*.exe
+*.deb
+*.rpm
+
+# Rust build artifacts
+**/target/debug/
+**/target/release/
+**/*.rs.bk
+Cargo.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+
+# Archived/legacy code
+_archive/
+archived*/
+*.backup
+*.old

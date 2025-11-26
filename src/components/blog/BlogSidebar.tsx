@@ -16,7 +16,7 @@ const BlogSidebar = ({ blogPosts, onTagClick, currentCategory }: BlogSidebarProp
   const categories = [...new Set(blogPosts.map(post => post.category))];
   
   // Get all unique tags and count occurrences
-  const tagCounts: {[key: string]: number} = {};
+  const tagCounts: Record<string, number> = {};
   blogPosts.forEach(post => {
     post.tags.forEach(tag => {
       tagCounts[tag] = (tagCounts[tag] || 0) + 1;

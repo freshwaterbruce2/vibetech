@@ -12,8 +12,8 @@ export interface RecognizedPattern {
   pattern: string;
   frequency: number;
   contexts: string[];
-  platforms: Array<'desktop' | 'web' | 'mobile' | 'python'>;
-  apps: Array<'nova' | 'vibe'>;
+  platforms: ('desktop' | 'web' | 'mobile' | 'python')[];
+  apps: ('nova' | 'vibe')[];
   confidence: number;
 }
 
@@ -22,7 +22,7 @@ export class PatternRecognizer {
    * Analyze mistakes to identify recurring patterns
    */
   static analyzeMistakePatterns(mistakes: LearningMistake[]): RecognizedPattern[] {
-    const patterns: Map<string, RecognizedPattern> = new Map();
+    const patterns = new Map<string, RecognizedPattern>();
 
     for (const mistake of mistakes) {
       // Extract pattern from mistake type and description

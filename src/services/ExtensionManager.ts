@@ -55,8 +55,8 @@ interface ExtensionInternal extends Extension {
 }
 
 export class ExtensionManager {
-  private extensions: Map<string, ExtensionInternal> = new Map();
-  private commands: Map<string, (...args: any[]) => any> = new Map();
+  private extensions = new Map<string, ExtensionInternal>();
+  private commands = new Map<string, (...args: any[]) => any>();
 
   /**
    * Register a new extension

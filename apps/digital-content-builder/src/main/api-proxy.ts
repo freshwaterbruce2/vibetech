@@ -1,10 +1,10 @@
 import { ipcMain } from 'electron';
 
-type GeneratePayload = {
+interface GeneratePayload {
   prompt: string;
   type: string;
   tone?: string;
-};
+}
 
 function getSystemPrompt(type: string, tone?: string): string {
   const base = 'You are a professional content creator. Output clean, production-ready HTML (inline CSS where necessary).';

@@ -99,8 +99,8 @@ function extractFieldFromDetail(detail?: string): string | undefined {
  */
 export async function retryWithBackoff<T>(
   operation: () => Promise<T>,
-  maxRetries: number = 3,
-  initialDelay: number = 1000
+  maxRetries = 3,
+  initialDelay = 1000
 ): Promise<T> {
   let lastError: Error = new Error('Max retries exceeded');
 

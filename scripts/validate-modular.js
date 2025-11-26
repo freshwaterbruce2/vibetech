@@ -31,8 +31,8 @@ const ANTI_PATTERNS = [
   'Utils'     // When it's a catch-all utilities file
 ];
 
-let issues = [];
-let suggestions = [];
+const issues = [];
+const suggestions = [];
 let checkedProjects = 0;
 
 function checkProjectStructure(projectPath) {
@@ -43,7 +43,7 @@ function checkProjectStructure(projectPath) {
   const entries = fs.readdirSync(srcPath);
 
   let hasModularStructure = false;
-  let foundPatterns = [];
+  const foundPatterns = [];
 
   // Check for modular directory structure
   for (const entry of entries) {

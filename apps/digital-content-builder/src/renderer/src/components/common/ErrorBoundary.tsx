@@ -1,6 +1,6 @@
 import React from 'react';
 
-type State = { hasError: boolean; message?: string };
+interface State { hasError: boolean; message?: string }
 
 export class ErrorBoundary extends React.Component<React.PropsWithChildren, State> {
   constructor(props: React.PropsWithChildren) {

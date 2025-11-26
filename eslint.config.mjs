@@ -12,17 +12,75 @@ import tseslint from 'typescript-eslint';
 import noLocalStorageElectron from './eslint-rules/no-localstorage-electron.cjs';
 
 export default tseslint.config(
-  // Ignore patterns
+  // Ignore patterns (comprehensive)
   {
     ignores: [
+      // Build outputs
+      'dist',
       '**/dist/**',
+      '**/dist-electron/**',
+      'build',
       '**/build/**',
-      '**/coverage/**',
-      '**/.nx/**',
+      '.next',
+      '**/.next/**',
+      '**/.nuxt/**',
+      '**/.output/**',
+      '.vite-cache/**',
+      '**/.vite/**',
+
+      // Dependencies
+      'node_modules',
       '**/node_modules/**',
+      '.pnpm',
+
+      // Cache & build tools
+      '.turbo',
+      '**/.turbo/**',
+      '.nx',
+      '**/.nx/**',
+      '**/.cache/**',
+      '**/.temp/**',
+
+      // IDE & tools
+      '.vscode/**',
+
+      // Test coverage
+      'coverage/**',
+      '**/coverage/**',
+
+      // Generated & static files
+      '**/.docusaurus/**',
+      '**/public/build/**',
+      'public/assets/**',
+      '*.min.js',
+      '*.bundle.js',
+
+      // Lock files
+      'pnpm-lock.yaml',
+      'package-lock.json',
+      'yarn.lock',
+
+      // Language-specific
       '**/.venv/**',
       '**/__pycache__/**',
-      '**/target/**'
+      '**/target/**',
+
+      // Project specific
+      'DesktopCommanderMCP/**',
+      'Vibe-Tutor/**',
+      'opcode/**',
+      'edge_extension_deps/**',
+      'database-proxy-standalone/**',
+      'devworktrees*/**',
+      'backups/**',
+      'logs/**',
+      'playwright-report/**',
+      'active-projects/**',
+      'projects/**',
+      'PowerShell/**',
+      'supabase/**',
+      'desktop-commander-mcp/**',
+      'workflow-hub-mcp/**'
     ]
   },
 

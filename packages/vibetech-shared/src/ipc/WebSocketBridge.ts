@@ -20,8 +20,8 @@ export interface WebSocketBridgeConfig {
 export class WebSocketBridge {
   private ws: WebSocket | null = null;
   private config: Required<WebSocketBridgeConfig>;
-  private handlers: Map<IPCMessageType, Set<MessageHandler>> = new Map();
-  private globalHandlers: Set<MessageHandler> = new Set();
+  private handlers = new Map<IPCMessageType, Set<MessageHandler>>();
+  private globalHandlers = new Set<MessageHandler>();
   private reconnectAttempts = 0;
   private reconnectTimer: any = null;
   private connected = false;

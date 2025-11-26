@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Tag } from "lucide-react";
 
 interface BlogTagsProps {
-  tagCounts: {[key: string]: number};
+  tagCounts: Record<string, number>;
   onTagClick: (tag: string) => void;
 }
 

@@ -16,7 +16,7 @@ const TradingTest: React.FC = () => {
                 const data = await response.json();
                 alert(JSON.stringify(data, null, 2));
               } catch (error) {
-                alert('Error: ' + error);
+                alert(`Error: ${  error}`);
               }
             }}
             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"

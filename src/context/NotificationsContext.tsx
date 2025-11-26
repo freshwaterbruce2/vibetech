@@ -2,14 +2,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 
-export type Notification = {
+export interface Notification {
   id: string;
   title: string;
   message: string;
   timestamp: Date;
   read: boolean;
   type: "info" | "success" | "warning" | "error";
-};
+}
 
 interface NotificationsContextType {
   notifications: Notification[];

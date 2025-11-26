@@ -2,10 +2,10 @@
 import { Link } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 
-type NavLink = {
+interface NavLink {
   path: string;
   label: string;
-};
+}
 
 const navLinks: NavLink[] = [
   { path: "/", label: "Home" },

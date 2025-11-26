@@ -11,7 +11,7 @@ export function ExportPanel(props: { htmlSource?: string }): JSX.Element {
   };
   const exportMarkdown = async () => {
     // very naive conversion
-    const md = '```\n' + html + '\n```';
+    const md = `\`\`\`\n${  html  }\n\`\`\``;
     // @ts-ignore
     const res = await window.electronAPI.exportMarkdown({ content: md, name: 'content' });
     setResult(res?.filePath ?? '');

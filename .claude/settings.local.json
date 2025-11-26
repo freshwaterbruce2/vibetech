@@ -3,7 +3,14 @@
     "allow": [
       "Bash(Test-Path \"C:\\dev\\projects\\active\\desktop-apps\\nova-agent-current\\src-tauri\\target\\release\\nova-agent.exe\")",
       "Bash(git rm:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(Test-Path \"D:\\databases\\agent_learning.db\")",
+      "Bash(Test-Path \"D:\\databases\\vibe_learning.db\")",
+      "Bash(cat:*)",
+      "Bash(Start-Sleep 15)",
+      "Bash(Start-Sleep 10)",
+      "Bash(git add:*)",
+      "Bash(git worktree:*)"
     ],
     "deny": [],
     "ask": [],

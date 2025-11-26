@@ -22,7 +22,7 @@ export function registerExportHandlers(): void {
   const dir = ensureExportDir();
 
   ipcMain.handle('export:html', async (_evt, args: { projectId?: string; content: string; name?: string }) => {
-    const name = (args?.name || 'export') + '.html';
+    const name = `${args?.name || 'export'  }.html`;
     const filePath = path.join(dir, name);
     writeFileAtomic(filePath, args.content);
     db.prepare(
@@ -38,7 +38,7 @@ export function registerExportHandlers(): void {
   });
 
   ipcMain.handle('export:markdown', async (_evt, args: { projectId?: string; content: string; name?: string }) => {
-    const name = (args?.name || 'export') + '.md';
+    const name = `${args?.name || 'export'  }.md`;
     const filePath = path.join(dir, name);
     writeFileAtomic(filePath, args.content);
     db.prepare(
@@ -54,7 +54,7 @@ export function registerExportHandlers(): void {
   });
 
   ipcMain.handle('export:json', async (_evt, args: { projectId?: string; data: any; name?: string }) => {
-    const name = (args?.name || 'export') + '.json';
+    const name = `${args?.name || 'export'  }.json`;
     const filePath = path.join(dir, name);
     writeFileAtomic(filePath, JSON.stringify(args.data, null, 2));
     db.prepare(
@@ -70,7 +70,7 @@ export function registerExportHandlers(): void {
   });
 
   ipcMain.handle('export:pdf', async (_evt, args: { projectId?: string; html: string; name?: string }) => {
-    const name = (args?.name || 'export') + '.pdf';
+    const name = `${args?.name || 'export'  }.pdf`;
     const filePath = path.join(dir, name);
     // Create an offscreen window to render HTML and print to PDF
     const win = new BrowserWindow({
@@ -80,7 +80,7 @@ export function registerExportHandlers(): void {
       }
     });
     try {
-      const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(args.html ?? '<!doctype html><html></html>');
+      const dataUrl = `data:text/html;charset=utf-8,${  encodeURIComponent(args.html ?? '<!doctype html><html></html>')}`;
       await win.loadURL(dataUrl);
       const pdfBuffer = await win.webContents.printToPDF({
         pageSize: 'A4',

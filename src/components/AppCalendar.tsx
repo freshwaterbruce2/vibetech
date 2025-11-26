@@ -18,12 +18,12 @@ import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { CalendarCheck, Plus } from "lucide-react";
 
-type Event = {
+interface Event {
   id: string;
   title: string;
   description: string;
   date: Date;
-};
+}
 
 const AppCalendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());

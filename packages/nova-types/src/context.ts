@@ -48,9 +48,9 @@ export interface ProjectContext {
 export interface WorkspaceContext {
   projects: ProjectContext[];
   sharedPatterns: CodePattern[];
-  crossProjectDependencies: Array<{
+  crossProjectDependencies: {
     from: string;
     to: string;
     type: 'similar-code' | 'shared-config' | 'api-contract';
-  }>;
+  }[];
 }

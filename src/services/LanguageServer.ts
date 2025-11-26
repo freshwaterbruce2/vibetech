@@ -97,10 +97,10 @@ export interface CompletionContext {
 
 export class LanguageServer {
   private languageId: string;
-  private running: boolean = false;
-  private initialized: boolean = false;
-  private documents: Map<string, TextDocument> = new Map();
-  private diagnosticsCallbacks: Array<(params: { uri: string; diagnostics: Diagnostic[] }) => void> = [];
+  private running = false;
+  private initialized = false;
+  private documents = new Map<string, TextDocument>();
+  private diagnosticsCallbacks: ((params: { uri: string; diagnostics: Diagnostic[] }) => void)[] = [];
   private capabilities: ServerCapabilities = {};
 
   constructor(languageId: string) {

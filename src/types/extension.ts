@@ -42,20 +42,20 @@ export interface ExtensionManifest {
 
 export interface ExtensionContributions {
   /** Command contributions */
-  commands?: Array<{
+  commands?: {
     id: string;
     title: string;
     category?: string;
     icon?: string;
     keybinding?: string;
-  }>;
+  }[];
 
   /** Menu contributions */
-  menus?: Record<string, Array<{
+  menus?: Record<string, {
     command: string;
     when?: string;
     group?: string;
-  }>>;
+  }[]>;
 
   /** Settings contributions */
   configuration?: {
@@ -69,26 +69,26 @@ export interface ExtensionContributions {
   };
 
   /** View contributions (sidebar panels, etc.) */
-  views?: Record<string, Array<{
+  views?: Record<string, {
     id: string;
     name: string;
     icon?: string;
-  }>>;
+  }[]>;
 
   /** Language contributions */
-  languages?: Array<{
+  languages?: {
     id: string;
     extensions?: string[];
     aliases?: string[];
     configuration?: string;
-  }>;
+  }[];
 
   /** Theme contributions */
-  themes?: Array<{
+  themes?: {
     id: string;
     label: string;
     path: string;
-  }>;
+  }[];
 }
 
 export interface ExtensionContext {
@@ -105,7 +105,7 @@ export interface ExtensionContext {
   workspaceState: ExtensionState;
 
   /** Subscribe to extension lifecycle events */
-  subscriptions: Array<{ dispose: () => void }>;
+  subscriptions: { dispose: () => void }[];
 
   /** Logger for the extension */
   logger: ExtensionLogger;

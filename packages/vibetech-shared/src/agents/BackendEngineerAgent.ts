@@ -132,7 +132,7 @@ Provide specific, production-ready solutions with code examples, best practices,
   }
 
   private buildPrompt(request: string, context: AgentContext): string {
-    let prompt = this.systemPrompt + '\n\n';
+    let prompt = `${this.systemPrompt  }\n\n`;
 
     if (context.currentFile) {
       prompt += `Current File: ${context.currentFile}\n`;

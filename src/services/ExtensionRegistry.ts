@@ -14,10 +14,10 @@ import type {
  * Manages marketplace extensions, search, ratings, and installation tracking
  */
 export class ExtensionRegistry {
-  private extensions: Map<string, MarketplaceExtension> = new Map();
-  private installations: Map<string, ExtensionInstallation> = new Map();
-  private reviews: Map<string, ExtensionReview[]> = new Map();
-  private eventHandlers: Map<MarketplaceEventType, Set<MarketplaceEventHandler>> = new Map();
+  private extensions = new Map<string, MarketplaceExtension>();
+  private installations = new Map<string, ExtensionInstallation>();
+  private reviews = new Map<string, ExtensionReview[]>();
+  private eventHandlers = new Map<MarketplaceEventType, Set<MarketplaceEventHandler>>();
 
   /**
    * Register or update a marketplace extension
@@ -174,12 +174,12 @@ export class ExtensionRegistry {
   /**
    * Get available updates
    */
-  getAvailableUpdates(): Array<{
+  getAvailableUpdates(): {
     extensionId: string;
     currentVersion: string;
     availableVersion: string;
-  }> {
-    const updates: Array<{ extensionId: string; currentVersion: string; availableVersion: string }> = [];
+  }[] {
+    const updates: { extensionId: string; currentVersion: string; availableVersion: string }[] = [];
 
     for (const [extensionId, installation] of this.installations) {
       const marketplaceExt = this.extensions.get(extensionId);
@@ -282,7 +282,7 @@ export class ExtensionRegistry {
   /**
    * Get popular extensions (by downloads)
    */
-  getPopularExtensions(limit: number = 10): MarketplaceExtension[] {
+  getPopularExtensions(limit = 10): MarketplaceExtension[] {
     return Array.from(this.extensions.values())
       .sort((a, b) => b.metadata.downloads - a.metadata.downloads)
       .slice(0, limit);
@@ -291,7 +291,7 @@ export class ExtensionRegistry {
   /**
    * Get recently updated extensions
    */
-  getRecentlyUpdated(limit: number = 10): MarketplaceExtension[] {
+  getRecentlyUpdated(limit = 10): MarketplaceExtension[] {
     return Array.from(this.extensions.values())
       .sort(
         (a, b) =>
@@ -303,7 +303,7 @@ export class ExtensionRegistry {
   /**
    * Get top rated extensions
    */
-  getTopRated(limit: number = 10): MarketplaceExtension[] {
+  getTopRated(limit = 10): MarketplaceExtension[] {
     return Array.from(this.extensions.values())
       .filter((ext) => ext.metadata.ratingCount >= 10) // Minimum ratings threshold
       .sort((a, b) => b.metadata.rating - a.metadata.rating)

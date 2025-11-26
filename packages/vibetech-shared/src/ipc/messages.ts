@@ -41,11 +41,11 @@ export interface ContextUpdatePayload {
 }
 
 export interface ActivitySyncPayload {
-  events: Array<{
+  events: {
     type: string;
     timestamp: number;
     data?: any;
-  }>;
+  }[];
 }
 
 export interface LearningUpdatePayload {

@@ -154,7 +154,7 @@ export class CryptoTradingApi {
   /**
    * Get recent activity
    */
-  static async getRecentActivity(limit: number = 50): Promise<TradingActivity[]> {
+  static async getRecentActivity(limit = 50): Promise<TradingActivity[]> {
     const response = await apiFetch<{ data: TradingActivity[]; count: number }>(
       `/api/activity?limit=${limit}`
     );
@@ -164,7 +164,7 @@ export class CryptoTradingApi {
   /**
    * Get recent orders
    */
-  static async getOrders(limit: number = 100): Promise<any[]> {
+  static async getOrders(limit = 100): Promise<any[]> {
     const response = await apiFetch<{ data: any[]; count: number }>(
       `/api/orders?limit=${limit}`
     );
@@ -174,7 +174,7 @@ export class CryptoTradingApi {
   /**
    * Get recent trades
    */
-  static async getTrades(pair?: string, limit: number = 100): Promise<any[]> {
+  static async getTrades(pair?: string, limit = 100): Promise<any[]> {
     const params = new URLSearchParams({ limit: limit.toString() });
     if (pair) params.append('pair', pair);
 

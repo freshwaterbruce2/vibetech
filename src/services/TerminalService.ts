@@ -37,8 +37,8 @@ export interface TerminalSession {
   shell?: string;
   options?: TerminalOptions;
   createdAt: Date;
-  dataHandlers: Array<(data: string) => void>;
-  exitHandlers: Array<(code: number) => void>;
+  dataHandlers: ((data: string) => void)[];
+  exitHandlers: ((code: number) => void)[];
 }
 
 export interface TerminalSessionState {
@@ -50,7 +50,7 @@ export interface TerminalSessionState {
 }
 
 export class TerminalService {
-  private terminals: Map<string, TerminalSession> = new Map();
+  private terminals = new Map<string, TerminalSession>();
   private activeTerminalId: string | null = null;
 
   /**

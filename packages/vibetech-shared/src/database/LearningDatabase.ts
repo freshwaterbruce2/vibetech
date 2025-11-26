@@ -109,7 +109,7 @@ export class CrossAppPatternTracker {
   static async getSuggestedPatterns(
     db: LearningDatabaseInterface,
     targetApp: 'nova' | 'vibe',
-    minSuccessRate: number = 0.7
+    minSuccessRate = 0.7
   ): Promise<CrossAppPattern[]> {
     // Implementation depends on the platform
     return [];

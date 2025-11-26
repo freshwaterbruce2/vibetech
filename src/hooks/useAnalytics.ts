@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-type EventOptions = {
+interface EventOptions {
   category: string;
   label?: string;
   value?: number;

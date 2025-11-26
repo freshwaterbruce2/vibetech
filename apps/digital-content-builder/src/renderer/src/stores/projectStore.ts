@@ -1,19 +1,19 @@
 import { create } from 'zustand';
 
-export type ProjectCard = {
+export interface ProjectCard {
   id: string;
   name: string;
   type: string;
   updatedAt: number;
   isFavorite?: number;
-};
+}
 
-type ProjectState = {
+interface ProjectState {
   items: ProjectCard[];
   search: string;
   setSearch: (q: string) => void;
   refresh: () => Promise<void>;
-};
+}
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
   items: [],

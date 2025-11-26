@@ -29,10 +29,10 @@ export interface QueryResult<T = unknown> {
   rows: T[];
   rowCount: number;
   command: string;
-  fields: Array<{
+  fields: {
     name: string;
     dataTypeID: number;
-  }>;
+  }[];
 }
 
 /**

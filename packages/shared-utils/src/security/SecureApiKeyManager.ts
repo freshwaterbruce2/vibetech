@@ -53,7 +53,7 @@ export class SecureApiKeyManager {
   private encryptionKey: string;
   private storage: Storage;
   private electronStorage: ElectronStorageAPI | null = null;
-  private isElectron: boolean = false;
+  private isElectron = false;
   private logger: Logger;
 
   private constructor(logger?: Logger) {
@@ -275,8 +275,8 @@ export class SecureApiKeyManager {
   /**
    * List stored API key providers (without exposing keys)
    */
-  public async getStoredProviders(): Promise<Array<{ provider: string; metadata: ApiKeyMetadata }>> {
-    const providers: Array<{ provider: string; metadata: ApiKeyMetadata }> = [];
+  public async getStoredProviders(): Promise<{ provider: string; metadata: ApiKeyMetadata }[]> {
+    const providers: { provider: string; metadata: ApiKeyMetadata }[] = [];
 
     try {
       let keys: string[] = [];

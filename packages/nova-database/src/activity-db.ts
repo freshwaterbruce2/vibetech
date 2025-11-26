@@ -97,7 +97,7 @@ export class ActivityDatabase {
       params.push(filter.endTime);
     }
     if (filter.projects && filter.projects.length > 0) {
-      query += ' AND project IN (' + filter.projects.map(() => '?').join(',') + ')';
+      query += ` AND project IN (${  filter.projects.map(() => '?').join(',')  })`;
       params.push(...filter.projects);
     }
     if (filter.searchQuery) {
@@ -199,7 +199,7 @@ export class ActivityDatabase {
       params.push(filter.endTime);
     }
     if (filter.projects && filter.projects.length > 0) {
-      query += ' AND project IN (' + filter.projects.map(() => '?').join(',') + ')';
+      query += ` AND project IN (${  filter.projects.map(() => '?').join(',')  })`;
       params.push(...filter.projects);
     }
 
@@ -221,7 +221,7 @@ export class ActivityDatabase {
   }
 
   // Cleanup old events (retention policy)
-  cleanupOldEvents(daysToKeep: number = 30) {
+  cleanupOldEvents(daysToKeep = 30) {
     const cutoffTime = Date.now() - (daysToKeep * 24 * 60 * 60 * 1000);
 
     this.db.prepare('DELETE FROM file_events WHERE timestamp < ?').run(cutoffTime);

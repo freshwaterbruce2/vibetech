@@ -9,10 +9,10 @@ param(
 
 $Global:WatchJobs = @()
 $Global:ServicePorts = @{
-    "root" = 5173
-    "crypto" = 8000
+    "root"                  = 5173
+    "crypto"                = 8000
     "vibe-lovable-frontend" = 8080
-    "vibe-lovable-backend" = 9001
+    "vibe-lovable-backend"  = 9001
 }
 
 function Write-WatchLog {
@@ -35,7 +35,8 @@ function Test-PortInUse {
     try {
         $connection = Test-NetConnection -ComputerName localhost -Port $Port -InformationLevel Quiet -WarningAction SilentlyContinue
         return $connection
-    } catch {
+    }
+    catch {
         return $false
     }
 }
@@ -44,14 +45,15 @@ function Stop-ServiceOnPort {
     param([int]$Port)
     try {
         $processes = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue |
-                    Select-Object -ExpandProperty OwningProcess |
-                    Get-Process -Id { $_ } -ErrorAction SilentlyContinue
+        Select-Object -ExpandProperty OwningProcess |
+        Get-Process -Id { $_ } -ErrorAction SilentlyContinue
 
         foreach ($process in $processes) {
             Write-WatchLog "Stopping process $($process.ProcessName) (PID: $($process.Id)) on port $Port" "WARN"
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
         }
-    } catch {
+    }
+    catch {
         Write-WatchLog "Could not stop service on port $Port" "ERROR"
     }
 }
@@ -60,7 +62,7 @@ function Start-RootService {
     Write-WatchLog "Starting root development server..." "INFO" "ROOT"
     $job = Start-Job -ScriptBlock {
         Set-Location $using:PWD
-        npm run dev
+        pnpm run dev
     }
     return $job
 }
@@ -78,7 +80,8 @@ function Start-CryptoService {
         Set-Location $Path
         if (Test-Path ".venv") {
             .\.venv\Scripts\python.exe start_live_trading.py
-        } else {
+        }
+        else {
             Write-Host "Virtual environment not found"
         }
     } -ArgumentList (Join-Path $PWD $cryptoPath)
@@ -100,7 +103,7 @@ function Start-VibeServices {
     $feJob = Start-Job -ScriptBlock {
         param($Path)
         Set-Location $Path
-        npm run dev
+        pnpm run dev
     } -ArgumentList (Join-Path $PWD $vibePath)
     $jobs += $feJob
 
@@ -111,7 +114,7 @@ function Start-VibeServices {
         $beJob = Start-Job -ScriptBlock {
             param($Path)
             Set-Location $Path
-            npm run dev
+            pnpm run dev
         } -ArgumentList $backendPath
         $jobs += $beJob
     }
@@ -268,9 +271,11 @@ try {
 
         Start-Sleep -Seconds 1
     }
-} catch {
+}
+catch {
     Write-WatchLog "Watch system interrupted" "WARN"
-} finally {
+}
+finally {
     # Cleanup
     Write-WatchLog "Cleaning up watchers and jobs..." "INFO"
 

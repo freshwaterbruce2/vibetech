@@ -60,7 +60,7 @@ agents:
 # Task Delegation Rules
 delegation_rules:
   planning_threshold:
-    files_modified: 3  # 3+ files requires planning
+    files_modified: 3 # 3+ files requires planning
     complexity_indicators:
       - new_feature
       - breaking_change
@@ -106,7 +106,7 @@ delegation_rules:
         - verify_tests
 
 # Enforcement Mechanisms
-enforcement:
+enforcement_mechanisms:
   pre_implementation:
     - verify_agent_role
     - check_planning_requirement

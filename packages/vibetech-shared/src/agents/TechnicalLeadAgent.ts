@@ -148,7 +148,7 @@ Provide strategic, high-level guidance with practical implementation advice. Con
   }
 
   private buildPrompt(request: string, context: AgentContext): string {
-    let prompt = this.systemPrompt + '\n\n';
+    let prompt = `${this.systemPrompt  }\n\n`;
 
     if (context.workspaceRoot) {
       prompt += `Workspace: ${context.workspaceRoot}\n`;

@@ -13,7 +13,7 @@ export interface MistakeStats {
   bySeverity: Record<string, number>;
   resolved: number;
   unresolved: number;
-  mostCommon: Array<{ pattern: string; count: number }>;
+  mostCommon: { pattern: string; count: number }[];
 }
 
 export class MistakeTracker {
@@ -31,7 +31,7 @@ export class MistakeTracker {
       mostCommon: [],
     };
 
-    const patternCounts: Map<string, number> = new Map();
+    const patternCounts = new Map<string, number>();
 
     for (const mistake of mistakes) {
       // Count by app

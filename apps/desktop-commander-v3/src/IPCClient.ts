@@ -10,7 +10,7 @@ export class IPCClient {
   private shouldReconnect = true;
   private commandHandler: (payload: CommandRequestPayload, messageId: string) => Promise<void>;
 
-  constructor(url: string = 'ws://localhost:5004', commandHandler: (payload: CommandRequestPayload, messageId: string) => Promise<void>) {
+  constructor(url = 'ws://localhost:5004', commandHandler: (payload: CommandRequestPayload, messageId: string) => Promise<void>) {
     this.url = url;
     this.commandHandler = commandHandler;
   }

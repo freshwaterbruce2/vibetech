@@ -1,6 +1,6 @@
 import React from 'react';
 
-type QuickType = { key: string; label: string };
+interface QuickType { key: string; label: string }
 const TYPES: QuickType[] = [
   { key: 'landing', label: 'Landing' },
   { key: 'blog', label: 'Blog' },

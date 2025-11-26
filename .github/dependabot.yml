@@ -38,8 +38,6 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
-    reviewers:
-      - "your-github-username"  # Update this
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
@@ -55,11 +53,8 @@ updates:
     labels:
       - "dependencies"
       - "python"
-    reviewers:
-      - "your-github-username"  # Update this
     commit-message:
       prefix: "chore(deps)"
-
   # Learning system Python dependencies
   - package-ecosystem: "pip"
     directory: "/"

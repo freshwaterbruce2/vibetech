@@ -1,6 +1,6 @@
 # Workspace Manager - Central control for monorepo operations
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateSet("status", "install", "clean", "dev", "build", "test", "health", "parallel")]
     [string]$Action,
 
@@ -16,53 +16,53 @@ $workspaceConfig = Get-Content "workspace.json" | ConvertFrom-Json
 # Project Groups for Parallel Execution
 $Global:ProjectGroups = @{
     "full-stack" = @("root", "backend", "memory-bank")
-    "trading" = @("crypto", "monitoring")
-    "desktop" = @("nova-agent", "taskmaster", "opcode")
-    "web-apps" = @("hotel-booking", "digital-content", "shipping-pwa", "vibe-lovable")
-    "testing" = @("root-test", "crypto-test", "vibe-test")
-    "dev" = @("root", "crypto", "vibe-lovable")
+    "trading"    = @("crypto", "monitoring")
+    "desktop"    = @("nova-agent", "taskmaster", "opcode")
+    "web-apps"   = @("hotel-booking", "digital-content", "shipping-pwa", "vibe-lovable")
+    "testing"    = @("root-test", "crypto-test", "vibe-test")
+    "dev"        = @("root", "crypto", "vibe-lovable")
 }
 
 # Global job tracking for parallel execution
 $Global:ParallelJobs = @{}
 $Global:ServicePorts = @{
-    "root" = 5173
-    "backend" = 3001
-    "crypto" = 8000
+    "root"                  = 5173
+    "backend"               = 3001
+    "crypto"                = 8000
     "vibe-lovable-frontend" = 8080
-    "vibe-lovable-backend" = 9001
-    "nova-agent" = 3000
-    "hotel-booking" = 5174
-    "digital-content" = 3002
-    "shipping-pwa" = 5175
-    "memory-bank" = 8765
+    "vibe-lovable-backend"  = 9001
+    "nova-agent"            = 3000
+    "hotel-booking"         = 5174
+    "digital-content"       = 3002
+    "shipping-pwa"          = 5175
+    "memory-bank"           = 8765
 }
 
 # Database configuration with 2025 best practices
 $Global:DatabaseConfig = @{
-    "main" = @{
-        "path" = "D:\databases\database.db"
-        "type" = "SQLite"
+    "main"        = @{
+        "path"        = "D:\databases\database.db"
+        "type"        = "SQLite"
         "description" = "Main unified database"
-        "pragmas" = @("journal_mode=WAL", "foreign_keys=ON", "temp_store=MEMORY", "synchronous=NORMAL")
+        "pragmas"     = @("journal_mode=WAL", "foreign_keys=ON", "temp_store=MEMORY", "synchronous=NORMAL")
     }
-    "vibe-tech" = @{
-        "path" = "D:\vibe-tech-data\vibetech.db"
-        "type" = "SQLite"
+    "vibe-tech"   = @{
+        "path"        = "D:\vibe-tech-data\vibetech.db"
+        "type"        = "SQLite"
         "description" = "Vibe-Tech application database"
-        "pragmas" = @("journal_mode=WAL", "foreign_keys=ON", "temp_store=MEMORY")
+        "pragmas"     = @("journal_mode=WAL", "foreign_keys=ON", "temp_store=MEMORY")
     }
-    "trading" = @{
-        "path" = "projects\crypto-enhanced\trading.db"
-        "type" = "SQLite"
+    "trading"     = @{
+        "path"        = "projects\crypto-enhanced\trading.db"
+        "type"        = "SQLite"
         "description" = "Crypto trading database"
-        "pragmas" = @("journal_mode=WAL", "foreign_keys=ON", "busy_timeout=10000")
+        "pragmas"     = @("journal_mode=WAL", "foreign_keys=ON", "busy_timeout=10000")
     }
     "memory-bank" = @{
-        "path" = "projects\active\web-apps\memory-bank\long_term\memory.db"
-        "type" = "SQLite"
+        "path"        = "projects\active\web-apps\memory-bank\long_term\memory.db"
+        "type"        = "SQLite"
         "description" = "Memory system database"
-        "pragmas" = @("journal_mode=WAL", "foreign_keys=ON", "cache_size=10000")
+        "pragmas"     = @("journal_mode=WAL", "foreign_keys=ON", "cache_size=10000")
     }
 }
 
@@ -75,7 +75,8 @@ function Test-DatabaseConnectivity {
 
     $databases = if ($DatabaseKey -eq "all") {
         $Global:DatabaseConfig.Keys
-    } else {
+    }
+    else {
         @($DatabaseKey)
     }
 
@@ -89,10 +90,10 @@ function Test-DatabaseConnectivity {
         Write-Host "  Type: $($config.type)" -ForegroundColor White
 
         $dbResult = @{
-            Name = $db
-            Path = $fullPath
+            Name   = $db
+            Path   = $fullPath
             Status = "Unknown"
-            Size = 0
+            Size   = 0
             Tables = 0
         }
 
@@ -122,12 +123,14 @@ function Test-DatabaseConnectivity {
                         Write-Host "  Tables: $($dbResult.Tables) found" -ForegroundColor White
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Host "  Status: [WARN] File exists but cannot read" -ForegroundColor Yellow
                 Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor Red
                 $dbResult.Status = "Error"
             }
-        } else {
+        }
+        else {
             Write-Host "  Status: [ERROR] Not found" -ForegroundColor Red
             $dbResult.Status = "NotFound"
         }
@@ -146,7 +149,7 @@ function Show-WorkspaceStatus {
     Write-Host "[ROOT] Root Project (vibe-tech-lovable)" -ForegroundColor Green
     Write-Host "  Type: React/TypeScript + Vite" -ForegroundColor White
     Write-Host "  Port: 5173" -ForegroundColor White
-    Write-Host "  Status: $(if (Test-Path 'node_modules') { '[OK] Dependencies installed' } else { '[ERROR] Run npm install' })" -ForegroundColor $(if (Test-Path 'node_modules') { 'Green' } else { 'Red' })
+    Write-Host "  Status: $(if (Test-Path 'node_modules') { '[OK] Dependencies installed' } else { '[ERROR] Run pnpm install' })" -ForegroundColor $(if (Test-Path 'node_modules') { 'Green' } else { 'Red' })
 
     # Crypto trading system
     Write-Host "`n[CRYPTO] Crypto Enhanced Trading System" -ForegroundColor Green
@@ -173,7 +176,7 @@ function Install-WorkspaceProjects {
 
     if ($All -or $Project -eq "root" -or -not $Project) {
         Write-Host "[SETUP] Installing root dependencies..." -ForegroundColor Yellow
-        npm install
+        pnpm install
     }
 
     if ($All -or $Project -eq "crypto") {
@@ -198,7 +201,7 @@ function Start-DevEnvironment {
 
     if ($Project -eq "root" -or -not $Project) {
         Write-Host "Starting root dev server (port 5173)..." -ForegroundColor Yellow
-        Start-Process "npm" -ArgumentList "run", "dev"
+        Start-Process "pnpm" -ArgumentList "run", "dev"
     }
 
     if ($Project -eq "crypto") {
@@ -211,9 +214,9 @@ function Start-DevEnvironment {
     if ($Project -eq "vibe-lovable") {
         Write-Host "Starting Vibe-Tech Lovable..." -ForegroundColor Yellow
         Push-Location "projects/active/web-apps/vibe-tech-lovable"
-        Start-Process "npm" -ArgumentList "run", "dev"
+        Start-Process "pnpm" -ArgumentList "run", "dev"
         Push-Location "backend"
-        Start-Process "npm" -ArgumentList "run", "dev"
+        Start-Process "pnpm" -ArgumentList "run", "dev"
         Pop-Location
         Pop-Location
     }
@@ -231,13 +234,14 @@ function Test-WorkspaceHealth {
         foreach ($db in $failedDbs) {
             Write-Host "  - $($db.Name): $($db.Status)" -ForegroundColor Red
         }
-    } else {
+    }
+    else {
         Write-Host "[OK] All databases connected successfully" -ForegroundColor Green
     }
 
     # Root project health
     Write-Host "`nChecking root project..." -ForegroundColor Yellow
-    npm run quality
+    pnpm run quality
 
     # Crypto system health
     if (Test-Path "projects/crypto-enhanced/.venv") {
@@ -245,7 +249,8 @@ function Test-WorkspaceHealth {
         Push-Location "projects/crypto-enhanced"
         .\.venv\Scripts\python.exe run_tests.py
         Pop-Location
-    } else {
+    }
+    else {
         Write-Host "[WARN] Crypto system not installed" -ForegroundColor Yellow
     }
 
@@ -256,7 +261,8 @@ function Test-WorkspaceHealth {
         Push-Location $memoryPath
         try {
             python -c "import monitoring_service; print('[OK] Memory system modules loaded')" 2>$null
-        } catch {
+        }
+        catch {
             Write-Host "[WARN] Memory system check failed" -ForegroundColor Yellow
         }
         Pop-Location
@@ -269,7 +275,8 @@ function Test-PortAvailable {
     try {
         $connection = Test-NetConnection -ComputerName localhost -Port $Port -InformationLevel Quiet -WarningAction SilentlyContinue
         return -not $connection
-    } catch {
+    }
+    catch {
         return $true
     }
 }
@@ -288,244 +295,255 @@ function Start-ParallelProject {
             if (Test-PortAvailable 5173) {
                 $job = Start-Job -Name "MonoRepo-Root" -ScriptBlock {
                     Set-Location $using:PWD
-                    npm run dev
+                    pnpm run dev
                 }
-            } else {
-                Write-Host "[WARN] Port 5173 already in use for root project" -ForegroundColor Yellow
             }
-        }
-        "backend" {
-            if (Test-PortAvailable 3001) {
-                $job = Start-Job -Name "MonoRepo-Backend" -ScriptBlock {
-                    Set-Location "$using:PWD\backend"
-                    npm start
+            else {
+                else {
+                    Write-Host "[WARN] Port 5173 already in use for root project" -ForegroundColor Yellow
                 }
-            } else {
-                Write-Host "[WARN] Port 3001 already in use for backend" -ForegroundColor Yellow
             }
-        }
-        "crypto" {
-            $cryptoPath = "projects/crypto-enhanced"
-            if ((Test-Path "$cryptoPath\.venv") -and (Test-PortAvailable 8000)) {
-                $job = Start-Job -Name "MonoRepo-Crypto" -ScriptBlock {
-                    Set-Location "$using:PWD\projects\crypto-enhanced"
-                    .\.venv\Scripts\python.exe start_live_trading.py
-                }
-            } else {
-                Write-Host "[WARN] Crypto system not ready or port 8000 in use" -ForegroundColor Yellow
-            }
-        }
-        "vibe-lovable" {
-            # Start both frontend and backend for Vibe
-            $vibePath = "projects/active/web-apps/vibe-tech-lovable"
-            if (Test-Path $vibePath) {
-                # Frontend
-                if (Test-PortAvailable 8080) {
-                    $feJob = Start-Job -Name "MonoRepo-Vibe-Frontend" -ScriptBlock {
-                        Set-Location "$using:PWD\$using:vibePath"
-                        npm run dev
+            "backend" {
+                if (Test-PortAvailable 3001) {
+                    $job = Start-Job -Name "MonoRepo-Backend" -ScriptBlock {
+                        Set-Location "$using:PWD\backend"
+                        pnpm start
                     }
-                    $Global:ParallelJobs["vibe-lovable-frontend"] = $feJob
                 }
-
-                # Backend
-                if (Test-PortAvailable 9001) {
-                    $beJob = Start-Job -Name "MonoRepo-Vibe-Backend" -ScriptBlock {
-                        Set-Location "$using:PWD\$using:vibePath\backend"
-                        npm run dev
+                else {
+                    else {
+                        Write-Host "[WARN] Port 3001 already in use for backend" -ForegroundColor Yellow
                     }
-                    $Global:ParallelJobs["vibe-lovable-backend"] = $beJob
                 }
-                return # Early return since we handle two jobs
-            }
-        }
-        "memory-bank" {
-            $memoryPath = "projects/active/web-apps/memory-bank"
-            if (Test-Path "$memoryPath\monitoring_service.py") {
-                $job = Start-Job -Name "MonoRepo-MemoryBank" -ScriptBlock {
-                    Set-Location "$using:PWD\$using:memoryPath"
-                    python monitoring_service.py
+                "crypto" {
+                    $cryptoPath = "projects/crypto-enhanced"
+                    if ((Test-Path "$cryptoPath\.venv") -and (Test-PortAvailable 8000)) {
+                        $job = Start-Job -Name "MonoRepo-Crypto" -ScriptBlock {
+                            Set-Location "$using:PWD\projects\crypto-enhanced"
+                            .\.venv\Scripts\python.exe start_live_trading.py
+                        }
+                    }
+                    else {
+                        Write-Host "[WARN] Crypto system not ready or port 8000 in use" -ForegroundColor Yellow
+                    }
+                }
+                "vibe-lovable" {
+                    # Start both frontend and backend for Vibe
+                    $vibePath = "projects/active/web-apps/vibe-tech-lovable"
+                    if (Test-Path $vibePath) {
+                        # Frontend
+                        if (Test-PortAvailable 8080) {
+                            $feJob = Start-Job -Name "MonoRepo-Vibe-Frontend" -ScriptBlock {
+                                Set-Location "$using:PWD\$using:vibePath"
+                                pnpm run dev
+                            }
+                            $Global:ParallelJobs["vibe-lovable-frontend"] = $feJob
+                        }
+
+                        # Backend
+                        if (Test-PortAvailable 9001) {
+                            $beJob = Start-Job -Name "MonoRepo-Vibe-Backend" -ScriptBlock {
+                                Set-Location "$using:PWD\$using:vibePath\backend"
+                                pnpm run dev
+                            }
+                            $Global:ParallelJobs["vibe-lovable-backend"] = $beJob
+                        }
+                        return # Early return since we handle two jobs
+                    }
+                }
+                "memory-bank" {
+                    $memoryPath = "projects/active/web-apps/memory-bank"
+                    if (Test-Path "$memoryPath\monitoring_service.py") {
+                        $job = Start-Job -Name "MonoRepo-MemoryBank" -ScriptBlock {
+                            Set-Location "$using:PWD\$using:memoryPath"
+                            python monitoring_service.py
+                        }
+                    }
+                }
+                "monitoring" {
+                    Write-Host "Starting monitoring dashboard..." -ForegroundColor Yellow
+                    $job = Start-Job -Name "MonoRepo-Monitoring" -ScriptBlock {
+                        Set-Location $using:PWD
+                        # Start monitoring service
+                        & "$using:PWD\scripts\auto-watch.ps1" -Projects @("root", "crypto") -Verbose
+                    }
+                }
+                default {
+                    Write-Host "[ERROR] Unknown project: $ProjectName" -ForegroundColor Red
                 }
             }
-        }
-        "monitoring" {
-            Write-Host "Starting monitoring dashboard..." -ForegroundColor Yellow
-            $job = Start-Job -Name "MonoRepo-Monitoring" -ScriptBlock {
-                Set-Location $using:PWD
-                # Start monitoring service
-                & "$using:PWD\scripts\auto-watch.ps1" -Projects @("root", "crypto") -Verbose
+
+            if ($job) {
+                $Global:ParallelJobs[$ProjectName] = $job
+                Write-Host "[OK] $ProjectName started (Job ID: $($job.Id))" -ForegroundColor Green
             }
+
+            return $job
         }
-        default {
-            Write-Host "[ERROR] Unknown project: $ProjectName" -ForegroundColor Red
-        }
-    }
 
-    if ($job) {
-        $Global:ParallelJobs[$ProjectName] = $job
-        Write-Host "[OK] $ProjectName started (Job ID: $($job.Id))" -ForegroundColor Green
-    }
+        function Start-ParallelEnvironment {
+            param(
+                [string[]]$Projects = @()
+            )
 
-    return $job
-}
+            Write-Host "`n[PARALLEL] Starting Parallel Execution Environment" -ForegroundColor Cyan
+            Write-Host "==========================================" -ForegroundColor Cyan
 
-function Start-ParallelEnvironment {
-    param(
-        [string[]]$Projects = @()
-    )
+            # Determine which projects to start
+            $projectsToStart = @()
 
-    Write-Host "`n[PARALLEL] Starting Parallel Execution Environment" -ForegroundColor Cyan
-    Write-Host "==========================================" -ForegroundColor Cyan
-
-    # Determine which projects to start
-    $projectsToStart = @()
-
-    if ($Projects.Count -eq 0 -and $ProjectGroup.Count -gt 0) {
-        # Use project groups
-        foreach ($group in $ProjectGroup) {
-            if ($Global:ProjectGroups.ContainsKey($group)) {
-                $projectsToStart += $Global:ProjectGroups[$group]
-                Write-Host "[GROUP] Loading group '$group': $($Global:ProjectGroups[$group] -join ', ')" -ForegroundColor Blue
-            } else {
-                Write-Host "[WARN] Unknown project group: $group" -ForegroundColor Yellow
+            if ($Projects.Count -eq 0 -and $ProjectGroup.Count -gt 0) {
+                # Use project groups
+                foreach ($group in $ProjectGroup) {
+                    if ($Global:ProjectGroups.ContainsKey($group)) {
+                        $projectsToStart += $Global:ProjectGroups[$group]
+                        Write-Host "[GROUP] Loading group '$group': $($Global:ProjectGroups[$group] -join ', ')" -ForegroundColor Blue
+                    }
+                    else {
+                        Write-Host "[WARN] Unknown project group: $group" -ForegroundColor Yellow
+                    }
+                }
             }
-        }
-    } elseif ($Projects.Count -gt 0) {
-        $projectsToStart = $Projects
-    } else {
-        # Default to dev group
-        $projectsToStart = $Global:ProjectGroups["dev"]
-        Write-Host "[DEFAULT] Using default 'dev' group: $($projectsToStart -join ', ')" -ForegroundColor Blue
-    }
+            elseif ($Projects.Count -gt 0) {
+                $projectsToStart = $Projects
+            }
+            else {
+                # Default to dev group
+                $projectsToStart = $Global:ProjectGroups["dev"]
+                Write-Host "[DEFAULT] Using default 'dev' group: $($projectsToStart -join ', ')" -ForegroundColor Blue
+            }
 
-    # Start projects in parallel
-    Write-Host "`nStarting projects in parallel..." -ForegroundColor Cyan
-    foreach ($project in $projectsToStart) {
-        Start-ParallelProject -ProjectName $project
-        Start-Sleep -Milliseconds 500 # Brief delay to avoid port conflicts
-    }
+            # Start projects in parallel
+            Write-Host "`nStarting projects in parallel..." -ForegroundColor Cyan
+            foreach ($project in $projectsToStart) {
+                Start-ParallelProject -ProjectName $project
+                Start-Sleep -Milliseconds 500 # Brief delay to avoid port conflicts
+            }
 
-    # Show status
-    Show-ParallelStatus
-}
-
-function Show-ParallelStatus {
-    Write-Host "`n[STATUS] Parallel Execution Status" -ForegroundColor Cyan
-    Write-Host "============================" -ForegroundColor Cyan
-
-    if ($Global:ParallelJobs.Count -eq 0) {
-        Write-Host "No parallel jobs running" -ForegroundColor Yellow
-        return
-    }
-
-    foreach ($kvp in $Global:ParallelJobs.GetEnumerator()) {
-        $job = $kvp.Value
-        $projectName = $kvp.Key
-        $port = $Global:ServicePorts[$projectName]
-
-        $status = switch ($job.State) {
-            "Running" { "[RUNNING]" }
-            "Completed" { "[COMPLETED]" }
-            "Failed" { "[FAILED]" }
-            "Stopped" { "[STOPPED]" }
-            default { "[$($job.State)]" }
+            # Show status
+            Show-ParallelStatus
         }
 
-        Write-Host "$status - $projectName (Job: $($job.Id))" -NoNewline
-        if ($port) {
-            Write-Host " - Port: $port" -NoNewline
-        }
-        Write-Host ""
-    }
+        function Show-ParallelStatus {
+            Write-Host "`n[STATUS] Parallel Execution Status" -ForegroundColor Cyan
+            Write-Host "============================" -ForegroundColor Cyan
 
-    Write-Host "`nUse 'Stop-ParallelEnvironment' to stop all jobs" -ForegroundColor DarkGray
-}
+            if ($Global:ParallelJobs.Count -eq 0) {
+                Write-Host "No parallel jobs running" -ForegroundColor Yellow
+                return
+            }
 
-function Stop-ParallelEnvironment {
-    Write-Host "`n[STOP] Stopping Parallel Environment" -ForegroundColor Red
-    Write-Host "================================" -ForegroundColor Red
-
-    foreach ($kvp in $Global:ParallelJobs.GetEnumerator()) {
-        $job = $kvp.Value
-        $projectName = $kvp.Key
-
-        Write-Host "Stopping $projectName (Job: $($job.Id))..." -ForegroundColor Yellow
-        Stop-Job -Job $job -ErrorAction SilentlyContinue
-        Remove-Job -Job $job -ErrorAction SilentlyContinue
-    }
-
-    $Global:ParallelJobs = @{}
-    Write-Host "[OK] All parallel jobs stopped" -ForegroundColor Green
-}
-
-function Watch-ParallelLogs {
-    param(
-        [string]$ProjectName = "",
-        [switch]$All
-    )
-
-    Write-Host "[LOGS] Monitoring Parallel Job Logs" -ForegroundColor Cyan
-    Write-Host "===============================" -ForegroundColor Cyan
-    Write-Host "Press Ctrl+C to stop monitoring" -ForegroundColor DarkGray
-
-    try {
-        while ($true) {
             foreach ($kvp in $Global:ParallelJobs.GetEnumerator()) {
                 $job = $kvp.Value
-                $name = $kvp.Key
+                $projectName = $kvp.Key
+                $port = $Global:ServicePorts[$projectName]
 
-                if (($ProjectName -and $name -ne $ProjectName) -and -not $All) {
-                    continue
+                $status = switch ($job.State) {
+                    "Running" { "[RUNNING]" }
+                    "Completed" { "[COMPLETED]" }
+                    "Failed" { "[FAILED]" }
+                    "Stopped" { "[STOPPED]" }
+                    default { "[$($job.State)]" }
                 }
 
-                # Get new output
-                $output = Receive-Job -Job $job -ErrorAction SilentlyContinue
-                if ($output) {
-                    Write-Host "[$name]" -ForegroundColor Cyan -NoNewline
-                    Write-Host " $output"
+                Write-Host "$status - $projectName (Job: $($job.Id))" -NoNewline
+                if ($port) {
+                    Write-Host " - Port: $port" -NoNewline
                 }
+                Write-Host ""
             }
 
-            Start-Sleep -Seconds 1
+            Write-Host "`nUse 'Stop-ParallelEnvironment' to stop all jobs" -ForegroundColor DarkGray
         }
-    } catch {
-        Write-Host "`nLog monitoring stopped" -ForegroundColor Yellow
-    }
-}
 
-# Execute action
-switch ($Action) {
-    "status" {
-        if ($Parallel) {
-            Show-ParallelStatus
-        } else {
-            Show-WorkspaceStatus
+        function Stop-ParallelEnvironment {
+            Write-Host "`n[STOP] Stopping Parallel Environment" -ForegroundColor Red
+            Write-Host "================================" -ForegroundColor Red
+
+            foreach ($kvp in $Global:ParallelJobs.GetEnumerator()) {
+                $job = $kvp.Value
+                $projectName = $kvp.Key
+
+                Write-Host "Stopping $projectName (Job: $($job.Id))..." -ForegroundColor Yellow
+                Stop-Job -Job $job -ErrorAction SilentlyContinue
+                Remove-Job -Job $job -ErrorAction SilentlyContinue
+            }
+
+            $Global:ParallelJobs = @{}
+            Write-Host "[OK] All parallel jobs stopped" -ForegroundColor Green
         }
-    }
-    "install" { Install-WorkspaceProjects }
-    "clean" {
-        Write-Host "[CLEAN] Cleaning workspace..." -ForegroundColor Blue
-        npm run workspace:clean
-    }
-    "dev" {
-        if ($Parallel) {
-            Start-ParallelEnvironment -Projects $ProjectGroup
-        } else {
-            Start-DevEnvironment
+
+        function Watch-ParallelLogs {
+            param(
+                [string]$ProjectName = "",
+                [switch]$All
+            )
+
+            Write-Host "[LOGS] Monitoring Parallel Job Logs" -ForegroundColor Cyan
+            Write-Host "===============================" -ForegroundColor Cyan
+            Write-Host "Press Ctrl+C to stop monitoring" -ForegroundColor DarkGray
+
+            try {
+                while ($true) {
+                    foreach ($kvp in $Global:ParallelJobs.GetEnumerator()) {
+                        $job = $kvp.Value
+                        $name = $kvp.Key
+
+                        if (($ProjectName -and $name -ne $ProjectName) -and -not $All) {
+                            continue
+                        }
+
+                        # Get new output
+                        $output = Receive-Job -Job $job -ErrorAction SilentlyContinue
+                        if ($output) {
+                            Write-Host "[$name]" -ForegroundColor Cyan -NoNewline
+                            Write-Host " $output"
+                        }
+                    }
+
+                    Start-Sleep -Seconds 1
+                }
+            }
+            catch {
+                Write-Host "`nLog monitoring stopped" -ForegroundColor Yellow
+            }
         }
-    }
-    "build" {
-        Write-Host "[BUILD] Building workspace..." -ForegroundColor Blue
-        npm run build
-    }
-    "test" {
-        Write-Host "[TEST] Testing workspace..." -ForegroundColor Blue
-        npm run test
-    }
-    "health" {
-        Test-WorkspaceHealth
-    }
-    "parallel" {
-        Start-ParallelEnvironment -Projects $ProjectGroup
-    }
-}
+
+        # Execute action
+        switch ($Action) {
+            "status" {
+                if ($Parallel) {
+                    Show-ParallelStatus
+                }
+                else {
+                    Show-WorkspaceStatus
+                }
+            }
+            "install" { Install-WorkspaceProjects }
+            "clean" {
+                Write-Host "[CLEAN] Cleaning workspace..." -ForegroundColor Blue
+                pnpm run workspace:clean
+            }
+            "dev" {
+                if ($Parallel) {
+                    Start-ParallelEnvironment -Projects $ProjectGroup
+                }
+                else {
+                    Start-DevEnvironment
+                }
+            }
+            "build" {
+                Write-Host "[BUILD] Building workspace..." -ForegroundColor Blue
+                pnpm run build
+            }
+            "test" {
+                Write-Host "[TEST] Testing workspace..." -ForegroundColor Blue
+                pnpm run test
+            }
+            "health" {
+                Test-WorkspaceHealth
+            }
+            "parallel" {
+                Start-ParallelEnvironment -Projects $ProjectGroup
+            }
+        }

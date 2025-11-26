@@ -28,10 +28,10 @@ function Test-Prerequisites {
     Write-EnvLog "Checking system prerequisites..." "INFO"
 
     $prerequisites = @{
-        node = @{ command = "node"; version = "--version"; required = "18.0.0" }
-        npm = @{ command = "npm"; version = "--version"; required = "9.0.0" }
+        node   = @{ command = "node"; version = "--version"; required = "18.0.0" }
+        pnpm   = @{ command = "pnpm"; version = "--version"; required = "9.0.0" }
         python = @{ command = "python"; version = "--version"; required = "3.9.0" }
-        git = @{ command = "git"; version = "--version"; required = "2.30.0" }
+        git    = @{ command = "git"; version = "--version"; required = "2.30.0" }
     }
 
     $results = @{}
@@ -41,15 +41,16 @@ function Test-Prerequisites {
             $version = & $prerequisites[$tool].command $prerequisites[$tool].version 2>&1 | Select-Object -First 1
             $results[$tool] = @{
                 installed = $true
-                version = $version
-                status = "OK"
+                version   = $version
+                status    = "OK"
             }
             Write-EnvLog "✓ $tool found: $version" "SUCCESS"
-        } catch {
+        }
+        catch {
             $results[$tool] = @{
                 installed = $false
-                version = "Not found"
-                status = "MISSING"
+                version   = "Not found"
+                status    = "MISSING"
             }
             Write-EnvLog "✗ $tool not found or not in PATH" "ERROR"
         }
@@ -99,7 +100,8 @@ function Setup-RootProject {
         if (-not (Test-Path "node_modules") -or $Force) {
             if ($DryRun) {
                 Write-EnvLog "[DRY RUN] Would run npm install" "INFO"
-            } else {
+            }
+            else {
                 Write-EnvLog "Installing Node.js dependencies..." "INFO"
                 npm install
                 if ($LASTEXITCODE -ne 0) {
@@ -110,10 +112,10 @@ function Setup-RootProject {
 
         # Setup environment variables
         $rootEnvVars = @{
-            "NODE_ENV" = "development"
+            "NODE_ENV"      = "development"
             "VITE_DEV_MODE" = "true"
-            "VITE_PORT" = "5173"
-            "VITE_API_URL" = "http://localhost:3001"
+            "VITE_PORT"     = "5173"
+            "VITE_API_URL"  = "http://localhost:3001"
         }
 
         Set-EnvironmentVariables -ProjectPath "." -EnvVars $rootEnvVars
@@ -126,7 +128,8 @@ function Setup-RootProject {
         $Script:SetupResults.root = @{ status = "SUCCESS"; message = "Root project configured successfully" }
         Write-EnvLog "✓ Root project environment ready" "SUCCESS"
 
-    } catch {
+    }
+    catch {
         $Script:SetupResults.root = @{ status = "ERROR"; message = $_.Exception.Message }
         Write-EnvLog "✗ Root project setup failed: $($_.Exception.Message)" "ERROR"
     }
@@ -148,7 +151,8 @@ function Setup-CryptoProject {
         if (-not (Test-Path ".venv") -or $Force) {
             if ($DryRun) {
                 Write-EnvLog "[DRY RUN] Would create Python virtual environment" "INFO"
-            } else {
+            }
+            else {
                 Write-EnvLog "Creating Python virtual environment..." "INFO"
                 python -m venv .venv
                 if ($LASTEXITCODE -ne 0) {
@@ -160,7 +164,8 @@ function Setup-CryptoProject {
         # Install Python dependencies
         if ($DryRun) {
             Write-EnvLog "[DRY RUN] Would install Python requirements" "INFO"
-        } else {
+        }
+        else {
             Write-EnvLog "Installing Python dependencies..." "INFO"
             .\.venv\Scripts\pip install -r requirements.txt
             if ($LASTEXITCODE -ne 0) {
@@ -170,10 +175,10 @@ function Setup-CryptoProject {
 
         # Setup crypto environment variables
         $cryptoEnvVars = @{
-            "PYTHON_ENV" = "development"
-            "TRADING_MODE" = "simulation"
-            "LOG_LEVEL" = "INFO"
-            "DATABASE_PATH" = "trading.db"
+            "PYTHON_ENV"     = "development"
+            "TRADING_MODE"   = "simulation"
+            "LOG_LEVEL"      = "INFO"
+            "DATABASE_PATH"  = "trading.db"
             "KRAKEN_API_URL" = "https://api.kraken.com"
         }
 
@@ -198,10 +203,12 @@ function Setup-CryptoProject {
         $Script:SetupResults.crypto = @{ status = "SUCCESS"; message = "Crypto system configured successfully" }
         Write-EnvLog "✓ Crypto trading system environment ready" "SUCCESS"
 
-    } catch {
+    }
+    catch {
         $Script:SetupResults.crypto = @{ status = "ERROR"; message = $_.Exception.Message }
         Write-EnvLog "✗ Crypto project setup failed: $($_.Exception.Message)" "ERROR"
-    } finally {
+    }
+    finally {
         Pop-Location
     }
 }
@@ -222,7 +229,8 @@ function Setup-VibeProject {
         if (-not (Test-Path "node_modules") -or $Force) {
             if ($DryRun) {
                 Write-EnvLog "[DRY RUN] Would install frontend dependencies" "INFO"
-            } else {
+            }
+            else {
                 Write-EnvLog "Installing frontend dependencies..." "INFO"
                 npm install
                 if ($LASTEXITCODE -ne 0) {
@@ -239,7 +247,8 @@ function Setup-VibeProject {
                 if (-not (Test-Path "node_modules") -or $Force) {
                     if ($DryRun) {
                         Write-EnvLog "[DRY RUN] Would install backend dependencies" "INFO"
-                    } else {
+                    }
+                    else {
                         Write-EnvLog "Installing backend dependencies..." "INFO"
                         npm install
                         if ($LASTEXITCODE -ne 0) {
@@ -250,23 +259,24 @@ function Setup-VibeProject {
 
                 # Backend environment variables
                 $backendEnvVars = @{
-                    "NODE_ENV" = "development"
-                    "PORT" = "9001"
+                    "NODE_ENV"      = "development"
+                    "PORT"          = "9001"
                     "DATABASE_PATH" = "D:\vibe-tech-data\vibetech.db"
-                    "CORS_ORIGIN" = "http://localhost:8080"
+                    "CORS_ORIGIN"   = "http://localhost:8080"
                 }
 
                 Set-EnvironmentVariables -ProjectPath "." -EnvVars $backendEnvVars
 
-            } finally {
+            }
+            finally {
                 Pop-Location
             }
         }
 
         # Frontend environment variables
         $frontendEnvVars = @{
-            "VITE_API_URL" = "http://localhost:9001"
-            "VITE_PORT" = "8080"
+            "VITE_API_URL"  = "http://localhost:9001"
+            "VITE_PORT"     = "8080"
             "VITE_DEV_MODE" = "true"
         }
 
@@ -275,10 +285,12 @@ function Setup-VibeProject {
         $Script:SetupResults.vibe = @{ status = "SUCCESS"; message = "Vibe project configured successfully" }
         Write-EnvLog "✓ Vibe-Tech Lovable environment ready" "SUCCESS"
 
-    } catch {
+    }
+    catch {
         $Script:SetupResults.vibe = @{ status = "ERROR"; message = $_.Exception.Message }
         Write-EnvLog "✗ Vibe project setup failed: $($_.Exception.Message)" "ERROR"
-    } finally {
+    }
+    finally {
         Pop-Location
     }
 }

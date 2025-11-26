@@ -1,9 +1,9 @@
-export type TemplateMeta = {
+export interface TemplateMeta {
   id: string;
   name: string;
   category: 'landing' | 'blog';
   path: string;
-};
+}
 
 const landingModules = import.meta.glob('../../../templates/landing-pages/*.html', { as: 'raw', eager: true });
 const blogModules = import.meta.glob('../../../templates/blogs/*.html', { as: 'raw', eager: true });
