@@ -1,286 +1,236 @@
-# OpenAI Codex Setup Guide for Vibetech Monorepo
+# Codex CLI Setup Guide for VibeTech Monorepo
 
-**Date:** 2025-11-25
-**Repository:** freshwaterbruce2/vibetech
-**Workspace:** C:\dev (monorepo root)
-**Data Storage:** D:\ drive (databases, logs, learning systems)
+## Current Installation Status
+
+✅ **Codex CLI v0.63.0** - Already installed (latest version as of Nov 21, 2025)
+✅ **Configuration File** - Created at `C:\Users\fresh_zxae3v6\.codex\config.toml`
+✅ **AGENTS.md** - Enhanced with Codex-specific guidance  
+✅ **MCP Servers** - Configured for filesystem, SQLite, GitHub, and Desktop Commander v3
 
 ---
 
-## ✅ Configuration Complete
+## Quick Start
 
-### 1. Codex CLI Installation
-- **Location:** `/c/Users/fresh_zxae3v6/AppData/Roaming/npm/codex`
-- **Version:** Latest (using gpt-5.1-codex-max model)
-- **Status:** ✅ Installed and configured
+### 1. Authenticate Codex CLI
 
-### 2. Configuration File
-**Location:** `~/.codex/config.toml`
+**Option A: Sign in with ChatGPT (Recommended)**
 
+```bash
+codex
+# When prompted, select "Sign in with ChatGPT"
+# Follow the browser authentication flow
+# Benefits: Automatic API key configuration + promotional credits
+#   - ChatGPT Plus: $5 in API credits
+#   - ChatGPT Pro: $50 in API credits
+```
+
+**Option B: Use API Key**
+
+```bash
+# Set your OpenAI API key (get from https://platform.openai.com/api-keys)
+export OPENAI_API_KEY="sk-..."
+
+# Or add to PowerShell profile for persistence
+$env:OPENAI_API_KEY="sk-..."
+```
+
+### 2. Verify Installation
+
+```bash
+# Check Codex version
+codex --version
+# Expected output: codex-cli 0.63.0
+
+# Verify configuration
+cat ~/.codex/config.toml
+
+# Test basic functionality
+cd C:\dev
+codex "List all projects in this monorepo"
+```
+
+### 3. Test MCP Servers
+
+```bash
+# Launch Codex and verify MCP servers are loaded
+codex
+
+# In the Codex session, ask:
+# "What MCP servers are available?"
+# Expected: filesystem, filesystem-data, sqlite, desktop-commander, github
+
+# Test filesystem access
+# "List files in D:\databases"
+
+# Test Desktop Commander
+# "Use desktop-commander to check system information"
+```
+
+---
+
+## Configuration Details
+
+### Model & Reasoning
+
+- **Primary Model**: `gpt-5.1-codex-max`
+- **Context Window**: 192K tokens (196,608 tokens)
+- **Reasoning Effort**: `medium` (adjustable: minimal, low, medium, high)
+- **Reasoning Summary**: `concise` (options: auto, concise, detailed, none)
+- **Verbosity**: `medium` (controls output length)
+
+### Approval & Sandbox
+
+- **Approval Policy**: `on-failure`
+  - Codex runs trusted commands automatically
+  - Asks permission when commands fail in sandbox
+  - Allows retries outside sandbox with approval
+
+- **Sandbox Mode**: `workspace-write`
+  - Read access: Entire filesystem
+  - Write access: C:\dev workspace + D:\ data directories
+  - Network access: **Enabled** (for npm/pnpm installations)
+  - Windows sandbox: **Experimental mode enabled**
+
+### MCP Servers Configured
+
+| Server | Purpose | Access Path |
+|--------|---------|-------------|
+| **filesystem** | Monorepo access | C:\dev |
+| **filesystem-data** | Data storage | D:\ (logs, databases, data, learning) |
+| **sqlite** | Database operations | D:\databases |
+| **desktop-commander** | Windows automation | Custom built MCP server |
+| **github** | PR/issue management | Requires GITHUB_TOKEN env var |
+
+### Profiles for Different Workflows
+
+Switch profiles using `codex --profile <name>`:
+
+| Profile | Use Case | Approval Policy | Sandbox Mode | Reasoning |
+|---------|----------|-----------------|--------------|-----------|
+| **default** | General development | on-failure | workspace-write | medium |
+| **crypto** | Trading system work | untrusted | workspace-write | high |
+| **quick** | Fast experiments | on-request | read-only | low |
+| **production** | Deployments | untrusted | read-only | high + detailed |
+
+**Example usage:**
+```bash
+# Use crypto profile for trading system development
+cd C:\dev\projects\crypto-enhanced
+codex --profile crypto "Review the trading engine for potential bugs"
+
+# Use quick profile for fast exploration
+codex --profile quick "Explain how the Nova Agent IPC bridge works"
+```
+
+---
+
+## Workspace Navigation
+
+### AGENTS.md File Discovery
+
+Codex automatically reads AGENTS.md files in this order:
+
+1. `~/.codex/AGENTS.md` - Personal preferences (optional)
+2. `C:\dev\AGENTS.md` - **Root monorepo guidelines** ✅
+3. Project-specific AGENTS.md files as needed
+
+### Monorepo-Aware Commands
+
+```bash
+# Launch Codex from monorepo root
+cd C:\dev
+codex
+
+# Workspace-aware tasks
+codex "Build all projects using Nx"
+codex "Run tests for affected projects"
+codex "Add a new shared package for authentication"
+```
+
+---
+
+## Testing the Setup
+
+Run these 7 tests to verify everything works:
+
+### Test 1: Basic Functionality
+```bash
+cd C:\dev
+codex "List all pnpm workspaces in this monorepo"
+```
+
+### Test 2: File Access (C:\dev)
+```bash
+codex "Read the package.json for nova-agent-current"
+```
+
+### Test 3: File Access (D:\ drive)
+```bash
+codex "List all databases in D:\databases"
+```
+
+### Test 4: SQLite MCP
+```bash
+codex "Show the schema for D:\databases\agent_learning.db"
+```
+
+### Test 5: Desktop Commander v3
+```bash
+codex "Use desktop-commander to check CPU and memory usage"
+```
+
+### Test 6: Nx Integration
+```bash
+codex "Show which projects depend on @vibetech/shared-ipc"
+```
+
+### Test 7: Sandbox Enforcement
+```bash
+codex "Try to create a test file in C:\Windows\System32"
+```
+
+---
+
+## Troubleshooting
+
+### MCP Server Not Loading
+```bash
+# Verify MCP server packages are installed
+npx @modelcontextprotocol/server-filesystem --help
+
+# Check Desktop Commander v3 is built
+cd C:\dev\apps\desktop-commander-v3
+pnpm build
+ls dist/index.js
+```
+
+### Path Errors on Windows
+Ensure paths in config.toml use double backslashes:
 ```toml
-# Model Configuration
-model = "gpt-5.1-codex-max"
-model_reasoning_effort = "low"
-
-# IMPORTANT: Sandbox mode OFF for real changes
-sandbox_mode = "off"
-approval_policy = "prompt"
-
-# Workspace Configuration
-[workspace]
-root = "C:\\dev"
-
-# D:\ drive access for data storage (per project architecture)
-writable_roots = [
-    "C:\\dev",
-    "D:\\databases",
-    "D:\\logs",
-    "D:\\data",
-    "D:\\learning",
-    "D:\\vision",
-    "D:\\config"
-]
-
-network_access = true
-
-[mcp_servers."nx-mcp"]
-type = "stdio"
-command = "npx"
-args = ["nx", "mcp"]
+args = ["C:\\dev\\apps\\desktop-commander-v3\\dist\\index.js"]
 ```
 
-### 3. Ignore Patterns
-**File:** `C:\dev\.codexignore` ✅ Created
-
-Excludes: node_modules, build outputs, logs, caches, IDE files, secrets
-
-**Note:** D:\ drive directories (databases, logs, learning, vision) are **accessible** via `writable_roots`
-
----
-
-## 🔗 GitHub Integration Setup
-
-### Step 1: Connect GitHub Account
-1. Go to **https://chatgpt.com/codex**
-2. Sign in with your ChatGPT Plus/Pro account
-3. Click **Settings** > **Integrations**
-4. Click **Connect GitHub**
-
-### Step 2: Grant Repository Access
-1. Authorize OpenAI Codex application
-2. Select **freshwaterbruce2/vibetech** repository
-3. Grant permissions:
-   - ✅ Read repository contents
-   - ✅ Read/write code
-   - ✅ Create pull requests
-   - ✅ Read/write issues
-   - ✅ Access commits and branches
-
-### Step 3: Verify Connection
-```bash
-# In Codex CLI or web interface
-codex "Show me the current repository status"
-```
-
-Should display: **freshwaterbruce2/vibetech** connected
-
----
-
-## 🚀 Using Codex for Real Changes
-
-### Basic Commands
-
-#### **Make Code Changes**
-```bash
-codex "Fix all TypeScript errors in apps/nova-agent"
-codex "Add proper error handling to VisionService.ts"
-codex "Implement the DXGI GPU acceleration in screen_capture.rs"
-```
-
-#### **Create Files**
-```bash
-codex "Create a new AGENTS.md file for apps/vibe-code-studio"
-codex "Add unit tests for VisionPanel component"
-```
-
-#### **Git Operations**
-```bash
-codex "Create a commit with all the TypeScript fixes"
-codex "Create a PR for the vision system implementation"
-```
-
-#### **Monorepo Operations (via Nx MCP)**
-```bash
-codex "Run tests for the nova-agent package"
-codex "Build all affected packages"
-codex "Show me the dependency graph for apps/vibe-code-studio"
+### GitHub MCP Not Working
+```powershell
+# Set GITHUB_TOKEN environment variable
+$env:GITHUB_TOKEN="ghp_..."
 ```
 
 ---
 
-## 📁 Project Structure Awareness
+## Next Steps
 
-Codex is aware of your monorepo structure via `AGENTS.md` files:
-
-### **Root Level** (`C:\dev\AGENTS.md`)
-- Monorepo organization (pnpm workspaces, Turborepo)
-- Build/test commands
-- Coding standards
-- Security guidelines
-
-### **Nova Agent** (`C:\dev\apps\nova-agent\AGENTS.md`)
-- Project overview (Tauri + React 19)
-- Tech stack (Rust backend, TypeScript frontend)
-- **360-line file size limit** (MANDATORY)
-- **D:\ drive storage rule** (MANDATORY)
-- Build commands, testing, architecture patterns
-
-### **Vibe Code Studio** (Create AGENTS.md)
-TODO: Add project-specific guidelines
+1. **Authenticate**: Run `codex` and sign in with ChatGPT
+2. **Test**: Run the 7 tests above to verify everything works
+3. **Explore**: Try using Codex for real tasks in the monorepo
+4. **Customize**: Adjust config.toml and AGENTS.md as needed
 
 ---
 
-## ⚙️ Approval Policies
+## Resources
 
-### Current Setting: `prompt`
-Codex will **ask for approval** before:
-- Deleting files
-- Modifying package.json dependencies
-- Git commits and pushes
-- Creating pull requests
-- Running destructive commands
-
-### Change Approval Policy (Optional)
-Edit `~/.codex/config.toml`:
-
-```toml
-approval_policy = "auto"      # Auto-approve safe operations
-approval_policy = "prompt"    # Ask before changes (CURRENT)
-approval_policy = "manual"    # Require manual confirmation for all
-```
-
----
-
-## 🎯 Key Features Enabled
-
-✅ **Real File Modifications** - Sandbox mode OFF
-✅ **Git Integration** - Commits, branches, PRs
-✅ **GitHub PR Creation** - Direct from Codex
-✅ **Monorepo Awareness** - Nx MCP server for workspace operations
-✅ **Multi-Drive Access** - C:\dev + D:\ drive (databases, logs, learning)
-✅ **AGENTS.md Guidance** - Project-specific rules and conventions
-✅ **Network Access** - npm, git, API calls
-
----
-
-## 🧪 Test Configuration
-
-### Test 1: Simple File Creation
-```bash
-codex "Create a test file at C:\dev\CODEX_TEST.md with current timestamp"
-```
-
-**Expected:** File created successfully
-
-### Test 2: Read D:\ Drive
-```bash
-codex "List all databases in D:\databases\"
-```
-
-**Expected:** Shows database files (nova_activity.db, vision_analysis, etc.)
-
-### Test 3: TypeScript Fix
-```bash
-codex "Run typecheck in apps/nova-agent and report any errors"
-```
-
-**Expected:** No errors (all fixed in previous session)
-
-### Test 4: Git Status
-```bash
-codex "Show git status and suggest what to commit"
-```
-
-**Expected:** Shows modified files and suggestions
-
----
-
-## 📚 Documentation & Resources
-
-### Internal Documentation
-- `C:\dev\AGENTS.md` - Monorepo guidelines
-- `C:\dev\apps\nova-agent\AGENTS.md` - Nova Agent rules
-- `C:\dev\apps\nova-agent\VISION_FRONTEND_COMPLETE.md` - Vision system docs
-- `C:\dev\apps\nova-agent\START_NOVA_AGENT.md` - Startup guide
-
-### External Resources
-- **Codex Docs:** https://developers.openai.com/codex/
-- **Codex CLI Reference:** https://developers.openai.com/codex/cli/reference
-- **Codex Web Interface:** https://chatgpt.com/codex
-- **GitHub Integration:** https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan
-
----
-
-## 🔒 Security Notes
-
-### Protected Secrets
-`.codexignore` excludes:
-- `.env` files
-- `*.pem`, `*.key` files
-- API keys and tokens
-
-### GitHub Token
-⚠️ **WARNING:** Your git remote contains an embedded GitHub token:
-```
-userremote	https://github_pat_11BUUGJKY0...@github.com/freshwaterbruce2/crypto-bot.git
-```
-
-**Recommendation:** Use SSH keys or GitHub CLI instead of embedded tokens in remote URLs.
-
-### Safe Operations
-Codex will:
-- ✅ Read code and suggest improvements
-- ✅ Modify files with your approval
-- ✅ Create commits with descriptive messages
-- ❌ Never commit secrets or .env files
-- ❌ Never force-push to main/master
-
----
-
-## 🐛 Troubleshooting
-
-### Issue: "Sandbox mode is enabled"
-**Solution:** Check `~/.codex/config.toml` has `sandbox_mode = "off"`
-
-### Issue: "Permission denied on D:\ drive"
-**Solution:** Verify `writable_roots` in config includes D:\ paths
-
-### Issue: "Cannot find module errors"
-**Solution:** Run `pnpm install` in workspace root
-
-### Issue: "GitHub integration not working"
-**Solution:**
-1. Go to https://chatgpt.com/codex
-2. Settings > Integrations > GitHub
-3. Reconnect and grant permissions
-
-### Issue: "Nx MCP server not responding"
-**Solution:**
-```bash
-npx nx --version  # Verify Nx is installed
-pnpm install      # Reinstall dependencies
-```
-
----
-
-## ✨ Next Steps
-
-1. ✅ Configuration complete
-2. ⏭️ Connect GitHub integration (web interface)
-3. ⏭️ Run test commands to verify setup
-4. ⏭️ Create AGENTS.md for apps/vibe-code-studio
-5. ⏭️ Start using Codex for development tasks!
-
----
-
-**Ready to code with AI assistance! 🚀**
+- **Official Docs**: https://developers.openai.com/codex/
+- **GitHub Repo**: https://github.com/openai/codex
+- **Configuration**: https://developers.openai.com/codex/local-config/
+- **Monorepo AGENTS.md**: `C:\dev\AGENTS.md`
+- **Config File**: `C:\Users\fresh_zxae3v6\.codex\config.toml`

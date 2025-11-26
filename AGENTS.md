@@ -64,3 +64,71 @@
 - If the user needs help with an Nx configuration or project graph error, use the `nx_workspace` tool to get any errors
 
 <!-- nx configuration end-->
+
+## Codex CLI Integration
+
+This monorepo is optimized for use with OpenAI Codex CLI, a terminal-based coding agent.
+
+### Codex Configuration
+
+The Codex CLI is configured via `~/.codex/config.toml` with the following optimizations:
+
+**Model**: `gpt-5.1-codex-max` (primary) with profiles for different workflows
+**Approval Policy**: `on-failure` - Codex asks for permission when commands fail in sandbox
+**Sandbox Mode**: `workspace-write` with experimental Windows sandbox enabled
+**Context Window**: 192K tokens for large-scale monorepo navigation
+
+### MCP Servers Available to Codex
+
+The following Model Context Protocol (MCP) servers are configured:
+
+1. **filesystem** - Access to C:\dev (entire monorepo)
+2. **filesystem-data** - Access to D:\ drive (logs, databases, data, learning)
+3. **sqlite** - Database operations in D:\databases
+4. **desktop-commander** - Custom Windows automation via Desktop Commander v3
+5. **github** - GitHub PR and issue management (requires GITHUB_TOKEN)
+
+### Workspace Navigation with Codex
+
+When using Codex in this monorepo:
+
+- **Launch from C:\dev**: `codex` or `codex --cd C:\dev`
+- **Use profiles**: `codex --profile crypto` for trading system work
+- **Workspace-aware**: Codex automatically detects pnpm workspaces and Nx configuration
+- **AGENTS.md discovery**: Codex reads AGENTS.md files hierarchically (root → project-specific)
+
+### Data Storage Requirements
+
+**CRITICAL**: Codex is configured to respect the D:\ drive mandate:
+- All logs MUST go to D:\logs
+- All databases MUST go to D:\databases
+- All data files MUST go to D:\data
+- All learning systems MUST go to D:\learning
+
+The filesystem MCP server enforces this via writable_roots in sandbox configuration.
+
+### Best Practices for Codex Usage
+
+1. **Incremental Tasks**: Break large refactorings into <10 file changes per turn
+2. **AGENTS.md Updates**: Keep project-specific AGENTS.md files updated with conventions
+3. **Nx Integration**: Use `pnpm nx <task> <project>` commands for workspace operations
+4. **Profile Selection**: Choose appropriate profile based on risk level:
+   - `default` - Balanced for general development
+   - `crypto` - High caution for financial code
+   - `quick` - Fast experiments with read-only sandbox
+   - `production` - Maximum safety for deployments
+
+### Codex Authentication
+
+Authenticate Codex CLI with your ChatGPT Plus/Pro account:
+```bash
+codex
+# Select "Sign in with ChatGPT"
+# Receive $5 (Plus) or $50 (Pro) in API credits
+```
+
+Or use API key authentication:
+```bash
+export OPENAI_API_KEY="your-api-key"
+codex
+```
