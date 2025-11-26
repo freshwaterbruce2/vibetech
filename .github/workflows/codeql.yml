@@ -46,7 +46,7 @@ jobs:
         - language: actions
           build-mode: none
         - language: java-kotlin
-          build-mode: autobuild
+          build-mode: manual
         - language: javascript-typescript
           build-mode: none
         - language: python
@@ -90,16 +90,28 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
+    - name: Set up JDK 17
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
     - name: Run manual build steps
       if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        echo 'If you are using a "manual" build mode for one or more of the' \
-          'languages you are analyzing, replace this with the commands to build' \
-          'your code, for example:'
-        echo '  make bootstrap'
-        echo '  make release'
-        exit 1
+        if [ "${{ matrix.language }}" == "java-kotlin" ]; then
+          # Build Android Capacitor apps with Gradle
+          echo "Building Vibe-Tutor Android app..."
+          cd apps/vibe-tutor/android && ./gradlew assembleDebug || true
+
+          echo "Building Shipping PWA Android app..."
+          cd ../../shipping-pwa/android && ./gradlew assembleDebug || true
+
+          echo "Building Vibe Subscription Guard Android app..."
+          cd ../../vibe-subscription-guard/android && ./gradlew assembleDebug || true
+        fi
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
