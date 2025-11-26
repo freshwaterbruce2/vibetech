@@ -138,7 +138,10 @@
   "build": {
     "appId": "com.deepcode.editor",
     "productName": "DeepCode Editor",
-    "asar": false,
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/better-sqlite3/**/*"
+    ],
     "directories": {
       "output": "dist-electron",
       "buildResources": "build-resources",
@@ -147,7 +150,12 @@
     "files": [
       "package.json",
       "out/**/*",
-      "dist/**/*"
+      "dist/**/*",
+      "!node_modules",
+      {
+        "from": "node_modules/better-sqlite3",
+        "to": "node_modules/better-sqlite3"
+      }
     ],
     "extraResources": [
       {
