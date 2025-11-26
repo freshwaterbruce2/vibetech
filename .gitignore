@@ -121,3 +121,12 @@ test-results/
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md.gitignore entry
 nul
+
+# Turbo cache
+.turbo/
+
+# Serena (AI tool config)
+.serena/
+
+# Deprecated file backups
+*.deprecated
