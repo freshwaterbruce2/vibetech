@@ -158,7 +158,7 @@
     "eslint-plugin-react-hooks": "^6.1.1",
     "eslint-plugin-react-refresh": "^0.4.23",
     "globals": "^16.4.0",
-    "jsdom": "^27.0.0",
+    "jsdom": "^27.2.0",
     "lovable-tagger": "^1.1.10",
     "nx": "21.6.3",
     "postcss": "^8.5.6",
