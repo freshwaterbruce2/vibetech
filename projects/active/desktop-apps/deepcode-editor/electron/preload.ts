@@ -13,14 +13,14 @@ contextBridge.exposeInMainWorld('electron', {
   isElectron: true,
 
   // App methods
-    app: {
-      getPath: async (name) => {
-        // Get application paths (userData, documents, etc.)
-        return await ipcRenderer.invoke('app:getPath', name);
-      },
-      getVersion: async () => await ipcRenderer.invoke('app:getVersion'),
-      quit: () => ipcRenderer.send('app:quit'),
+  app: {
+    getPath: async (name) => {
+      // Get application paths (userData, documents, etc.)
+      return await ipcRenderer.invoke('app:getPath', name);
     },
+    getVersion: async () => await ipcRenderer.invoke('app:getVersion'),
+    quit: () => ipcRenderer.send('app:quit'),
+  },
 
   // Dialog methods
   dialog: {
@@ -98,16 +98,6 @@ contextBridge.exposeInMainWorld('electron', {
     get: async (key) => {
       return await ipcRenderer.invoke('storage:get', key);
     },
-
-  // Database operations
-  db: {
-    query: async (sql, params = []) => {
-      return await ipcRenderer.invoke('db:query', sql, params);
-    },
-    initialize: async () => {
-      return await ipcRenderer.invoke('db:initialize');
-    },
-  },
     set: async (key, value) => {
       return await ipcRenderer.invoke('storage:set', key, value);
     },
@@ -116,6 +106,65 @@ contextBridge.exposeInMainWorld('electron', {
     },
     keys: async () => {
       return await ipcRenderer.invoke('storage:keys');
+    },
+  },
+
+  // Database operations (local)
+  db: {
+    query: async (sql: string, params: unknown[] = []) => {
+      return await ipcRenderer.invoke('db:query', sql, params);
+    },
+    initialize: async () => {
+      return await ipcRenderer.invoke('db:initialize');
+    },
+  },
+
+  // Shared Learning Database (D:\databases\agent_learning.db)
+  learning: {
+    // Record a coding mistake and its correction
+    recordMistake: async (mistake: {
+      file_path: string;
+      error_type: string;
+      error_message: string;
+      original_code: string;
+      corrected_code: string;
+      explanation: string;
+      language: string;
+      context?: string;
+      confidence?: number;
+    }) => {
+      return await ipcRenderer.invoke('learning:recordMistake', mistake);
+    },
+    // Record learned knowledge/pattern
+    recordKnowledge: async (knowledge: {
+      category: string;
+      topic: string;
+      content: string;
+      examples?: string;
+      metadata?: string;
+      relevance_score?: number;
+    }) => {
+      return await ipcRenderer.invoke('learning:recordKnowledge', knowledge);
+    },
+    // Find similar mistakes for error correction suggestions
+    findSimilarMistakes: async (errorType: string, language: string, limit?: number) => {
+      return await ipcRenderer.invoke('learning:findSimilarMistakes', errorType, language, limit);
+    },
+    // Find relevant knowledge for a topic
+    findKnowledge: async (category: string, searchTerm: string, limit?: number) => {
+      return await ipcRenderer.invoke('learning:findKnowledge', category, searchTerm, limit);
+    },
+    // Get learning statistics
+    getStats: async () => {
+      return await ipcRenderer.invoke('learning:getStats');
+    },
+    // Export data for Nova sync
+    exportForSync: async (since?: string) => {
+      return await ipcRenderer.invoke('learning:exportForSync', since);
+    },
+    // Sync data received from Nova
+    syncFromNova: async (mistakes: unknown[], knowledge: unknown[]) => {
+      return await ipcRenderer.invoke('learning:syncFromNova', mistakes, knowledge);
     },
   },
 
@@ -149,6 +198,93 @@ contextBridge.exposeInMainWorld('electron', {
       if (validChannels.includes(channel)) {
         ipcRenderer.removeAllListeners(channel);
       }
+    },
+  },
+
+  // Nova Agent Integration (IPC Bridge)
+  nova: {
+    // Send command to Nova Agent
+    sendCommand: async (command: string, context?: Record<string, unknown>) => {
+      return await ipcRenderer.invoke('nova:sendCommand', command, context);
+    },
+    // Notify Nova that a file was opened
+    notifyFileOpened: async (filePath: string, content?: string) => {
+      return await ipcRenderer.invoke('nova:fileOpened', filePath, content);
+    },
+    // Send learning event to Nova
+    sendLearningEvent: async (eventType: string, data: Record<string, unknown>) => {
+      return await ipcRenderer.invoke('nova:sendLearningEvent', eventType, data);
+    },
+    // Check if Nova is connected
+    isConnected: async () => {
+      return await ipcRenderer.invoke('ipc:isNovaConnected');
+    },
+    // Get IPC bridge stats
+    getStats: async () => {
+      return await ipcRenderer.invoke('ipc:getStats');
+    },
+    // Listen for file open requests from Nova
+    onFileOpen: (callback: (data: { filePath: string; line?: number; column?: number }) => void) => {
+      ipcRenderer.on('ipc:file-open', (event, data) => callback(data));
+    },
+    // Listen for command requests from Nova
+    onCommandRequest: (callback: (data: { commandId: string; text: string; context?: Record<string, unknown>; source: string }) => void) => {
+      ipcRenderer.on('ipc:command-request', (event, data) => callback(data));
+    },
+    // Listen for context updates from Nova
+    onContextUpdate: (callback: (data: Record<string, unknown>) => void) => {
+      ipcRenderer.on('ipc:context-update', (event, data) => callback(data));
+    },
+    // Listen for learning events from Nova
+    onLearningEvent: (callback: (data: Record<string, unknown>) => void) => {
+      ipcRenderer.on('ipc:learning-event', (event, data) => callback(data));
+    },
+    // Listen for Nova connection status changes
+    onClientDisconnected: (callback: (data: { clientId: string; source: string }) => void) => {
+      ipcRenderer.on('ipc:client-disconnected', (event, data) => callback(data));
+    },
+    // Remove all Nova listeners
+    removeAllListeners: () => {
+      ipcRenderer.removeAllListeners('ipc:file-open');
+      ipcRenderer.removeAllListeners('ipc:command-request');
+      ipcRenderer.removeAllListeners('ipc:context-update');
+      ipcRenderer.removeAllListeners('ipc:learning-event');
+      ipcRenderer.removeAllListeners('ipc:client-disconnected');
+    },
+  },
+
+  // IPC Bridge - Central communication hub (connects to backend/ipc-bridge server)
+  ipcBridge: {
+    // Send a message to the IPC bridge server
+    send: (message: Record<string, unknown>) => ipcRenderer.invoke('ipc-bridge:send', message),
+
+    // Check if connected to the IPC bridge
+    isConnected: () => ipcRenderer.invoke('ipc-bridge:isConnected'),
+
+    // Get current connection status details
+    getStatus: () => ipcRenderer.invoke('ipc-bridge:getStatus'),
+
+    // Request reconnection to the IPC bridge
+    reconnect: () => ipcRenderer.invoke('ipc-bridge:reconnect'),
+
+    // Subscribe to incoming messages from the bridge
+    onMessage: (handler: (msg: Record<string, unknown>) => void) => {
+      const listener = (_e: Electron.IpcRendererEvent, msg: Record<string, unknown>) => handler(msg);
+      ipcRenderer.on('ipc-bridge:message', listener);
+      return () => ipcRenderer.removeListener('ipc-bridge:message', listener);
+    },
+
+    // Subscribe to connection status changes
+    onStatusChange: (handler: (status: { connected: boolean }) => void) => {
+      const listener = (_e: Electron.IpcRendererEvent, status: { connected: boolean }) => handler(status);
+      ipcRenderer.on('ipc-bridge:status', listener);
+      return () => ipcRenderer.removeListener('ipc-bridge:status', listener);
+    },
+
+    // Remove all IPC bridge listeners
+    removeAllListeners: () => {
+      ipcRenderer.removeAllListeners('ipc-bridge:message');
+      ipcRenderer.removeAllListeners('ipc-bridge:status');
     },
   },
 });
