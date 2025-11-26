@@ -104,13 +104,19 @@ jobs:
         if [ "${{ matrix.language }}" == "java-kotlin" ]; then
           # Build Android Capacitor apps with Gradle
           echo "Building Vibe-Tutor Android app..."
-          cd apps/vibe-tutor/android && ./gradlew assembleDebug || true
+          cd $GITHUB_WORKSPACE/apps/vibe-tutor/android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace || echo "Vibe-Tutor build failed (non-blocking)"
 
           echo "Building Shipping PWA Android app..."
-          cd ../../shipping-pwa/android && ./gradlew assembleDebug || true
+          cd $GITHUB_WORKSPACE/apps/shipping-pwa/android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace || echo "Shipping PWA build failed (non-blocking)"
 
           echo "Building Vibe Subscription Guard Android app..."
-          cd ../../vibe-subscription-guard/android && ./gradlew assembleDebug || true
+          cd $GITHUB_WORKSPACE/apps/vibe-subscription-guard/android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace || echo "Vibe Subscription Guard build failed (non-blocking)"
         fi
 
     - name: Perform CodeQL Analysis
