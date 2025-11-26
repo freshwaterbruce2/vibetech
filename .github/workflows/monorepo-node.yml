@@ -90,7 +90,7 @@ jobs:
         if: github.event_name == 'push'
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == 20
         with:
           files: ./coverage/coverage-final.json

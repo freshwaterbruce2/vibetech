@@ -262,7 +262,7 @@ jobs:
         run: pnpm turbo run test:coverage --filter=${{ matrix.package }}
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: always()
         with:
           files: ./coverage/coverage-final.json
