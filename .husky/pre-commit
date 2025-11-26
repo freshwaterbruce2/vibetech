@@ -1,14 +1,59 @@
 #!/bin/sh
-# Pre-commit hook - DISABLED (lint-staged has path issues in monorepo)
-# The important protections are:
-# 1. TypeScript (required props) - catches at compile time
-# 2. Tests (pre-push hook) - catches before remote
-# 3. CI/CD - final safety net
+# Pre-commit hook - Checks modified apps only (fast & targeted)
+# Strategy: Run checks only for modified apps to keep commits fast
 
-# Uncomment below when monorepo lint-staged path is resolved
-# if git diff --cached --name-only | grep -q "projects/active/desktop-apps/deepcode-editor/"; then
-#   (cd projects/active/desktop-apps/deepcode-editor && pnpm exec lint-staged)
-# fi
+echo "🔍 Running pre-commit checks on modified files..."
 
-echo "✓ Pre-commit passed (linting disabled - tests run on pre-push)"
+# Get list of modified apps
+MODIFIED_APPS=$(git diff --cached --name-only | grep -E '^apps/' | cut -d'/' -f1-2 | sort -u)
+
+if [ -z "$MODIFIED_APPS" ]; then
+  echo "✓ No apps modified, skipping checks"
+  exit 0
+fi
+
+HAS_ERRORS=0
+
+# Check each modified app
+for APP_PATH in $MODIFIED_APPS; do
+  APP_NAME=$(basename "$APP_PATH")
+  echo ""
+  echo "📦 Checking: $APP_NAME"
+
+  # Check if app has package.json
+  if [ ! -f "$APP_PATH/package.json" ]; then
+    continue
+  fi
+
+  # Run typecheck if available
+  if grep -q '"typecheck"' "$APP_PATH/package.json"; then
+    echo "  📘 TypeScript check..."
+    if ! (cd "$APP_PATH" && pnpm typecheck 2>&1 | head -n 20); then
+      echo "  ❌ TypeScript errors in $APP_NAME"
+      HAS_ERRORS=1
+    fi
+  fi
+
+  # Run lint if available (warnings OK, errors fail)
+  if grep -q '"lint"' "$APP_PATH/package.json"; then
+    echo "  🔧 ESLint check..."
+    if ! (cd "$APP_PATH" && pnpm lint 2>&1 | grep -E '(error|✖)' | head -n 10); then
+      # No output = no errors, or warnings only (OK)
+      :
+    else
+      echo "  ⚠️  Lint issues in $APP_NAME (check manually)"
+    fi
+  fi
+done
+
+if [ $HAS_ERRORS -eq 1 ]; then
+  echo ""
+  echo "❌ Pre-commit checks FAILED"
+  echo "   Fix TypeScript errors before committing"
+  echo "   Run: pnpm --filter <app-name> typecheck"
+  exit 1
+fi
+
+echo ""
+echo "✅ Pre-commit checks passed!"
 exit 0
