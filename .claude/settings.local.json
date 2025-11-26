@@ -10,7 +10,8 @@
       "Bash(Start-Sleep 15)",
       "Bash(Start-Sleep 10)",
       "Bash(git add:*)",
-      "Bash(git worktree:*)"
+      "Bash(git worktree:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": [],

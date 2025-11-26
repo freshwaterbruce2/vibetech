@@ -3,6 +3,7 @@
  * DeepCode Editor - Migrated from Tauri to Electron
  *
  * Architecture: Cursor/VS Code style (Electron + Monaco Editor)
+ * Integrated with Nova Agent via WebSocket IPC Bridge (port 5004)
  */
 
 import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
@@ -11,6 +12,7 @@ import * as fs from 'fs/promises';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as dbHandler from './database-handler';
+import { ipcBridge } from './ipc-bridge';
 
 const execAsync = promisify(exec);
 
@@ -66,12 +68,12 @@ function createWindow() {
 
   // Handle loading errors
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-  console.error('[Electron] Failed to load:', errorCode, errorDescription);
+    console.error('[Electron] Failed to load:', errorCode, errorDescription);
   });
 
   // Log when page finishes loading
   mainWindow.webContents.on('did-finish-load', () => {
-  console.log('[Electron] Page loaded successfully');
+    console.log('[Electron] Page loaded successfully');
   });
 
   // Load the app
@@ -99,13 +101,13 @@ function createWindow() {
 
   // Handle window closed
   mainWindow.on('closed', () => {
-  mainWindow = null;
+    mainWindow = null;
   });
 
   // Handle external links
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-  shell.openExternal(url);
-  return { action: 'deny' };
+    shell.openExternal(url);
+    return { action: 'deny' };
   });
 }
 
@@ -121,6 +123,12 @@ app.whenReady().then(() => {
 
   createWindow();
 
+  // Initialize IPC Bridge for Nova Agent communication
+  if (mainWindow) {
+    ipcBridge.start(5004, mainWindow);
+    console.log('[Electron] IPC Bridge started for Nova Agent integration');
+  }
+
   // macOS: Re-create window when dock icon clicked
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -131,6 +139,7 @@ app.whenReady().then(() => {
 
 // Quit when all windows are closed (except macOS)
 app.on('window-all-closed', () => {
+  ipcBridge.stop(); // Stop IPC bridge before quitting
   dbHandler.closeDatabase();
   if (process.platform !== 'darwin') {
     app.quit();

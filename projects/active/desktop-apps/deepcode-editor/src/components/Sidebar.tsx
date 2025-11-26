@@ -20,9 +20,9 @@ import { logger } from '../services/Logger';
 import { vibeTheme } from '../styles/theme';
 import { FileSystemItem } from '../types';
 
-import { ContextMenu, ContextMenuItem, useContextMenu } from './ui/ContextMenu';
-import { Dialog } from './ui/Dialog';
-import { IconButton } from './ui/IconButton';
+import { ContextMenu, ContextMenuItem, useContextMenu } from './ui/context-menu';
+import { Dialog } from './ui/dialog';
+import { IconButton } from './ui/icon-button';
 
 const SidebarContainer = styled.div`
   width: 280px;
@@ -81,7 +81,7 @@ const FileExplorer = styled.div`
   padding: ${vibeTheme.spacing[2]} 0;
 `;
 
-const FileItem = styled(motion.div)<{ level: number; selected?: boolean }>`
+const FileItem = styled(motion.div) <{ level: number; selected?: boolean }>`
   display: flex;
   align-items: center;
   padding: ${vibeTheme.spacing[2]} ${vibeTheme.spacing[3]} ${vibeTheme.spacing[2]}
@@ -116,7 +116,7 @@ const FileItem = styled(motion.div)<{ level: number; selected?: boolean }>`
 
   &:hover {
     background: ${(props) =>
-      props.selected ? vibeTheme.colors.active : vibeTheme.colors.hover};
+    props.selected ? vibeTheme.colors.active : vibeTheme.colors.hover};
     color: ${vibeTheme.colors.text};
   }
 `;
@@ -343,183 +343,191 @@ const Sidebar: React.FC<SidebarProps> = ({
       {
         id: 'copy-path',
         label: 'Copy Path',
-        icon: <ClipboardCopy size={16} />,
-        onClick: () => {
-          navigator.clipboard.writeText(item.path);
-          logger.debug('Copied path:', item.path);
-        },
+        icon: <ClipboardCopy size={ 16} />,
+      onClick: () => {
+        navigator.clipboard.writeText(item.path);
+        logger.debug('Copied path:', item.path);
       },
-      { id: 'divider-1', label: '', divider: true },
-      {
-        id: 'delete',
-        label: `Delete ${item.type === 'directory' ? 'Folder' : 'File'}`,
-        icon: <Trash2 size={16} />,
-        danger: true,
-        onClick: () => {
-          logger.debug('Delete clicked for:', item.name);
-          setDeleteDialog({
-            isOpen: true,
-            fileName: item.name,
-            filePath: item.path,
-          });
-        },
+      },
+    { id: 'divider-1', label: '', divider: true },
+    {
+      id: 'delete',
+      label: `Delete ${item.type === 'directory' ? 'Folder' : 'File'}`,
+        icon: <Trash2 size={ 16 } />,
+  danger: true,
+    onClick: () => {
+      logger.debug('Delete clicked for:', item.name);
+      setDeleteDialog({
+        isOpen: true,
+        fileName: item.name,
+        filePath: item.path,
+      });
+    },
       },
     ];
 
-    logger.debug('Showing context menu with', contextMenuItems.length, 'items');
-    showContextMenu(e, contextMenuItems);
+logger.debug('Showing context menu with', contextMenuItems.length, 'items');
+showContextMenu(e, contextMenuItems);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!onDeleteFile) {return;}
+const handleDeleteConfirm = async () => {
+  if (!onDeleteFile) { return; }
 
-    try {
-      await onDeleteFile(deleteDialog.filePath);
-      // Reload file tree after successful deletion
-      await loadFileTree();
-      // Close the file if it was open
-      if (selectedFile === deleteDialog.filePath) {
-        setSelectedFile(null);
-      }
-    } catch (error) {
-      logger.error('Failed to delete file:', error);
-      // TODO: Show error toast/notification
-    } finally {
-      setDeleteDialog({ isOpen: false, fileName: '', filePath: '' });
+  try {
+    await onDeleteFile(deleteDialog.filePath);
+    // Reload file tree after successful deletion
+    await loadFileTree();
+    // Close the file if it was open
+    if (selectedFile === deleteDialog.filePath) {
+      setSelectedFile(null);
     }
-  };
+  } catch (error) {
+    logger.error('Failed to delete file:', error);
+    // TODO: Show error toast/notification
+  } finally {
+    setDeleteDialog({ isOpen: false, fileName: '', filePath: '' });
+  }
+};
 
-  const renderFileTree = (items: FileSystemItem[], level = 0): React.ReactNode => {
-    return items
-      .filter(
-        (item) => searchTerm === '' || item.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .map((item) => (
-        <div key={item.path}>
-          <FileItem
-            level={level}
-            selected={selectedFile === item.path}
-            onClick={() => handleFileClick(item)}
-            onContextMenu={(e) => handleFileContextMenu(e, item)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+const renderFileTree = (items: FileSystemItem[], level = 0): React.ReactNode => {
+  return items
+    .filter(
+      (item) => searchTerm === '' || item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .map((item) => (
+      <div key= { item.path } >
+      <FileItem
+            level={ level }
+            selected = { selectedFile === item.path}
+onClick = {() => handleFileClick(item)}
+onContextMenu = {(e) => handleFileContextMenu(e, item)}
+whileHover = {{ scale: 1.02 }}
+whileTap = {{ scale: 0.98 }}
           >
-            <FileIcon type={item.type} $expanded={expandedFolders.has(item.path)}>
-              {item.type === 'directory' ? (
-                <>
-                  {expandedFolders.has(item.path) ? (
-                    <ChevronDown size={12} />
+  <FileIcon type={ item.type } $expanded = { expandedFolders.has(item.path) } >
+  {
+    item.type === 'directory' ? (
+      <>
+      {
+        expandedFolders.has(item.path) ? (
+          <ChevronDown size= { 12} />
                   ) : (
-                    <ChevronRight size={12} />
+            <ChevronRight size={ 12} />
                   )}
-                  <Folder size={16} />
-                </>
+    < Folder size = { 16} />
+      </>
               ) : (
-                <File size={16} />
+  <File size= { 16} />
               )}
-            </FileIcon>
-            <FileName>{item.name}</FileName>
-          </FileItem>
+</FileIcon>
+  < FileName > { item.name } </FileName>
+  </FileItem>
 
-          {item.type === 'directory' && expandedFolders.has(item.path) && (
-            <div>{renderFileTree(folderChildren.get(item.path) || [], level + 1)}</div>
+{
+  item.type === 'directory' && expandedFolders.has(item.path) && (
+    <div>{ renderFileTree(folderChildren.get(item.path) || [], level + 1)
+} </div>
           )}
-        </div>
+</div>
       ));
   };
 
-  const handleOpenFolder = () => {
-    // Use the provided onOpenFolder callback from App.tsx
-    // which will trigger the file picker dialog
-    if (onOpenFolder) {
-      onOpenFolder();
-    }
-  };
+const handleOpenFolder = () => {
+  // Use the provided onOpenFolder callback from App.tsx
+  // which will trigger the file picker dialog
+  if (onOpenFolder) {
+    onOpenFolder();
+  }
+};
 
-  return (
-    <SidebarContainer role="complementary" aria-label="Sidebar navigation">
-      <SidebarSection>
-        <SectionHeader>
-          <FolderOpen size={14} style={{ marginRight: 8 }} />
-          Explorer
-        </SectionHeader>
+return (
+  <SidebarContainer role= "complementary" aria - label="Sidebar navigation" >
+    <SidebarSection>
+    <SectionHeader>
+    <FolderOpen size={ 14 } style = {{ marginRight: 8 }} />
+Explorer
+  </SectionHeader>
 
-        {workspaceFolder || fileTree.length > 0 ? (
-          <>
-            <SearchContainer>
-              <SearchInput
-                type="text"
-                placeholder="Search files..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+{
+  workspaceFolder || fileTree.length > 0 ? (
+    <>
+    <SearchContainer>
+    <SearchInput
+                type= "text"
+                placeholder = "Search files..."
+  value = { searchTerm }
+  onChange = {(e) => setSearchTerm(e.target.value)
+}
               />
-            </SearchContainer>
+  </SearchContainer>
 
-            <FileExplorer>{renderFileTree(fileTree)}</FileExplorer>
-          </>
+  < FileExplorer > { renderFileTree(fileTree) } </FileExplorer>
+  </>
         ) : (
-          <EmptyState>
-            <p>No folder opened</p>
-            <OpenFolderButton
-              onClick={handleOpenFolder}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+  <EmptyState>
+  <p>No folder opened </p>
+    < OpenFolderButton
+onClick = { handleOpenFolder }
+whileHover = {{ scale: 1.05 }}
+whileTap = {{ scale: 0.95 }}
             >
-              <FolderOpen size={16} />
+  <FolderOpen size={ 16 } />
               Open Folder
-            </OpenFolderButton>
-          </EmptyState>
+  </OpenFolderButton>
+  </EmptyState>
         )}
-      </SidebarSection>
+</SidebarSection>
 
-      <ActionButtons>
-        <IconButton
+  < ActionButtons >
+  <IconButton
           variant="ghost"
-          size="md"
-          icon={<Search size={18} />}
-          aria-label="Search"
-        />
+size = "md"
+icon = {< Search size = { 18} />}
+aria - label="Search"
+  />
 
-        <IconButton
-          variant={aiChatOpen ? 'primary' : 'ghost'}
-          size="md"
-          icon={<Zap size={18} />}
-          aria-label="AI Assistant"
-          onClick={onToggleAIChat}
-        />
+  <IconButton
+          variant={ aiChatOpen ? 'primary' : 'ghost' }
+size = "md"
+icon = {< Zap size = { 18} />}
+aria - label="AI Assistant"
+onClick = { onToggleAIChat }
+  />
 
-        <IconButton
+  <IconButton
           variant="ghost"
-          size="md"
-          icon={<Settings size={18} />}
-          aria-label="Settings"
-          onClick={onShowSettings}
-        />
-      </ActionButtons>
+size = "md"
+icon = {< Settings size = { 18} />}
+aria - label="Settings"
+onClick = { onShowSettings }
+  />
+  </ActionButtons>
 
-      {/* Context Menu */}
-      {contextMenu && (
-        <ContextMenu
-          items={contextMenu.items}
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={hideContextMenu}
-        />
-      )}
+{/* Context Menu */ }
+{
+  contextMenu && (
+    <ContextMenu
+          items={ contextMenu.items }
+  x = { contextMenu.x }
+  y = { contextMenu.y }
+  onClose = { hideContextMenu }
+    />
+      )
+}
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        isOpen={deleteDialog.isOpen}
-        onClose={() => setDeleteDialog({ isOpen: false, fileName: '', filePath: '' })}
-        title="Delete File"
-        message={`Are you sure you want to delete "${deleteDialog.fileName}"? This action cannot be undone.`}
-        variant="danger"
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        onConfirm={handleDeleteConfirm}
-        showCancel={true}
-      />
-    </SidebarContainer>
+{/* Delete Confirmation Dialog */ }
+<Dialog
+        isOpen={ deleteDialog.isOpen }
+onClose = {() => setDeleteDialog({ isOpen: false, fileName: '', filePath: '' })}
+title = "Delete File"
+message = {`Are you sure you want to delete "${deleteDialog.fileName}"? This action cannot be undone.`}
+variant = "danger"
+confirmLabel = "Delete"
+cancelLabel = "Cancel"
+onConfirm = { handleDeleteConfirm }
+showCancel = { true}
+  />
+  </SidebarContainer>
   );
 };
 

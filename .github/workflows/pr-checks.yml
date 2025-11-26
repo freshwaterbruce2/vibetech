@@ -1,0 +1,144 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  # This job name will be used in branch protection rules
+  typecheck:
+    name: typecheck
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+
+  # This job name will be used in branch protection rules
+  build:
+    name: build
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+
+  # This job name will be used in branch protection rules
+  test:
+    name: test
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:unit
+        continue-on-error: true # Make optional until tests are added
+
+  lint:
+    name: lint
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+        continue-on-error: true # Allow warnings
+
+  validate-dependencies:
+    name: Validate Dependencies
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check for missing dependencies
+        run: |
+          echo "Checking for missing dependencies..."
+          pnpm list --depth=0
+        continue-on-error: true
+
+  pr-metadata:
+    name: PR Metadata Check
+    runs-on: windows-latest
+
+    steps:
+      - name: Check PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+        continue-on-error: true # Don't fail PR on title format
+
+  all-checks-passed:
+    name: All Checks Passed
+    runs-on: windows-latest
+    needs: [typecheck, build, test, lint]
+    if: always()
+
+    steps:
+      - name: Verify all checks
+        run: |
+          if [ "${{ needs.typecheck.result }}" != "success" ]; then
+            echo "❌ TypeCheck failed"
+            exit 1
+          fi
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "❌ Build failed"
+            exit 1
+          fi
+          echo "✅ All required checks passed"
+        shell: bash

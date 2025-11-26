@@ -4,10 +4,31 @@
  * This file MUST only run in the main process (Node.js)
  */
 
-import Database from 'better-sqlite3';
 import * as path from 'path';
 import * as fs from 'fs';
 import { app } from 'electron';
+
+// Fix for ASAR packaging - load better-sqlite3 from unpacked directory
+let Database: typeof import('better-sqlite3').default;
+
+try {
+  if (app.isPackaged) {
+    // In production, load from app.asar.unpacked
+    const unpackedPath = path.join(
+      process.resourcesPath,
+      'app.asar.unpacked',
+      'node_modules',
+      'better-sqlite3'
+    );
+    Database = require(unpackedPath).default || require(unpackedPath);
+  } else {
+    // In development, load normally
+    Database = require('better-sqlite3');
+  }
+} catch (error) {
+  console.error('[Database] Failed to load better-sqlite3:', error);
+  throw new Error('Failed to load database module');
+}
 
 let db: Database.Database | null = null;
 
