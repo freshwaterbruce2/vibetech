@@ -17,6 +17,7 @@ packages:
   - 'projects/active/web-apps/dev-tools'
   - 'projects/active/web-apps/digital-content-builder'
   - 'projects/active/web-apps/iconforge'
+  - 'projects/active/web-apps/iconforge/server'
   - 'projects/active/web-apps/memory-bank'
 
   # Mobile applications
