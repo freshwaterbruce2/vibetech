@@ -11,7 +11,7 @@ hiredis>=2.2.0  # Faster Redis parsing
 # Authentication and security
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
-python-multipart>=0.0.6
+python-multipart>=0.0.18
 
 # Performance monitoring
 prometheus-client>=0.18.0
@@ -34,3 +34,7 @@ flower>=2.0.0  # Celery monitoring
 # Development and testing
 pytest-asyncio>=0.21.0
 httpx>=0.25.0  # Async HTTP client for testing
+pillow>=10.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
+tornado>=6.3.2 # not directly required, pinned by Snyk to avoid a vulnerability
+fonttools>=4.43.0 # not directly required, pinned by Snyk to avoid a vulnerability
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
