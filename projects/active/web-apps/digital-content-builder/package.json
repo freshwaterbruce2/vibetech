@@ -30,7 +30,7 @@
     "@types/react": "18.3.11",
     "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react": "4.3.4",
-    "@types/node": "20.17.6",
+    "@types/node": "24.10.1",
     "electron": "38.4.0",
     "electron-builder": "26.0.12",
     "electron-vite": "4.0.1",
