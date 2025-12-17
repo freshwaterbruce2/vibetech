@@ -34,3 +34,5 @@ flower>=2.0.0  # Celery monitoring
 # Development and testing
 pytest-asyncio>=0.21.0
 httpx>=0.25.0  # Async HTTP client for testing
+fonttools>=4.61.0 # not directly required, pinned by Snyk to avoid a vulnerability
+tornado>=6.5.3 # not directly required, pinned by Snyk to avoid a vulnerability
