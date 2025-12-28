@@ -1,7 +1,24 @@
 # Monorepo Quick Reference
 
-**Last Updated:** October 2, 2025
-**Version:** 2.0 (Post-Critical Fixes)
+**Last Updated:** December 28, 2025
+**Version:** 3.0 (pnpm Migration Complete)
+**Package Manager:** pnpm 9.15.0
+
+---
+
+## ⚠️ IMPORTANT: Package Manager
+
+This project uses **pnpm**, not npm or yarn.
+
+```bash
+# Install pnpm globally (if not already installed)
+npm install -g pnpm@9.15.0
+
+# Verify installation
+pnpm --version  # Should show 9.15.0
+```
+
+**Always use `pnpm` commands, never `npm` or `yarn`**
 
 ---
 
@@ -9,38 +26,38 @@
 
 ### Development
 ```bash
-npm run dev                    # Start root web app (port 3000)
-npm run parallel:dev           # Start root + crypto + vibe-lovable
-npm run parallel:full-stack    # Start root + backend + memory-bank
+pnpm run dev                    # Start root web app (port 5173)
+pnpm run parallel:dev           # Start root + crypto + vibe-lovable
+pnpm run parallel:full-stack    # Start root + backend + memory-bank
 ```
 
 ### Quality Checks
 ```bash
-npm run lint                   # Check for linting issues
-npm run lint:fix               # Auto-fix linting issues
-npm run typecheck              # TypeScript type checking
-npm run quality                # Full pipeline: lint + typecheck + build
+pnpm run lint                   # Check for linting issues
+pnpm run lint:fix               # Auto-fix linting issues
+pnpm run typecheck              # TypeScript type checking
+pnpm run quality                # Full pipeline: lint + typecheck + build
 ```
 
 ### Testing
 ```bash
-npm run test                   # Run Playwright E2E tests
-npm run test:ui                # Interactive test debugging
-npm run crypto:test            # Run Python trading tests
+pnpm run test                   # Run Playwright E2E tests
+pnpm run test:ui                # Interactive test debugging
+pnpm run crypto:test            # Run Python trading tests
 ```
 
 ### Building
 ```bash
-npm run build                  # Development build
-npm run build:production       # Production optimized build
-npm run analyze                # Build + bundle analysis
+pnpm run build                  # Development build
+pnpm run build:production       # Production optimized build
+pnpm run analyze                # Build + bundle analysis
 ```
 
 ### Workspace Management
 ```bash
-npm run workspace:install      # Install all dependencies
-npm run workspace:clean        # Clean all artifacts
-npm run monorepo:health        # Full health check
+pnpm install                    # Install all dependencies
+pnpm run workspace:clean        # Clean all artifacts
+pnpm run monorepo:health        # Full health check
 ```
 
 ---
@@ -48,7 +65,7 @@ npm run monorepo:health        # Full health check
 ## 📁 Directory Structure
 
 ```
-c:\dev\
+vibetech/
 ├── src/                    # Root React app source
 ├── backend/                # Node.js/Express API (port 3001)
 ├── projects/
@@ -58,9 +75,10 @@ c:\dev\
 │       └── desktop-apps/   # 5 Tauri applications
 ├── docs/
 │   ├── reports/            # Status reports
-│   ├── guides/             # How-to guides
+│   ├── guides/             # How-to guides (including LOCAL-DEVELOPMENT-GUIDE.md)
 │   └── deployment/         # Deployment docs
 ├── scripts/                # PowerShell automation
+├── pnpm-workspace.yaml     # pnpm workspace configuration
 └── workspace.json          # Monorepo configuration
 ```
 
@@ -73,7 +91,7 @@ c:\dev\
 # Status check
 .\scripts\workspace-manager.ps1 status
 
-# Install all projects
+# Install all projects (uses pnpm)
 .\scripts\workspace-manager.ps1 install -All
 
 # Start specific project
@@ -92,6 +110,21 @@ c:\dev\
 
 # With monitoring
 .\scripts\Start-ParallelMonorepo.ps1 -Group dev -Dashboard
+```
+
+### pnpm Workspace Commands
+```bash
+# Install dependency in specific workspace
+pnpm --filter @vibetech/backend add express
+
+# Run command in specific workspace
+pnpm --filter @vibetech/backend start
+
+# Run command in all workspaces
+pnpm -r run build
+
+# List all workspace packages
+pnpm list -r --depth 0
 ```
 
 ---
@@ -139,24 +172,36 @@ sqlite3 trading.db "SELECT page_count * page_size / 1024.0 / 1024.0 as 'Size (MB
 
 ### Fix Linting Issues
 ```bash
-npm run lint:fix
+pnpm run lint:fix
 ```
 
 ### Update Dependencies
 ```bash
-npm install <package>@latest
+# Add new dependency
+pnpm add <package>
+
+# Update to latest version
+pnpm update <package>@latest
+
+# Update all dependencies
+pnpm update -r
 ```
 
 ### Clear Everything and Reinstall
 ```bash
-npm run workspace:clean
-npm run workspace:install
+pnpm run workspace:clean
+pnpm install
 ```
 
 ### Check Port Usage
 ```powershell
-netstat -ano | findstr :3000
-netstat -ano | findstr :8000
+# Windows
+netstat -ano | findstr :5173
+netstat -ano | findstr :3001
+
+# Linux/Mac
+lsof -i :5173
+lsof -i :3001
 ```
 
 ### Git Workflow
@@ -220,14 +265,25 @@ cp .env.example .env
 
 ## 🚨 Troubleshooting
 
-### Node.js Issues
+### pnpm Issues
 ```bash
-# Clear cache
-npm cache clean --force
+# Clear pnpm cache
+pnpm store prune
 
-# Reinstall
-rm -rf node_modules package-lock.json
-npm install
+# Reinstall dependencies
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+
+# Verify workspace structure
+pnpm list -r
+```
+
+### Node.js Issues (Legacy npm commands - DO NOT USE)
+```bash
+# If you see npm-related errors, use pnpm equivalents:
+# npm install → pnpm install
+# npm run → pnpm run
+# npm ci → pnpm install --frozen-lockfile
 ```
 
 ### Python Issues
@@ -250,10 +306,10 @@ taskkill /PID <PID> /F
 ### TypeScript Errors
 ```bash
 # Rebuild TypeScript
-npm run typecheck
+pnpm run typecheck
 
 # Clear TypeScript cache
-rm -rf node_modules/.cache
+rm -rf node_modules/.cache tsconfig.tsbuildinfo
 ```
 
 ---
@@ -263,6 +319,8 @@ rm -rf node_modules/.cache
 ### For Development
 - `README.md` - Project overview
 - `AGENTS.md` - AI agent instructions
+- `.github/copilot-instructions.md` - GitHub Copilot guidelines
+- `docs/guides/LOCAL-DEVELOPMENT-GUIDE.md` - **Comprehensive local dev guide (pnpm-based)**
 - `docs/README.md` - Documentation guide
 
 ### For Deployment
@@ -354,16 +412,40 @@ npm run analyze
 
 ```bash
 # Stop all development servers
-npm run parallel:stop
+pnpm run parallel:stop
 
 # Full cleanup and reinstall
-npm run workspace:clean
-npm run workspace:install
-npm run monorepo:health
+pnpm run workspace:clean
+pnpm install
+pnpm run monorepo:health
 
 # Check current errors
-npm run quality
+pnpm run quality
 ```
+
+---
+
+## 💡 Package Manager Migration Notes
+
+**Migrated from npm to pnpm** - December 2025
+
+### Key Differences
+
+| npm | pnpm |
+|-----|------|
+| `npm install` | `pnpm install` |
+| `npm install pkg` | `pnpm add pkg` |
+| `npm uninstall pkg` | `pnpm remove pkg` |
+| `npm run script` | `pnpm run script` (or just `pnpm script`) |
+| `npm ci` | `pnpm install --frozen-lockfile` |
+| `npm update` | `pnpm update` |
+
+### Benefits Gained
+- ✅ 2x faster install times
+- ✅ Reduced disk usage (content-addressable store)
+- ✅ Stricter dependency resolution
+- ✅ Better monorepo support
+- ✅ Prevents phantom dependencies
 
 ---
 
