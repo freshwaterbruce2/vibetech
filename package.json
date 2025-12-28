@@ -53,6 +53,8 @@
     "graph": "nx graph",
     "affected:graph": "nx affected:graph",
     "nx:reset": "nx reset",
+    "verify:env": "node scripts/verify-local-env.cjs",
+    "enforce:pnpm": "node scripts/enforce-pnpm.cjs",
     "workspace:install": "pnpm install && pnpm run projects:install",
     "workspace:clean": "pnpm run clean:root && pnpm run projects:clean",
     "projects:install": "pnpm run crypto:install",
