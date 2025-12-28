@@ -1,5 +1,25 @@
 # AI Coding Agent Instructions - Vibe Tech Monorepo
 
+## ⚠️ CRITICAL: Package Manager
+
+**This monorepo uses pnpm 9.15.0, NOT npm or yarn.**
+
+### Always use pnpm commands:
+- ✅ `pnpm install` (not `npm install`)
+- ✅ `pnpm add <package>` (not `npm install <package>`)
+- ✅ `pnpm run <script>` (or just `pnpm <script>`)
+- ✅ `pnpm --filter <workspace> <command>` (workspace-specific commands)
+
+### Why pnpm?
+- 2x faster than npm
+- Prevents phantom dependencies
+- Better monorepo support
+- Efficient disk usage with content-addressable store
+
+See `docs/guides/LOCAL-DEVELOPMENT-GUIDE.md` for complete setup instructions.
+
+---
+
 ## Architecture Overview
 
 Multi-project monorepo with three primary domains:
@@ -14,11 +34,11 @@ Additional projects: Desktop Commander MCP, Data Processing Pipeline, PowerShell
 
 ### Development Server Start
 ```powershell
-# Web app (port 3000)
-npm run dev
+# Web app (port 5173)
+pnpm run dev
 
 # Backend API (port 3001)
-cd backend; npm start
+cd backend; pnpm start
 
 # Crypto trading (CAUTION: real money)
 cd projects/crypto-enhanced
@@ -26,14 +46,14 @@ cd projects/crypto-enhanced
 python start_live_trading.py  # Requires YES confirmation
 
 # Parallel execution (multiple services)
-npm run parallel:dev          # Root + crypto + vibe-lovable
-npm run parallel:full-stack   # Root + backend + memory-bank
+pnpm run parallel:dev          # Root + crypto + vibe-lovable
+pnpm run parallel:full-stack   # Root + backend + memory-bank
 ```
 
 ### Quality Checks (Run Before Commits)
 ```powershell
-npm run quality      # lint + typecheck + test + build
-npm run quality:fix  # Auto-fix linting issues
+pnpm run quality      # lint + typecheck + test + build
+pnpm run quality:fix  # Auto-fix linting issues
 ```
 
 ### Database Operations
@@ -214,9 +234,9 @@ result = pipeline.execute()
 
 ### Web Application
 ```powershell
-npm run test        # Playwright E2E tests
-npm run test:ui     # Interactive debugging
-npm run test:debug  # Debug mode
+pnpm run test        # Playwright E2E tests
+pnpm run test:ui     # Interactive debugging
+pnpm run test:debug  # Debug mode
 ```
 
 ### Crypto Trading
@@ -236,7 +256,7 @@ python check_orders.py                  # Manual order verification
 5. Set up health monitoring for `/health` endpoint
 
 ### Frontend
-1. Run `npm run build:production` with optimized Vite config
+1. Run `pnpm run build:production` with optimized Vite config
 2. Verify CSP headers for production domains
 3. Test lazy-loaded routes
 4. Validate analytics integration
@@ -251,8 +271,11 @@ python check_orders.py                  # Manual order verification
 ## Key Files Reference
 
 - `CLAUDE.md` - Existing AI assistant guide (comprehensive commands)
-- `README.md` - Monorepo overview and quick commands
-- `package.json` - npm scripts for all workspace operations
+- `README.md` - Monorepo overview and quick commands (uses pnpm)
+- `QUICK-REFERENCE.md` - Command cheatsheet (pnpm-based)
+- `docs/guides/LOCAL-DEVELOPMENT-GUIDE.md` - Complete local setup guide
+- `package.json` - pnpm scripts for all workspace operations
+- `pnpm-workspace.yaml` - Workspace package definitions
 - `vite.config.ts` - Build configuration with security headers
 - `src/App.tsx` - Route definitions and lazy loading
 - `projects/crypto-enhanced/start_live_trading.py` - Trading system entry point
