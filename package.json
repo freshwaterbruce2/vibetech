@@ -6,6 +6,7 @@
   "description": "Vibe Tech multi-project monorepo with booking platforms, web apps, and desktop applications",
   "packageManager": "pnpm@9.15.0",
   "workspaces": [
+    "apps/*",
     "backend",
     "packages/*",
     "projects/active/web-apps/*",

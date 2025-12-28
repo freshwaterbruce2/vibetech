@@ -1,0 +1,25 @@
+{
+  "name": "@vibetech/vibe-code-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Vibe Code Studio - Next-generation AI-powered code editor where innovation meets elegant design",
+  "keywords": [
+    "code editor",
+    "AI assistant",
+    "programming",
+    "IDE",
+    "cursor alternative",
+    "monaco editor",
+    "vibe code studio"
+  ],
+  "homepage": "https://vibecodestudio.dev",
+  "license": "MIT",
+  "author": "Fresh Bruce",
+  "scripts": {
+    "dev": "echo 'Vibe Code Studio: Run from projects/active/desktop-apps/deepcode-editor'",
+    "build": "echo 'Vibe Code Studio: Run from projects/active/desktop-apps/deepcode-editor'",
+    "test": "echo 'Vibe Code Studio: Run from projects/active/desktop-apps/deepcode-editor'"
+  },
+  "devDependencies": {}
+}
