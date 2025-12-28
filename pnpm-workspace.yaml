@@ -5,6 +5,9 @@ packages:
   # Shared packages and libraries
   - 'packages/*'
 
+  # Apps directory (workspace references)
+  - 'apps/*'
+
   # Active desktop applications
   - 'projects/active/desktop-apps/deepcode-editor'
   - 'projects/active/desktop-apps/nova-agent-current'
