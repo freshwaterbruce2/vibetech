@@ -21,7 +21,7 @@ psutil>=5.9.0
 reportlab>=4.0.0  # PDF generation
 python-docx>=0.8.11  # DOCX export
 jinja2>=3.1.0  # HTML templates
-weasyprint>=60.0  # HTML to PDF
+weasyprint>=68.0  # HTML to PDF
 
 # Enhanced file handling
 aiofiles>=23.0.0
@@ -34,3 +34,4 @@ flower>=2.0.0  # Celery monitoring
 # Development and testing
 pytest-asyncio>=0.21.0
 httpx>=0.25.0  # Async HTTP client for testing
+pyasn1>=0.6.2 # not directly required, pinned by Snyk to avoid a vulnerability
