@@ -215,7 +215,7 @@
     "@vibetech/types": "workspace:*",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-web-links": "^0.11.0",
-    "axios": "^1.12.2",
+    "axios": "^1.13.5",
     "better-sqlite3": "^12.4.1",
     "crypto-js": "^4.2.0",
     "d3": "^7.9.0",
